@@ -3,278 +3,475 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>捡到的手机</title>
+<title>捡手机｜微信版</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:#000;color:#fff;overflow:hidden;height:100vh;}
-
-/* 锁屏 */
-#lock{position:fixed;inset:0;background:#111;z-index:9999;display:flex;flex-direction:column;align-items:center;padding-top:80px;}
-#lock.hide{display:none;}
-.lock-time{font-size:64px;font-weight:200;margin:8px 0;}
-.lock-date{font-size:18px;opacity:0.8;margin-bottom:60px;}
-.pwd-wrap{display:flex;gap:12px;margin-bottom:40px;}
-.pwd-dot{width:14px;height:14px;border-radius:50%;border:1px solid #fff;}
-.pwd-dot.on{background:#fff;}
-.keypad{display:grid;grid-template-columns:repeat(3,70px);gap:16px;}
-.key{width:70px;height:70px;border-radius:50%;background:#333;display:grid;place-items:center;font-size:24px;cursor:pointer;user-select:none;color:#fff;}
-.key:active{background:#666;}
-.key.empty{background:transparent;}
-
-/* 手机桌面 */
-#home{width:100vw;height:100vh;background:#222;display:none;padding-top:60px;}
-#home.show{display:block;}
-.app-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;padding:20px;}
-.app{display:flex;flex-direction:column;align-items:center;cursor:pointer;}
-.app-icon{width:60px;height:60px;border-radius:14px;display:grid;place-items:center;font-size:24px;margin-bottom:6px;}
-.wechat-icon{background:#07c160;}
-.memo-icon{background:#ffcc00;}
-.photo-icon{background:#8a8a8a;}
-.phone-icon{background:#34c759;}
-.app-name{font-size:12px;}
-
-/* 应用页面通用 */
-.app-page{position:fixed;inset:0;background:#f5f5f5;color:#000;z-index:1000;display:none;flex-direction:column;}
-.app-page.show{display:flex;}
-.app-header{height:50px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #e8e8e8;background:#f7f7f7;}
-.back-btn{cursor:pointer;color:#07c160;}
-.chat-box{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
-.msg-self{
-  align-self:flex-end;
-  background:#95ec69;
-  padding:8px 12px;
-  border-radius:6px;
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+:root{
+  --mask:rgba(0,0,0,0.36);
+  --nav-bg:rgba(0,0,0,0.12);
+  --bg-other:#ffffff;
+  --color-other:#333333;
+  --bg-self:#95ec69;
+  --color-self:#222;
+  --input-bg:rgba(255,255,255,0.94);
+  --input-text:#222;
+}
+.dark{
+  --mask:rgba(0,0,0,0.65);
+  --nav-bg:rgba(0,0,0,0.45);
+  --bg-other:#2c2c2c;
+  --color-other:#eee;
+  --bg-self:#07c160;
+  --color-self:#fff;
+  --input-bg:rgba(45,45,45,0.94);
+  --input-text:#fff;
+}
+html,body{
+  min-height:100vh;
+  background:#000;
+}
+body{
+  background-image:url("./bg.jpg");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  padding-top:88px;
+  padding-bottom:76px;
+  transition:0.3s;
+}
+.mask{
+  position:fixed;
+  inset:0;
+  background:var(--mask);
+  z-index:-1;
+}
+.status-bar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:34px;
+  color:#fff;
+  font-size:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 20px;
+  z-index:20;
+}
+.nav-bar{
+  position:fixed;
+  top:34px;
+  left:0;
+  width:100%;
+  height:54px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+  background:var(--nav-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color:#fff;
+  z-index:19;
+}
+.nav-back{
+  color:#57a6ff;
+  font-size:16px;
+}
+.nav-title{
+  font-weight:500;
+  font-size:17px;
+}
+.nav-dark-toggle{
+  color:#57a6ff;
+  font-size:15px;
+}
+.wrap{
+  max-width:460px;
+  margin:0 auto;
+  padding:0 14px;
+  padding-bottom:20px;
+}
+.msg{
+  margin:8px 0;
+  display:flex;
+  will-change: transform, opacity;
+}
+.msg.left{
+  justify-content:flex-start;
+}
+.msg.right{
+  justify-content:flex-end;
+}
+.msg.left .bubble{
+  background:var(--bg-other);
+  color:var(--color-other);
+  border-radius:18px 18px 18px 4px;
+}
+.msg.right .bubble{
+  background:var(--bg-self);
+  color:var(--color-self);
+  border-radius:18px 18px 4px 18px;
+}
+.bubble{
   max-width:72%;
+  padding:10px 12px;
+  word-break:break-all;
   position:relative;
+  cursor:pointer;
+  user-select:text;
+  transition:0.15s;
 }
-.msg-other{
-  align-self:flex-start;
-  background:#ffffff;
+.bubble.highlight{
+  filter:brightness(1.15);
+}
+.bubble img{
+  max-width:100%;
+  border-radius:10px;
+  display:block;
+}
+.name{
+  font-size:12px;
+  opacity:0.8;
+  margin-bottom:3px;
+  padding-left:4px;
+  color:#fff;
+}
+.time{
+  font-size:10px;
+  opacity:0.55;
+  margin-top:4px;
+  text-align:right;
+  color:#fff;
+}
+.msg.in-anim{
+  opacity:0;
+  transform: translateY(10px);
+  animation:msgIn 0.3s ease forwards;
+}
+@keyframes msgIn{
+  to{opacity:1;transform:translateY(0);}
+}
+.msg.send-anim{
+  opacity:0;
+  transform: translate(10px,10px) scale(0.96);
+  animation:msgSend 0.3s ease forwards;
+}
+@keyframes msgSend{
+  to{opacity:1;transform: translate(0,0) scale(1);}
+}
+.typing-wrap{
+  display:flex;
+  justify-content:flex-start;
+  margin:8px 0;
+  padding-left:4px;
+}
+.typing{
+  background:var(--bg-other);
+  border-radius:18px;
+  padding:12px 14px;
+  display:flex;
+  gap:4px;
+}
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:99px;
+  background:#999;
+  animation:bounce 1.4s infinite ease-in-out;
+}
+.dot:nth-child(1){animation-delay:0s;}
+.dot:nth-child(2){animation-delay:0.2s;}
+.dot:nth-child(3){animation-delay:0.4s;}
+@keyframes bounce{
+  0%,80%,100%{transform:translateY(0);}
+  40%{transform:translateY(-6px);}
+}
+.context-menu{
+  position:fixed;
+  background:rgba(30,30,30,0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius:12px;
+  overflow:hidden;
+  z-index:999;
+  color:#fff;
+  display:none;
+  min-width:110px;
+}
+.context-menu.show{
+  display:block;
+}
+.menu-item{
+  padding:10px 14px;
+  font-size:15px;
+  text-align:center;
+}
+.menu-item:active{
+  background:rgba(255,255,255,0.12);
+}
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:140px;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.72);
+  color:#fff;
+  padding:7px 16px;
+  border-radius:999px;
+  font-size:13px;
+  opacity:0;
+  pointer-events:none;
+  transition:0.22s;
+  z-index:99;
+}
+.toast.show{opacity:1;}
+.load-more-tip{
+  text-align:center;
+  color:#fff;
+  opacity:0.7;
+  font-size:13px;
+  padding:10px;
+  display:none;
+}
+.load-more-tip.show{display:block;}
+.input-bar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
   padding:8px 12px;
-  border-radius:6px;
-  max-width:72%;
-  border:1px solid #e6e6e6;
+  padding-bottom:max(8px, env(safe-area-inset-bottom));
+  background:rgba(20,20,20,0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display:flex;
+  gap:8px;
+  align-items:center;
+  z-index:18;
 }
-.send-options{padding:12px;border-top:1px solid #eee;display:flex;flex-wrap:wrap;gap:8px;background:#fff;}
-.opt-btn{padding:8px 12px;border:1px solid #07c160;color:#07c160;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;}
-
-/* 来电弹窗 */
-#call-popup{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9998;display:none;flex-direction:column;align-items:center;justify-content:center;}
-#call-popup.show{display:flex;}
-.call-name{font-size:32px;margin:16px 0;color:#fff;}
-.call-avatar{width:100px;height:100px;border-radius:50%;background:#666;}
-.call-buttons{display:flex;gap:60px;margin-top:60px;}
-.call-accept,.call-reject{width:70px;height:70px;border-radius:50%;border:none;color:#fff;font-size:22px;cursor:pointer;}
-.call-accept{background:#34c759;}
-.call-reject{background:#ff3b30;}
+.input-bar input{
+  flex:1;
+  border:none;
+  outline:none;
+  border-radius:20px;
+  padding:10px 16px;
+  background:var(--input-bg);
+  color:var(--input-text);
+  font-size:16px;
+}
+.send-btn{
+  background:#07c160;
+  color:#fff;
+  border:none;
+  border-radius:50%;
+  width:36px;
+  height:36px;
+  font-size:16px;
+}
 </style>
 </head>
 <body>
-
-<!-- 锁屏 -->
-<div id="lock">
-  <div class="lock-date">10月21日 星期三</div>
-  <div class="lock-time">14:22</div>
-  <div class="pwd-wrap" id="pwdDots">
-    <div class="pwd-dot"></div>
-    <div class="pwd-dot"></div>
-    <div class="pwd-dot"></div>
-    <div class="pwd-dot"></div>
-  </div>
-  <div class="keypad">
-    <div class="key" data-num="1">1</div>
-    <div class="key" data-num="2">2</div>
-    <div class="key" data-num="3">3</div>
-    <div class="key" data-num="4">4</div>
-    <div class="key" data-num="5">5</div>
-    <div class="key" data-num="6">6</div>
-    <div class="key" data-num="7">7</div>
-    <div class="key" data-num="8">8</div>
-    <div class="key" data-num="9">9</div>
-    <div class="key empty"></div>
-    <div class="key" data-num="0">0</div>
-    <div class="key" data-del>⌫</div>
-  </div>
+<div class="mask"></div>
+<div class="status-bar">
+  <span>17:05</span>
+  <span>📶 🔋</span>
+</div>
+<div class="nav-bar">
+  <div class="nav-back">‹ 返回</div>
+  <div class="nav-title">联系人名字</div>
+  <div class="nav-dark-toggle" id="darkBtn">深色</div>
 </div>
 
-<!-- 手机桌面 -->
-<div id="home">
-  <div class="app-grid">
-    <div class="app" data-app="wechat">
-      <div class="app-icon wechat-icon">💬</div>
-      <div class="app-name">微信</div>
+<div class="wrap" id="msgWrap">
+  <div class="load-more-tip" id="loadTip">加载更多消息…</div>
+
+  <div class="msg left in-anim">
+    <div>
+      <div class="name">联系人名字</div>
+      <div class="bubble">微信风格捡手机页面，气泡是微信经典样式</div>
+      <div class="time">17:03</div>
     </div>
-    <div class="app" data-app="memo">
-      <div class="app-icon memo-icon">📝</div>
-      <div class="app-name">备忘录</div>
+  </div>
+  <div class="msg left in-anim">
+    <div>
+      <div class="name">联系人名字</div>
+      <div class="bubble"><img src="./test.png" alt="图片"></div>
+      <div class="time">17:04</div>
     </div>
-    <div class="app" data-app="photo">
-      <div class="app-icon photo-icon">🖼️</div>
-      <div class="app-name">相册</div>
+  </div>
+  <div class="msg right send-anim">
+    <div>
+      <div class="bubble">收到啦！</div>
+      <div class="time">17:04</div>
     </div>
-    <div class="app" data-app="phone">
-      <div class="app-icon phone-icon">📞</div>
-      <div class="app-name">电话</div>
+  </div>
+
+  <div class="typing-wrap" id="typingBox" style="display:none;">
+    <div class="typing">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
     </div>
   </div>
 </div>
 
-<!-- 微信聊天页 -->
-<div class="app-page" id="page-wechat">
-  <div class="app-header">
-    <span class="back-btn" data-back>返回</span>
-    <span style="margin-left:12px;">【对方名字】</span>
-  </div>
-  <div class="chat-box" id="chatBox"></div>
-  <div class="send-options" id="optWrap">
-    <button class="opt-btn" data-reply="刚刚在忙">刚刚在忙</button>
-    <button class="opt-btn" data-reply="怎么啦？">怎么啦？</button>
-    <button class="opt-btn" data-reply="晚点再说">晚点再说</button>
-  </div>
+<div class="context-menu" id="ctxMenu">
+  <div class="menu-item" data-action="copy">复制</div>
 </div>
+<div class="toast" id="toast">已复制</div>
 
-<!-- 备忘录 -->
-<div class="app-page" id="page-memo">
-  <div class="app-header">
-    <span class="back-btn" data-back>返回</span>
-    <span>备忘录</span>
-  </div>
-  <div style="padding:16px;color:#333;">
-    <p>可以写线索，锁屏密码藏在这里！</p>
-  </div>
-</div>
-
-<!-- 相册 -->
-<div class="app-page" id="page-photo">
-  <div class="app-header">
-    <span class="back-btn" data-back>返回</span>
-    <span>相册</span>
-  </div>
-  <div style="padding:16px;color:#333;">
-    <p>放图片的地方</p>
-  </div>
-</div>
-
-<!-- 电话页 -->
-<div class="app-page" id="page-phone">
-  <div class="app-header">
-    <span class="back-btn" data-back>返回</span>
-    <span>通话记录</span>
-  </div>
-  <div style="padding:16px;color:#333;">
-    <p>通话记录列表</p>
-  </div>
-</div>
-
-<!-- 来电弹窗 -->
-<div id="call-popup">
-  <div class="call-avatar"></div>
-  <div class="call-name">【对方名字】来电</div>
-  <div class="call-buttons">
-    <button class="call-reject" id="rejectBtn">拒接</button>
-    <button class="call-accept" id="acceptBtn">接听</button>
-  </div>
+<div class="input-bar">
+  <input id="msgInput" placeholder="输入消息">
+  <button class="send-btn" id="sendBtn">➤</button>
 </div>
 
 <script>
-const PASSWORD = "1234"; // 修改锁屏密码
-let inputPwd = "";
-const lock = document.getElementById('lock');
-const home = document.getElementById('home');
-const pwdDots = document.querySelectorAll('.pwd-dot');
+const msgWrap = document.getElementById('msgWrap');
+const toast = document.getElementById('toast');
+const ctxMenu = document.getElementById('ctxMenu');
+const typingBox = document.getElementById('typingBox');
+const loadTip = document.getElementById('loadTip');
+const msgInput = document.getElementById('msgInput');
+const sendBtn = document.getElementById('sendBtn');
+const darkBtn = document.getElementById('darkBtn');
 
-// 锁屏记住解锁
-if(localStorage.getItem("unlock") === "yes"){
-  lock.classList.add('hide');
-  home.classList.add('show');
+let currentBubbleText = '';
+let loading = false;
+
+const historyPool = [
+  {side:"left",name:"联系人名字",text:"更早的历史消息1",time:"16:50"},
+  {side:"right",text:"更早的回复消息",time:"16:51"},
+  {side:"left",name:"联系人名字",text:"很久之前的对话",time:"16:52"}
+];
+
+darkBtn.onclick = ()=>{
+  document.body.classList.toggle('dark');
+  darkBtn.innerText = document.body.classList.contains('dark') ? '浅色' : '深色';
 }
-document.querySelectorAll('.key[data-num]').forEach(k=>{
-  k.onclick = ()=>{
-    if(inputPwd.length >=4) return;
-    inputPwd += k.dataset.num;
-    refreshDot();
-    if(inputPwd.length ===4){
-      setTimeout(()=>{
-        if(inputPwd === PASSWORD){
-          localStorage.setItem("unlock","yes");
-          lock.classList.add('hide');
-          home.classList.add('show');
-          triggerRandomCall();
-        }else{
-          inputPwd = "";
-          refreshDot();
-          alert("密码错误");
-        }
-      },200);
-    }
+
+function addMessage(side, name, text, time, animClass){
+  const div = document.createElement('div');
+  div.className = `msg ${side} ${animClass}`;
+  if(side === 'left'){
+    div.innerHTML = `
+      <div>
+        <div class="name">${name}</div>
+        <div class="bubble">${text}</div>
+        <div class="time">${time}</div>
+      </div>
+    `;
+  }else{
+    div.innerHTML = `
+      <div>
+        <div class="bubble">${text}</div>
+        <div class="time">${time}</div>
+      </div>
+    `;
   }
-})
-document.querySelector('.key[data-del]').onclick = ()=>{
-  inputPwd = inputPwd.slice(0,-1);
-  refreshDot();
+  const bubble = div.querySelector('.bubble');
+  bindBubbleEvent(bubble);
+  msgWrap.appendChild(div);
+  msgWrap.scrollTop = msgWrap.scrollHeight;
+  return div;
 }
-function refreshDot(){
-  pwdDots.forEach((d,i)=>{
-    d.classList.toggle('on', i < inputPwd.length);
+
+function bindBubbleEvent(bubble){
+  let pressTimer = null;
+  bubble.addEventListener('mousedown',()=>{
+    bubble.classList.add('highlight');
+    pressTimer = setTimeout(()=>showMenu(bubble), 420);
+  })
+  bubble.addEventListener('mouseup',()=>{
+    bubble.classList.remove('highlight');
+    clearTimeout(pressTimer);
+  })
+  bubble.addEventListener('mouseleave',()=>{
+    bubble.classList.remove('highlight');
+    clearTimeout(pressTimer);
+  })
+  bubble.addEventListener('touchstart',(e)=>{
+    bubble.classList.add('highlight');
+    pressTimer = setTimeout(()=>showMenu(bubble, e.touches[0]), 420);
+  })
+  bubble.addEventListener('touchend',()=>{
+    bubble.classList.remove('highlight');
+    clearTimeout(pressTimer);
+  })
+  bubble.addEventListener('touchcancel',()=>{
+    bubble.classList.remove('highlight');
+    clearTimeout(pressTimer);
+  })
+  bubble.addEventListener('click',async ()=>{
+    const txt = bubble.innerText.trim();
+    try{
+      await navigator.clipboard.writeText(txt);
+      showToast();
+    }catch(err){
+      alert("复制失败");
+    }
   })
 }
 
-// APP页面切换
-document.querySelectorAll('.app').forEach(app=>{
-  app.onclick = ()=>{
-    const aid = app.dataset.app;
-    document.getElementById(`page-${aid}`).classList.add('show');
-  }
+function showMenu(bubble, touch){
+  currentBubbleText = bubble.innerText.trim();
+  ctxMenu.style.left = (touch ? touch.clientX : event.clientX)+'px';
+  ctxMenu.style.top = (touch ? touch.clientY : event.clientY)+'px';
+  ctxMenu.classList.add('show');
+}
+document.addEventListener('click',(e)=>{
+  if(!ctxMenu.contains(e.target)) ctxMenu.classList.remove('show');
 })
-document.querySelectorAll('[data-back]').forEach(b=>{
-  b.onclick = ()=>{
-    b.closest('.app-page').classList.remove('show');
+ctxMenu.querySelector('[data-action="copy"]').onclick = async ()=>{
+  await navigator.clipboard.writeText(currentBubbleText);
+  showToast();
+  ctxMenu.classList.remove('show');
+}
+
+function showToast(){
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 1100);
+}
+
+msgWrap.addEventListener('scroll',async ()=>{
+  if(loading) return;
+  if(msgWrap.scrollTop < 30){
+    loading = true;
+    loadTip.classList.add('show');
+    await new Promise(r=>setTimeout(r,700));
+    loadTip.classList.remove('show');
+    if(historyPool.length>0){
+      const item = historyPool.shift();
+      const m = addMessage(item.side, item.name, item.text, item.time, 'in-anim');
+      msgWrap.insertBefore(m, msgWrap.children[1]);
+    }
+    loading = false;
   }
 })
 
-// 微信聊天逻辑
-const chatBox = document.getElementById('chatBox');
-const optWrap = document.getElementById('optWrap');
-function addMsg(text, isSelf=false){
-  const div = document.createElement('div');
-  div.className = isSelf ? "msg-self" : "msg-other";
-  div.innerText = text;
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-// 对话分支，在这里改台词
-const replyMap = {
-  "刚刚在忙": "原来是这样，那你先忙哈",
-  "怎么啦？": "没事，就是想找你聊聊天",
-  "晚点再说": "好，那我等你有空"
-}
-optWrap.querySelectorAll('.opt-btn').forEach(btn=>{
-  btn.onclick = ()=>{
-    const sendText = btn.dataset.reply;
-    addMsg(sendText, true);
-    setTimeout(()=>{
-      addMsg(replyMap[sendText]);
-    }, 800)
-  }
-})
+function showTyping(){ typingBox.style.display = 'flex'; }
+function hideTyping(){ typingBox.style.display = 'none'; }
 
-// 来电逻辑
-const callPopup = document.getElementById('call-popup');
-function triggerRandomCall(){
-  setTimeout(()=>{
-    callPopup.classList.add('show');
-  }, 6000) // 解锁6秒弹来电，数字可以改
+function sendMsg(){
+  const val = msgInput.value.trim();
+  if(!val) return;
+  const t = new Date();
+  const now = `${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')}`;
+  addMessage("right", "", val, now, "send-anim");
+  msgInput.value = "";
 }
-document.getElementById('acceptBtn').onclick = ()=>{
-  callPopup.classList.remove('show');
-  addMsg("（接通电话）", true);
-}
-document.getElementById('rejectBtn').onclick = ()=>{
-  callPopup.classList.remove('show');
-  setTimeout(()=>{
-    addMsg("是不是在忙？怎么不接电话", false);
-  },1200)
-}
+sendBtn.onclick = sendMsg;
+msgInput.onkeydown = e=>{if(e.key==='Enter') sendMsg();}
 </script>
 </body>
 </html>
