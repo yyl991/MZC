@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>捡到的手机</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;background:#000;color:#fff;overflow:hidden;height:100vh;}
+
+/* 锁屏 */
+#lock{position:fixed;inset:0;background:#111;z-index:9999;display:flex;flex-direction:column;align-items:center;padding-top:80px;}
+#lock.hide{display:none;}
+.lock-time{font-size:64px;font-weight:200;margin:8px 0;}
+.lock-date{font-size:18px;opacity:0.8;margin-bottom:60px;}
+.pwd-wrap{display:flex;gap:12px;margin-bottom:40px;}
+.pwd-dot{width:14px;height:14px;border-radius:50%;border:1px solid #fff;}
+.pwd-dot.on{background:#fff;}
+.keypad{display:grid;grid-template-columns:repeat(3,70px);gap:16px;}
+.key{width:70px;height:70px;border-radius:50%;background:#333;display:grid;place-items:center;font-size:24px;cursor:pointer;user-select:none;color:#fff;}
+.key:active{background:#666;}
+.key.empty{background:transparent;}
+
+/* 手机桌面 */
+#home{width:100vw;height:100vh;background:#222;display:none;padding-top:60px;}
+#home.show{display:block;}
+.app-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;padding:20px;}
+.app{display:flex;flex-direction:column;align-items:center;cursor:pointer;}
+.app-icon{width:60px;height:60px;border-radius:14px;display:grid;place-items:center;font-size:24px;margin-bottom:6px;}
+.wechat-icon{background:#07c160;}
+.memo-icon{background:#ffcc00;}
+.photo-icon{background:#8a8a8a;}
+.phone-icon{background:#34c759;}
+.app-name{font-size:12px;}
+
+/* 应用页面通用 */
+.app-page{position:fixed;inset:0;background:#f5f5f5;color:#000;z-index:1000;display:none;flex-direction:column;}
+.app-page.show{display:flex;}
+.app-header{height:50px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #e8e8e8;background:#f7f7f7;}
+.back-btn{cursor:pointer;color:#07c160;}
+.chat-box{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.msg-self{
+  align-self:flex-end;
+  background:#95ec69;
+  padding:8px 12px;
+  border-radius:6px;
+  max-width:72%;
+  position:relative;
+}
+.msg-other{
+  align-self:flex-start;
+  background:#ffffff;
+  padding:8px 12px;
+  border-radius:6px;
+  max-width:72%;
+  border:1px solid #e6e6e6;
+}
+.send-options{padding:12px;border-top:1px solid #eee;display:flex;flex-wrap:wrap;gap:8px;background:#fff;}
+.opt-btn{padding:8px 12px;border:1px solid #07c160;color:#07c160;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;}
+
+/* 来电弹窗 */
+#call-popup{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9998;display:none;flex-direction:column;align-items:center;justify-content:center;}
+#call-popup.show{display:flex;}
+.call-name{font-size:32px;margin:16px 0;color:#fff;}
+.call-avatar{width:100px;height:100px;border-radius:50%;background:#666;}
+.call-buttons{display:flex;gap:60px;margin-top:60px;}
+.call-accept,.call-reject{width:70px;height:70px;border-radius:50%;border:none;color:#fff;font-size:22px;cursor:pointer;}
+.call-accept{background:#34c759;}
+.call-reject{background:#ff3b30;}
+</style>
+</head>
+<body>
+
+<!-- 锁屏 -->
+<div id="lock">
+  <div class="lock-date">10月21日 星期三</div>
+  <div class="lock-time">14:22</div>
+  <div class="pwd-wrap" id="pwdDots">
+    <div class="pwd-dot"></div>
+    <div class="pwd-dot"></div>
+    <div class="pwd-dot"></div>
+    <div class="pwd-dot"></div>
+  </div>
+  <div class="keypad">
+    <div class="key" data-num="1">1</div>
+    <div class="key" data-num="2">2</div>
+    <div class="key" data-num="3">3</div>
+    <div class="key" data-num="4">4</div>
+    <div class="key" data-num="5">5</div>
+    <div class="key" data-num="6">6</div>
+    <div class="key" data-num="7">7</div>
+    <div class="key" data-num="8">8</div>
+    <div class="key" data-num="9">9</div>
+    <div class="key empty"></div>
+    <div class="key" data-num="0">0</div>
+    <div class="key" data-del>⌫</div>
+  </div>
+</div>
+
+<!-- 手机桌面 -->
+<div id="home">
+  <div class="app-grid">
+    <div class="app" data-app="wechat">
+      <div class="app-icon wechat-icon">💬</div>
+      <div class="app-name">微信</div>
+    </div>
+    <div class="app" data-app="memo">
+      <div class="app-icon memo-icon">📝</div>
+      <div class="app-name">备忘录</div>
+    </div>
+    <div class="app" data-app="photo">
+      <div class="app-icon photo-icon">🖼️</div>
+      <div class="app-name">相册</div>
+    </div>
+    <div class="app" data-app="phone">
+      <div class="app-icon phone-icon">📞</div>
+      <div class="app-name">电话</div>
+    </div>
+  </div>
+</div>
+
+<!-- 微信聊天页 -->
+<div class="app-page" id="page-wechat">
+  <div class="app-header">
+    <span class="back-btn" data-back>返回</span>
+    <span style="margin-left:12px;">【对方名字】</span>
+  </div>
+  <div class="chat-box" id="chatBox"></div>
+  <div class="send-options" id="optWrap">
+    <button class="opt-btn" data-reply="刚刚在忙">刚刚在忙</button>
+    <button class="opt-btn" data-reply="怎么啦？">怎么啦？</button>
+    <button class="opt-btn" data-reply="晚点再说">晚点再说</button>
+  </div>
+</div>
+
+<!-- 备忘录 -->
+<div class="app-page" id="page-memo">
+  <div class="app-header">
+    <span class="back-btn" data-back>返回</span>
+    <span>备忘录</span>
+  </div>
+  <div style="padding:16px;color:#333;">
+    <p>可以写线索，锁屏密码藏在这里！</p>
+  </div>
+</div>
+
+<!-- 相册 -->
+<div class="app-page" id="page-photo">
+  <div class="app-header">
+    <span class="back-btn" data-back>返回</span>
+    <span>相册</span>
+  </div>
+  <div style="padding:16px;color:#333;">
+    <p>放图片的地方</p>
+  </div>
+</div>
+
+<!-- 电话页 -->
+<div class="app-page" id="page-phone">
+  <div class="app-header">
+    <span class="back-btn" data-back>返回</span>
+    <span>通话记录</span>
+  </div>
+  <div style="padding:16px;color:#333;">
+    <p>通话记录列表</p>
+  </div>
+</div>
+
+<!-- 来电弹窗 -->
+<div id="call-popup">
+  <div class="call-avatar"></div>
+  <div class="call-name">【对方名字】来电</div>
+  <div class="call-buttons">
+    <button class="call-reject" id="rejectBtn">拒接</button>
+    <button class="call-accept" id="acceptBtn">接听</button>
+  </div>
+</div>
+
+<script>
+const PASSWORD = "1234"; // 修改锁屏密码
+let inputPwd = "";
+const lock = document.getElementById('lock');
+const home = document.getElementById('home');
+const pwdDots = document.querySelectorAll('.pwd-dot');
+
+// 锁屏记住解锁
+if(localStorage.getItem("unlock") === "yes"){
+  lock.classList.add('hide');
+  home.classList.add('show');
+}
+document.querySelectorAll('.key[data-num]').forEach(k=>{
+  k.onclick = ()=>{
+    if(inputPwd.length >=4) return;
+    inputPwd += k.dataset.num;
+    refreshDot();
+    if(inputPwd.length ===4){
+      setTimeout(()=>{
+        if(inputPwd === PASSWORD){
+          localStorage.setItem("unlock","yes");
+          lock.classList.add('hide');
+          home.classList.add('show');
+          triggerRandomCall();
+        }else{
+          inputPwd = "";
+          refreshDot();
+          alert("密码错误");
+        }
+      },200);
+    }
+  }
+})
+document.querySelector('.key[data-del]').onclick = ()=>{
+  inputPwd = inputPwd.slice(0,-1);
+  refreshDot();
+}
+function refreshDot(){
+  pwdDots.forEach((d,i)=>{
+    d.classList.toggle('on', i < inputPwd.length);
+  })
+}
+
+// APP页面切换
+document.querySelectorAll('.app').forEach(app=>{
+  app.onclick = ()=>{
+    const aid = app.dataset.app;
+    document.getElementById(`page-${aid}`).classList.add('show');
+  }
+})
+document.querySelectorAll('[data-back]').forEach(b=>{
+  b.onclick = ()=>{
+    b.closest('.app-page').classList.remove('show');
+  }
+})
+
+// 微信聊天逻辑
+const chatBox = document.getElementById('chatBox');
+const optWrap = document.getElementById('optWrap');
+function addMsg(text, isSelf=false){
+  const div = document.createElement('div');
+  div.className = isSelf ? "msg-self" : "msg-other";
+  div.innerText = text;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+// 对话分支，在这里改台词
+const replyMap = {
+  "刚刚在忙": "原来是这样，那你先忙哈",
+  "怎么啦？": "没事，就是想找你聊聊天",
+  "晚点再说": "好，那我等你有空"
+}
+optWrap.querySelectorAll('.opt-btn').forEach(btn=>{
+  btn.onclick = ()=>{
+    const sendText = btn.dataset.reply;
+    addMsg(sendText, true);
+    setTimeout(()=>{
+      addMsg(replyMap[sendText]);
+    }, 800)
+  }
+})
+
+// 来电逻辑
+const callPopup = document.getElementById('call-popup');
+function triggerRandomCall(){
+  setTimeout(()=>{
+    callPopup.classList.add('show');
+  }, 6000) // 解锁6秒弹来电，数字可以改
+}
+document.getElementById('acceptBtn').onclick = ()=>{
+  callPopup.classList.remove('show');
+  addMsg("（接通电话）", true);
+}
+document.getElementById('rejectBtn').onclick = ()=>{
+  callPopup.classList.remove('show');
+  setTimeout(()=>{
+    addMsg("是不是在忙？怎么不接电话", false);
+  },1200)
+}
+</script>
+</body>
+</html>
