@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum‑scale=1.0, user‑scalable=no">
+<title>Phone</title>
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit‑tap‑highlight‑color: transparent;
+}
+html,body{
+  min‑height:100vh;
+}
+body{
+  background‑image:url("./bg.jpg");
+  background‑size:cover;
+  background‑position:center;
+  background‑repeat:no‑repeat;
+  background‑attachment:fixed;
+  font-family:‑apple‑system, BlinkMacSystemFont, "SF Pro Text", system‑ui, sans‑serif;
+  font‑size:15px;
+  line‑height:1.5;
+  color:#fff;
+  padding‑top:32px;
+  padding‑bottom:40px;
+}
+/* 全局遮罩 */
+.mask{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.44);
+  z‑index:‑1;
+}
+/* iOS顶部状态栏（仅时间、信号电量，没有导航标题） */
+.status‑bar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:32px;
+  color:#fff;
+  font‑size:12px;
+  display:flex;
+  justify‑content:space‑between;
+  align‑items:center;
+  padding:0 20px;
+  z‑index:10;
+}
+/* 聊天内容容器 */
+.container{
+  max‑width:430px;
+  margin:0 auto;
+  padding:8px 14px;
+}
+.msg{
+  margin:10px 0;
+  display:flex;
+  opacity:0;
+  transform:translateY(10px);
+  animation:fadeIn 0.4s ease forwards;
+}
+/* JS自动分配延迟，不需要手写delay */
+@keyframes fadeIn{
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+/* 对方消息 靠左 */
+.msg.left{
+  justify‑content:flex‑start;
+}
+.msg.left .bubble{
+  background:rgba(255,255,255,0.16);
+  color:#ffffff;
+  border‑radius:16px 16px 16px 4px;
+}
+/* 自己消息 靠右 */
+.msg.right{
+  justify‑content:flex‑end;
+}
+.msg.right .bubble{
+  background:rgba(255,255,255,0.22);
+  color:#ffffff;
+  border‑radius:16px 16px 4px 16px;
+}
+.bubble{
+  max‑width:72%;
+  padding:11px 14px;
+  word‑break:break‑all;
+  cursor:pointer;
+  user‑select:text;
+  transition:0.12s;
+}
+.bubble:active{
+  filter:brightness(1.2);
+}
+/* 气泡内图片 */
+.bubble img{
+  max‑width:100%;
+  border‑radius:10px;
+  display:block;
+}
+.sender‑name{
+  font‑size:12px;
+  opacity:0.75;
+  margin‑bottom:4px;
+  padding‑left:4px;
+}
+.msg‑time{
+  font‑size:10px;
+  opacity:0.5;
+  margin‑top:4px;
+  text‑align:right;
+}
+/* 长按弹出菜单 */
+.context‑menu{
+  position:fixed;
+  background:rgba(20,20,20,0.9);
+  backdrop‑filter:blur(10px);
+  ‑webkit‑backdrop‑filter:blur(10px);
+  border‑radius:12px;
+  overflow:hidden;
+  z‑index:999;
+  min‑width:100px;
+  display:none;
+}
+.context‑menu.show{
+  display:block;
+}
+.menu‑item{
+  padding:10px 14px;
+  color:#fff;
+  text‑align:center;
+  font‑size:15px;
+}
+.menu‑item:active{
+  background:rgba(255,255,255,0.12);
+}
+/* 复制成功提示toast */
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:100px;
+  transform:translateX(‑50%);
+  background:rgba(0,0,0,0.65);
+  color:#fff;
+  font‑size:13px;
+  padding:6px 14px;
+  border‑radius:999px;
+  opacity:0;
+  pointer‑events:none;
+  transition:0.2s;
+  z‑index:99;
+}
+.toast.show{
+  opacity:1;
+}
+</style>
+</head>
+<body>
+<div class="mask"></div>
+<div class="status‑bar">
+  <span>17:05</span>
+  <span>📶 🔋</span>
+</div>
+
+<div class="container" id="chatWrap">
+
+  <!-- 对方消息模板 left -->
+  <div class="msg left">
+    <div>
+      <div class="sender‑name">이소희</div>
+      <div class="bubble">토요일 장보기 하루 종일</div>
+      <div class="msg‑time">11:09</div>
+    </div>
+  </div>
+
+  <!-- 自己消息模板 right -->
+  <div class="msg right">
+    <div>
+      <div class="bubble">서울 ➚ 18° 대체로 맑음 최고:21° 최저:12°</div>
+      <div class="msg‑time">11:10</div>
+    </div>
+  </div>
+
+  <div class="msg left">
+    <div>
+      <div class="sender‑name">이소희</div>
+      <div class="bubble">생일 🎂 지금 11월 21일 · 35일 후</div>
+      <div class="msg‑time">11:11</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="context‑menu" id="ctxMenu">
+  <div class="menu‑item" data‑action="copy">복사</div>
+</div>
+<div class="toast" id="toast">복사됨</div>
+
+<script>
+const chatWrap = document.getElementById("chatWrap");
+const ctxMenu = document.getElementById("ctxMenu");
+const toast = document.getElementById("toast");
+
+let selectText = "";
+
+// 自动设置消息依次入场动画延迟，不限条数
+(function(){
+  const msgs = document.querySelectorAll(".msg");
+  msgs.forEach((el, idx)=>{
+    el.style.animationDelay = (0.12 * (idx+1)) + "s";
+  })
+})();
+
+// 绑定气泡长按、点击复制
+document.querySelectorAll(".bubble").forEach(bubble=>{
+  let pressTimer = null;
+
+  // 鼠标长按
+  bubble.addEventListener("mousedown", e=>{
+    pressTimer = setTimeout(()=>openMenu(bubble, e),450);
+  });
+  bubble.addEventListener("mouseup", ()=>clearTimeout(pressTimer));
+  bubble.addEventListener("mouseleave", ()=>clearTimeout(pressTimer));
+
+  // 手机触摸长按
+  bubble.addEventListener("touchstart",e=>{
+    pressTimer = setTimeout(()=>openMenu(bubble,e.touches[0]),450);
+  });
+  bubble.addEventListener("touchend",()=>clearTimeout(pressTimer));
+  bubble.addEventListener("touchcancel",()=>clearTimeout(pressTimer));
+
+  // 单击复制
+  bubble.addEventListener("click",async ()=>{
+    const txt = bubble.innerText.trim();
+    try{
+      await navigator.clipboard.writeText(txt);
+      showToast();
+    }catch(err){
+      alert("복사 실패");
+    }
+  })
+})
+
+function openMenu(bubble, point){
+  selectText = bubble.innerText.trim();
+  ctxMenu.style.left = point.clientX + "px";
+  ctxMenu.style.top = point.clientY + "px";
+  ctxMenu.classList.add("show");
+}
+
+// 点击空白关闭菜单
+document.addEventListener("click",e=>{
+  if(!ctxMenu.contains(e.target)) ctxMenu.classList.remove("show");
+})
+
+// 菜单复制动作
+ctxMenu.querySelector('[data‑action="copy"]').onclick = async ()=>{
+  await navigator.clipboard.writeText(selectText);
+  showToast();
+  ctxMenu.classList.remove("show");
+}
+
+function showToast(){
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),1200);
+}
+</script>
+</body>
+</html>
