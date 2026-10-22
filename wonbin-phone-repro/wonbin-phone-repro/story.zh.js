@@ -16,7 +16,7 @@
   S.roles = {
     '闺蜜':      { initial:'闺', color:'#8e8e93', tag:'现实朋友' },
     'MuAMuA':    { initial:'妈', color:'#f6b6c8', tag:'妈妈 · 温柔共情' },
-    '穆砚辞':    { initial:'爸', color:'#7d8ea8', tag:'爸爸 · 沉默担当' },
+    '穆老爹':    { initial:'爸', color:'#7d8ea8', tag:'爸爸 · 沉默担当' },
     '丞哥':      { initial:'哥', color:'#c9a227', tag:'哥哥 · 嘴硬护短' },
     '穆祉丞':    { initial:'丞', color:'#ff8a3d', tag:'老公 · 当下主线' },
     '穆瑞恩':    { initial:'瑞', color:'#9ad0ec', tag:'老婆 · 九岁练习生' },
@@ -35,7 +35,7 @@
       ],
       replies: [
         { mine:['我好像……捡到了自己的手机。'], them:['啊？你在说什么，先找个暖和的地方站着。'] },
-        { mine:['我没事，我马上回去。'], them:['好，别乱跑。你手机里那些聊天……你自己看吧。'] }
+        { mine:['我没事，我马上回去。'], them:['好，别乱跑。穆祉丞急得要死……你自己看着办吧。'] }
       ],
       fragment: null
     },
@@ -53,7 +53,7 @@
       fragment: { title:'碎片 · 温柔', body:'他学会的第一件事，是把别人的情绪轻轻接住。\n\n“如果你也会害怕，就靠过来一点。”' }
     },
 
-    '穆砚辞': {
+    '穆老爹': {
       init: [
         ['11月15日','date'],
         ['回消息。','them','11:11 PM'],
@@ -122,6 +122,7 @@
     'Mu': {
       init: [
         ['11月15日','date'],
+        ['这样不乖哦。','them','11:13 PM'],
         ['不要消失。我见过太多人来了又走。','them','11:13 PM'],
         ['我习惯一个人扛所有事，但我不想习惯失去你。','them','11:14 PM']
       ],
@@ -135,9 +136,9 @@
 
   /* 时间线：现实秒数。0 秒开始，300 秒左右进结局。 */
   S.timeline = [
-    { at:0,   type:'notify', from:'闺蜜', text:'你跑哪去了？手机怎么在街上？' },
+    { at:0,   type:'notify', from:'闺蜜', text:'你跑哪去了？怎么不回家？穆祉丞一直电话轰炸我' },
     { at:8,   type:'notify', from:'MuAMuA', text:'跑去哪里了？外面很冷。' },
-    { at:14,  type:'notify', from:'穆砚辞', text:'回消息。' },
+    { at:14,  type:'notify', from:'穆老爹', text:'回消息。' },
     { at:20,  type:'notify', from:'丞哥', text:'人呢？别让我到处找你。' },
     { at:26,  type:'notify', from:'穆祉丞', text:'蛋糕摆好了，就差你。' },
     { at:34,  type:'notify', from:'穆瑞恩', text:'练习室好黑，大家都走了。' },
@@ -145,7 +146,7 @@
     { at:50,  type:'notify', from:'Mu', text:'不要消失。' },
 
     { at:75,  type:'call', from:'穆祉丞' },
-    { at:110, type:'notify', from:'穆砚辞', text:'先回家。' },
+    { at:110, type:'notify', from:'穆老爹', text:'先回家。' },
     { at:140, type:'choice' },
     { at:170, type:'notify', from:'MuAMuA', text:'慢慢来，妈妈在这里。' },
     { at:200, type:'notify', from:'丞哥', text:'有我在，不用逞强。' },

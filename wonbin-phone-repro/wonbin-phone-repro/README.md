@@ -19,7 +19,7 @@ wonbin-phone-repro/
 推荐用本地静态服务器打开（浏览器对音频/视频自动播放有要求）：
 ```bash
 cd wonbin-phone-repro
-python3 -m http.server 8000
+python -m http.server 8000
 # 浏览器访问 http://localhost:8000/index.html
 ```
 或直接用浏览器打开 `index.html`。
