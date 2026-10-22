@@ -59,17 +59,16 @@ function previewText(s, grp) {
 }
 function avatarFor(name, group) {
   const r = CFG.roles && CFG.roles[name];
-  if (r)
+  if (r) {
+    if (r.avatar) { // 👈 这里确认是 r.avatar
+      return `<img src="${r.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" />`;
+    }
     return `<div class="app-icon-fallback" style="background:${r.color};font-size:20px">${r.initial}</div>`;
+  }
   return G.sil;
 }
-function otherUnread() {
-  return Object.entries(unread)
-    .filter(([k]) => k !== chatId)
-    .reduce((a, [, b]) => a + b, 0);
-}
 
-VIEWS.kakao = () => {
+VIEWS.wechat = () => {
   // 过滤掉还没有任何聊天记录的人（只显示弹过消息的人）
   const list = chatNames.filter((n) => {
     const arr = chatData[n] || [];
@@ -486,19 +485,22 @@ function hideTyping() {
   const title = $("#chatTitle");
   if (title && view === "chat") title.textContent = dn(chatId);
 }
-
 function deliverFrom(from, text) {
   if (!chatData[from]) chatData[from] = [];
   chatData[from].push([text, "them", nowAmpm()]);
-
-  if (view === "chat" && chatId === from) {
-    refreshChat(true);
-    tone(1318, 0, 0.12, 0.05);
+  
+  if (view === "chat" && chatId === from) { 
+    refreshChat(true); 
+    tone(1318, 0, 0.12, 0.05); 
   } else {
     unread[from] = (unread[from] || 0) + 1;
     notifyFrom(from, text);
-    if (view === "kakao") show("kakao");
-    if (view === "home") renderHome();
+    if (view === "wechat") {
+        const pg = APP.lastElementChild;
+        if (pg) pg.innerHTML = VIEWS.wechat().html; // 原地刷新微信列表的红点
+    }
+    // 【关键】如果玩家在桌面，立刻重绘桌面，让红点冒出来
+    if (view === "home") renderHome(); 
   }
 }
 function incomingMsgFrom(from, text) {
@@ -515,14 +517,14 @@ function notifyFrom(from, body) {
   sfx("msg");
   vib([30, 60, 30]);
   if (view === "lock" || view === "pin") {
-    lockNotes.unshift({ title: dn(from), body, app: "kakao", time: t("now") });
+    lockNotes.unshift({ title: dn(from), body, app: "wechat", time: t("now") });
     renderLock();
     return;
   }
   OV.querySelectorAll(".banner").forEach((b) => b.remove());
   const b = document.createElement("div");
   b.className = "banner";
-  b.innerHTML = `<div class="ncard">${ncardHTML({ title: dn(from), body, app: "kakao", time: t("now") })}</div>`;
+  b.innerHTML = `<div class="ncard">${ncardHTML({ title: dn(from), body, app: "wechat", time: t("now") })}</div>`;
   OV.appendChild(b);
   b.animate(
     [{ transform: "translateY(-140%) scale(.96)" }, { transform: "none" }],
@@ -539,7 +541,7 @@ function openChatFrom(from) {
   if (callState) return;
   chatId = from;
   if (view === "home")
-    openApp("chat", HOME.querySelector('.app[data-app="kakao"] .icon'));
+    openApp("chat", HOME.querySelector('.app[data-app="wechat"] .icon'));
   else if (view === "chat") show("chat");
   else push("chat");
 }

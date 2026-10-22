@@ -24,7 +24,7 @@ const UI = {
   app_settings: L6("设置"),
   app_phone: L6("电话"),
   app_safari: L6("Safari"),
-  app_kakao: L6("微信"),
+  app_wechat: L6("微信"),
   app_music: L6("音乐"),
   allDay: L6("全天"),
   seoul: L6("首尔"),

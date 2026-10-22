@@ -1,5 +1,5 @@
 // 预留应用界面
-VIEWS.wechat = () => VIEWS.kakao();
+//VIEWS.wechat = () => VIEWS.wechat();
 VIEWS.sms = () => ({
   html:
     navHTML({ title: "短信", back: "主页", backFn: "closeApp()" }) +

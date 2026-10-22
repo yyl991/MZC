@@ -3952,3 +3952,124 @@ svg {
 #sb:not(.crumb) #sbk {
     display: none !important;
 }
+
+/* =========================================
+   13. 电话
+   ========================================= *//* 电话拨号键盘 */
+.dialpad {
+  position: absolute;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(20, 25, 30, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 50px; /* 👈 整体往上移 */
+  touch-action: none;
+  animation: fadeIn .2s;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* 顶部输入数字 */
+.dp-num {
+  font-size: 44px;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: 2px;
+  height: 60px;
+  margin-bottom: 15px; 
+  font-variant-numeric: tabular-nums;
+}
+
+/* 数字网格 */
+.dp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px 25px; /* 👈 稍微缩小间距，更紧凑 */
+  margin-bottom: 20px; /* 👈 不要推到底部，紧跟在网格下面 */
+}
+
+/* 数字按键 */
+.dp-grid button {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  border: none;
+  transition: background .1s;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1;
+}
+.dp-grid button:active {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.dp-grid button small {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-top: 2px;
+  height: 11px;
+  color: rgba(255,255,255,0.9);
+}
+
+/* 底部挂断与隐藏按钮的区域 */
+.dp-bottom {
+  position: relative; /* 👈 相对定位，方便子元素绝对定位 */
+  display: flex;
+  justify-content: center; /* 👈 强制挂断按钮居中 */
+  align-items: center;
+  width: 100%;
+  padding-bottom: 20px;
+}
+
+/* 挂断按钮 */
+.dp-end {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #ff453a;
+  display: grid;
+  place-items: center;
+  border: none;
+  margin: 0; /* 👈 清除之前的边距，确保绝对居中 */
+}
+.dp-end svg {
+  width: 34px;
+  height: 34px;
+  fill: #fff;
+}
+
+/* 隐藏键盘的文字按钮 */
+.dp-hide {
+  position: absolute; /* 👈 绝对定位，放到右边去 */
+  right: 40px; /* 👈 距离右边的距离 */
+  top: 50%; /* 👈 垂直居中 */
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 400;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  opacity: .95;
+}
+
+/* 微信系统提示（撤回等） */
+.wx-sys-tip {
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    margin: 12px 0;
+    width: 100%;
+    user-select: none;
+}
+

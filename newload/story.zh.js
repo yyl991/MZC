@@ -27,6 +27,7 @@ var INCOMING = [];
     memoPin: "0913",
   };
 
+  /*
   S.roles = {
     闺蜜: { initial: "闺", color: "#8e8e93" },
     MuAMuA: { initial: "妈", color: "#f6b6c8" },
@@ -36,7 +37,22 @@ var INCOMING = [];
     穆瑞恩: { initial: "瑞", color: "#9ad0ec" },
     恩仔: { initial: "恩", color: "#d9a7c7" },
     Mu: { initial: "M", color: "#3a3a3c" },
+  };*/
+
+     S.roles = {
+    闺蜜: { initial: "闺", color: "#8e8e93", avatar: "./data/pic/avatar/guimi.jpg" },
+    MuAMuA: { initial: "妈", color: "#f6b6c8", avatar: "./data/pic/avatar/mama.jpg" },
+    穆老爹: { initial: "爸", color: "#7d8ea8", avatar: "./data/pic/avatar/baba.jpg" },
+    丞哥: { initial: "哥", color: "#c9a227", avatar: "./data/pic/avatar/gege.jpg" },
+    穆祉丞: { initial: "丞", color: "#ff8a3d", avatar: "./data/pic/avatar/mzc.jpg" },
+    穆瑞恩: { initial: "瑞", color: "#9ad0ec", avatar: "./data/pic/avatar/ruien.jpg" },
+    恩仔: { initial: "恩", color: "#d9a7c7", avatar: "./data/pic/avatar/enzai.jpg" },
+    Mu: { initial: "M", color: "#3a3a3c", avatar: "./data/pic/avatar/mu.jpg" },
+    小队长: { initial: "M", color: "#3a3a3c", avatar: "./data/pic/avatar/duizhang.jpg" },
+    蓝胖胖: { initial: "L", color: "#3a3a3c", avatar: "./data/pic/avatar/lpp.jpg" },
+    zhu: { initial: "Z", color: "#3a3a3c", avatar: "./data/pic/avatar/zhu.jpg" },
   };
+
 
     S.chats = {
     '闺蜜': {
@@ -107,35 +123,6 @@ var INCOMING = [];
 
   /* 完整时间线：所有人都会按秒数弹出来 */
   S.timeline = [
-    // --- 第一阶段：所有人找你（0~50秒）---
-    // needStage: 0 意思是：如果玩家在这个角色上还是阶段 0（没回消息），才触发。
-    { at: 0,  type:'notify', from:'闺蜜', text:'你跑哪去了？手机怎么在街上？', needStage: 0 },
-    { at: 8,  type:'notify', from:'MuAMuA', text:'跑去哪里了？外面很冷。', needStage: 0 },
-    { at: 14, type:'notify', from:'穆老爹', text:'回消息。', needStage: 0 },
-    { at: 20, type:'notify', from:'丞哥', text:'人呢？别让我到处找你。', needStage: 0 },
-    { at: 26, type:'notify', from:'穆祉丞', text:'蛋糕摆好了，就差你。', needStage: 0 },
-    { at: 34, type:'notify', from:'穆瑞恩', text:'练习室好黑，大家都走了。', needStage: 0 },
-    { at: 42, type:'notify', from:'恩仔', text:'你不要丢下我好不好。', needStage: 0 },
-    { at: 50, type:'notify', from:'Mu', text:'不要消失。', needStage: 0 },
-
-    // --- 第二阶段：如果玩家超过一定时间没回，开始连环催 ---
-    { at: 60, type:'notify', from:'穆祉丞', text:'你到底在哪？看到消息回我一下！', needStage: 0 },
-    { at: 70, type:'notify', from:'穆老爹', text:'不管发生什么，先回家。', needStage: 0 },
-    { at: 80, type:'notify', from:'穆祉丞', text:'电话为什么不接？', needStage: 0 },
-
-    // --- 强制性事件（无论玩家回没回都要发生）---
-    { at: 90, type:'call', from:'穆祉丞' }, 
-    { at: 110, type:'notify', from:'穆老爹', text:'先回家。' },
-    { at: 140, type:'choice' },
-    { at: 170, type:'notify', from:'MuAMuA', text:'慢慢来，妈妈在这里。' },
-    { at: 200, type:'notify', from:'丞哥', text:'有我在，不用逞强。' },
-    { at: 230, type:'notify', from:'穆瑞恩', text:'快来！蛋糕要凉掉啦' },
-    { at: 260, type:'notify', from:'穆祉丞', text:'门已经为你留好了。回来。' },
-    { at: 300, type:'ending' }
-  ];
-  
-  /*
-  S.timeline = [
     // 闺蜜 0秒
     { at: 0,  type:'notify', from:'闺蜜', text:'你跑哪去了？刚刚还跟我说话，一转眼人不见了。' },
     { at: 3,  type:'notify', from:'闺蜜', text:'你手机怎么丢在街上？我打了好几通都没人接。' },
@@ -173,7 +160,7 @@ var INCOMING = [];
     { at: 260, type:'notify', from:'穆祉丞', text:'门已经为你留好了。回来。' },
     { at: 300, type:'ending' }
   ];
-*/
+
   S.notes = [
     [
       "旧备忘录 · 迟到",
@@ -216,9 +203,12 @@ var INCOMING = [];
     ["大麦", "演出提醒", "你关注的演出即将开票。", "11/15"],
   ];
   S.calls = [
-    ["穆祉丞", "今天 23:14", "未接来电"],
-    ["MuAMuA", "今天 23:11", "接收"],
-    ["闺蜜", "今天 23:09", "呼出"],
+    ["闺蜜", "今天 23:08", "呼出"],
+    ["MuAMuA", "今天 23:05", "未接来电"],
+    ["穆祉丞", "今天 23:00", "未接来电"],    
+    ["穆祉丞", "今天 20:07", "未接来电"],
+    ["恩仔", "昨天 18:22", "呼出"],  
+    ["Mu", "11/14", "呼出"], 
   ];
   S.searches = [
     "迟到 入坑晚 怎么办",
@@ -289,10 +279,21 @@ var INCOMING = [];
     ],
   };
 
+  /*
   for (const k in chatData) delete chatData[k];
   Object.keys(S.chats).forEach((id) => {
     chatData[id] = S.chats[id].init.slice();
   });
+*/
+
+  for (const k in chatData) delete chatData[k];
+  Object.keys(S.chats).forEach((id) => {
+    // 获取独立文件里的历史记录，如果没有就设为空数组
+    const history = window.CHAT_HISTORY && window.CHAT_HISTORY[id] ? window.CHAT_HISTORY[id] : [];
+    // 把【历史记录】和原来的【初始初始化内容】拼在一起
+    chatData[id] = [...history, ...S.chats[id].init];
+  });
+
   chatNames.splice(0, chatNames.length, ...Object.keys(S.chats));
   notes.splice(0, notes.length, ...S.notes);
   for (const k in events) delete events[k];
