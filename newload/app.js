@@ -11,10 +11,17 @@ const elapsed = () => (Date.now() - base) / 1000;
 
 const CFG = window.STORY || {};
 const SS = window.STORY_STATE || {};
+
+// 加上这段安全气囊！
+if (!SS.fired) SS.fired = new Set();
+if (!SS.fragments) SS.fragments = new Set();
+if (!SS.completed) SS.completed = new Set();
+if (!SS.stage) SS.stage = {};
+if (!SS.lineIdx) SS.lineIdx = {};
+
 const GAME_START_MIN = 23 * 60 + 9;
 const GAME_END_AT = 300;
 
-// 全局变量声明，供 chat.js 和 data_extra.js 共享
 let view = "lock",
   curDark = true,
   SC = 1,
@@ -70,7 +77,11 @@ function gameMin() {
 }
 function clock12() {
   const m = gameMin();
-  return (Math.floor(m / 60) % 12 || 12) + ":" + pad(Math.floor(m % 60));
+  const h = Math.floor(m / 60) % 24;
+  const min = Math.floor(m % 60);
+  const ampm = h >= 12 ? "下午" : "上午";
+  const h12 = h % 12 || 12;
+  return `${ampm} ${h12}:${pad(min)}`;
 }
 const nowAmpm = () => clock12();
 
@@ -118,38 +129,6 @@ const G = {
   ),
   chat: g(
     '<path d="M12 4C7 4 3 7.1 3 11c0 2.4 1.5 4.5 3.9 5.8L6 20.5l4-2.4c.6.1 1.3.1 2 .1 5 0 9-3.1 9-7.1S17 4 12 4Z"/>',
-  ),
-  wxSearch: g(
-    '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/>',
-  ),
-  wxPlus: g('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),
-  wxVoice: g(
-    '<circle cx="12" cy="12" r="9"/><path d="M8.5 9.5a5 5 0 0 1 7 0M10 12.5a2.5 2.5 0 0 1 4 0M11.5 15.5a.5.5 0 0 1 1 0"/>',
-    'stroke-width="1.5"',
-  ),
-
-  wxEmoji: g(
-    '<circle cx="12" cy="12" r="9"/><path d="M8.5 13.5h7a3.5 3.5 0 0 1-7 0Z" stroke-linejoin="round"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/>',
-    'stroke-width="1.5"',
-  ),
-  wechatTab: g(
-    '<path d="M8.5 16.5c-3.5 0-6.5-2.5-6.5-5.5S5 5.5 8.5 5.5 15 8 15 11c0 .5-.1.9-.2 1.4 1.7 1 2.7 2.5 2.7 4.1 0 2.5-2.5 4.5-5.5 4.5-1.1 0-2.1-.3-3-.9l-2.5 1.2 1-2.8c-.9-.8-1.5-1.8-1.5-3Z"/><circle cx="6" cy="10" r="1" fill="currentColor"/><circle cx="10" cy="10" r="1" fill="currentColor"/>',
-  ),
-  contactsTab: g(
-    '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.8 3.1-7 7-7s7 3.2 7 7"/><path d="M16 5h4M16 8h4"/>',
-  ),
-  discoverTab: g(
-    '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/>',
-  ),
-  meTab: g(
-    '<circle cx="12" cy="7" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
-  ),
-
-  chatPlus: g(
-    '<path d="M12 4C7 4 3 7.1 3 11c0 2.4 1.5 4.5 3.9 5.8L6 20.5l4-2.4c.6.1 1.3.1 2 .1 5 0 9-3.1 9-7.1S17 4 12 4Z"/><path d="M12 8.5v5M9.5 11h5"/>',
-  ),
-  openchat: g(
-    '<circle cx="12" cy="12" r="8.5"/><path d="M8 12.5c1 1.6 2.4 2.4 4 2.4s3-.8 4-2.4"/>',
   ),
   bag: g('<path d="M5 8h14l-1 12H6Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>'),
   clock: g('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
@@ -273,7 +252,7 @@ function appIcon(id) {
   const newApps = {
     wechat: {
       cls: "ic-wechat",
-      icon: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#07c160"/><g fill="#fff" transform="translate(-3, -4) scale(1.1)"><path d="M23 19c-7.7 0-14 5.2-14 11.7 0 3.7 2.1 7 5.4 9.1l-1.4 4.2 4.9-2.4c1.6.5 3.3.8 5.1.8 7.7 0 14-5.2 14-11.7S30.7 19 23 19Z"/><path d="M39 28c-7.7 0-14 5.2-14 11.7 0 3.7 2.1 7 5.4 9.1l-1.4 4.2 4.9-2.4c1.6.5 3.3.8 5.1.8 7.7 0 14-5.2 14-11.7S46.7 28 39 28Z"/><circle cx="18" cy="27" r="2.5" fill="#07c160"/><circle cx="28" cy="27" r="2.5" fill="#07c160"/><circle cx="34" cy="36" r="2.5" fill="#07c160"/><circle cx="44" cy="36" r="2.5" fill="#07c160"/></g></svg>`,
+      icon: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#07c160"/><g fill="#fff"><path d="M23 19c-7.7 0-14 5.2-14 11.7 0 3.7 2.1 7 5.4 9.1l-1.4 4.2 4.9-2.4c1.6.5 3.3.8 5.1.8 7.7 0 14-5.2 14-11.7S30.7 19 23 19Z"/><path d="M39 28c-7.7 0-14 5.2-14 11.7 0 3.7 2.1 7 5.4 9.1l-1.4 4.2 4.9-2.4c1.6.5 3.3.8 5.1.8 7.7 0 14-5.2 14-11.7S46.7 28 39 28Z"/><circle cx="18" cy="27" r="2.5" fill="#07c160"/><circle cx="28" cy="27" r="2.5" fill="#07c160"/><circle cx="34" cy="36" r="2.5" fill="#07c160"/><circle cx="44" cy="36" r="2.5" fill="#07c160"/></g></svg>`,
     },
     weibo: { cls: "ic-weibo", icon: G.globe },
     xianyu: { cls: "ic-xianyu", icon: G.bag },
@@ -285,6 +264,7 @@ function appIcon(id) {
   };
   if (newApps[id])
     return `<div class="${newApps[id].cls}"><div class="app-icon-fallback">${newApps[id].icon}</div></div>`;
+
   const L = (a, b, c, d) =>
     `<linearGradient id="${a}" x1="0" y1="${d ? 1 : 0}" x2="${d ? 1 : 0}" y2="${d ? 0 : 1}"><stop offset="0" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></linearGradient>`;
   const W = (defs, body) =>
@@ -430,6 +410,7 @@ function setStatus(dark) {
   $("#sb").classList.toggle("light", curDark);
   $("#hb").classList.toggle("light", curDark);
 }
+
 function updateIsland() {
   typeof updateCrumb === "function" && updateCrumb();
   const on =
@@ -438,7 +419,7 @@ function updateIsland() {
     !["music", "lock", "pin"].includes(view) &&
     !OV.querySelector(".np,.call,.viewer");
   const il = $("#island");
-  il.classList.toggle("act", on);
+  if (il) il.classList.toggle("act", on); // 加了 if(il) 保护，找不到也不报错
 }
 
 function ncardHTML(n) {
@@ -651,7 +632,11 @@ function badgeOf(id) {
 }
 function appBtn(id) {
   const b = badgeOf(id);
-  return `<button class="app" data-app="${id}" onclick="openApp('${id}',this.firstElementChild)"><div class="icon"><div class="ic">${appIcon(id)}</div>${b ? `<span class="bdg">${b}</span>` : ""}</div><span class="lbl">${t("app_" + id) || APPS[id] || id}</span></button>`;
+  // 优先从翻译字典找，如果找不到（返回键名），就使用 APPS 里写死的中文名，最后才用 id
+  let name = t("app_" + id);
+  if (name === "app_" + id) name = APPS[id] || id;
+
+  return `<button class="app" data-app="${id}" onclick="openApp('${id}',this.firstElementChild)"><div class="icon"><div class="ic">${appIcon(id)}</div>${b ? `<span class="bdg">${b}</span>` : ""}</div><span class="lbl">${name}</span></button>`;
 }
 function renderHome() {
   HOME.innerHTML = `<div class="hgrid">
@@ -692,7 +677,7 @@ function wireScroll(pg) {
     );
 }
 
-const VIEWS = {}; // 全局视图容器
+const VIEWS = {};
 
 function show(id, anim = "swap") {
   const old = [...APP.children];
@@ -958,7 +943,6 @@ function tabbar(items, on, cls = "") {
 const sw = (on, fn) =>
   `<button class="sw ${on ? "on" : ""}" onclick="this.classList.toggle('on');vib(8);${fn || ""}"></button>`;
 
-// 日历和备忘录（留在核心引擎里）
 function noteDate(d, full) {
   const [y, m, dd] = d.split("-").map(Number);
   if (full) return fmtYMD(y, m, dd);
@@ -1068,7 +1052,6 @@ VIEWS.clock = () => ({
   ).replace('class="on"', 'class="on" style="color:#ff9f0a"')}`,
 });
 
-// 电话系统
 function callWhen(s) {
   if (s.startsWith("今天 ")) {
     const [h, m] = s.slice(3).split(":").map(Number);
@@ -1076,7 +1059,7 @@ function callWhen(s) {
   }
   const w = s.split(" ")[0];
   if (w === "昨天") return "昨天";
-  if (ZH_WD[w] != null) return wdLong(2026, 10, 11 + ZH_WD[w]); // 这里修复了之前的韩语变量
+  if (ZH_WD[w] != null) return wdLong(2026, 10, 11 + ZH_WD[w]);
   return w;
 }
 const callNameDisp = (n) => n;
@@ -1292,7 +1275,6 @@ function closeCallUI() {
   };
 }
 
-// 结局和分支
 function showStoryChoice() {
   if (SS.choice) return;
   const d = document.createElement("div");
@@ -1322,12 +1304,22 @@ function showEnding(choice) {
   OV.appendChild(d);
 }
 
-// 时间线与引擎驱动
 function storyTick(e) {
   if (!CFG.timeline) return;
   CFG.timeline.forEach((beat, i) => {
     const key = i + "@" + beat.at;
     if (e >= beat.at && !SS.fired.has(key)) {
+      
+      // 【核心拦截逻辑】
+      if (beat.needStage !== undefined && beat.from) {
+        const currentStage = SS.stage[beat.from] || 0;
+        // 如果玩家当前进度大于了设定的需求（说明玩家回过了），这条催命短信直接作废！
+        if (currentStage > beat.needStage) {
+            SS.fired.add(key); 
+            return; 
+        }
+      }
+
       SS.fired.add(key);
       if (beat.type === "notify") incomingMsgFrom(beat.from, beat.text);
       if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");
@@ -1381,9 +1373,28 @@ function fit() {
 function initApp() {
   addEventListener("resize", fit);
   fit();
+
+  // ==========================================
+  // 🚀 开发者调试模式：跳过锁屏，直接进桌面
+  // ==========================================
+  view = "home"; // 状态直接设为 home
+  LOCK.style.display = "none"; // 隐藏锁屏界面
+  renderHome(); // 渲染桌面
+  HOME.style.visibility = "visible"; // 让桌面可见
+  setStatus(true); // 设置状态栏
+
+  setInterval(tick, 250);
+  tick();
+}
+
+/*
+function initApp() {
+  addEventListener("resize", fit);
+  fit();
   renderLock();
   renderHome();
   setStatus(true);
   setInterval(tick, 250);
   tick();
 }
+*/

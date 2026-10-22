@@ -6,7 +6,7 @@
     <meta name="viewport"
         content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
     <meta name="theme-color" content="#000000">
-    <title>多个他，等我回家</title>
+    <title>橙粉色捡起来</title>
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
     <link rel="stylesheet" href="style.css">
@@ -46,37 +46,27 @@
                 </svg>
             </span>
         </div>
-        <div id="island"><span class="ia"></span><span class="ib"><i></i><i></i><i></i><i></i></span></div>
+        <!-- 把灵动岛隐藏了，以后想用再去掉两边的符号
+<div id="island"><span class="ia"></span><span class="ib"><i></i><i></i><i></i><i></i></span></div>
+-->
         <div id="hb" class="light"><i></i></div>
     </div>
-
     <audio id="player" preload="auto"></audio>
-
     <script>
         window.LANG = 'zh';
         function load(src) {
             return new Promise((res, rej) => {
                 const s = document.createElement('script');
-                s.src = src;
-                s.onload = res;
-                s.onerror = rej;
-                document.body.appendChild(s);
+                s.src = src; s.onload = res; s.onerror = rej; document.body.appendChild(s);
             });
         }
         (async () => {
             try {
-                // 1. 加载数据与字典
                 await load('story.zh.js');
                 await load('utils.js');
-
-                // 2. 加载核心引擎（会初始化变量和 VIEWS 对象）
                 await load('app.js');
-
-                // 3. 挂载其他模块（它们会把界面加到 VIEWS 里）
                 await load('chat.js');
                 await load('data_extra.js');
-
-                // 4. 全部加载完毕后，启动时间线和画面
                 initApp();
             } catch (e) {
                 alert('加载失败，请检查文件是否齐全: ' + e);

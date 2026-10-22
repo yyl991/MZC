@@ -128,6 +128,31 @@ svg {
 /* =========================================
    3. 状态栏 / 灵动岛 / 底部指示条
    ========================================= */
+/*#sb {
+    position: absolute;
+    z-index: 80;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 54px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 20px 0 20px;
+    pointer-events: none;
+    color: #000;
+    transition: color .3s
+}*/
+.ampm {
+    font-size: 11px; /* 把上午/下午变小 */
+    margin-right: 2px;
+    font-weight: 400; /* 让它不要太粗 */
+}
+/* 列表页的时间本身就小，这里再微调 */
+.wx-time .ampm {
+    font-size: 10px;
+}
+
 #sb {
     position: absolute;
     z-index: 80;
@@ -138,7 +163,7 @@ svg {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 30px 0 44px;
+    padding: 8px 24px 0 30px; /* 恢复优雅的左右边距，垂直居中 */
     pointer-events: none;
     color: #000;
     transition: color .3s
@@ -149,15 +174,55 @@ svg {
 }
 
 #sb .t {
-    font-size: 17px;
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: -.3px;
-    width: 60px;
-    text-align: center
+    text-align: left;
+    /* 去掉之前强制的宽度，让它自然排版 */
 }
 
+/*
+
+#sb {
+    position: absolute;
+    z-index: 80;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 54px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    pointer-events: none;
+    color: #000;
+    transition: color .3s
+}
+
+#sb.light {
+    color: #fff
+}
+/*
+#sb .t {
+    font-size: 14px;
+
+    font-weight: 600;
+    letter-spacing: -.3px;
+    /*width: 60px
+    width: auto;
+    min-width: 90px;
+    text-align: center
+}
+#sb .t {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -.3px;
+    text-align: left;
+    flex: 1;
+}
+*/
 #sbk {
-    display: none;
+    display: none !important;
     position: absolute;
     left: 22px;
     top: 6px;
@@ -188,12 +253,18 @@ svg {
     opacity: .45
 }
 
+/* 修复：隐藏主页按钮，强制显示时间 */
 #sb.crumb #sbk {
-    display: flex
+    display: none !important;
 }
 
+/*
+#sb.crumb #sbk {
+    display: none;
+}*/
+
 #sb.crumb .t {
-    visibility: hidden
+    visibility: visible;
 }
 
 #sb .r {
@@ -1213,16 +1284,17 @@ svg {
 }
 
 /* =========================================
-   7. 微信列表页 (适配原生微信UI)
+   7. 微信列表页 (极简原生UI)
    ========================================= */
 .wx-list {
     background: #ededed;
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: absolute;
+    inset: 0;
 }
 
-/* 顶部导航栏 */
 .wx-head {
     flex: none;
     height: 100px;
@@ -1256,12 +1328,17 @@ svg {
     stroke-width: 1.6;
 }
 
-/* 聊天列表区域 */
-.wx-list .scroll {
+.wx-scroll {
     flex: 1;
     overflow-y: auto;
     padding-bottom: 0;
     background: #ededed;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.wx-scroll::-webkit-scrollbar {
+    display: none;
 }
 
 .wx-item {
@@ -1274,13 +1351,13 @@ svg {
     text-align: left;
     border-bottom: .5px solid #dcdcdc;
     transition: background .1s;
+    border: none;
 }
 
 .wx-item:active {
     background: #dcdcdc;
 }
 
-/* 头像与红点角标 */
 .wx-av {
     position: relative;
     width: 48px;
@@ -1317,7 +1394,6 @@ svg {
     border: 1.5px solid #ededed;
 }
 
-/* 名字与最后一条消息预览 */
 .wx-info {
     flex: 1;
     min-width: 0;
@@ -1342,7 +1418,6 @@ svg {
     text-overflow: ellipsis;
 }
 
-/* 时间显示 */
 .wx-meta {
     display: flex;
     flex-direction: column;
@@ -1358,7 +1433,6 @@ svg {
     color: #b2b2b2;
 }
 
-/* 底部导航栏 */
 .wx-tabbar {
     flex: none;
     height: 84px;
@@ -1375,6 +1449,8 @@ svg {
     align-items: center;
     gap: 4px;
     color: #999;
+    background: transparent;
+    border: none;
 }
 
 .wx-tabbar button.on {
@@ -1395,16 +1471,17 @@ svg {
 }
 
 /* =========================================
-   8. 微信聊天详情页 (去尖角，纯净版)
+   8. 微信聊天详情页 (纯净无尖角)
    ========================================= */
 .wx-chat {
     background: #ededed;
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: absolute;
+    inset: 0;
 }
 
-/* 聊天顶部导航 */
 .wx-chat-h {
     flex: none;
     height: 100px;
@@ -1422,6 +1499,8 @@ svg {
     color: #111;
     padding: 0 10px;
     margin-left: -10px;
+    border: none;
+    background: transparent;
 }
 
 .wx-chat-h .bk svg {
@@ -1450,32 +1529,29 @@ svg {
     stroke-width: 1.8;
 }
 
-/* 消息列表区域 */
 .msgs {
     flex: 1;
     overflow-y: auto;
     padding: 16px 16px 20px;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
 }
 
 .msgs::-webkit-scrollbar {
     display: none;
 }
 
-/* 居中时间戳 */
 .wx-dpill {
     display: flex;
     justify-content: center;
-    margin: 20px 0 16px;
+    margin: 0 0 12px; /* 原来是 20px 0 16px，现在改小一点 */
 }
 
 .wx-dpill span {
     color: #999;
-    font-size: 12px;
-    font-weight: 400;
+    font-size: 13px;
 }
 
-/* 消息行，每条独立头像 */
 .wx-ln {
     display: flex;
     align-items: flex-start;
@@ -1487,7 +1563,6 @@ svg {
     flex-direction: row-reverse;
 }
 
-/* 头像 */
 .wx-sav {
     width: 40px;
     height: 40px;
@@ -1507,7 +1582,6 @@ svg {
     height: 100%;
 }
 
-/* 气泡包裹层 */
 .wx-wrap {
     display: flex;
     max-width: calc(100% - 100px);
@@ -1517,7 +1591,6 @@ svg {
     flex-direction: row-reverse;
 }
 
-/* 微信纯净气泡（无尖角） */
 .wx-bb {
     padding: 10px 14px;
     border-radius: 6px;
@@ -1536,7 +1609,6 @@ svg {
     background: #95ec69;
 }
 
-/* 正在输入的三个跳动小圆点（防止卡死或动画失效） */
 .wx-bb.typing {
     display: flex;
     gap: 4px;
@@ -1585,7 +1657,6 @@ svg {
     }
 }
 
-/* 底部输入栏 */
 .wx-cin {
     flex: none;
     background: #f7f7f7;
@@ -1605,6 +1676,8 @@ svg {
     display: grid;
     place-items: center;
     padding-bottom: 8px;
+    background: transparent;
+    border: none;
 }
 
 .wx-cin .ic svg {
@@ -1653,6 +1726,7 @@ svg {
     padding: 0 16px;
     font-size: 15px;
     font-weight: 500;
+    border: none;
 }
 
 .wx-cin .wx-snd.on {
@@ -1765,20 +1839,18 @@ svg {
 /* =========================================
    10. 通知横幅 / 电话通话
    ========================================= */
-.banner {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    z-index: 70;
-    touch-action: none
+.banner { 
+    position: absolute; 
+    top: 35px; /* 从状态栏下方掉出来 */
+    left: 10px; 
+    right: 10px; 
+    z-index: 70; 
+    touch-action: none 
 }
-
-.banner .ncard {
-    background: rgba(245, 245, 247, .82);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, .18)
+.banner .ncard { 
+    background: rgba(245, 245, 247, .92); 
+    box-shadow: 0 8px 30px rgba(0, 0, 0, .18) 
 }
-
 .call {
     position: absolute;
     inset: 0;
@@ -2040,7 +2112,7 @@ svg {
 }
 
 /* =========================================
-   11. 保留你未来扩展的其他所有 APP 样式
+   11. 保留你未来扩展的其他所有 APP 样式 (完整)
    ========================================= */
 .ph-grid {
     display: grid;
@@ -2482,6 +2554,19 @@ svg {
 .reel .vwrap {
     position: absolute;
     inset: 0
+}
+
+.reel .rtop .rback {
+    width: 48px;
+    height: 48px;
+    margin: -11px 0 -11px -12px;
+    display: grid;
+    place-items: center
+}
+
+.reel .rtop .rback svg {
+    width: 28px;
+    height: 28px
 }
 
 .mrow {
@@ -3553,20 +3638,9 @@ svg {
     margin-bottom: 2px
 }
 
-.reel .rtop .rback {
-    width: 48px;
-    height: 48px;
-    margin: -11px 0 -11px -12px;
-    display: grid;
-    place-items: center
-}
-
-.reel .rtop .rback svg {
-    width: 28px;
-    height: 28px
-}
-
-/* 新增 APP 图标占位样式 */
+/* =========================================
+   12. 新增 APP 图标占位与通用样式
+   ========================================= */
 .ic-wechat {
     background: linear-gradient(135deg, #2ad06a, #0aa64a)
 }
@@ -3623,4 +3697,258 @@ svg {
     stroke: #fff;
     fill: none;
     stroke-width: 2
+}
+
+
+
+
+/* =========================================
+   微信出现的问题统一覆盖
+   ========================================= */
+
+   /* =========================================
+   微信头部、时间字体与状态栏
+   ========================================= */
+
+/* 1. 微信列表页顶部 (使用 grid 绝对居中) */
+.wx-head {
+    flex: none;
+    height: 88px;
+    padding: 44px 18px 0;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; /* 左中右等分，保证绝对居中 */
+    align-items: flex-end; /* 让元素靠底 */
+    background: #ededed;
+    padding-bottom: 8px;
+}
+
+.wx-head h1 {
+    font-size: 22px;
+    font-weight: 500;
+    color: #000;
+    margin: 0;
+    text-align: center;
+    line-height: 1;
+    /* 移除之前的 padding-left */
+}
+
+.wx-actions {
+    display: flex;
+    gap: 18px;
+    justify-self: end; /* 靠右对齐 */
+}
+
+.wx-actions svg {
+    width: 24px;
+    height: 24px;
+    stroke: #111;
+    fill: none;
+    stroke-width: 1.6;
+}
+
+/* 2. 聊天详情页顶部 (同样用 grid 绝对居中) */
+.wx-chat-h {
+    flex: none;
+    height: 88px;
+    padding: 44px 16px 0;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; 
+    align-items: flex-end; 
+    background: #ededed;
+    border-bottom: .5px solid #dcdcdc;
+    padding-bottom: 10px;
+}
+
+.wx-chat-h .bk {
+    display: flex;
+    align-items: center;
+    color: #111;
+    border: none;
+    background: transparent;
+    justify-self: start;
+}
+
+.wx-chat-h .bk svg {
+    width: 14px;
+    height: 24px;
+    stroke: #111;
+    fill: none;
+    stroke-width: 2.2;
+}
+
+.wx-chat-h .nm {
+    font-size: 17px;
+    font-weight: 500;
+    color: #111;
+    text-align: center;
+    line-height: 1;
+}
+
+.wx-chat-h .rt {
+    display: flex;
+    justify-self: end; /* 靠右对齐 */
+}
+
+.wx-chat-h .rt svg {
+    width: 24px;
+    height: 24px;
+    stroke: #111;
+    fill: none;
+    stroke-width: 1.8;
+}
+
+/* 3. 统一时间字体大小 (13px) */
+.ampm {
+    font-size: 13px; 
+    margin-right: 2px;
+    font-weight: 400;
+}
+
+.wx-time {
+    font-size: 13px; 
+    color: #b2b2b2;
+}
+
+.wx-time .ampm {
+    font-size: 13px;
+}
+
+.wx-dpill span {
+    color: #999;
+    font-size: 13px;
+}
+
+/* 4. 状态栏 (以防万一，再贴一次规范版的) */
+#sb {
+    position: absolute;
+    z-index: 80;
+    top: -3px;
+    left: 0;
+    right: 0;
+    height: 54px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 20px 0 25px; 
+    pointer-events: none;
+    color: #000;
+    transition: color .3s
+}
+
+#sb .t {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -.3px;
+    text-align: left;
+}
+
+/* =========================================
+   统一微信标题字号
+   ========================================= */
+   
+/* 微信列表页的“微信” */
+.wx-head h1 {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* 聊天详情页的“闺蜜”等名字 */
+.wx-chat-h .nm {
+    font-size: 18px; /* 从 17px 提升到 22px 统一大小 */
+    font-weight: 500;
+}
+
+/* =========================================
+   1. 恢复状态栏左上角“回主页”按钮 (iOS 风格)
+   ========================================= */
+#sb.crumb #sbk {
+    display: flex; /* 取消之前的隐藏 */
+}
+#sb.crumb .t {
+    /* 当左上角有按钮时，让中间的时间绝对居中，不被挤压 */
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    visibility: visible;
+}
+
+/* =========================================
+   2. 微信“对方正在输入”样式
+   ========================================= */
+/* 确保聊天顶部的容器能容纳两行 */
+.wx-chat-h {
+    flex: none;
+    height: 88px;
+    padding: 44px 16px 0;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; 
+    align-items: flex-end; 
+    background: #ededed;
+    border-bottom: .5px solid #dcdcdc;
+    padding-bottom: 10px; /* 留出底部空间 */
+}
+
+/* =========================================
+   终极状态栏：互不干扰的绝对定位布局
+   ========================================= */
+
+/* 1. 清空之前的 Flex/Grid 设定，改为透明画板 */
+#sb {
+    position: absolute !important;
+    z-index: 999 !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 54px !important;
+    display: block !important; 
+    padding: 0 !important;
+    pointer-events: none;
+    color: #000;
+    transition: color .3s;
+}
+
+/* 2. 时间：死死钉在左上角 */
+#sb .t, #sb.crumb .t {
+    position: absolute !important;
+    top: 12px !important; 
+    left: 30px !important; /* 距离左侧 */
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    visibility: visible !important;
+    transform: none !important; 
+}
+
+/* 3. 信号电量：死死钉在右上角 */
+#sb .r {
+    position: absolute !important;
+    top: 14px !important;
+    right: 24px !important;
+    display: flex !important;
+    gap: 6px;
+}
+
+/* 4. 回主页按钮：放在时间的下方（图二效果） */
+#sb.crumb #sbk {
+    position: absolute !important;
+    top: 19px !important; /* 刚好在时间下方 */
+    left: 18px !important;
+    display: flex !important;
+    pointer-events: auto;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+    color: inherit;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+}
+
+#sbk svg {
+    width: 8px;
+    height: 13px;
+}
+
+/* 5. 锁屏和主页时隐藏回主页按钮 */
+#sb:not(.crumb) #sbk {
+    display: none !important;
 }

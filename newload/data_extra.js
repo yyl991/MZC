@@ -49,3 +49,36 @@ VIEWS.settings = placeholderView("设置");
 VIEWS.maps = placeholderView("地图");
 VIEWS.music = placeholderView("音乐");
 VIEWS.safari = placeholderView("Safari");
+
+// 微信的发现页
+VIEWS.wx_discover = () => ({
+  cls: "wx-list",
+  html: `
+  <div class="wx-head">
+      <h1>发现</h1>
+      <div class="wx-actions"></div>
+  </div>
+  <div class="wx-scroll" style="padding-top: 10px;">
+      <div class="wx-item" onclick="alert('打开朋友圈')">
+          <div class="wx-av" style="background:#fff; display:grid; place-items:center; color:#ff9f0a;"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="wx-info"><div class="wx-name">朋友圈</div></div>
+          <div class="wx-meta">${G.chevR}</div>
+      </div>
+      <div class="wx-item">
+          <div class="wx-av" style="background:#fff; display:grid; place-items:center; color:#fa5151;"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="wx-info"><div class="wx-name">视频号</div></div>
+          <div class="wx-meta">${G.chevR}</div>
+      </div>
+      <div class="wx-item">
+          <div class="wx-av" style="background:#fff; display:grid; place-items:center; color:#facb0a;"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></div>
+          <div class="wx-info"><div class="wx-name">看一看</div></div>
+          <div class="wx-meta">${G.chevR}</div>
+      </div>
+  </div>
+  <div class="wx-tabbar">
+      <button onclick="back()"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4C7 4 3 7.1 3 11c0 2.4 1.5 4.5 3.9 5.8L6 20.5l4-2.4c.6.1 1.3.1 2 .1 5 0 9-3.1 9-7.1S17 4 12 4Z"/></svg></span><small>微信</small></button>
+      <button><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span><small>通讯录</small></button>
+      <button class="on" onclick="push('wx_discover')"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg></span><small>发现</small></button>
+      <button><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span><small>我</small></button>
+  </div>`,
+});

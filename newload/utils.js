@@ -257,7 +257,6 @@ function alarmParts(h, mi) {
   return { dp, tm, before: di >= 0 && di < hi };
 }
 
-
 function parseLabel(l) {
   let m = l.match(/^(\d{4})年(\d+)月(\d+)日$/);
   if (m) return { y: +m[1], m: +m[2], d: +m[3] };
@@ -274,7 +273,6 @@ function fmtLabel(l, full) {
   if (full) return fmtFull(p.y, p.m, p.d);
   return p.y === 2026 ? fmtMD(p.m, p.d) : fmtYMD(p.y, p.m, p.d);
 }
-
 const ZH_WD = {
   星期日: 0,
   星期一: 1,
@@ -284,5 +282,4 @@ const ZH_WD = {
   星期五: 5,
   星期六: 6,
 };
-
 document.documentElement.lang = LANG;
