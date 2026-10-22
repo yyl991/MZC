@@ -1213,524 +1213,350 @@ svg {
 }
 
 /* =========================================
-   7. KakaoTalk (微信) 列表页
+   7. 微信列表页 (适配原生微信UI)
    ========================================= */
-.kk {
-    background: #fff
+.wx-list {
+    background: #ededed;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
-.kk-h {
-    position: absolute;
-    z-index: 5;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 58px 18px 8px;
+/* 顶部导航栏 */
+.wx-head {
+    flex: none;
+    height: 100px;
+    padding: 54px 18px 10px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    background: #fff
+    justify-content: space-between;
+    background: #ededed;
 }
 
-.kk-h b {
+.wx-head h1 {
     font-size: 22px;
-    font-weight: 700
+    font-weight: 500;
+    color: #000;
+    margin: 0;
+    flex: 1;
+    text-align: center;
+    padding-left: 20px;
 }
 
-.kk-h span {
+.wx-actions {
     display: flex;
-    gap: 18px
+    gap: 18px;
 }
 
-.kk-h svg {
+.wx-actions svg {
     width: 24px;
     height: 24px;
     stroke: #111;
     fill: none;
-    stroke-width: 1.7
+    stroke-width: 1.6;
 }
 
-.kk .scroll {
-    padding-top: 104px
+/* 聊天列表区域 */
+.wx-list .scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 0;
+    background: #ededed;
 }
 
-.crow {
+.wx-item {
     display: flex;
-    gap: 12px;
     align-items: center;
-    padding: 8px 18px;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #ededed;
     width: 100%;
-    text-align: left
+    text-align: left;
+    border-bottom: .5px solid #dcdcdc;
+    transition: background .1s;
 }
 
-.crow:active {
-    background: #f3f3f3
+.wx-item:active {
+    background: #dcdcdc;
 }
 
-.av {
+/* 头像与红点角标 */
+.wx-av {
+    position: relative;
     width: 48px;
     height: 48px;
-    border-radius: 18px;
+    border-radius: 6px;
     flex: none;
-    overflow: hidden;
-    background: #a9c0d6;
-    display: grid;
-    place-items: center
+    overflow: visible;
 }
 
-.av img {
+.wx-av .app-icon-fallback,
+.wx-av img,
+.wx-av svg {
+    border-radius: 6px;
     width: 100%;
     height: 100%;
-    object-fit: cover
+    object-fit: cover;
 }
 
-.av svg {
-    width: 70%;
-    height: 70%
-}
-
-.crow .cn {
-    font-size: 15.5px;
-    font-weight: 600;
-    display: flex;
-    gap: 5px;
-    align-items: center
-}
-
-.crow .cn small {
-    color: #aaa;
+.wx-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #fa5151;
+    color: #fff;
+    font-size: 11px;
     font-weight: 500;
-    font-size: 14px
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #ededed;
 }
 
-.crow .cp {
-    font-size: 13.5px;
-    color: #888;
-    margin-top: 3px;
+/* 名字与最后一条消息预览 */
+.wx-info {
+    flex: 1;
+    min-width: 0;
+    padding-top: 2px;
+}
+
+.wx-name {
+    font-size: 16px;
+    color: #111;
+    font-weight: 400;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis
+    text-overflow: ellipsis;
 }
 
-.crow .cm {
+.wx-msg {
+    font-size: 13px;
+    color: #999;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 时间显示 */
+.wx-meta {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 6px;
+    gap: 8px;
     flex: none;
     align-self: flex-start;
-    padding-top: 4px
+    padding-top: 4px;
 }
 
-.crow .ct {
-    font-size: 11.5px;
-    color: #aaa
+.wx-time {
+    font-size: 11px;
+    color: #b2b2b2;
 }
 
-.kbdg {
-    min-width: 19px;
-    height: 19px;
-    padding: 0 5px;
-    border-radius: 10px;
-    background: #fa5a3c;
-    color: #fff;
-    font-size: 11.5px;
-    font-weight: 600;
+/* 底部导航栏 */
+.wx-tabbar {
+    flex: none;
+    height: 84px;
+    padding: 6px 0 30px;
     display: flex;
+    background: #f7f7f7;
+    border-top: .5px solid #dcdcdc;
+}
+
+.wx-tabbar button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center
+    gap: 4px;
+    color: #999;
 }
 
-.kk .tabbar {
-    background: #fff;
-    box-shadow: 0 -.5px 0 #e5e5e5
+.wx-tabbar button.on {
+    color: #07c160;
 }
 
-.kk .tabbar button {
-    color: #b3b3b3
+.wx-tabbar svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.6;
 }
 
-.kk .tabbar .on {
-    color: #111
+.wx-tabbar small {
+    font-size: 10px;
+    font-weight: 500;
 }
 
 /* =========================================
-   8. 聊天详情页 (气泡、头像、输入框)
+   8. 微信聊天详情页 (去尖角，纯净版)
    ========================================= */
-.chat {
-    background: #b2c7d9;
+.wx-chat {
+    background: #ededed;
     display: flex;
-    flex-direction: column
+    flex-direction: column;
+    height: 100%;
 }
 
-.chat-h {
+/* 聊天顶部导航 */
+.wx-chat-h {
     flex: none;
     height: 100px;
-    padding: 54px 10px 0;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    background: #b2c7d9;
-    position: relative;
-    z-index: 3
-}
-
-.chat-h .bk {
+    padding: 54px 16px 0;
     display: flex;
     align-items: center;
-    gap: 2px;
-    font-size: 16px;
+    justify-content: space-between;
+    background: #ededed;
+    border-bottom: .5px solid #dcdcdc;
+}
+
+.wx-chat-h .bk {
+    display: flex;
+    align-items: center;
     color: #111;
-    height: 40px;
-    padding: 0 6px
+    padding: 0 10px;
+    margin-left: -10px;
 }
 
-.chat-h .bk svg {
-    width: 12px;
-    height: 20px;
+.wx-chat-h .bk svg {
+    width: 14px;
+    height: 24px;
     stroke: #111;
     fill: none;
-    stroke-width: 2.2
+    stroke-width: 2.2;
 }
 
-.chat-h .nm {
-    font-size: 16.5px;
-    font-weight: 600;
+.wx-chat-h .nm {
+    font-size: 17px;
+    font-weight: 500;
+    color: #111;
+}
+
+.wx-chat-h .rt {
     display: flex;
-    gap: 5px;
-    align-items: center
 }
 
-.chat-h .nm small {
-    color: #555;
-    font-weight: 500
-}
-
-.chat-h .rt {
-    justify-self: end;
-    display: flex;
-    gap: 16px;
-    padding-right: 6px
-}
-
-.chat-h .rt svg {
-    width: 23px;
-    height: 23px;
+.wx-chat-h .rt svg {
+    width: 24px;
+    height: 24px;
     stroke: #111;
     fill: none;
-    stroke-width: 1.7
+    stroke-width: 1.8;
 }
 
+/* 消息列表区域 */
 .msgs {
     flex: 1;
     overflow-y: auto;
-    padding: 4px 10px 14px;
+    padding: 16px 16px 20px;
     scrollbar-width: none;
-    overscroll-behavior: contain
 }
 
 .msgs::-webkit-scrollbar {
-    display: none
+    display: none;
 }
 
-.dpill {
+/* 居中时间戳 */
+.wx-dpill {
     display: flex;
     justify-content: center;
-    margin: 14px 0 10px
+    margin: 20px 0 16px;
 }
 
-.dpill span {
-    background: rgba(0, 0, 0, .14);
-    color: #fff;
-    font-size: 11.5px;
-    padding: 5px 12px;
-    border-radius: 14px;
+.wx-dpill span {
+    color: #999;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+/* 消息行，每条独立头像 */
+.wx-ln {
     display: flex;
-    gap: 5px;
-    align-items: center
-}
-
-.ln {
-    display: flex;
-    align-items: flex-end;
-    gap: 5px;
-    margin-top: 4px
-}
-
-.ln.me {
-    flex-direction: row-reverse
-}
-
-.ln.th {
-    padding-left: 47px
-}
-
-.ln.th.first {
-    padding-left: 0;
     align-items: flex-start;
-    margin-top: 10px
+    gap: 10px;
+    margin-bottom: 16px;
 }
 
-.ln .sav {
+.wx-ln.me {
+    flex-direction: row-reverse;
+}
+
+/* 头像 */
+.wx-sav {
     width: 40px;
     height: 40px;
-    border-radius: 15px;
+    border-radius: 6px;
     overflow: hidden;
     flex: none;
-    background: #a9c0d6;
+    background: #c4d6e8;
     display: grid;
-    place-items: center
+    place-items: center;
 }
 
-.ln .sav img {
+.wx-sav .app-icon-fallback,
+.wx-sav img,
+.wx-sav svg {
+    border-radius: 6px;
     width: 100%;
     height: 100%;
-    object-fit: cover
 }
 
-.ln .sav svg {
-    width: 70%;
-    height: 70%
-}
-
-.ln .col {
+/* 气泡包裹层 */
+.wx-wrap {
     display: flex;
-    flex-direction: column;
-    max-width: 72%;
-    min-width: 0
+    max-width: calc(100% - 100px);
 }
 
-.ln .who {
-    font-size: 12px;
-    color: #4a4a4a;
-    margin: 1px 0 4px 2px
+.wx-ln.me .wx-wrap {
+    flex-direction: row-reverse;
 }
 
-.ln .wrap {
-    display: flex;
-    align-items: flex-end;
-    gap: 5px
-}
-
-.bb {
-    padding: 8px 11px;
-    border-radius: 15px;
-    font-size: 15px;
-    line-height: 1.36;
-    word-break: break-all;
-    white-space: pre-wrap;
-    position: relative;
-    max-width: 100%
-}
-
-.th .bb {
-    background: #fff
-}
-
-.me .bb {
-    background: #fee500
-}
-
-.ln.th.first .bb {
-    border-top-left-radius: 4px
-}
-
-.ln.me.first .bb {
-    border-top-right-radius: 4px
-}
-
-.tm {
-    font-size: 10px;
-    color: #556270;
-    white-space: nowrap;
-    flex: none;
-    margin-bottom: 1px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 1px
-}
-
-.me .tm {
-    align-items: flex-end
-}
-
-.tm .rd {
-    color: #d8a400;
-    font-weight: 700;
-    font-size: 10.5px
-}
-
-/* 特殊消息 (文件/礼物/语音/图片) */
-.bb.img {
-    padding: 0;
-    background: none !important;
-    overflow: hidden;
-    border-radius: 14px
-}
-
-.bb.img img {
-    display: block;
-    width: min(200px, 52vw);
-    max-height: 250px;
-    object-fit: cover
-}
-
-.bb.exp {
-    padding: 0;
-    width: 150px;
-    height: 150px;
-    border-radius: 14px;
-    background: #e9edf1 !important;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: #8b95a1;
-    font-size: 12px
-}
-
-.bb.exp svg {
-    width: 34px;
-    stroke: #a9b3be;
-    fill: none;
-    stroke-width: 1.5
-}
-
-.bb.file {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    min-width: 200px;
-    background: #fff !important
-}
-
-.bb.file .fi {
-    width: 38px;
-    height: 44px;
-    border-radius: 5px;
-    background: #e8eef4;
-    display: grid;
-    place-items: center;
-    font-size: 10px;
-    font-weight: 800;
-    color: #5c87b2;
-    flex: none
-}
-
-.bb.file .fn {
-    font-size: 14px;
-    font-weight: 600
-}
-
-.bb.file .fs {
-    font-size: 11.5px;
-    color: #999;
-    margin-top: 2px
-}
-
-.bb.gift {
-    padding: 0;
-    width: 210px;
-    background: #fff !important;
-    overflow: hidden
-}
-
-.bb.gift .gt {
-    background: linear-gradient(135deg, #ffe8a3, #ffd0a8);
-    height: 96px;
-    display: grid;
-    place-items: center;
-    font-size: 40px
-}
-
-.bb.gift .gb {
-    padding: 10px 12px;
-    font-size: 14px
-}
-
-.bb.gift .gb b {
-    display: block;
-    font-size: 15px
-}
-
-.bb.gift .gbtn {
-    margin: 0 12px 12px;
+/* 微信纯净气泡（无尖角） */
+.wx-bb {
+    padding: 10px 14px;
     border-radius: 6px;
-    background: #f5f5f5;
-    text-align: center;
-    padding: 8px;
-    font-size: 13px
+    font-size: 16px;
+    line-height: 1.4;
+    color: #111;
+    word-break: break-word;
+    position: relative;
 }
 
-.bb.aud {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    min-width: 170px
+.wx-ln.th .wx-bb {
+    background: #fff;
 }
 
-.bb.aud .pl {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, .08);
-    display: grid;
-    place-items: center;
-    flex: none
+.wx-ln.me .wx-bb {
+    background: #95ec69;
 }
 
-.bb.aud .pl svg {
-    width: 12px;
-    fill: #333
-}
-
-.bb.aud .wv {
-    display: flex;
-    gap: 2px;
-    align-items: center;
-    height: 22px;
-    flex: 1
-}
-
-.bb.aud .wv i {
-    width: 2.5px;
-    border-radius: 2px;
-    background: rgba(0, 0, 0, .45)
-}
-
-.bb.aud.playing .wv i {
-    animation: eq .7s ease-in-out infinite alternate
-}
-
-.bb.aud .du {
-    font-size: 12px;
-    color: #555;
-    font-variant-numeric: tabular-nums
-}
-
-/* 正在输入动画 */
-.typing {
+/* 正在输入的三个跳动小圆点（防止卡死或动画失效） */
+.wx-bb.typing {
     display: flex;
     gap: 4px;
-    padding: 12px 13px
+    padding: 12px 14px;
 }
 
-.typing i {
-    width: 7px;
-    height: 7px;
+.wx-bb.typing i {
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: #b8b8b8;
-    animation: td 1.2s infinite
+    animation: td 1.2s infinite;
 }
 
-.typing i:nth-child(2) {
-    animation-delay: .2s
+.wx-bb.typing i:nth-child(2) {
+    animation-delay: .2s;
 }
 
-.typing i:nth-child(3) {
-    animation-delay: .4s
+.wx-bb.typing i:nth-child(3) {
+    animation-delay: .4s;
 }
 
 @keyframes td {
@@ -1739,107 +1565,98 @@ svg {
     60%,
     100% {
         transform: none;
-        opacity: .5
+        opacity: .5;
     }
 
     30% {
         transform: translateY(-4px);
-        opacity: 1
+        opacity: 1;
     }
 }
 
 .pop {
-    animation: pop .35s cubic-bezier(.2, 1.4, .4, 1)
+    animation: pop .35s cubic-bezier(.2, 1.4, .4, 1);
 }
 
 @keyframes pop {
     from {
         transform: scale(.6);
-        opacity: 0
+        opacity: 0;
     }
 }
 
-/* 底部输入框 */
-.cin {
+/* 底部输入栏 */
+.wx-cin {
     flex: none;
-    background: #fff;
+    background: #f7f7f7;
     display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 10px 7px;
-    min-height: 52px
+    align-items: flex-end;
+    gap: 12px;
+    padding: 10px 14px;
+    min-height: 60px;
+    border-top: .5px solid #dcdcdc;
 }
 
-.cin.safe {
-    padding-bottom: 36px
+.wx-cin.safe {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
 }
 
-.cin svg {
-    width: 26px;
-    height: 26px;
-    stroke: #555;
-    fill: none;
-    stroke-width: 1.6;
-    flex: none
-}
-
-.cin .fld {
-    flex: 1;
-    min-height: 38px;
-    border-radius: 19px;
-    background: #f3f3f3;
-    padding: 9px 14px;
-    font-size: 15px;
-    line-height: 1.35;
-    color: #111;
-    white-space: pre-wrap;
-    word-break: break-all;
-    display: flex;
-    align-items: center;
-    cursor: text
-}
-
-.cin .fld.ph {
-    color: #aaa
-}
-
-.cin .fld .cur {
-    display: inline-block;
-    width: 2px;
-    height: 19px;
-    background: #2f7cf6;
-    margin-left: 1px;
-    vertical-align: -4px;
-    animation: blink 1s steps(1) infinite
-}
-
-@keyframes blink {
-    50% {
-        opacity: 0
-    }
-}
-
-.cin .snd {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    background: #fee500;
+.wx-cin .ic {
     display: grid;
     place-items: center;
-    flex: none;
-    transform: scale(0);
-    transition: transform .25s var(--ease)
+    padding-bottom: 8px;
 }
 
-.cin .snd.on {
-    transform: scale(1)
+.wx-cin .ic svg {
+    width: 30px;
+    height: 30px;
+    stroke: #111;
+    fill: none;
+    stroke-width: 1.5;
 }
 
-.cin .snd svg {
-    width: 18px;
+.wx-cin .wx-fld {
+    flex: 1;
+    min-height: 40px;
+    border-radius: 6px;
+    background: #fff;
+    padding: 10px 12px;
+    font-size: 16px;
+    color: #111;
+    display: flex;
+    align-items: center;
+    cursor: text;
+}
+
+.wx-cin .wx-fld.ph {
+    color: #999;
+}
+
+.wx-cin .wx-fld .cur {
+    display: inline-block;
+    width: 2px;
     height: 18px;
-    stroke: #3a1d1d;
-    stroke-width: 2.4
+    background: #07c160;
+    margin-left: 1px;
+    vertical-align: -3px;
+    animation: blink 1s steps(1) infinite;
+}
+
+.wx-cin .wx-snd {
+    width: auto;
+    height: 40px;
+    border-radius: 6px;
+    background: #07c160;
+    color: #fff;
+    display: none;
+    place-items: center;
+    padding: 0 16px;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.wx-cin .wx-snd.on {
+    display: grid;
 }
 
 /* =========================================

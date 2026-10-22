@@ -1,4 +1,51 @@
-// 聊天核心逻辑
+// ==========================================
+// 微信时间智能解析逻辑 (今天/昨天/周几/日期/年份)
+// ==========================================
+function getWxTimeString(dateLabel, timeStr) {
+  if (!timeStr) return "";
+  if (/昨天|前天|周[一二三四五六日]|\d{4}年/.test(timeStr)) return timeStr;
+
+  let h = 0,
+    m = 0;
+  const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+  if (match) {
+    h = parseInt(match[1]);
+    m = parseInt(match[2]);
+    const ampm = match[3] ? match[3].toUpperCase() : "";
+    if (ampm === "PM" && h < 12) h += 12;
+    if (ampm === "AM" && h === 12) h = 0;
+  }
+  const timeOnly = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+
+  if (!dateLabel) return timeOnly;
+
+  let msgDate = new Date(2026, 10, 15); // 游戏基准日 2026-11-15
+  const dm = dateLabel.match(/(?:(\d{4})年)?(\d+)月(\d+)日/);
+  if (dm) {
+    const y = dm[1] ? parseInt(dm[1]) : 2026;
+    const mo = parseInt(dm[2]) - 1;
+    const d = parseInt(dm[3]);
+    msgDate = new Date(y, mo, d);
+  }
+
+  const today = new Date(2026, 10, 15);
+  const diffDays = Math.floor((today - msgDate) / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return timeOnly;
+  if (diffDays === 1) return `昨天 ${timeOnly}`;
+  if (diffDays > 1 && diffDays < 7) {
+    const weekdays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+    return `${weekdays[msgDate.getDay()]} ${timeOnly}`;
+  }
+  if (msgDate.getFullYear() === today.getFullYear()) {
+    return `${msgDate.getMonth() + 1}月${msgDate.getDate()}日 ${timeOnly}`;
+  }
+  return `${msgDate.getFullYear()}年${msgDate.getMonth() + 1}月${msgDate.getDate()}日 ${timeOnly}`;
+}
+
+// ==========================================
+// 微信列表页
+// ==========================================
 const isGroup = (n) => /4组|公告|任务/.test(n);
 function previewText(s, grp) {
   return s;
@@ -18,30 +65,58 @@ function otherUnread() {
 VIEWS.kakao = () => {
   const list = chatNames.slice();
   return {
-    cls: "kk",
-    html: `<div class="kk-h"><b>微信</b><span>${G.search}${G.chatPlus}${G.gear}</span></div><div class="scroll">${list
-      .map((n) => {
-        const arr = chatData[n] || [];
-        let last = arr.filter((x) => x[1] !== "date").slice(-1)[0],
-          time = last ? last[2] : "",
-          cnt = unread[n] || 0;
-        return `<button class="crow" onclick="chatId=${esc(JSON.stringify(n))};push('chat')"><div class="av">${avatarFor(n, isGroup(n))}</div><div style="flex:1;min-width:0"><div class="cn">${esc(dn(n))}</div><div class="cp">${last ? esc(previewText(last[0], isGroup(n))) : ""}</div></div><div class="cm"><span class="ct">${time}</span>${cnt ? `<span class="kbdg">${cnt}</span>` : ""}</div></button>`;
-      })
-      .join("")}</div>${tabbar(
-      [
-        ["person", "通讯录"],
-        ["chat", "聊天"],
-        ["openchat", "发现"],
-        ["bag", "我"],
-        ["dotsH", "更多"],
-      ],
-      1,
-    )}`,
+    cls: "wx-list",
+    html: `
+    <div class="wx-head">
+        <h1>微信</h1>
+        <div class="wx-actions">${G.wxSearch}${G.wxPlus}</div>
+    </div>
+    <div class="scroll">
+        ${list
+          .map((n) => {
+            const arr = chatData[n] || [];
+            let last = arr.filter((x) => x[1] !== "date").slice(-1)[0];
+            let time = last
+              ? last[2].replace(" PM", "").replace(" AM", "")
+              : "";
+            let cnt = unread[n] || 0;
+            const badge = cnt
+              ? `<span class="wx-badge">${cnt > 99 ? "99+" : cnt}</span>`
+              : "";
+
+            return `
+            <button class="wx-item" onclick="chatId=${esc(JSON.stringify(n))};push('chat')">
+                <div class="wx-av">
+                    ${avatarFor(n, isGroup(n))}
+                    ${badge}
+                </div>
+                <div class="wx-info">
+                    <div class="wx-name">${esc(dn(n))}</div>
+                    <div class="wx-msg">${last ? esc(previewText(last[0], isGroup(n))) : ""}</div>
+                </div>
+                <div class="wx-meta">
+                    <span class="wx-time">${time}</span>
+                </div>
+            </button>`;
+          })
+          .join("")}
+    </div>
+    <div class="wx-tabbar">
+        <button class="on"><span>${G.wechatTab}</span><small>微信</small></button>
+        <button><span>${G.contactsTab}</span><small>通讯录</small></button>
+        <button><span>${G.discoverTab}</span><small>发现</small></button>
+        <button><span>${G.meTab}</span><small>我</small></button>
+    </div>`,
   };
 };
+
+// ==========================================
+// 微信聊天页
+// ==========================================
 function bubble(s) {
-  return `<div class="bb">${esc(s)}</div>`;
+  return `<div class="wx-bb">${esc(s)}</div>`;
 }
+
 function chatItems(id) {
   const arr = chatData[id] || [];
   const items = [];
@@ -60,25 +135,53 @@ function chatItems(id) {
   });
   return items;
 }
+
 function chatMsgs(id) {
   const it = chatItems(id);
   let o = "";
+  let currentDateLabel = "11月15日";
+
   it.forEach((x, i) => {
     if (x.date) {
-      o += `<div class="dpill"><span>${x.date}</span></div>`;
+      currentDateLabel = x.date;
       return;
     }
-    const p = it[i - 1],
-      n = it[i + 1];
-    const first = !p || p.date || p.who !== x.who || p.sender !== x.sender;
+
     const me = x.who === "me";
-    o += `<div class="ln ${me ? "me" : "th"} ${first ? "first" : ""}">${!me && first ? `<div class="sav">${avatarFor(x.sender)}</div>` : ""}<div class="col" style="${me ? "align-items:flex-end" : ""}">${!me && first ? `<div class="who">${esc(dn(x.sender))}</div>` : ""}<div class="wrap">${bubble(x.text)}</div></div></div>`;
+    const prev = it[i - 1];
+
+    if (i === 1 || !prev || prev.date || prev.time !== x.time) {
+      o += `<div class="wx-dpill"><span>${getWxTimeString(currentDateLabel, x.time)}</span></div>`;
+    }
+
+    o += `
+    <div class="wx-ln ${me ? "me" : "th"}">
+      <div class="wx-sav">${avatarFor(x.sender)}</div>
+      <div class="wx-wrap">
+        ${bubble(x.text)}
+      </div>
+    </div>`;
   });
   return o;
 }
+
 VIEWS.chat = () => ({
-  cls: "chat",
-  html: `<div class="chat-h"><button class="bk" onclick="back()">${G.chevL}<span>${otherUnread() || ""}</span></button><div class="nm">${esc(dn(chatId))}</div><div class="rt">${G.search}${G.dotsH}</div></div><div class="msgs" id="msgs" onclick="closeKbd()">${chatMsgs(chatId)}</div><div class="cin safe" id="cin">${G.plusSq}<div class="fld ph" id="fld" onclick="event.stopPropagation();tapInput()">输入消息</div>${G.smile}<button class="snd" id="snd" onclick="sendLine()">${G.arrowUp}</button></div><div class="kbd" id="kbd">${kbdHTML()}</div>`,
+  cls: "wx-chat",
+  html: `
+  <div class="wx-chat-h">
+      <button class="bk" onclick="back()">${G.chevL}</button>
+      <div class="nm">${esc(dn(chatId))}</div>
+      <div class="rt">${G.dotsH}</div>
+  </div>
+  <div class="msgs" id="msgs" onclick="closeKbd()">${chatMsgs(chatId)}</div>
+  <div class="wx-cin safe" id="cin">
+      <button class="ic" onclick="vib(10)">${G.wxVoice}</button>
+      <div class="wx-fld ph" id="fld" onclick="event.stopPropagation();tapInput()">输入消息</div>
+      <button class="ic" onclick="vib(10)">${G.wxEmoji}</button>
+      <button class="ic" onclick="vib(10)">${G.wxPlus}</button>
+      <button class="wx-snd" id="snd" onclick="sendLine()">发送</button>
+  </div>
+  <div class="kbd" id="kbd">${kbdHTML()}</div>`,
   init: () => {
     if (chatId) unread[chatId] = 0;
     SS.typing = false;
@@ -86,6 +189,7 @@ VIEWS.chat = () => ({
     scrollChat();
   },
 });
+
 function scrollChat(smooth) {
   const b = $("#msgs");
   if (!b) return;
@@ -98,11 +202,14 @@ function refreshChat(pop) {
   b.innerHTML = chatMsgs(chatId);
   scrollChat();
   if (pop) {
-    const l = b.lastElementChild && b.lastElementChild.querySelector(".bb");
+    const l = b.lastElementChild && b.lastElementChild.querySelector(".wx-bb");
     if (l) l.classList.add("pop");
   }
 }
 
+// ==========================================
+// 键盘系统与打字机
+// ==========================================
 const KB_LAT = [
   "qwertyuiop".split(""),
   "asdfghjkl".split(""),
@@ -164,11 +271,11 @@ function setField(txt, cursor) {
   const f = $("#fld");
   if (!f) return;
   if (!txt && !cursor) {
-    f.className = "fld ph";
+    f.className = "wx-fld ph";
     f.textContent = "输入消息";
     return;
   }
-  f.className = "fld";
+  f.className = "wx-fld";
   f.innerHTML = esc(txt) + (cursor ? '<span class="cur"></span>' : "");
 }
 function canType() {
@@ -229,6 +336,7 @@ function sendLine() {
   $("#snd").classList.remove("on");
   refreshChat(true);
   SS.lineIdx[chatId] = li + 1;
+
   const stage = c.replies[st];
   if (SS.lineIdx[chatId] < stage.mine.length) {
     setTimeout(() => {
@@ -246,6 +354,7 @@ function sendLine() {
     });
     refreshChat();
   }, 900);
+
   let t = 1200;
   stage.them.forEach((msg) => {
     setTimeout(() => showTypingFrom(chatId), t);
@@ -265,13 +374,16 @@ function sendLine() {
   }, t + 50);
 }
 
+// ==========================================
+// 消息收发与通知
+// ==========================================
 function showTypingFrom(from) {
   if (!(view === "chat" && chatId === from)) return;
   const b = $("#msgs");
   if (!b || $("#typ")) return;
   b.insertAdjacentHTML(
     "beforeend",
-    `<div class="ln th first" id="typ"><div class="sav">${avatarFor(from)}</div><div class="col"><div class="wrap"><div class="bb typing pop"><i></i><i></i><i></i></div></div></div></div>`,
+    `<div class="wx-ln th" id="typ"><div class="wx-sav">${avatarFor(from)}</div><div class="wx-wrap"><div class="wx-bb typing pop"><i></i><i></i><i></i></div></div></div>`,
   );
   scrollChat(true);
 }

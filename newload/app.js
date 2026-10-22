@@ -119,8 +119,38 @@ const G = {
   chat: g(
     '<path d="M12 4C7 4 3 7.1 3 11c0 2.4 1.5 4.5 3.9 5.8L6 20.5l4-2.4c.6.1 1.3.1 2 .1 5 0 9-3.1 9-7.1S17 4 12 4Z"/>',
   ),
-  chatPlus: g('<path d="M12 4C7 4 3 7.1 3 11c0 2.4 1.5 4.5 3.9 5.8L6 20.5l4-2.4c.6.1 1.3.1 2 .1 5 0 9-3.1 9-7.1S17 4 12 4Z"/><path d="M12 8.5v5M9.5 11h5"/>'),
-  openchat: g('<circle cx="12" cy="12" r="8.5"/><path d="M8 12.5c1 1.6 2.4 2.4 4 2.4s3-.8 4-2.4"/>'),
+  wxSearch: g(
+    '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/>',
+  ),
+  wxPlus: g('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),
+  wxVoice: g(
+    '<circle cx="12" cy="12" r="9"/><path d="M8.5 9.5a5 5 0 0 1 7 0M10 12.5a2.5 2.5 0 0 1 4 0M11.5 15.5a.5.5 0 0 1 1 0"/>',
+    'stroke-width="1.5"',
+  ),
+
+  wxEmoji: g(
+    '<circle cx="12" cy="12" r="9"/><path d="M8.5 13.5h7a3.5 3.5 0 0 1-7 0Z" stroke-linejoin="round"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/>',
+    'stroke-width="1.5"',
+  ),
+  wechatTab: g(
+    '<path d="M8.5 16.5c-3.5 0-6.5-2.5-6.5-5.5S5 5.5 8.5 5.5 15 8 15 11c0 .5-.1.9-.2 1.4 1.7 1 2.7 2.5 2.7 4.1 0 2.5-2.5 4.5-5.5 4.5-1.1 0-2.1-.3-3-.9l-2.5 1.2 1-2.8c-.9-.8-1.5-1.8-1.5-3Z"/><circle cx="6" cy="10" r="1" fill="currentColor"/><circle cx="10" cy="10" r="1" fill="currentColor"/>',
+  ),
+  contactsTab: g(
+    '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.8 3.1-7 7-7s7 3.2 7 7"/><path d="M16 5h4M16 8h4"/>',
+  ),
+  discoverTab: g(
+    '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/>',
+  ),
+  meTab: g(
+    '<circle cx="12" cy="7" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
+  ),
+
+  chatPlus: g(
+    '<path d="M12 4C7 4 3 7.1 3 11c0 2.4 1.5 4.5 3.9 5.8L6 20.5l4-2.4c.6.1 1.3.1 2 .1 5 0 9-3.1 9-7.1S17 4 12 4Z"/><path d="M12 8.5v5M9.5 11h5"/>',
+  ),
+  openchat: g(
+    '<circle cx="12" cy="12" r="8.5"/><path d="M8 12.5c1 1.6 2.4 2.4 4 2.4s3-.8 4-2.4"/>',
+  ),
   bag: g('<path d="M5 8h14l-1 12H6Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>'),
   clock: g('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
   star: g(
@@ -241,7 +271,10 @@ const APPS = {
 
 function appIcon(id) {
   const newApps = {
-    wechat: { cls: "ic-wechat", icon: G.chat },
+    wechat: {
+      cls: "ic-wechat",
+      icon: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#07c160"/><g fill="#fff" transform="translate(-3, -4) scale(1.1)"><path d="M23 19c-7.7 0-14 5.2-14 11.7 0 3.7 2.1 7 5.4 9.1l-1.4 4.2 4.9-2.4c1.6.5 3.3.8 5.1.8 7.7 0 14-5.2 14-11.7S30.7 19 23 19Z"/><path d="M39 28c-7.7 0-14 5.2-14 11.7 0 3.7 2.1 7 5.4 9.1l-1.4 4.2 4.9-2.4c1.6.5 3.3.8 5.1.8 7.7 0 14-5.2 14-11.7S46.7 28 39 28Z"/><circle cx="18" cy="27" r="2.5" fill="#07c160"/><circle cx="28" cy="27" r="2.5" fill="#07c160"/><circle cx="34" cy="36" r="2.5" fill="#07c160"/><circle cx="44" cy="36" r="2.5" fill="#07c160"/></g></svg>`,
+    },
     weibo: { cls: "ic-weibo", icon: G.globe },
     xianyu: { cls: "ic-xianyu", icon: G.bag },
     bilibili: { cls: "ic-bili", icon: G.playF },
