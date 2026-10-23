@@ -437,7 +437,18 @@ function ringOnce() {
     tone(f * 2, t, 0.18, 0.03);
   });
 }
-document.addEventListener("pointerdown", () => ac(), { once: true });
+
+document.addEventListener("pointerdown", () => {
+  // 1. 初始化音效引擎
+  ac(); 
+  
+  // 2. 播放背景音乐
+  const BGM = document.getElementById("bgm");
+  if (BGM && BGM.paused) {
+    BGM.volume = 0.1116; // 背景音乐建议调小一点，0.3 约等于 30% 音量
+    BGM.play().catch(e => console.log("BGM播放被拦截", e));
+  }
+}, { once: true });
 
 function setStatus(dark) {
   curDark = !!dark;
@@ -667,11 +678,9 @@ function badgeOf(id) {
   if (id === "mail") return 2;
 
   if (id === "wechat") {
-    // 计算总未读数
     let totalUnread = Object.values(unread).reduce((a, b) => a + b, 0);
-    // 如果未读是 0，为了营造“很多人找你”的压迫感，强制保底显示 2 或者 99
-    // 如果你想真实一点（看完就没红点），就把 ? Math.min(99, totalUnread) : 0 换回来
-    return totalUnread > 0 ? Math.min(99, totalUnread) : 99;
+    // 👇 改成这样：有未读就显示，没有未读就是 0
+    return totalUnread > 0 ? Math.min(99, totalUnread) : 0; 
   }
   return 0;
 }
@@ -1160,6 +1169,8 @@ function stopRing() {
   } catch (e) {}
 }
 function incomingCallFrom(from = "穆祉丞") {
+  const BGM = document.getElementById("bgm");
+  if (BGM) BGM.pause(); 
   callName = from;
   callDir = "in";
   callPrev = view;
@@ -1348,6 +1359,8 @@ function closeCallUI() {
     setStatus(viewDark());
     updateIsland();
     if (view === "home") renderHome();
+    const BGM = document.getElementById("bgm");
+    if (BGM && BGM.paused) BGM.play();
   }, 350);
 }
 
@@ -1501,15 +1514,28 @@ function fit() {
 function initApp() {
   addEventListener("resize", fit);
   fit();
-
-  // ==========================================
-  // 🚀 开发者调试模式：跳过锁屏，直接进桌面
-  // ==========================================
-  view = "home"; // 状态直接设为 home
-  LOCK.style.display = "none"; // 隐藏锁屏界面
-  renderHome(); // 渲染桌面
-  HOME.style.visibility = "visible"; // 让桌面可见
-  setStatus(true); // 设置状态栏
+/*
+  // 👇 新增：强行恢复剧情播放进度（防止刷新重播）
+  try {
+    const saved = localStorage.getItem("wb_story");
+    if (saved) {
+      const data = JSON.parse(saved);
+      SS.stage = data.stage || {};
+      SS.lineIdx = data.lineIdx || {};
+      SS.choice = data.choice || null;
+      SS.arriveHome = data.arriveHome || false;
+      if (data.fired) SS.fired = new Set(data.fired);
+      if (data.completed) SS.completed = new Set(data.completed);
+      if (data.fragments) SS.fragments = new Set(data.fragments);
+    }
+  } catch (e) {}
+*/
+  // 开发者调试模式：跳过锁屏
+  view = "home";
+  LOCK.style.display = "none";
+  renderHome();
+  HOME.style.visibility = "visible";
+  setStatus(true);
 
   setInterval(tick, 250);
   tick();

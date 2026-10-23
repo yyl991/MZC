@@ -39,20 +39,33 @@ var INCOMING = [];
     Mu: { initial: "M", color: "#3a3a3c" },
   };*/
 
-     S.roles = {
-    闺蜜: { initial: "闺", color: "#8e8e93", avatar: "./data/pic/avatar/guimi.jpg" },
-    MuAMuA: { initial: "妈", color: "#f6b6c8", avatar: "./data/pic/avatar/mama.jpg" },
-    穆老爹: { initial: "爸", color: "#7d8ea8", avatar: "./data/pic/avatar/baba.jpg" },
-    丞哥: { initial: "哥", color: "#c9a227", avatar: "./data/pic/avatar/gege.jpg" },
-    穆祉丞: { initial: "丞", color: "#ff8a3d", avatar: "./data/pic/avatar/mzc.jpg" },
-    穆瑞恩: { initial: "瑞", color: "#9ad0ec", avatar: "./data/pic/avatar/ruien.jpg" },
-    恩仔: { initial: "恩", color: "#d9a7c7", avatar: "./data/pic/avatar/enzai.jpg" },
-    Mu: { initial: "M", color: "#3a3a3c", avatar: "./data/pic/avatar/mu.jpg" },
-    小队长: { initial: "M", color: "#3a3a3c", avatar: "./data/pic/avatar/duizhang.jpg" },
-    蓝胖胖: { initial: "L", color: "#3a3a3c", avatar: "./data/pic/avatar/lpp.jpg" },
-    zhu: { initial: "Z", color: "#3a3a3c", avatar: "./data/pic/avatar/zhu.jpg" },
+  S.roles = {
+    闺蜜: { initial: "闺", color: "#8e8e93", avatar: "./data/avatar/guimi.jpg", pat: "的脑壳说醒醒" },
+    MuAMuA: { initial: "妈", color: "#f6b6c8", avatar: "./data/avatar/mama.jpg", pat: ":不是说学了吗‎•᷄ࡇ•᷅" },
+    恩恩: { initial: "婆", color: "#f6b6c8", avatar: "./data/avatar/enen.jpg", pat: "的小屁股" },
+    穆老爹: { initial: "爸", color: "#7d8ea8", avatar: "./data/avatar/baba.jpg", pat: "的保温杯" },
+    丞哥: { initial: "哥", color: "#c9a227", avatar: "./data/avatar/gege.jpg", pat: "说丞哥丞哥大帅哥" },
+    穆祉丞: { initial: "丞", color: "#ff8a3d", avatar: "./data/avatar/mzc.jpg", pat: "的脸颊说真乖" },
+    穆瑞恩: { initial: "瑞", color: "#9ad0ec", avatar: "./data/avatar/ruien.jpg", pat: "的小脸蛋" },
+    恩仔: { initial: "恩", color: "#d9a7c7", avatar: "./data/avatar/enzai.jpg", pat: "的小脑袋" },
+    Mu: { initial: "M", color: "#3a3a3c", avatar: "./data/avatar/mu.jpg", pat: ":汪汪" },
+    小队长: { initial: "M", color: "#3a3a3c", avatar: "./data/avatar/duizhang.jpg", pat: "并敬了个礼" },
+    蓝胖胖: { initial: "L", color: "#3a3a3c", avatar: "./data/avatar/lpp.jpg", pat: "的肥肉" },
+    pig: { initial: "Z", color: "#ffb6c1", avatar: "./data/avatar/pig.jpg", pat: "说别吃了" }, // 猪
+    // 👇 新增的三个角色
+    cat: { initial: "猫", color: "#3a3a3c", avatar: "./data/avatar/cat.jpg", pat: "踩了一脚" },
+    rabbit: { initial: "兔", color: "#ffb3c1", avatar: "./data/avatar/rabbit.jpg", pat: "的长耳朵" },
+    tiger: { initial: "虎", color: "#ff9f0a", avatar: "./data/avatar/tiger.jpg", pat: "的尾巴" },
+  };  
+    S.display = {
+    pig: "🐖",      // 侧面的小猪
+    cat: "🐈‍⬛",     // 黑猫
+    rabbit: "🐇",   // 兔子
+    tiger: "🐅",    // 老虎
   };
-
+ // 你的专属拍一拍后缀
+  S.myAvatar = "./data/avatar/me.jpg"; 
+  S.myPat = "的聪明小脑瓜"; 
 
     S.chats = {
     '闺蜜': {
@@ -118,6 +131,41 @@ var INCOMING = [];
         { mine:['迟到总比永远不来要好。'], them:['……嗯。不用为没有发生的过去自责。'] }
       ],
       fragment: { title:'碎片 · 铠甲', body:'摔过话筒之后，他学会先把自己包起来。\n\n但铠甲里面，还是那个想被接住的人。' }
+    },
+        '蓝胖胖': {
+      init: [['11月15日','date']], // 必须有一个初始日期分割线
+      replies: [
+        { mine:['不玩了，我今天有点事。'], them:['哎？这么扫兴！'] }
+      ],
+      fragment: null
+    },
+    'pig': {
+      init: [['11月15日','date']],
+      replies: [
+        { mine:['别闹了，早点睡。'], them:['好吧，晚安小猪。'] }
+      ],
+      fragment: null
+    },
+    'cat': {
+      init: [['11月15日','date']],
+      replies: [
+        { mine:['别踩我键盘了。'], them:['喵~'] }
+      ],
+      fragment: null
+    },
+    'rabbit': {
+      init: [['11月15日','date']],
+      replies: [
+        { mine:['给你吃胡萝卜。'], them:['吧唧吧唧。'] }
+      ],
+      fragment: null
+    },
+    'tiger': {
+      init: [['11月15日','date']],
+      replies: [
+        { mine:['你到底是猫还是老虎？'], them:['嗷呜！'] }
+      ],
+      fragment: null
     }
   };
 
@@ -249,7 +297,7 @@ var INCOMING = [];
     ["街角", "11月15日 23:09"],
   ];
   S.incoming = ["快回家。"];
-  S.display = {};
+
   S.privateAlbum = [
     { src: "photos/placeholder_private_01.jpg", label: "占位 · 剪影" },
     { src: "photos/placeholder_private_02.jpg", label: "占位 · 舞台灯" },
@@ -285,7 +333,6 @@ var INCOMING = [];
     chatData[id] = S.chats[id].init.slice();
   });
 */
-
   for (const k in chatData) delete chatData[k];
   Object.keys(S.chats).forEach((id) => {
     // 获取独立文件里的历史记录，如果没有就设为空数组
@@ -323,6 +370,21 @@ var INCOMING = [];
     typing: false,
     replyBusy: false,
   };
-
+  /*
+    // 👈 新增：读取本地存档，防止刷新后剧情重复触发
+  try {
+    const savedStory = localStorage.getItem("wb_story");
+    if (savedStory) {
+      const parsed = JSON.parse(savedStory);
+      window.STORY_STATE.stage = parsed.stage || {};
+      window.STORY_STATE.lineIdx = parsed.lineIdx || {};
+      window.STORY_STATE.choice = parsed.choice || null;
+      window.STORY_STATE.arriveHome = parsed.arriveHome || false;
+      window.STORY_STATE.fired = new Set(parsed.fired || []);
+      window.STORY_STATE.completed = new Set(parsed.completed || []);
+      window.STORY_STATE.fragments = new Set(parsed.fragments || []);
+    }
+  } catch(e) {}
+*/
   
 })();
