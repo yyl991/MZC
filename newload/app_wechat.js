@@ -350,33 +350,83 @@ function toggleVoiceText(btn) {
   }
 }
 
-function playVoice(el, url, sec) {
-  if (el.classList.contains("playing")) return;
-  el.classList.add("playing");
 
+let voiceAudio = null;
+let currentVoiceEl = null;
+
+function playVoice(el, url, sec) {
+  // 如果点的是正在播放的语音，直接暂停
+  if (currentVoiceEl === el && voiceAudio && !voiceAudio.paused) {
+    voiceAudio.pause();
+    el.classList.remove("playing");
+    currentVoiceEl = null;
+    resumeBGM();
+    return;
+  }
+
+  // 停止上一条正在播的语音
+  if (voiceAudio) { voiceAudio.pause(); voiceAudio = null; }
+  if (currentVoiceEl) { currentVoiceEl.classList.remove("playing"); currentVoiceEl = null; }
+
+  el.classList.add("playing");
+  currentVoiceEl = el;
+
+  // 消除红点
   const idx = el.getAttribute("data-idx");
   if (idx) {
     const dot = document.getElementById(`dot-${idx}`);
     if (dot) dot.style.display = "none";
   }
 
+  pauseBGM(); // 暂停背景音乐
+
   if (url) {
-    const audio = new Audio(url);
-    audio.play().catch((e) => console.log("音频播放失败", e));
-    audio.onended = () => el.classList.remove("playing");
+    voiceAudio = new Audio(url);
+    voiceAudio.volume = 0.9;
+    voiceAudio.play().catch((e) => {
+      console.error("语音播放失败（请检查路径或文件是否存在）:", url, e);
+      el.classList.remove("playing");
+      currentVoiceEl = null;
+      resumeBGM();
+    });
+    voiceAudio.onended = () => {
+      el.classList.remove("playing");
+      currentVoiceEl = null;
+      voiceAudio = null;
+      resumeBGM();
+    };
   } else {
-    setTimeout(() => el.classList.remove("playing"), sec * 1000);
+    setTimeout(() => {
+      el.classList.remove("playing");
+      currentVoiceEl = null;
+      resumeBGM();
+    }, sec * 1000);
   }
 }
-
 function openVideo(url) {
+  const BGM = document.getElementById("bgm");
+  if (BGM) {
+    BGM.pause(); // 👈 只暂停，记住当前位置
+    // BGM.currentTime = 0; 👈 千万别加这行！加就从头开始了！
+    window.bgmPausedByOther = true;
+  }
+
   const d = document.createElement("div");
   d.className = "video-overlay";
   d.innerHTML = `
-    <div class="video-close" onclick="this.parentElement.remove()">×</div>
-    <video src="${url}" controls autoplay></video>
+    <div class="video-close">×</div>
+    <video src="${url}" controls autoplay playsinline></video>
   `;
   document.getElementById("screen").appendChild(d);
+
+  const close = () => {
+    const v = d.querySelector('video');
+    if (v) { v.pause(); v.src = ""; }
+    d.remove();
+    resumeBGM();
+  };
+  d.querySelector('.video-close').onclick = close;
+  d.querySelector('video').onended = close;
 }
 
 function doPat(isSelf) {

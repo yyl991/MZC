@@ -1,12 +1,6 @@
 // ==========================================
 // 📱 1. 短信 (SMS) - 带详情页
 // ==========================================
-// ==========================================
-// 📱 短信 (SMS) - 完美复刻 iOS 列表与详情
-// ==========================================
-// ==========================================
-// 📱 短信 (SMS) - 完美融入全局主题
-// ==========================================
 
 const smsData = [
   {
@@ -178,368 +172,6 @@ function openSmsDetail(id) {
   push('sms_detail');
 }
 
-// ==========================================
-// 📱 2. 微博 (Weibo) - 带个人主页
-// ==========================================
-const weiboData = [
-  { text: "小萌萌", time: "10-16", device: "来自 HarmonyOS设备", images: ["./data/avatar/mzc.jpg", "E404", "E404"], repost: "@与橡树至世界尽头：🐼➡️😡➡️啊打", likes: 1024, comments: 88, forwards: 56 },
-  { text: "小猪宝宝🐷", time: "10-15", device: "来自 iPhone 15 Pro", images: [], likes: 2048, comments: 156, forwards: 23 },
-  { text: "今天排练真的很累，但是看到大家应援又充满了力量！", time: "10-10", device: "来自 微博网页版", images: ["E404"], likes: 5120, comments: 420, forwards: 102 },
-];
-
-VIEWS.weibo = () => ({
-  html: navHTML({ title: "微博", back: "主页", backFn: "closeApp()", right: G.gear }) +
-    `<div class="scroll" style="background:#f5f5f5; padding-top:88px; padding-bottom:20px;">
-      
-      <div style="background:#fff; padding:10px 16px 0;">
-        <div style="display:flex; gap:20px; overflow-x:auto; white-space:nowrap; font-size:16px; color:#666; padding-bottom:10px; scrollbar-width:none;">
-          <span style="font-weight:700; color:#111; position:relative;">全部<span style="position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); width:20px; height:3px; background:#ff8200; border-radius:2px;"></span></span>
-          <span>超话帖</span>
-          <span>原创</span>
-          <span>视频</span>
-          <span>文章</span>
-          <span>图片</span>
-        </div>
-        <div class="srch" style="margin:10px 0; background:#f5f5f5;">${G.search}搜我的微博</div>
-      </div>
-
-      <!-- 个人主页入口 -->
-      <div style="background:#fff; margin-top:10px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="push('weibo_profile')">
-           <div style="width:48px; height:48px; border-radius:50%; background:#eee; overflow:hidden;">
-             ${CFG.myAvatar ? `<img src="${CFG.myAvatar}" style="width:100%; height:100%; object-fit:cover;">` : ''}
-           </div>
-           <div>
-             <div style="font-size:16px; font-weight:600; color:#111;">赶快跑赶快长</div>
-             <div style="font-size:12px; color:#999;">查看过往微博 ></div>
-           </div>
-        </div>
-      </div>
-
-      <div style="padding:10px 16px; font-size:13px; color:#666; display:flex; justify-content:space-between;">
-        <span>全部微博(${weiboData.length})</span>
-        <span>☰ 筛选</span>
-      </div>
-
-      ${weiboData.map(w => `
-        <div style="background:#fff; margin-bottom:10px; padding:16px;">
-          <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-            <div style="width:44px; height:44px; border-radius:50%; overflow:hidden; background:#eee;">
-               ${CFG.myAvatar ? `<img src="${CFG.myAvatar}" style="width:100%; height:100%; object-fit:cover;">` : ''}
-            </div>
-            <div>
-              <div style="font-size:16px; font-weight:600; color:#333;">赶快跑赶快长</div>
-              <div style="font-size:12px; color:#999;">${w.time} ${w.device}</div>
-            </div>
-          </div>
-          <div style="font-size:15px; color:#333; line-height:1.5; margin-bottom:8px;">${esc(w.text)}</div>
-          ${w.repost ? `<div style="font-size:13px; color:#666; margin-bottom:8px; background:#f5f5f5; padding:8px; border-radius:4px;">${esc(w.repost)}</div>` : ''}
-          
-          ${w.images.length > 0 ? `
-            <div style="display:grid; grid-template-columns:repeat(${w.images.length === 1 ? 1 : w.images.length === 4 ? 2 : 3}, 1fr); gap:4px; margin-bottom:12px;">
-              ${w.images.map(img => `
-                <div style="aspect-ratio:1; border-radius:4px; overflow:hidden; background:#eee; display:flex; align-items:center; justify-content:center; color:#999; font-size:12px;">
-                  ${img === 'E404' ? '图片占位' : `<img src="${img}" style="width:100%; height:100%; object-fit:cover;">`}
-                </div>
-              `).join('')}
-            </div>
-          ` : ''}
-
-          <div style="display:flex; justify-content:space-between; align-items:center; border-top:0.5px solid #f0f0f0; padding-top:12px; color:#666; font-size:13px;">
-            <span style="display:flex; align-items:center; gap:4px;">↻ 转发</span>
-            <span style="display:flex; align-items:center; gap:4px;">💬 评论</span>
-            <span style="display:flex; align-items:center; gap:4px;">👍 赞</span>
-          </div>
-        </div>
-      `).join('')}
-    </div>`,
-});
-
-VIEWS.weibo_profile = () => ({
-  html: navHTML({ title: "个人主页", back: "微博", backFn: "back()" }) +
-    `<div class="scroll" style="background:#f5f5f5; padding-bottom:20px;">
-       <div style="background:linear-gradient(180deg, #ff9a9e, #fecfef); height:120px; position:relative;">
-          <div style="position:absolute; bottom:-30px; left:20px; width:80px; height:80px; border-radius:50%; border:3px solid #fff; overflow:hidden; background:#fff;">
-             ${CFG.myAvatar ? `<img src="${CFG.myAvatar}" style="width:100%; height:100%; object-fit:cover;">` : ''}
-          </div>
-       </div>
-       <div style="background:#fff; padding:40px 20px 20px;">
-          <div style="font-size:20px; font-weight:700; color:#111;">赶快跑赶快长</div>
-          <div style="font-size:13px; color:#999; margin-top:6px;">📍 北京</div>
-          <div style="font-size:14px; color:#333; margin-top:12px;">今天也很想你。</div>
-       </div>
-       <div style="padding:10px 16px; font-size:13px; color:#666;">全部微博(${weiboData.length})</div>
-       ${weiboData.map(w => `
-        <div style="background:#fff; margin-bottom:10px; padding:16px;">
-          <div style="font-size:15px; color:#333; line-height:1.5; margin-bottom:8px;">${esc(w.text)}</div>
-          ${w.images.length > 0 ? `
-            <div style="display:grid; grid-template-columns:repeat(${w.images.length === 1 ? 1 : w.images.length === 4 ? 2 : 3}, 1fr); gap:4px; margin-bottom:12px;">
-              ${w.images.map(img => `
-                <div style="aspect-ratio:1; border-radius:4px; overflow:hidden; background:#eee; display:flex; align-items:center; justify-content:center; color:#999; font-size:12px;">
-                  ${img === 'E404' ? '图片占位' : `<img src="${img}" style="width:100%; height:100%; object-fit:cover;">`}
-                </div>
-              `).join('')}
-            </div>
-          ` : ''}
-        </div>
-      `).join('')}
-    </div>`,
-});
-
-// ==========================================
-// 📱 3. 闲鱼 (Xianyu)
-// ==========================================
-VIEWS.xianyu = () => {
-  const items = [
-    { title: "【已大刀/可直拍】毛二双 吾个音480档，12-48，不包邮", price: "￥300", wants: 7, img: "linear-gradient(135deg, #ff9a9e, #fecfef)", tag: "包邮" },
-    { title: "出穆思恩裸娃 捆6个", price: "￥201.21", wants: 7, img: "linear-gradient(135deg, #a1c4fd, #c2e9fb)", tag: "包邮" },
-    { title: "SanDisk 128G 内存卡 全新未拆封", price: "￥89", wants: 12, img: "linear-gradient(135deg, #84fab0, #8fd3f4)", tag: "" },
-    { title: "穆祉丞同款卫衣 九成新 仅试穿", price: "￥199", wants: 23, img: "linear-gradient(135deg, #fbc2eb, #a6c1ee)", tag: "" },
-  ];
-
-  return {
-    html: `
-    <div class="scroll" style="background:#f5f5f5; padding-bottom:20px;">
-      <div style="padding:54px 16px 10px; background:#fff; display:flex; align-items:center; justify-content:space-between; font-size:18px; font-weight:700;">
-        <span>首页</span> <span style="color:#666; font-size:16px; font-weight:400;">集市 <span style="font-size:10px; background:#ff3b30; color:#fff; padding:1px 4px; border-radius:4px;">更便宜</span></span> <span style="color:#666; font-size:16px; font-weight:400;">圈子</span> <span style="color:#666; font-size:16px; font-weight:400;">回收</span>
-      </div>
-      <div style="background:#fff; padding:0 16px 10px;">
-        <div style="background:#f5f5f5; border-radius:20px; height:36px; display:flex; align-items:center; padding:0 12px; color:#999; font-size:14px;">
-          <span style="margin-right:8px;">📷</span> 清扬面团 <span style="margin-left:auto;">🔍</span>
-        </div>
-      </div>
-      <div style="background:#fff; padding:10px 0; display:flex; justify-content:space-around; text-align:center; font-size:12px; color:#666;">
-        <div><div style="width:36px; height:36px; background:#ffd700; border-radius:12px; margin:0 auto 4px;"></div>吃喝玩乐</div>
-        <div><div style="width:36px; height:36px; background:#4a90e2; border-radius:12px; margin:0 auto 4px;"></div>手机数码</div>
-        <div><div style="width:36px; height:36px; background:#f5c84c; border-radius:12px; margin:0 auto 4px;"></div>上门回收</div>
-        <div><div style="width:36px; height:36px; background:#5e5ce6; border-radius:12px; margin:0 auto 4px;"></div>租房</div>
-        <div><div style="width:36px; height:36px; background:#fa5151; border-radius:12px; margin:0 auto 4px;"></div>领红包</div>
-      </div>
-      <div style="background:#fff; padding:10px 16px; display:flex; gap:20px; font-size:15px; color:#666; overflow-x:auto; border-bottom:0.5px solid #eee;">
-        <span style="font-weight:700; color:#111;">关注</span>
-        <span style="font-weight:700; color:#111;">推荐</span>
-        <span>新发</span>
-        <span>找服务</span>
-        <span>价格指数</span>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:8px;">
-        ${items.map(item => `
-          <div style="background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.06); display:flex; flex-direction:column;">
-            <div style="height:160px; background:${item.img}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; position:relative;">
-               [ 商品图 ]
-               ${item.tag ? `<span style="position:absolute; top:4px; left:4px; background:#ffe0b2; color:#e65100; font-size:10px; padding:2px 4px; border-radius:4px;">${item.tag}</span>` : ''}
-            </div>
-            <div style="padding:8px 10px; flex:1; display:flex; flex-direction:column;">
-              <div style="font-size:13px; color:#333; font-weight:500; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:6px;">
-                ${esc(item.title)}
-              </div>
-              <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:auto;">
-                <span style="color:#ff4400; font-size:17px; font-weight:700;">${item.price}</span>
-                <span style="font-size:11px; color:#999;">${item.wants}人想要</span>
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-    <div class="tabbar">
-      <button class="on" style="color:#ffb300;"><span style="font-size:24px;">🐟</span><small>闲鱼</small></button>
-      <button><span style="font-size:24px;">📍</span><small>济宁</small></button>
-      <button><span style="font-size:28px; background:#ffb300; color:#fff; width:48px; height:36px; border-radius:18px; display:grid; place-items:center;">📷</span><small>卖闲置</small></button>
-      <button><span style="font-size:24px;">💬</span><small>消息</small></button>
-      <button><span style="font-size:24px;">👤</span><small>我的</small></button>
-    </div>`,
-  };
-};
-
-// ==========================================
-// 📱 4. 小红书 (XHS)
-// ==========================================
-VIEWS.xhs = () => {
-  const notes = [
-    { title: "【赠】送一张今晚19:30宁波天然舞台纳歌演出票…", author: "Casualidad", likes: "132", cover: "linear-gradient(135deg, #ff9a9e, #fecfef)", isVideo: false },
-    { title: "朔朔店长", author: "no name", likes: "6", cover: "linear-gradient(135deg, #a1c4fd, #c2e9fb)", isVideo: true },
-    { title: "表现不好的人能被喷成筛子", author: "star侃球", likes: "98", cover: "linear-gradient(135deg, #84fab0, #8fd3f4)", isVideo: false },
-    { title: "令人心动的Offer程序员季", author: "可不可以不工作", likes: "1278", cover: "linear-gradient(135deg, #fbc2eb, #a6c1ee)", isVideo: true },
-  ];
-
-  return {
-    html: `
-    <div class="scroll" style="background:#fff; padding-bottom:20px; padding-top:80px;">
-      <div style="position:fixed; top:44px; left:0; right:0; background:#fff; z-index:10; display:flex; justify-content:center; align-items:center; height:36px; gap:30px; font-size:16px; color:#666;">
-        <span>关注</span>
-        <span style="font-weight:700; color:#111; font-size:17px; position:relative;">发现<span style="position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); width:16px; height:3px; background:#ff2442; border-radius:2px;"></span></span>
-        <span>杭州</span>
-      </div>
-      <div style="display:flex; gap:20px; padding:10px 16px; overflow-x:auto; white-space:nowrap; font-size:14px; color:#666; border-bottom:0.5px solid #f0f0f0;">
-        <span style="font-weight:600; color:#111;">推荐</span>
-        <span>视频</span>
-        <span>直播</span>
-        <span>热点</span>
-        <span>短剧</span>
-        <span>明星</span>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px;">
-        ${notes.map(n => `
-          <div style="display:flex; flex-direction:column;">
-            <div style="height:200px; background:${n.cover}; border-radius:12px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; color:#fff; position:relative;">
-               ${n.isVideo ? `<div style="width:30px; height:30px; background:rgba(0,0,0,0.4); border-radius:50%; display:grid; place-items:center; font-size:14px;">▶</div>` : '[ 笔记 ]'}
-            </div>
-            <div style="font-size:14px; color:#333; font-weight:600; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:6px;">
-              ${esc(n.title)}
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; font-size:12px; color:#666;">
-              <div style="display:flex; align-items:center; gap:4px;">
-                <div style="width:16px; height:16px; border-radius:50%; background:#ddd;"></div>
-                <span>${esc(n.author)}</span>
-              </div>
-              <span style="color:#999;">♡ ${n.likes}</span>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-    <div class="tabbar" style="background:#fff; border-top:0.5px solid #eee;">
-      <button style="color:#111;"><span style="font-size:24px;">🏠</span><small>首页</small></button>
-      <button style="color:#111;"><span style="font-size:24px;">🛍️</span><small>市集</small></button>
-      <button><span style="font-size:32px; color:#ff2442;">➕</span></button>
-      <button style="color:#111;"><span style="font-size:24px;">💬</span><small>消息</small></button>
-      <button style="color:#111;"><span style="font-size:24px;">👤</span><small>我</small></button>
-    </div>`,
-  };
-};
-
-// ==========================================
-// 📱 5. B站 (Bilibili)
-// ==========================================
-VIEWS.bilibili = () => {
-  const videos = [
-    { title: "连出道首舞台都不行的根本不是帽女", up: "Jeninini_", views: "34.1万", danmu: "1539", time: "09:32", cover: "linear-gradient(135deg, #667eea, #764ba2)" },
-    { title: "EP2：小猪背后看看左边看看，我们颜色咋不一样捏", up: "好眠_Aurora", views: "634", danmu: "2", time: "03:39", cover: "linear-gradient(135deg, #4facfe, #00f2fe)" },
-    { title: "卡门：地区限定摄政王", up: "奇奇怪怪的英专生", views: "13.1万", danmu: "330", time: "05:14", cover: "linear-gradient(135deg, #f093fb, #f5576c)" },
-    { title: "【大脑里的能量战争】越休息越累的原因找到", up: "脑洞大开", views: "78.1万", danmu: "168", time: "12:00", cover: "linear-gradient(135deg, #43e97b, #38f9d7)" },
-  ];
-
-  return {
-    html: `
-    <div class="scroll" style="background:#f4f4f4; padding-bottom:20px;">
-      <div style="padding:54px 16px 10px; background:#fff; display:flex; align-items:center; gap:12px; position:sticky; top:0; z-index:10;">
-        <div style="width:32px; height:32px; border-radius:50%; background:#ccc; flex:none;"></div>
-        <div style="flex:1; background:#f4f4f4; border-radius:16px; height:32px; display:flex; align-items:center; padding:0 12px; font-size:14px; color:#666;">
-          🔍 接二连珊妄想症
-        </div>
-        <div style="width:32px; height:32px; border-radius:50%; background:#ffb300; display:grid; place-items:center; flex:none;">📪</div>
-      </div>
-      <div style="background:#fff; padding:10px 16px; display:flex; gap:20px; font-size:15px; color:#666; overflow-x:auto; border-bottom:0.5px solid #eee;">
-        <span>直播</span>
-        <span style="font-weight:700; color:#111; position:relative;">推荐<span style="position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); width:16px; height:3px; background:#fb7299; border-radius:2px;"></span></span>
-        <span>热门</span>
-        <span>动画</span>
-        <span>影视</span>
-      </div>
-      <div style="padding:10px 8px;">
-        <div style="height:200px; background:linear-gradient(45deg, #2b5876, #4e4376); border-radius:12px; position:relative; display:flex; align-items:flex-end; padding:12px;">
-          <div style="font-size:18px; font-weight:700; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.5);">3天2晚深入斐济赶海，只为挑战米级大马…</div>
-          <div style="position:absolute; bottom:8px; right:8px; display:flex; gap:4px;">
-            <span style="width:6px; height:6px; border-radius:50%; background:#fff;"></span>
-            <span style="width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5);"></span>
-            <span style="width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.5);"></span>
-          </div>
-        </div>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 8px;">
-        ${videos.map(v => `
-          <div style="background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.08);">
-            <div style="height:110px; background:${v.cover}; position:relative;">
-               <span style="position:absolute; bottom:4px; right:4px; background:rgba(0,0,0,0.5); color:#fff; padding:1px 4px; border-radius:3px; font-size:10px;">${v.time}</span>
-            </div>
-            <div style="padding:8px;">
-              <div style="font-size:13px; color:#222; font-weight:600; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:6px; height:34px;">
-                ${esc(v.title)}
-              </div>
-              <div style="font-size:11px; color:#999; display:flex; justify-content:space-between; align-items:center;">
-                <span>UP：${esc(v.up)}</span>
-                <span>▶ ${v.views} 💬 ${v.danmu}</span>
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-    <div class="tabbar" style="background:#fff; border-top:0.5px solid #eee;">
-      <button style="color:#fb7299;"><span style="font-size:24px;">🏠</span><small>首页</small></button>
-      <button style="color:#111;"><span style="font-size:24px;">🎯</span><small>关注</small></button>
-      <button><span style="font-size:32px; background:#fb7299; color:#fff; width:44px; height:32px; border-radius:16px; display:grid; place-items:center; font-weight:300;">+</span></button>
-      <button style="color:#111;"><span style="font-size:24px;">🛒</span><small>会员购</small></button>
-      <button style="color:#111;"><span style="font-size:24px;">👤</span><small>我的</small></button>
-    </div>`,
-  };
-};
-
-// ==========================================
-// 📱 6. 相册 (Photos)
-// ==========================================
-VIEWS.photos = () => {
-  const photos = (typeof photoSections !== 'undefined' && photoSections.length > 0) 
-    ? photoSections[0][1] : ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"];
-
-  window.openPhotoViewer = (url) => {
-    const d = document.createElement("div");
-    d.className = "viewer";
-    d.style.cssText = "position:fixed; inset:0; z-index:99999; background:#000; display:flex; align-items:center; justify-content:center; flex-direction:column;";
-    d.innerHTML = `
-      <div style="position:absolute; top:50px; left:20px; color:#fff; font-size:30px; cursor:pointer;" onclick="this.parentElement.remove()">×</div>
-      <div style="width:100%; height:80%; display:flex; align-items:center; justify-content:center; color:#fff;">
-         ${url.length > 5 ? `<img src="${url}" style="max-width:100%; max-height:100%; object-fit:contain;">` : `<div style="font-size:20px; padding:40px; background:linear-gradient(45deg,#ff9a9e,#fecfef); border-radius:12px;">🎀 图片占位：${url}</div>`}
-      </div>
-      <div style="color:rgba(255,255,255,0.6); font-size:14px; margin-top:20px;">2026年11月15日</div>
-    `;
-    document.getElementById("screen").appendChild(d);
-  };
-
-  return {
-    html: navHTML({ title: "照片", back: "主页", backFn: "closeApp()" }) + 
-    `<div class="scroll" style="background:#fff; padding-bottom: 100px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin: 0 16px 10px;">
-         <h1 class="lt" style="margin:0; font-size:28px;">最近项目</h1>
-         <span style="color:#007aff; font-size:16px;">选择</span>
-      </div>
-      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; padding:0 4px;">
-        ${photos.map((p, i) => `
-          <div style="aspect-ratio:1; background:#eee; overflow:hidden; cursor:pointer;" onclick="openPhotoViewer('${p}')">
-             ${p.length > 5 ? `<img src="${p}" style="width:100%; height:100%; object-fit:cover;">` : `
-               <div style="width:100%; height:100%; background:linear-gradient(45deg, hsl(${i*40},80%,80%), hsl(${i*40+20},80%,90%)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px;">
-                 [照片]
-               </div>
-             `}
-          </div>
-        `).join('')}
-      </div>
-      <h1 class="lt" style="margin: 24px 16px 10px; font-size:22px;">我的相簿</h1>
-      <div style="padding:0 16px; display:flex; flex-direction:column; gap:12px;">
-        <div style="display:flex; align-items:center; gap:16px;">
-          <div style="width:80px; height:80px; border-radius:8px; background:linear-gradient(45deg, #a1c4fd, #c2e9fb); display:grid; place-items:center; color:#fff; font-size:12px;">封面</div>
-          <div style="flex:1;">
-            <div style="font-size:16px; font-weight:600; color:#111;">旧时光</div>
-            <div style="font-size:13px; color:#888; margin-top:4px;">${photos.length} 个项目</div>
-          </div>
-          <div style="color:#999;">${G.chevR}</div>
-        </div>
-        
-        <!-- 👇 改成了 push('privateAlbum') -->
-        <div style="display:flex; align-items:center; gap:16px; cursor:pointer;" onclick="push('privateAlbum')">
-          <div style="width:80px; height:80px; border-radius:8px; background:#3a3a3c; display:grid; place-items:center; color:#fff; font-size:24px;">🔒</div>
-          <div style="flex:1;">
-            <div style="font-size:16px; font-weight:600; color:#111;">私密相册</div>
-            <div style="font-size:13px; color:#888; margin-top:4px;">已加密</div>
-          </div>
-          <div style="color:#999;">${G.chevR}</div>
-        </div>
-
-      </div>
-    </div>`,
-  };
-};
 
 // ==========================================
 // 📱 7. 私密相册 (Private Album)
@@ -614,180 +246,6 @@ const placeholderView = (title) => () => ({
     `<div class="scroll" style="display:flex;align-items:center;justify-content:center;height:80vh;color:#8e8e93;font-size:15px">暂无内容</div>`,
 });
 VIEWS.instagram = placeholderView("Instagram");
-
-// ==========================================
-// 📱 邮件 (Mail) - 完美避开状态栏版
-// ==========================================
-
-// 👇 邮件数据预留位，你以后改内容只需要改这里
-const emailData = [
-  {
-    id: 0,
-    sender: "中延大学 教务管理组",
-    initial: "中",
-    subject: "2026学年第二学期 期中考试时间通知",
-    preview: "特此通知期中考试时间及考场变更事项。",
-    time: "昨天",
-    unread: true,
-    body: "您好，这里是中延大学 教务管理组。\n\n特此通知期中考试时间及考场变更事项。\n\n详情请参阅学校官网公告。\n如有疑问，请联系所在院系办公室。\n\n谢谢。\n中延大学 教务管理组"
-  },
-  {
-    id: 1,
-    sender: "김시현 教授",
-    initial: "김",
-    subject: "关于通识课发表资料的提交",
-    preview: "请确认发表小组资料的提交期限。",
-    time: "昨天",
-    unread: true,
-    body: "同学们好，\n\n关于本周通识课的小组发表资料，请务必在周五下午5点前提交到系统内。\n逾期将扣除平时分。\n\n김시현 教授"
-  },
-  {
-    id: 2,
-    sender: "Naver Pay",
-    initial: "N",
-    subject: "您订购的商品已发货",
-    preview: "您订购的商品正在配送中。",
-    time: "2026/10/15",
-    unread: false,
-    body: "您好，您在 Naver Pay 订购的商品已发货。\n\n快递单号：1234567890\n配送状态：正在派送中。"
-  },
-  {
-    id: 3,
-    sender: "中延大学 图书馆",
-    initial: "中",
-    subject: "图书归还提醒",
-    preview: "特此通知您所借图书的归还日期。",
-    time: "2026/10/12",
-    unread: false,
-    body: "读者您好，\n\n您所借阅的《现代文学史》将于11月20日到期，请及时归还以免产生滞纳金。"
-  },
-  {
-    id: 4,
-    sender: "MUSINSA",
-    initial: "M",
-    subject: "请确认您的订单",
-    preview: "您的订单已成功提交。",
-    time: "2026/10/10",
-    unread: false,
-    body: "您的订单已成功提交，我们将尽快为您发货。"
-  }
-];
-
-let currentMailId = 0;
-
-// ==========================================
-// 邮件列表页
-// ==========================================
-VIEWS.mail = () => ({
-  // 👈 使用系统自带的 navHTML
-  html: navHTML({ title: "", back: "邮箱", backFn: "closeApp()", right: `<span style="color:#007aff;font-size:17px;cursor:pointer;">编辑</span>` }) +
-  `<div class="scroll" style="padding-top:98px; padding-bottom:100px; background:#fff;">
-    
-    <h1 class="lt" style="font-size:36px; font-weight:700; margin: 10px 16px 16px;">收件箱</h1>
-    
-    <div class="srch" style="margin: 0 16px 16px;">${G.search}搜索</div>
-
-    <div style="padding: 0 16px;">
-      ${emailData.map(m => `
-        <div onclick="openMailDetail(${m.id})" style="display:flex; align-items:flex-start; gap:8px; padding: 12px 0; border-bottom:0.5px solid #e5e5ea; cursor:pointer;">
-          
-          <!-- 未读蓝点 -->
-          <div style="width:8px; flex:none; padding-top:6px;">
-             ${m.unread ? `<div style="width:8px; height:8px; border-radius:50%; background:#007aff;"></div>` : ''}
-          </div>
-          
-          <!-- 内容 -->
-          <div style="flex:1; min-width:0;">
-            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:2px;">
-              <span style="font-size:16px; font-weight:600; color:#111; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(m.sender)}</span>
-              <div style="display:flex; align-items:center; gap:6px; color:#8e8e93; font-size:14px; flex:none;">
-                <span>${m.time}</span>
-                <span style="color:#c4c4c7; font-size:16px;">›</span>
-              </div>
-            </div>
-            <div style="font-size:15px; font-weight:500; color:#111; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-              ${esc(m.subject)}
-            </div>
-            <div style="font-size:14px; color:#8e8e93; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
-              ${esc(m.preview)}
-            </div>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  </div>
-
-  <!-- 👈 使用系统自带底栏样式 -->
-  <div class="toolbar" style="justify-content:space-between; padding: 10px 30px 34px;">
-     <div style="color:#007aff; cursor:pointer;">
-       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
-     </div>
-     <div style="font-size:13px; color:#8e8e93; font-weight:500; padding-top:4px;">刚刚更新</div>
-     <div style="color:#007aff; cursor:pointer;">
-       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-     </div>
-  </div>`,
-});
-
-// ==========================================
-// 邮件详情页
-// ==========================================
-VIEWS.mail_detail = () => {
-  const data = emailData.find(d => d.id === currentMailId);
-  if (!data) return { html: "" };
-
-  return {
-    // 👈 同样使用系统自带导航
-    html: navHTML({ title: "", back: "收件箱", backFn: "back()" }) +
-    `<div class="scroll" style="padding-top:98px; padding-bottom:100px; background:#fff;">
-      
-      <!-- 发件人信息 -->
-      <div style="display:flex; align-items:flex-start; padding: 16px; border-bottom:0.5px solid #e5e5ea;">
-         <div style="width:44px; height:44px; border-radius:50%; background:#8e8e93; display:flex; align-items:center; justify-content:center; color:#fff; font-size:20px; font-weight:500; flex:none;">
-           ${data.initial}
-         </div>
-         <div style="flex:1; margin-left:12px; min-width:0;">
-            <div style="font-size:16px; font-weight:600; color:#111; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(data.sender)}</div>
-            <div style="font-size:13px; color:#8e8e93; margin-top:2px;">收件人：我 <span style="font-size:11px;">›</span></div>
-         </div>
-         <div style="font-size:14px; color:#8e8e93; flex:none; margin-left:8px; padding-top:4px;">
-            ${data.time}
-         </div>
-      </div>
-
-      <!-- 邮件正文 -->
-      <div style="padding: 20px 16px;">
-         <h2 style="font-size:20px; font-weight:700; margin: 0 0 16px 0; line-height:1.3;">${esc(data.subject)}</h2>
-         <div style="font-size:16px; line-height:1.6; color:#333; white-space:pre-wrap;">${esc(data.body)}</div>
-      </div>
-
-    </div>
-
-    <!-- 详情页底部 4 个操作按钮 -->
-    <div class="toolbar" style="justify-content:space-around; padding: 10px 20px 34px;">
-       <div style="color:#007aff; cursor:pointer;">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4.5h8V6M5.5 6l1 14h11l1-14"/></svg>
-       </div>
-       <div style="color:#007aff; cursor:pointer;">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-       </div>
-       <div style="color:#007aff; cursor:pointer;">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4"/><path d="M9 15l7-7a2.121 2.121 0 0 1 3 3l-7 7-4 1 1-4z"/></svg>
-       </div>
-       <div style="color:#007aff; cursor:pointer;">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-       </div>
-    </div>`,
-  };
-};
-
-function openMailDetail(id) {
-  const data = emailData.find(d => d.id === id);
-  if (!data) return;
-  data.unread = false; // 标记已读
-  currentMailId = id;
-  push('mail_detail');
-}
 
 // ==========================================
 // 📱 天气 (Weather) - 北京 2026年11月15日 星期日
@@ -922,33 +380,110 @@ VIEWS.weather = () => {
 };
 
 VIEWS.settings = placeholderView("设置");
-VIEWS.maps = placeholderView("地图");
-VIEWS.music = placeholderView("音乐");
-VIEWS.safari = placeholderView("Safari");
+
+// ==========================================
+// 📱 录音 (Recorder) - 可播放版
+// ==========================================
+const RECORDER_DATA = [
+  { id: 0, title: "小恩恩唱歌", time: "0:13", date: "11月15日", src: "./data/music/boli.mp3" },
+  { id: 1, title: "玻璃弹唱", time: "0:21", date: "11月14日", src: "./data/music/boli.mp3" },
+  { id: 2, title: "🎧 穆祉丞动静", time: "0:08", date: "11月13日", src: "./data/music/boli.mp3" },
+  { id: 3, title: "练习室环境音", time: "1:05", date: "11月10日", src: "./data/music/boli.mp3" }
+];
+
+let currentRecorderId = -1;
+
+// 播放/暂停录音
+function playRecorder(id) {
+  const data = RECORDER_DATA.find(r => r.id === id);
+  if (!data) return;
+
+  // 如果点的是当前正在播的录音，则暂停
+  if (currentRecorderId === id && !PLAYER.paused) {
+    PLAYER.pause();
+    updateRecorderUI();
+    if (typeof resumeBGM === 'function') resumeBGM();
+    return;
+  }
+
+  // 如果点的是新录音，或者暂停的录音
+  if (typeof pauseBGM === 'function') pauseBGM();
+  
+  // 切断音乐的关联，防止和 app_music.js 打架
+  if (typeof nowSong !== 'undefined') nowSong = -1;
+  updateMiniUI(); // 让音乐界面的卡片消失（如果它在的话）
+
+  currentRecorderId = id;   
+  PLAYER.dataset.isRecorder = "true"; 
+  PLAYER.src = data.src;
+  PLAYER.volume = 0.8;
+  PLAYER.load();
+  PLAYER.onended = () => {
+    updateRecorderUI();
+    if (typeof resumeBGM === 'function') resumeBGM();
+  };
+  
+  PLAYER.play().catch(e => console.warn("录音播放失败:", e));
+  updateRecorderUI();
+}
+
+// 刷新按钮 UI
+function updateRecorderUI() {
+  if (view !== 'recorder') return;
+  const pg = APP.lastElementChild;
+  if (!pg) return;
+  
+  RECORDER_DATA.forEach(r => {
+    const btn = document.getElementById(`rec-btn-${r.id}`);
+    if (btn) {
+      if (currentRecorderId === r.id && !PLAYER.paused) {
+        // 正在播放，显示暂停图标
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;"><rect x="6" y="4.5" width="4" height="15" rx="1"/><rect x="14" y="4.5" width="4" height="15" rx="1"/></svg>`;
+        btn.style.background = '#ff3b30';
+      } else {
+        // 暂停状态，显示播放图标
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;margin-left:2px;"><path d="M7 4.5v15l12.5-7.5Z"/></svg>`;
+        btn.style.background = '#ff3b30';
+      }
+    }
+  });
+}
+
+// 监听全局 PLAYER 状态，如果被其他途径暂停了，重置录音 UI
+PLAYER.addEventListener('pause', updateRecorderUI);
 
 VIEWS.recorder = () => ({
   html: navHTML({ title: "录音", back: "主页", backFn: "closeApp()" }) +
     `<div class="scroll" style="background:#f9f9f9; padding-bottom:120px;">
       <h1 class="lt" style="margin-top:10px;">所有录音</h1>
       <div style="margin:0 16px;">
-        ${["小恩恩唱歌|0:13|11月15日", "玻璃弹唱|0:21|11月14日", "🎧 穆祉丞动静|0:08|11月13日", "练习室环境音|1:05|11月10日"].map(r => { const [title, time, date] = r.split("|"); return `
+        ${RECORDER_DATA.map(r => `
           <div style="background:#fff; border-radius:12px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
             <div>
-              <div style="font-size:16px; font-weight:600; color:#111; margin-bottom:4px;">${esc(title)}</div>
-              <div style="font-size:13px; color:#888;">${date}</div>
+              <div style="font-size:16px; font-weight:600; color:#111; margin-bottom:4px;">${esc(r.title)}</div>
+              <div style="font-size:13px; color:#888;">${r.date}</div>
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
-              <span style="font-size:15px; color:#666; font-variant-numeric:tabular-nums;">${time}</span>
-              <button style="width:36px; height:36px; border-radius:50%; background:#ff3b30; color:#fff; display:grid; place-items:center; border:none;">▶</button>
+              <span style="font-size:15px; color:#666; font-variant-numeric:tabular-nums;">${r.time}</span>
+              <button id="rec-btn-${r.id}" onclick="event.stopPropagation(); playRecorder(${r.id})" style="width:36px; height:36px; border-radius:50%; background:#ff3b30; color:#fff; display:grid; place-items:center; border:none; transition:transform 0.1s;">
+                <!-- 初始默认显示播放图标 -->
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px;margin-left:2px;"><path d="M7 4.5v15l12.5-7.5Z"/></svg>
+              </button>
             </div>
           </div>
-        `}).join('')}
+        `).join('')}
       </div>
     </div>
     <div style="position:absolute; bottom:40px; left:50%; transform:translateX(-50%);">
       <button style="width:72px; height:72px; border-radius:50%; background:#ff3b30; color:#fff; border:4px solid #fff; box-shadow:0 4px 20px rgba(255,59,48,0.4); font-size:28px; display:grid; place-items:center;">🎙️</button>
     </div>`,
+  init: () => {
+    // 每次进入录音界面，刷新一下图标状态（可能刚从后台暂停）
+    setTimeout(updateRecorderUI, 50);
+  }
 });
+
+
 
 // ==========================================
 // 📱 9. 微信的发现页、通讯录、我

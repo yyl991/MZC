@@ -436,18 +436,114 @@ function ringOnce() {
   });
 }
 
+// ==========================================
+// 🎧 音频调度中心（统一管理 BGM）
+// ==========================================
+window.bgmPausedByOther = false;
+
+window.AudioHub = {
+  bgm: () => document.getElementById("bgm"),
+
+  // 判断当前有没有“其他媒体”在占用扬声器
+  isBusy() {
+    // 1. 检查页面上的视频
+    const videos = document.querySelectorAll('video');
+    for (let v of videos) {
+      if (!v.paused && !v.ended) return true;
+    }
+    // 2. 检查页面上的其他音频 (语音等，排除 bgm)
+    const audios = document.querySelectorAll('audio');
+    for (let a of audios) {
+      if (a.id === 'bgm') continue;
+      if (!a.paused && !a.ended) return true;
+    }
+    // 3. 微信语音状态
+    if (document.querySelector(".voice-bb.playing")) return true;
+    // 4. 通话中
+    if (callState) return true;
+    // ...以前的视频和音频检查...
+  // 👇 加上这行：如果正在播音乐，也算占用
+    if (typeof PLAYER !== "undefined" && !PLAYER.paused && nowSong >= 0) return true;
+    
+    return false;
+  },
+
+  pauseBGM() {
+    const b = this.bgm();
+    if (b) {
+      b.pause(); // 👈 只有 pause，绝不重置 currentTime，保证记住时间戳
+      window.bgmPausedByOther = true;
+    }
+  },
+
+  resumeBGM() {
+    const b = this.bgm();
+    if (!b || !window.bgmPausedByOther) return;
+    if (this.isBusy()) return;
+    b.play().catch(() => {}); // 👈 直接从记住的时间戳继续播
+    window.bgmPausedByOther = false;
+  }
+};
+
+window.pauseBGM = () => window.AudioHub.pauseBGM();
+window.resumeBGM = () => window.AudioHub.resumeBGM();
+
+// 全局拦截：只要有视频/音频开始播，就暂停 BGM
+document.addEventListener("play", (e) => {
+  if (e.target.tagName === "VIDEO" || (e.target.tagName === "AUDIO" && e.target.id !== "bgm")) {
+    window.AudioHub.pauseBGM();
+  }
+}, true);
+
+// 全局拦截：只要有视频/音频暂停/结束，延迟检查并恢复 BGM
+document.addEventListener("pause", (e) => {
+  if (e.target.tagName === "VIDEO" || (e.target.tagName === "AUDIO" && e.target.id !== "bgm")) {
+    setTimeout(() => window.AudioHub.resumeBGM(), 100);
+  }
+}, true);
+
+// 👇 补回这段：首次点击屏幕时激活并播放 BGM
 document.addEventListener(
   "pointerdown",
   () => {
-    ac();
+    ac(); // 激活 Web Audio 引擎
     const BGM = document.getElementById("bgm");
-    if (BGM && BGM.paused) {
-      BGM.volume = 0.1116;
+    // 只有在 BGM 暂停、且不是因为其他媒体占用而暂停时，才去播放
+    if (BGM && BGM.paused && !window.bgmPausedByOther) {
+      BGM.volume = 0.1116; // 保持你原来的音量设置
       BGM.play().catch((e) => console.log("BGM播放被拦截", e));
     }
   },
-  { once: true },
+  { once: true } // 只需要监听第一次点击即可
 );
+
+
+function openVideo(url) {
+  const BGM = document.getElementById("bgm");
+  if (BGM) {
+    BGM.pause(); // 👈 只暂停，记住当前位置
+    // BGM.currentTime = 0; 👈 千万别加这行！加就从头开始了！
+    window.bgmPausedByOther = true;
+  }
+
+  const d = document.createElement("div");
+  d.className = "video-overlay";
+  d.innerHTML = `
+    <div class="video-close">×</div>
+    <video src="${url}" controls autoplay playsinline></video>
+  `;
+  document.getElementById("screen").appendChild(d);
+
+  const close = () => {
+    const v = d.querySelector('video');
+    if (v) { v.pause(); v.src = ""; }
+    d.remove();
+    resumeBGM();
+  };
+  d.querySelector('.video-close').onclick = close;
+  d.querySelector('video').onended = close;
+}
+
 
 function setStatus(dark) {
   curDark = !!dark;
@@ -709,7 +805,6 @@ function unlock() {
   }
   updateDndBadge();
 }
-
 function badgeOf(id) {
   if (id === "phone") return 3 + declined;
   if (id === "mail") {
@@ -725,7 +820,6 @@ function badgeOf(id) {
   }
   return 0;
 }
-
 function appBtn(id) {
   const b = badgeOf(id);
   let name = t("app_" + id);
@@ -751,6 +845,8 @@ const PARENT = {
   mail_detail: "mail", 
   weibo: "weibo",
   xianyu: "xianyu",
+  xianyu_me: "xianyu",
+  xianyu_orders: "xianyu_me",
   bilibili: "bilibili",
   xhs: "xhs",
   sms: "sms",
@@ -778,6 +874,9 @@ const VIEWS = {};
 function show(id, anim = "swap") {
   const old = [...APP.children];
   old.forEach((o) => o.querySelectorAll("video").forEach((v) => v.pause()));
+  if (view === "recorder" && id !== "recorder" && PLAYER.dataset.isRecorder) {
+    PLAYER.pause();
+  }
   if (PLAYER.dataset.voice && !(id === "chat")) PLAYER.pause();
   view = id;
   const v = VIEWS[id]();
@@ -884,6 +983,9 @@ function openApp(id, el) {
 }
 function closeApp() {
   if (callState || ["home", "lock", "pin"].includes(view)) return;
+   if (view === "recorder" && PLAYER.dataset.isRecorder) {
+    PLAYER.pause();
+  }
   const root = rootOf(view);
   if (PLAYER.dataset.voice) PLAYER.pause();
   view = "home";
@@ -1169,6 +1271,7 @@ VIEWS.phone = () => {
   };
 };
 function dial(name) {
+  pauseBGM(); 
   if (callState) return;
   callName = name;
   callDir = "out";
@@ -1200,6 +1303,7 @@ function stopRing() {
   } catch (e) {}
 }
 function incomingCallFrom(from = "穆祉丞") {
+  pauseBGM(); // 👈 加在这里！一有来电，立刻暂停BGM
   const BGM = document.getElementById("bgm");
   if (BGM) BGM.pause();
   callName = from;
@@ -1213,6 +1317,68 @@ function incomingCallFrom(from = "穆祉丞") {
   startRing();
   ringTo = setTimeout(missCall, 30000);
 }
+
+function incomingMailFrom(beat) {
+  if (typeof emailData === "undefined") return;
+
+  const newId = emailData.reduce((max, m) => Math.max(max, m.id), -1) + 1;
+  emailData.unshift({
+    id: newId,
+    sender: beat.from || "TFEntertainment",
+    initial: beat.initial || "T",
+    from: beat.fromEmail || "no-reply@tfent.cn",
+    subject: beat.subject || "新邮件",
+    preview: beat.preview || "点击查看邮件详情",
+    time: "刚刚",
+    unread: true,
+    body: beat.body || ""
+  });
+
+  if (view === "mail") {
+    const pg = APP.lastElementChild;
+    if (pg) pg.innerHTML = VIEWS.mail().html;
+  }
+  if (view === "home") renderHome();
+
+  if (window.isDnd) return; // 免打扰拦截
+
+  sfx("msg");
+  vib([30, 60, 30]);
+  OV.querySelectorAll(".banner").forEach((b) => b.remove());
+
+  const b = document.createElement("div");
+  b.className = "banner";
+  b.style.cursor = "pointer";
+  b.innerHTML = `<div class="ncard">
+    <div class="ni"><div class="app-icon-fallback" style="background:#3fb0ff;font-size:18px">${esc(beat.initial || "T")}</div></div>
+    <div class="nt">
+      <div class="nh"><span>${esc(beat.from || "TFEntertainment")}</span><small>刚刚</small></div>
+      <div class="nb">${esc(beat.subject || "新邮件")}</div>
+    </div>
+  </div>`;
+  OV.appendChild(b);
+
+  b.animate(
+    [{ transform: "translateY(-140%) scale(.96)" }, { transform: "none" }],
+    { duration: 620, easing: "cubic-bezier(.2,1.25,.35,1)" }
+  );
+
+  let tm = setTimeout(() => {
+    b.animate(
+      [{ transform: "none", opacity: 1 }, { transform: "translateY(-140%) scale(.9)", opacity: 0 }],
+      { duration: 300, fill: "forwards" }
+    ).onfinish = () => b.remove();
+  }, 5000);
+
+  b.onclick = () => {
+    clearTimeout(tm);
+    b.remove();
+    if (view === "home") openApp("mail", HOME.querySelector('.app[data-app="mail"] .icon'));
+    else if (view === "mail") openMailDetail(newId);
+    else if (view === "mail_detail") { currentMailId = newId; show("mail_detail", "push"); }
+  };
+}
+
 function callTop() {
   const r = CFG.roles && CFG.roles[callName];
   let content = "";
@@ -1331,15 +1497,7 @@ function declineCall() {
   declined++;
   extraCalls.unshift([callName, "今天 " + gameTime24(), "未接来电"]);
   closeCallUI();
-  if (view !== "phone") {
-    closeApp();
-    setTimeout(
-      () =>
-        openApp("phone", HOME.querySelector('.app[data-app="phone"] .icon')),
-      450,
-    );
   }
-}
 function missCall() {
   if (callState !== "ring") return;
   stopRing();
@@ -1347,15 +1505,7 @@ function missCall() {
   declined++;
   extraCalls.unshift([callName, "今天 " + gameTime24(), "未接来电"]);
   closeCallUI();
-  if (view !== "phone") {
-    closeApp();
-    setTimeout(
-      () =>
-        openApp("phone", HOME.querySelector('.app[data-app="phone"] .icon')),
-      450,
-    );
   }
-}
 function endCall() {
   if (typeof closeDialpad === "function") closeDialpad();
   if (callState === "dialing") {
@@ -1385,22 +1535,31 @@ function endCall() {
     if (view === "phone") show("phone");
   }, 1100);
 }
+
+
 function closeCallUI() {
   const c = OV.querySelector(".call");
   if (!c) return;
   c.animate([{ opacity: 1 }, { opacity: 0, transform: "scale(1.04)" }], {
     duration: 320,
-    fill: "forwards",
-  });
-  setTimeout(() => {
-    if (c.parentNode) c.remove();
+    fill: "forwards"
+  }).onfinish = () => {
+    c.remove();
+    callState = "";
+    // 👇 回到来电前的界面，防止卡在电话里出不去
+    if (callPrev && callPrev !== "lock" && callPrev !== "pin" && callPrev !== view) {
+      view = callPrev;
+      renderHome();
+      HOME.style.visibility = "visible";
+      setStatus(true);
+    }
     setStatus(viewDark());
     updateIsland();
     if (view === "home") renderHome();
-    const BGM = document.getElementById("bgm");
-    if (BGM && BGM.paused) BGM.play();
-  }, 350);
+    resumeBGM();
+  };
 }
+
 let dpVal = "";
 function showDialpad() {
   let dp = OV.querySelector(".dialpad");
@@ -1466,7 +1625,8 @@ function storyTick(e) {
       }
       SS.fired.add(key);
       if (beat.type === "notify") incomingMsgFrom(beat.from, beat.text);
-      if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");
+      if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");            
+      if (beat.type === "mail") incomingMailFrom(beat); 
       if (beat.type === "choice") showStoryChoice();
       if (beat.type === "ending") showEnding(SS.choice || "B");
     }

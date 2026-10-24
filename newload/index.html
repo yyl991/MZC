@@ -64,12 +64,29 @@
         }
         (async () => {
             try {
-                await load('chat_history.js'); 
-                await load('story.js');
-                await load('utils.js');
-                await load('app.js');
-                await load('chat.js');
-                await load('data_extra.js');
+            // 1. 核心数据层
+            await load('chat_history.js'); 
+            await load('story.js');
+            await load('utils.js');
+
+            // 2. 操作系统核心
+            await load('app.js');
+            
+            // 👇 你刚才拆出来的新模块，加在这里
+            await load('app_safari.js');   // 浏览器
+            await load('app_music.js');    // 音乐播放器
+            await load('app_map.js');     // 交互式地图
+
+                        // 3. 独立 App 模块 (互不干涉)
+            await load('app_wechat.js');   // 微信
+            await load('app_weibo.js');    // 微博
+            await load('app_xianyu.js');   // 闲鱼
+            await load('app_bilibili.js'); // 👈 新增：B站
+            await load('app_xhs.js');      // 👈 新增：小红书
+            await load('app_photos.js');   // 👈 新增：相册 & 私密相册
+            await load('data_extra.js');   // 杂项：短信、天气等
+            await load('mail.js');         // 独立的邮件
+            // 4. 全部加载完毕，启动系统 
                 initApp();
             } catch (e) {
                 alert('加载失败，请检查文件是否齐全: ' + e);
