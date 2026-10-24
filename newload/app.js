@@ -12,7 +12,6 @@ const elapsed = () => (Date.now() - base) / 1000;
 const CFG = window.STORY || {};
 const SS = window.STORY_STATE || {};
 
-// 加上这段安全气囊！
 if (!SS.fired) SS.fired = new Set();
 if (!SS.fragments) SS.fragments = new Set();
 if (!SS.completed) SS.completed = new Set();
@@ -61,6 +60,7 @@ let lockNotes = [
   },
 ];
 let nowSong = -1;
+window.isDnd = false;
 
 const pad = (n) => String(n).padStart(2, "0");
 const esc = (v) =>
@@ -71,7 +71,6 @@ const esc = (v) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
-// 新增：把"分钟数"格式化成"下午 11:14"这种字符串
 function ampm(minutes) {
   const h = Math.floor(minutes / 60) % 24;
   const m = Math.floor(minutes % 60);
@@ -84,13 +83,15 @@ function gameMin() {
   const p = Math.min(1, elapsed() / GAME_END_AT);
   return GAME_START_MIN + Math.floor(p * 51);
 }
-function clock12() {
+
+// 👈 修改：加一个参数 showAmpm，默认 true
+function clock12(showAmpm = true) {
   const m = gameMin();
   const h = Math.floor(m / 60) % 24;
   const min = Math.floor(m % 60);
-  const ampm = h >= 12 ? "下午" : "上午";
+  const ampmStr = h >= 12 ? "下午" : "上午";
   const h12 = h % 12 || 12;
-  return `${ampm} ${h12}:${pad(min)}`;
+  return showAmpm ? `${ampmStr} ${h12}:${pad(min)}` : `${h12}:${pad(min)}`;
 }
 
 function gameTime24() {
@@ -125,7 +126,6 @@ function devRadius() {
 const g = (p, o = "") =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${o}>${p}</svg>`;
 const G = {
-  //电话
   speaker: g(
     '<path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>',
   ),
@@ -139,7 +139,6 @@ const G = {
   keypadF: g(
     '<g fill="currentColor" stroke="none"><circle cx="6" cy="5" r="1.7"/><circle cx="12" cy="5" r="1.7"/><circle cx="18" cy="5" r="1.7"/><circle cx="6" cy="11" r="1.7"/><circle cx="12" cy="11" r="1.7"/><circle cx="18" cy="11" r="1.7"/><circle cx="6" cy="17" r="1.7"/><circle cx="12" cy="17" r="1.7"/><circle cx="18" cy="17" r="1.7"/><circle cx="12" cy="22" r="1.5"/></g>',
   ),
-
   chevL: `<svg viewBox="0 0 12 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg>`,
   chevR: `<svg class="chev" viewBox="0 0 8 13"><path d="m1.5 1.5 5 5-5 5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   chevRb: g('<path d="m9 5 7 7-7 7"/>'),
@@ -258,6 +257,7 @@ const G = {
   cloud:
     '<svg viewBox="0 0 24 24" width="24"><path d="M7 19h10.5a4 4 0 0 0 .4-8A5.6 5.6 0 0 0 7.2 9.2 5 5 0 0 0 7 19Z" fill="#fff"/></svg>',
 };
+
 const APPS = {
   maps: "地图",
   instagram: "Instagram",
@@ -272,7 +272,6 @@ const APPS = {
   safari: "Safari",
   wechat: "微信",
   music: "音乐",
-  wechat: "微信",
   weibo: "微博",
   xianyu: "闲鱼",
   bilibili: "B站",
@@ -298,7 +297,6 @@ function appIcon(id) {
   };
   if (newApps[id])
     return `<div class="${newApps[id].cls}"><div class="app-icon-fallback">${newApps[id].icon}</div></div>`;
-
   const L = (a, b, c, d) =>
     `<linearGradient id="${a}" x1="0" y1="${d ? 1 : 0}" x2="${d ? 1 : 0}" y2="${d ? 0 : 1}"><stop offset="0" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></linearGradient>`;
   const W = (defs, body) =>
@@ -326,7 +324,7 @@ function appIcon(id) {
     case "calendar":
       return W(
         "",
-        `<rect width="60" height="60" fill="#fff"/><text x="30" y="17.5" text-anchor="middle" font-size="9.5" font-weight="600" fill="#ff3b30" font-family="-apple-system,sans-serif">星期六</text><text x="30" y="47" text-anchor="middle" font-size="31" font-weight="300" fill="#111" font-family="-apple-system,sans-serif">15</text>`,
+        `<rect width="60" height="60" fill="#fff"/><text x="30" y="17.5" text-anchor="middle" font-size="9.5" font-weight="600" fill="#ff3b30" font-family="-apple-system,sans-serif">星期日</text><text x="30" y="47" text-anchor="middle" font-size="31" font-weight="300" fill="#111" font-family="-apple-system,sans-serif">15</text>`,
       );
     case "clock": {
       const d = new Date(),
@@ -438,24 +436,24 @@ function ringOnce() {
   });
 }
 
-document.addEventListener("pointerdown", () => {
-  // 1. 初始化音效引擎
-  ac(); 
-  
-  // 2. 播放背景音乐
-  const BGM = document.getElementById("bgm");
-  if (BGM && BGM.paused) {
-    BGM.volume = 0.1116; // 背景音乐建议调小一点，0.3 约等于 30% 音量
-    BGM.play().catch(e => console.log("BGM播放被拦截", e));
-  }
-}, { once: true });
+document.addEventListener(
+  "pointerdown",
+  () => {
+    ac();
+    const BGM = document.getElementById("bgm");
+    if (BGM && BGM.paused) {
+      BGM.volume = 0.1116;
+      BGM.play().catch((e) => console.log("BGM播放被拦截", e));
+    }
+  },
+  { once: true },
+);
 
 function setStatus(dark) {
   curDark = !!dark;
   $("#sb").classList.toggle("light", curDark);
   $("#hb").classList.toggle("light", curDark);
 }
-
 function updateIsland() {
   typeof updateCrumb === "function" && updateCrumb();
   const on =
@@ -464,29 +462,66 @@ function updateIsland() {
     !["music", "lock", "pin"].includes(view) &&
     !OV.querySelector(".np,.call,.viewer");
   const il = $("#island");
-  if (il) il.classList.toggle("act", on); // 加了 if(il) 保护，找不到也不报错
+  if (il) il.classList.toggle("act", on);
 }
 function ncardHTML(n) {
   const r = CFG.roles && CFG.roles[n.title];
   let av = "";
   if (r) {
-    if (r.avatar) { // 👈 这里确认是 r.avatar
+    if (r.avatar)
       av = `<div class="ni"><img src="${r.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:9px" /></div>`;
-    } else {
+    else
       av = `<div class="ni"><div class="app-icon-fallback" style="background:${r.color};font-size:18px">${r.initial}</div></div>`;
-    }
-  } else {
-    av = `<div class="ni">${appIcon("wechat")}</div>`;
-  }
+  } else av = `<div class="ni">${appIcon("wechat")}</div>`;
   return `${av}<div class="nt"><div class="nh"><span>${esc(n.title)}</span><small>${n.time}</small></div><div class="nb">${esc(n.body)}</div></div>`;
 }
-
 function renderLock() {
+  // 👈 核心优化：只取前3条显示，防止撑爆锁屏
+  const showNotes = lockNotes.slice(0, 7);
+
   $("#lkc").innerHTML =
-    `<div class="lk-date">${CFG.start?.date || "11月15日"} ${CFG.start?.weekday || "星期六"}</div><div class="lk-time" id="lkt">${clock12()}</div>
- <div class="lk-notes">${lockNotes.map((n, i) => `<button class="ncard" onclick="lockNoteTap(${i},event)">${ncardHTML(n)}</button>`).join("")}</div>
- <div class="lk-hint">向上轻扫以打开</div>`;
+    `<div class="lk-date">${CFG.start?.date || "11月15日"} ${CFG.start?.weekday || "星期日"}</div>
+     <div class="lk-time" id="lkt">${clock12(false)}</div>
+     
+     <div class="lk-dnd-wrap">
+       <button class="lk-dnd ${window.isDnd ? "on" : ""}" onclick="toggleDnd(event)">
+         <span style="filter:${window.isDnd ? "none" : "grayscale(100%)"}; margin-right:4px;">🌙</span>
+         ${window.isDnd ? "免打扰已开启" : "开启免打扰"}
+       </button>
+     </div>
+
+     <div class="lk-notes">${showNotes.map((n, i) => `<button class="ncard" onclick="lockNoteTap(${i},event)">${ncardHTML(n)}</button>`).join("")}</div>
+     <div class="lk-hint">向上轻扫以打开</div>`;
 }
+
+function toggleDnd(e) {
+  if (e) e.stopPropagation();
+  window.isDnd = !window.isDnd;
+  vib(10);
+  renderLock();
+  
+  updateDndBadge(); // 👈 新增：刷新右上角角标
+}
+
+// 👈 新增：控制右上角免打扰角标
+function updateDndBadge() {
+  let badge = document.getElementById("dnd-badge");
+  if (!badge) {
+    badge = document.createElement("div");
+    badge.id = "dnd-badge";
+    badge.className = "dnd-badge";
+    badge.innerHTML = "🌙";
+    document.getElementById("screen").appendChild(badge);
+  }
+  
+  // 👈 核心修改：只要开启了免打扰，无论在哪个界面都显示角标
+  if (window.isDnd) {
+    badge.style.display = "flex";
+  } else {
+    badge.style.display = "none";
+  }
+}
+
 function lockNoteTap(i, e) {
   e.stopPropagation();
   if (lockNotes[i].app === "wechat") pendingOpen = "chat";
@@ -532,6 +567,7 @@ function lockNoteTap(i, e) {
     }
   });
 })();
+
 function goPin(fromDy = 0) {
   view = "pin";
   pincode = "";
@@ -560,13 +596,12 @@ function goPin(fromDy = 0) {
     ],
     { duration: 420, easing: "cubic-bezier(.2,.9,.25,1)" },
   );
+  updateDndBadge();
 }
 const PL = ["", "ABC", "DEF", "GHI", "JKL", "MNO", "PQRS", "TUV", "WXYZ"];
 function renderPin() {
   $("#pinL").innerHTML =
-    `<div class="pt">输入密码</div><div class="pdots" id="pdots">${[0, 1, 2, 3].map((i) => `<i class="${i < pincode.length ? "on" : ""}"></i>`).join("")}</div>
- <div class="pkeys">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button class="pk" onpointerdown="pinPress('${n}',this)"><b>${n}</b><small>${PL[n - 1]}</small></button>`).join("")}<span></span><button class="pk" onpointerdown="pinPress('0',this)"><b>0</b><small></small></button><span></span></div>
- <div class="pbot"><button onclick="vib(10)">紧急情况</button><button id="pcancel" onclick="pinCancelOrDel()">${pincode ? "删除" : "取消"}</button></div>`;
+    `<div class="pt">输入密码</div><div class="pdots" id="pdots">${[0, 1, 2, 3].map((i) => `<i class="${i < pincode.length ? "on" : ""}"></i>`).join("")}</div><div class="pkeys">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button class="pk" onpointerdown="pinPress('${n}',this)"><b>${n}</b><small>${PL[n - 1]}</small></button>`).join("")}<span></span><button class="pk" onpointerdown="pinPress('0',this)"><b>0</b><small></small></button><span></span></div><div class="pbot"><button onclick="vib(10)">紧急情况</button><button id="pcancel" onclick="pinCancelOrDel()">${pincode ? "删除" : "取消"}</button></div>`;
 }
 function pinDots() {
   $("#pdots").innerHTML = [0, 1, 2, 3]
@@ -624,6 +659,7 @@ function pinCancel() {
     { duration: 450, easing: "cubic-bezier(.2,.9,.25,1)" },
   );
   $("#wall").classList.remove("dim");
+  updateDndBadge();
 }
 function unlock() {
   sfx("unlock");
@@ -671,35 +707,37 @@ function unlock() {
       openApp("chat", HOME.querySelector('.app[data-app="wechat"] .icon'));
     }, 520);
   }
+  updateDndBadge();
 }
 
 function badgeOf(id) {
   if (id === "phone") return 3 + declined;
-  if (id === "mail") return 2;
-
+  if (id === "mail") {
+    if (typeof emailData !== "undefined") {
+      const n = emailData.filter((m) => m.unread).length;
+      return n > 0 ? Math.min(99, n) : 0;
+    }
+    return 0;
+  }
   if (id === "wechat") {
     let totalUnread = Object.values(unread).reduce((a, b) => a + b, 0);
-    // 👇 改成这样：有未读就显示，没有未读就是 0
-    return totalUnread > 0 ? Math.min(99, totalUnread) : 0; 
+    return totalUnread > 0 ? Math.min(99, totalUnread) : 0;
   }
   return 0;
 }
 
 function appBtn(id) {
   const b = badgeOf(id);
-  // 优先从翻译字典找，如果找不到（返回键名），就使用 APPS 里写死的中文名，最后才用 id
   let name = t("app_" + id);
   if (name === "app_" + id) name = APPS[id] || id;
-
   return `<button class="app" data-app="${id}" onclick="openApp('${id}',this.firstElementChild)"><div class="icon"><div class="ic">${appIcon(id)}</div>${b ? `<span class="bdg">${b}</span>` : ""}</div><span class="lbl">${name}</span></button>`;
 }
 function renderHome() {
   HOME.innerHTML = `<div class="hgrid">
   <button class="widget wcal" data-app="calendar" onclick="openApp('calendar',this)"><div class="wd">${wdLong(2026, 11, 15)}</div><div class="wn">15</div>${(events[15] || []).map((x) => `<div class="we">${esc(x)}<small>全天</small></div>`).join("")}</button>
-  <button class="widget wwx" data-app="weather" onclick="openApp('weather',this)"><div class="c">首尔 ➚</div><div class="tp">18°</div><span style="position:absolute;top:14px;right:14px">${G.sun}</span><div class="ds">大部晴朗<small>最高:21° 最低:12°</small></div></button>
-  ${["wechat", "instagram", "photos", "mail", "calendar", "clock", "notes", "weather", "settings", "maps", "weibo", "xianyu", "bilibili", "xhs", "sms", "recorder", "privateAlbum"].map(appBtn).join("")}
- </div>
- <div class="dock">${["wechat", "phone", "safari", "music"].map(appBtn).join("")}</div>`;
+  <button class="widget wwx" data-app="weather" onclick="openApp('weather',this)"><div class="c">北京 ➚</div><div class="tp">18°</div><span style="position:absolute;top:14px;right:14px">${G.sun}</span><div class="ds">大部晴朗<small>最高:21° 最低:12°</small></div></button>
+  ${["instagram", "photos", "mail", "calendar", "clock", "notes", "weather", "settings", "maps", "weibo", "xianyu", "bilibili", "xhs", "sms", "recorder", "privateAlbum"].map(appBtn).join("")}
+ </div><div class="dock">${["wechat", "phone", "safari", "music"].map(appBtn).join("")}</div>`;
 }
 
 const PARENT = {
@@ -708,6 +746,9 @@ const PARENT = {
   maild: "mail",
   reel: "instagram",
   screentime: "settings",
+  sms_detail: "sms",        // 👈 加上
+  weibo_profile: "weibo",   // 👈 加上
+  mail_detail: "mail", 
   weibo: "weibo",
   xianyu: "xianyu",
   bilibili: "bilibili",
@@ -736,12 +777,8 @@ const VIEWS = {};
 
 function show(id, anim = "swap") {
   const old = [...APP.children];
-  old.forEach((o) => {
-    o.querySelectorAll("video").forEach((v) => v.pause());
-  });
-  if (PLAYER.dataset.voice && !(id === "chat")) {
-    PLAYER.pause();
-  }
+  old.forEach((o) => o.querySelectorAll("video").forEach((v) => v.pause()));
+  if (PLAYER.dataset.voice && !(id === "chat")) PLAYER.pause();
   view = id;
   const v = VIEWS[id]();
   if (!v) return;
@@ -787,6 +824,7 @@ function show(id, anim = "swap") {
   } else done();
   v.init && v.init(pg);
   updateIsland();
+  updateDndBadge();
   return pg;
 }
 function zoomFrames(r) {
@@ -810,12 +848,7 @@ function zoomFrames(r) {
   ];
 }
 function openApp(id, el) {
-  if (callState) return;
-  if (view !== "home") return;
-  if (!VIEWS[id]) {
-    console.warn("View not found", id);
-    return;
-  }
+  if (callState || view !== "home" || !VIEWS[id]) return;
   lastRect = el ? relRect(el) : null;
   APP.innerHTML = "";
   try {
@@ -1136,21 +1169,19 @@ VIEWS.phone = () => {
   };
 };
 function dial(name) {
-  if (callState) return; // 已在通话中就不重复拨
+  if (callState) return;
   callName = name;
   callDir = "out";
-  callPrev = view; // 记住从哪个页面拨出，挂断后回到这里
+  callPrev = view;
   callState = "dialing";
   if (nowSong >= 0 || PLAYER.dataset.voice) PLAYER.pause();
   APP.querySelectorAll("video").forEach((v) => v.pause());
   OV.querySelectorAll(".banner").forEach((b) => b.remove());
-  renderCall(); // 画出"正在呼叫…"界面
+  renderCall();
   rbIv = setTimeout(() => {
-    // 5 秒没人接 → 自动挂断
     if (callState === "dialing") endCall();
   }, 5000);
 }
-
 function startRing() {
   ringOnce();
   clearInterval(ringIv);
@@ -1170,7 +1201,7 @@ function stopRing() {
 }
 function incomingCallFrom(from = "穆祉丞") {
   const BGM = document.getElementById("bgm");
-  if (BGM) BGM.pause(); 
+  if (BGM) BGM.pause();
   callName = from;
   callDir = "in";
   callPrev = view;
@@ -1182,20 +1213,16 @@ function incomingCallFrom(from = "穆祉丞") {
   startRing();
   ringTo = setTimeout(missCall, 30000);
 }
-
 function callTop() {
   const r = CFG.roles && CFG.roles[callName];
   let content = "";
-  if (r && r.avatar) { // 👈 这里确认是 r.avatar
+  if (r && r.avatar)
     content = `<img src="${r.avatar}" style="width:100%;height:100%;object-fit:cover;" />`;
-  } else if (r) {
-    content = `<div style="font-size:40px">${r.initial}</div>`;
-  } else {
+  else if (r) content = `<div style="font-size:40px">${r.initial}</div>`;
+  else
     content = `<span style="width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(#a5abb6,#7f858f)">${G.sil.replace("<svg", '<svg width="64"')}</span>`;
-  }
   return `<div class="cav">${content}</div><div class="cnm">${esc(dn(callName))}</div>`;
 }
-
 function renderCall() {
   let c = OV.querySelector(".call");
   if (!c) {
@@ -1235,9 +1262,8 @@ function renderCall() {
       callTop() +
       `<div class="csub" id="ctime">${dl ? "正在呼叫…" : "00:00"}</div>${dl ? "" : `<div class="cap" id="cap"><small>实时字幕</small>…</div>`}<div class="cgrid">${B.map(
         ([i, l]) => {
-          if (i === "end") {
+          if (i === "end")
             return `<button class="cb red" onclick="endCall()"><span class="cc"><span style="display:block;transform:rotate(135deg)">${G.handset}</span></span>${l}</button>`;
-          }
           let onclick = "this.classList.toggle('on');vib(8)";
           if (i === "keypadF") onclick = "showDialpad()";
           else if (i === "videoF" || i === "plusF") onclick = "";
@@ -1255,11 +1281,41 @@ function renderCall() {
       );
   }
 }
-
+function wireSlider() {
+  const s = $("#slider"),
+    k = s.querySelector(".kn"),
+    lab = s.querySelector("span");
+  let x0 = null,
+    dx = 0;
+  const max = s.clientWidth - k.clientWidth - 12;
+  k.addEventListener("pointerdown", (e) => {
+    x0 = e.clientX;
+    k.setPointerCapture(e.pointerId);
+  });
+  k.addEventListener("pointermove", (e) => {
+    if (x0 === null) return;
+    dx = Math.max(0, Math.min(max, (e.clientX - x0) / SC));
+    k.style.transform = `translateX(${dx}px)`;
+    lab.style.opacity = 1 - dx / max;
+  });
+  k.addEventListener("pointerup", () => {
+    if (x0 === null) return;
+    x0 = null;
+    if (dx > max * 0.75) answerCall();
+    else {
+      k.animate([{ transform: `translateX(${dx}px)` }, { transform: "none" }], {
+        duration: 300,
+        easing: "cubic-bezier(.2,1.3,.4,1)",
+      });
+      k.style.transform = "";
+      lab.style.opacity = 1;
+    }
+  });
+}
 function answerCall() {
   if (callDir === "in") {
-    // 如果没有专属剧本，给一句默认台词，防止崩溃
-    curScript = CFG.callScripts?.[callName] || speech || [["对方", "喂？听得到吗？"]];
+    curScript = CFG.callScripts?.[callName] ||
+      speech || [["对方", "喂？听得到吗？"]];
     isEnding = true;
   }
   stopRing();
@@ -1269,18 +1325,12 @@ function answerCall() {
   capIdx = -1;
   renderCall();
 }
-
 function declineCall() {
   stopRing();
   callState = "";
   declined++;
-  extraCalls.unshift([
-    callName, // 👈 修复：不再写死“穆祉丞”
-    "今天 " + gameTime24(),
-    "未接来电",
-  ]);
+  extraCalls.unshift([callName, "今天 " + gameTime24(), "未接来电"]);
   closeCallUI();
-  // 拒接后自动回到电话列表
   if (view !== "phone") {
     closeApp();
     setTimeout(
@@ -1290,7 +1340,6 @@ function declineCall() {
     );
   }
 }
-
 function missCall() {
   if (callState !== "ring") return;
   stopRing();
@@ -1307,11 +1356,8 @@ function missCall() {
     );
   }
 }
-
 function endCall() {
-  // 先关闭拨号键盘（如果开着）
   if (typeof closeDialpad === "function") closeDialpad();
-
   if (callState === "dialing") {
     clearInterval(rbIv);
     callState = "";
@@ -1327,14 +1373,11 @@ function endCall() {
   if (t) t.textContent = "通话结束";
   const c = OV.querySelector(".call");
   if (c) c.querySelectorAll(".cb").forEach((b) => (b.style.opacity = 0.4));
-
   extraCalls.unshift([
     callName,
     "今天 " + gameTime24(),
     callDir === "out" ? "呼出" : "接收",
   ]);
-
-  // 👈 彻底干掉报错的 phoneDone，不需要它了
   isEnding = false;
   setTimeout(() => {
     callState = "";
@@ -1342,18 +1385,13 @@ function endCall() {
     if (view === "phone") show("phone");
   }, 1100);
 }
-
 function closeCallUI() {
   const c = OV.querySelector(".call");
   if (!c) return;
-
-  // 触发淡出动画
   c.animate([{ opacity: 1 }, { opacity: 0, transform: "scale(1.04)" }], {
     duration: 320,
     fill: "forwards",
   });
-
-  // 👈 核心修复：不依赖动画回调，直接用 setTimeout 强制清理 DOM，防止卡死！
   setTimeout(() => {
     if (c.parentNode) c.remove();
     setStatus(viewDark());
@@ -1363,54 +1401,27 @@ function closeCallUI() {
     if (BGM && BGM.paused) BGM.play();
   }, 350);
 }
-
-// ====== 👇 以下是新增的拨号键盘逻辑 👇 ======
-// ====== 👇 全新的拨号键盘逻辑 👇 ======
 let dpVal = "";
-
 function showDialpad() {
   let dp = OV.querySelector(".dialpad");
   if (dp) return;
   dp = document.createElement("div");
   dp.className = "dialpad";
-  dp.innerHTML = `
-    <div class="dp-num" id="dp-num"></div>
-    <div class="dp-grid">
-      <button onclick="dpPress('1')">1<small> </small></button>
-      <button onclick="dpPress('2')">2<small>ABC</small></button>
-      <button onclick="dpPress('3')">3<small>DEF</small></button>
-      <button onclick="dpPress('4')">4<small>GHI</small></button>
-      <button onclick="dpPress('5')">5<small>JKL</small></button>
-      <button onclick="dpPress('6')">6<small>MNO</small></button>
-      <button onclick="dpPress('7')">7<small>PQRS</small></button>
-      <button onclick="dpPress('8')">8<small>TUV</small></button>
-      <button onclick="dpPress('9')">9<small>WXYZ</small></button>
-      <button onclick="dpPress('*')">*<small> </small></button>
-      <button onclick="dpPress('0')">0<small>+</small></button>
-      <button onclick="dpPress('#')">#<small> </small></button>
-    </div>
-    <div class="dp-bottom">
-      <button class="dp-end" onclick="endCall()"><span style="display:block;transform:rotate(135deg)">${G.handset}</span></button>
-      <button class="dp-hide" onclick="closeDialpad()">隐藏拨号键盘</button>
-    </div>
-  `;
+  dp.innerHTML = `<div class="dp-num" id="dp-num"></div><div class="dp-grid"><button onclick="dpPress('1')">1<small> </small></button><button onclick="dpPress('2')">2<small>ABC</small></button><button onclick="dpPress('3')">3<small>DEF</small></button><button onclick="dpPress('4')">4<small>GHI</small></button><button onclick="dpPress('5')">5<small>JKL</small></button><button onclick="dpPress('6')">6<small>MNO</small></button><button onclick="dpPress('7')">7<small>PQRS</small></button><button onclick="dpPress('8')">8<small>TUV</small></button><button onclick="dpPress('9')">9<small>WXYZ</small></button><button onclick="dpPress('*')">*<small> </small></button><button onclick="dpPress('0')">0<small>+</small></button><button onclick="dpPress('#')">#<small> </small></button></div><div class="dp-bottom"><button class="dp-end" onclick="endCall()"><span style="display:block;transform:rotate(135deg)">${G.handset}</span></button><button class="dp-hide" onclick="closeDialpad()">隐藏拨号键盘</button></div>`;
   OV.appendChild(dp);
   dpVal = "";
 }
-
 function closeDialpad() {
   const dp = OV.querySelector(".dialpad");
   if (dp) dp.remove();
 }
-
 function dpPress(k) {
   dpVal += k;
   const el = document.getElementById("dp-num");
   if (el) el.textContent = dpVal;
-  vib(10); // 轻微震动反馈
-  sfx("key"); // 按键音效
+  vib(10);
+  sfx("key");
 }
-
 
 function showStoryChoice() {
   if (SS.choice) return;
@@ -1446,16 +1457,13 @@ function storyTick(e) {
   CFG.timeline.forEach((beat, i) => {
     const key = i + "@" + beat.at;
     if (e >= beat.at && !SS.fired.has(key)) {
-      // 【核心拦截逻辑】
       if (beat.needStage !== undefined && beat.from) {
         const currentStage = SS.stage[beat.from] || 0;
-        // 如果玩家当前进度大于了设定的需求（说明玩家回过了），这条催命短信直接作废！
         if (currentStage > beat.needStage) {
           SS.fired.add(key);
           return;
         }
       }
-
       SS.fired.add(key);
       if (beat.type === "notify") incomingMsgFrom(beat.from, beat.text);
       if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");
@@ -1467,32 +1475,26 @@ function storyTick(e) {
 let lastMin = -1;
 function tick() {
   typeof updateCrumb === "function" && updateCrumb();
-  $("#sbt").textContent = clock12();
+  $("#sbt").textContent = clock12(); // 状态栏保留 下午/上午
   const lk = $("#lkt");
-  if (lk) lk.textContent = clock12();
+  if (lk) lk.textContent = clock12(false); // 👈 锁屏大时钟不显示 下午/上午
   storyTick(elapsed());
-
   if (callState === "active") {
     const sec = Math.floor((Date.now() - callStart) / 1000);
     const tm = $("#ctime");
     if (tm) tm.textContent = pad(Math.floor(sec / 60)) + ":" + pad(sec % 60);
-    
-    // 👈 加兜底：如果 curScript 和 speech 都为空，给一个默认数组，防止死机
     const S = curScript || speech || [["对方", "喂？"]];
     if (!S || S.length === 0) return;
-
     const idx = Math.min(S.length - 1, Math.floor(sec / 3));
     if (idx !== capIdx) {
       capIdx = idx;
       const c = $("#cap");
-      if (c && S[idx]) {
+      if (c && S[idx])
         c.innerHTML = `<small>${esc(dn(S[idx][0]))}</small>${esc(S[idx][1])}`;
-      }
     }
     if (sec > S.length * 3 + 2) endCall();
-  }  
+  }
 }
-
 function fit() {
   const ph = $("#phone");
   const mob = innerWidth <= 540;
@@ -1514,41 +1516,20 @@ function fit() {
 function initApp() {
   addEventListener("resize", fit);
   fit();
-/*
-  // 👇 新增：强行恢复剧情播放进度（防止刷新重播）
-  try {
-    const saved = localStorage.getItem("wb_story");
-    if (saved) {
-      const data = JSON.parse(saved);
-      SS.stage = data.stage || {};
-      SS.lineIdx = data.lineIdx || {};
-      SS.choice = data.choice || null;
-      SS.arriveHome = data.arriveHome || false;
-      if (data.fired) SS.fired = new Set(data.fired);
-      if (data.completed) SS.completed = new Set(data.completed);
-      if (data.fragments) SS.fragments = new Set(data.fragments);
-    }
-  } catch (e) {}
-*/
-  // 开发者调试模式：跳过锁屏
-  view = "home";
-  LOCK.style.display = "none";
+
+  //renderLock();//锁屏需要开启，开发需要注释
+
+  
+  view = "home"; // 状态直接设为 home，非开发需要注释
+  LOCK.style.display = "none"; // 隐藏锁屏界面，非开发需要注释
+
+
   renderHome();
-  HOME.style.visibility = "visible";
+
+  HOME.style.visibility = "visible"; // 让桌面可见，非开发需要注释
+
   setStatus(true);
 
   setInterval(tick, 250);
   tick();
 }
-
-/*
-function initApp() {
-  addEventListener("resize", fit);
-  fit();
-  renderLock();
-  renderHome();
-  setStatus(true);
-  setInterval(tick, 250);
-  tick();
-}
-*/

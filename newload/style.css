@@ -4246,3 +4246,63 @@ svg {
     background: #dcdcdc;
     border-color: #c8c8c8;
 }
+
+/* =========================================
+   免打扰按钮样式
+   ========================================= */
+.lk-dnd-wrap {
+    position: absolute;
+    top: 740px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.lk-dnd {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.25);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid transparent;
+    transition: all 0.3s;
+}
+
+.lk-dnd.on {
+    background: rgba(175, 82, 222, 0.85); /* 紫色高亮 */
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(175, 82, 222, 0.4);
+}
+
+/* 👈 免打扰全局角标 */
+.dnd-badge {
+    position: absolute;
+    top: 11px; /* 和状态栏图标对齐 */
+    right: 105px; /* 放在电池图标左边一点点 */
+    z-index: 9999;
+    display: none; /* 默认隐藏 */
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    pointer-events: none; /* 不阻挡点击 */
+    
+    /* 淡淡的光晕和背景，防止在纯白或纯黑背景下看不清 */
+    background: rgba(175, 82, 222, 0.2);
+    padding: 2px 6px;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(175, 82, 222, 0.3);
+}
+
+/* 状态栏是深色（白色字）时，角标调整 */
+#sb.light ~ #dnd-badge {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+}

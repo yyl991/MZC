@@ -27,7 +27,7 @@ const UI = {
   app_wechat: L6("微信"),
   app_music: L6("音乐"),
   allDay: L6("全天"),
-  seoul: L6("首尔"),
+  seoul: L6("北京"),
   mostlySunny: L6("大部晴朗"),
   hiLo: L6("最高:21° 最低:12°"),
   search: L6("搜索"),

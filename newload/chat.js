@@ -1,16 +1,8 @@
 // ==========================================
-// 1. 读取本地保存的聊天记录
+// 1. 读取本地保存的聊天记录 (当前关掉了)
 // ==========================================
-
-/*try {
-  const savedChat = localStorage.getItem("wb_chatData");
-  if (savedChat) {
-    const parsed = JSON.parse(savedChat);
-    for (let key in parsed) {
-      chatData[key] = parsed[key];
-    }
-  }
-} catch (e) {}
+/*
+try { ... } catch (e) {}
 */
 
 // ==========================================
@@ -18,25 +10,31 @@
 // ==========================================
 function getWxTimeString(dateLabel, timeStr) {
   if (/昨天|前天|周[一二三四五六日]|\d{4}年/.test(timeStr)) return timeStr;
-  let h = 0, m = 0;
+  let h = 0,
+    m = 0;
   let match = timeStr.match(/(上午|下午)\s*(\d+):(\d+)/);
   if (match) {
-    h = parseInt(match[2]); m = parseInt(match[3]);
+    h = parseInt(match[2]);
+    m = parseInt(match[3]);
     if (match[1] === "下午" && h < 12) h += 12;
     if (match[1] === "上午" && h === 12) h = 0;
   } else {
     const match2 = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
     if (match2) {
-      h = parseInt(match2[1]); m = parseInt(match2[2]);
+      h = parseInt(match2[1]);
+      m = parseInt(match2[2]);
       const ampm = match2[3] ? match2[3].toUpperCase() : "";
       if (ampm === "PM" && h < 12) h += 12;
       if (ampm === "AM" && h === 12) h = 0;
     }
   }
-  const ampmCN = h >= 12 ? '<span class="ampm">下午</span>' : '<span class="ampm">上午</span>';
+  const ampmCN =
+    h >= 12
+      ? '<span class="ampm">下午</span>'
+      : '<span class="ampm">上午</span>';
   const h12 = h % 12 || 12;
   const timeOnly = `${ampmCN} ${h12}:${pad(m)}`;
-  
+
   if (!dateLabel) return timeOnly;
   let msgDate = new Date(2026, 10, 15);
   const dm = dateLabel.match(/(?:(\d{4})年)?(\d+)月(\d+)日/);
@@ -72,13 +70,14 @@ function previewText(s, grp) {
 
 function avatarFor(name, group, isMe) {
   if (isMe) {
-    const myAv = (CFG && CFG.myAvatar) ? CFG.myAvatar : "./data/avatar/me.jpg";
+    const myAv = CFG && CFG.myAvatar ? CFG.myAvatar : "./data/avatar/me.jpg";
     return `<img src="${myAv}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'app-icon-fallback\\' style=\\'background:#3a3a3c;font-size:20px\\'>我</div>';" />`;
   }
-  
+
   const r = CFG.roles && CFG.roles[name];
   if (r) {
-    if (r.avatar) return `<img src="${r.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" />`;
+    if (r.avatar)
+      return `<img src="${r.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" />`;
     return `<div class="app-icon-fallback" style="background:${r.color};font-size:20px">${r.initial}</div>`;
   }
   return G.sil;
@@ -108,22 +107,26 @@ VIEWS.wechat = () => {
         <div class="wx-actions">${svgSearch}${svgPlus}</div>
     </div>
     <div class="wx-scroll">
-        ${list.map((n) => {
+        ${list
+          .map((n) => {
             const arr = chatData[n] || [];
             let last = arr.filter((x) => x[1] !== "date").slice(-1)[0];
             let time = "";
             if (last) {
               let tStr = last[2];
-              let h = 0, m = 0;
+              let h = 0,
+                m = 0;
               let match = tStr.match(/(上午|下午)\s*(\d+):(\d+)/);
               if (match) {
-                h = parseInt(match[2]); m = parseInt(match[3]);
+                h = parseInt(match[2]);
+                m = parseInt(match[3]);
                 if (match[1] === "下午" && h < 12) h += 12;
                 if (match[1] === "上午" && h === 12) h = 0;
               } else {
                 const match2 = tStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
                 if (match2) {
-                  h = parseInt(match2[1]); m = parseInt(match2[2]);
+                  h = parseInt(match2[1]);
+                  m = parseInt(match2[2]);
                   const ampm = match2[3] ? match2[3].toUpperCase() : "";
                   if (ampm === "PM" && h < 12) h += 12;
                   if (ampm === "AM" && h === 12) h = 0;
@@ -134,7 +137,9 @@ VIEWS.wechat = () => {
               time = `${ampmCN} ${h12}:${pad(m)}`;
             }
             let cnt = unread[n] || 0;
-            const badge = cnt ? `<span class="wx-badge">${cnt > 99 ? "99+" : cnt}</span>` : "";
+            const badge = cnt
+              ? `<span class="wx-badge">${cnt > 99 ? "99+" : cnt}</span>`
+              : "";
 
             return `
             <button class="wx-item" onclick="chatId=&quot;${n}&quot;;push('chat')">
@@ -145,13 +150,14 @@ VIEWS.wechat = () => {
                 </div>
                 <div class="wx-meta"><span class="wx-time">${time}</span></div>
             </button>`;
-          }).join("")}
+          })
+          .join("")}
     </div>
     <div class="wx-tabbar">
         <button class="on"><span>${tabChat}</span><small>微信</small></button>
-        <button><span>${tabContacts}</span><small>通讯录</small></button>
+        <button onclick="push('wx_contacts')"><span>${tabContacts}</span><small>通讯录</small></button>
         <button onclick="push('wx_discover')"><span>${tabDiscover}</span><small>发现</small></button>
-        <button><span>${tabMe}</span><small>我</small></button>
+        <button onclick="push('wx_me')"><span>${tabMe}</span><small>我</small></button>
     </div>`,
   };
 };
@@ -163,8 +169,18 @@ function chatItems(id) {
   const arr = chatData[id] || [];
   const items = [];
   arr.forEach((m, rawIdx) => {
-    if (m[1] === "date") { items.push({ date: m[0] }); return; }
-    items.push({ who: m[1], text: m[0], sender: id, time: m[2] || "", rd: m[3] === "rd", rawIdx: rawIdx });
+    if (m[1] === "date") {
+      items.push({ date: m[0] });
+      return;
+    }
+    items.push({
+      who: m[1],
+      text: m[0],
+      sender: id,
+      time: m[2] || "",
+      rd: m[3] === "rd",
+      rawIdx: rawIdx,
+    });
   });
   return items;
 }
@@ -176,16 +192,19 @@ function chatMsgs(id) {
 
   const getMins = (timeStr) => {
     if (!timeStr) return 0;
-    let h = 0, m = 0;
+    let h = 0,
+      m = 0;
     let match = timeStr.match(/(上午|下午)\s*(\d+):(\d+)/);
     if (match) {
-      h = parseInt(match[2]); m = parseInt(match[3]);
+      h = parseInt(match[2]);
+      m = parseInt(match[3]);
       if (match[1] === "下午" && h < 12) h += 12;
       if (match[1] === "上午" && h === 12) h = 0;
     } else {
       match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/i);
       if (match) {
-        h = parseInt(match[1]); m = parseInt(match[2]);
+        h = parseInt(match[1]);
+        m = parseInt(match[2]);
         const ampm = match[3] ? match[3].toUpperCase() : "";
         if (ampm === "PM" && h < 12) h += 12;
         if (ampm === "AM" && h === 12) h = 0;
@@ -195,10 +214,13 @@ function chatMsgs(id) {
   };
 
   it.forEach((x, i) => {
-    if (x.date) { currentDateLabel = x.date; return; }
+    if (x.date) {
+      currentDateLabel = x.date;
+      return;
+    }
     const me = x.who === "me";
     const prev = it[i - 1];
-    
+
     let showTime = false;
     if (i === 1 || !prev || prev.date) showTime = true;
     else {
@@ -206,9 +228,13 @@ function chatMsgs(id) {
       const prevMin = getMins(prev.time);
       if (currMin - prevMin >= 5 || currMin < prevMin) showTime = true;
     }
-    
-    if (showTime) o += `<div class="wx-dpill"><span>${getWxTimeString(currentDateLabel, x.time)}</span></div>`;
-    if (x.who === "sys") { o += `<div class="wx-sys-tip">${esc(x.text)}</div>`; return; }
+
+    if (showTime)
+      o += `<div class="wx-dpill"><span>${getWxTimeString(currentDateLabel, x.time)}</span></div>`;
+    if (x.who === "sys") {
+      o += `<div class="wx-sys-tip">${esc(x.text)}</div>`;
+      return;
+    }
 
     let innerContent = "";
     let bubbleClass = "wx-bb";
@@ -230,9 +256,9 @@ function chatMsgs(id) {
       const bubbleWidth = Math.max(80, Math.min(200, 60 + sec * 8));
 
       innerContent = `
-        <div style="display: flex; align-items: center; justify-content: ${me ? 'flex-end' : 'flex-start'}; width: ${bubbleWidth}px;">
-          ${!me ? `<span class="voice-speaker">${G.speaker}</span><span class="voice-sec">${sec}"</span>` : ''}
-          ${me ? `<span class="voice-sec">${sec}"</span><span class="voice-speaker me">${G.speaker}</span>` : ''}
+        <div style="display: flex; align-items: center; justify-content: ${me ? "flex-end" : "flex-start"}; width: ${bubbleWidth}px;">
+          ${!me ? `<span class="voice-speaker">${G.speaker}</span><span class="voice-sec">${sec}"</span>` : ""}
+          ${me ? `<span class="voice-sec">${sec}"</span><span class="voice-speaker me">${G.speaker}</span>` : ""}
         </div>
       `;
       bubbleClass = "wx-bb voice-bb";
@@ -253,13 +279,14 @@ function chatMsgs(id) {
       innerContent = esc(x.text);
     }
 
-    const holdEvent = me ? `onpointerdown="startHoldMsg(event, ${x.rawIdx})" onpointerup="cancelHoldMsg()" onpointerleave="cancelHoldMsg()"` : "";
+    const holdEvent = me
+      ? `onpointerdown="startHoldMsg(event, ${x.rawIdx})" onpointerup="cancelHoldMsg()" onpointerleave="cancelHoldMsg()"`
+      : "";
 
-    // 构建外置的红点、转文字按钮和文字框
     let dotHtml = "";
     let btnHtml = "";
     let textHtml = "";
-    
+
     if (!me && x.text.startsWith("[语音]")) {
       dotHtml = `<span class="voice-unread" id="dot-${x.rawIdx}" style="width:8px;height:8px;background:#ff3b30;border-radius:50%;flex:none;"></span>`;
       const parts = x.text.replace("[语音]", "").trim().split("|");
@@ -274,14 +301,12 @@ function chatMsgs(id) {
     <div class="wx-ln ${me ? "me" : "th"}">
     <div class="wx-sav" ondblclick="doPat(${me})">${avatarFor(x.sender, false, me)}</div>
     
-      <div style="display: flex; flex-direction: column; align-items: ${me ? 'flex-end' : 'flex-start'}; max-width: calc(100% - 60px);">
-        <!-- 第一行：气泡 + 红点 + 转文字按钮 -->
-        <div style="display: flex; align-items: center; flex-direction: ${me ? 'row-reverse' : 'row'}; gap: 6px;">
+      <div style="display: flex; flex-direction: column; align-items: ${me ? "flex-end" : "flex-start"}; max-width: calc(100% - 60px);">
+        <div style="display: flex; align-items: center; flex-direction: ${me ? "row-reverse" : "row"}; gap: 6px;">
           <div class="${bubbleClass}" data-idx="${x.rawIdx}" ${onclickAttr} ${holdEvent}>${innerContent}</div>
-          ${!me ? dotHtml : ''}
-          ${!me ? btnHtml : ''}
+          ${!me ? dotHtml : ""}
+          ${!me ? btnHtml : ""}
         </div>
-        <!-- 第二行：文字框 -->
         ${textHtml}
       </div>
     </div>`;
@@ -299,18 +324,23 @@ function startHoldMsg(e, rawIdx) {
     vib(20);
     if (confirm("你要撤回这条消息吗？")) {
       const arr = chatData[chatId];
-      const time = arr[rawIdx][2]; 
+      const time = arr[rawIdx][2];
       arr[rawIdx] = ["你撤回了一条消息", "sys", time];
       saveChat();
       refreshChat();
     }
-  }, 600); 
+  }, 600);
 }
-function cancelHoldMsg() { if (holdTimer) clearTimeout(holdTimer); }
+function cancelHoldMsg() {
+  if (holdTimer) clearTimeout(holdTimer);
+}
 
 function toggleVoiceText(btn) {
-  const container = btn.closest('.wx-ln').querySelector('.wx-wrap') || btn.closest('.wx-ln');
-  const txt = container.querySelector('.voice-trans-text') || btn.parentElement.parentElement.querySelector('.voice-trans-text');
+  const container =
+    btn.closest(".wx-ln").querySelector(".wx-wrap") || btn.closest(".wx-ln");
+  const txt =
+    container.querySelector(".voice-trans-text") ||
+    btn.parentElement.parentElement.querySelector(".voice-trans-text");
   if (txt.style.display === "block") {
     txt.style.display = "none";
     btn.textContent = "转文字";
@@ -323,16 +353,16 @@ function toggleVoiceText(btn) {
 function playVoice(el, url, sec) {
   if (el.classList.contains("playing")) return;
   el.classList.add("playing");
-  
+
   const idx = el.getAttribute("data-idx");
   if (idx) {
     const dot = document.getElementById(`dot-${idx}`);
     if (dot) dot.style.display = "none";
   }
-  
+
   if (url) {
     const audio = new Audio(url);
-    audio.play().catch(e => console.log("音频播放失败", e));
+    audio.play().catch((e) => console.log("音频播放失败", e));
     audio.onended = () => el.classList.remove("playing");
   } else {
     setTimeout(() => el.classList.remove("playing"), sec * 1000);
@@ -349,32 +379,29 @@ function openVideo(url) {
   document.getElementById("screen").appendChild(d);
 }
 
-//拍一拍
 function doPat(isSelf) {
-  // 防抖：0.5秒内只能拍一次
   if (window._patLock) return;
   window._patLock = true;
-  setTimeout(() => { window._patLock = false; }, 500);
+  setTimeout(() => {
+    window._patLock = false;
+  }, 500);
 
-  vib([20, 50, 20]); // 震动反馈
+  vib([20, 50, 20]);
   const time = nowAmpm();
   let msg = "";
 
   if (isSelf) {
-    // 👈 双击自己的头像（自己拍自己）
-    const myPat = (CFG && CFG.myPat) ? CFG.myPat : "";
-    msg = `我拍了拍自己${myPat ? ' ' + myPat : ''}`;
+    const myPat = CFG && CFG.myPat ? CFG.myPat : "";
+    msg = `"你" 拍了拍自己${myPat ? " " + myPat : ""}`;
   } else {
-    // 👈 双击对方的头像（你拍对方）
     const targetRole = CFG.roles && CFG.roles[chatId];
     const targetSuffix = targetRole && targetRole.pat ? targetRole.pat : "";
     const targetName = dn(chatId);
-    msg = `我拍了拍 "${targetName}"${targetSuffix ? ' ' + targetSuffix : ''}`;
+    msg = `"你" 拍了拍 "${targetName}"${targetSuffix ? " " + targetSuffix : ""}`;
   }
 
-  // 插入聊天记录并保存
   chatData[chatId].push([msg, "sys", time]);
-  saveChat(); 
+  saveChat();
   refreshChat(true);
 }
 
@@ -382,17 +409,17 @@ function doPat(isSelf) {
 // 6. 底部输入栏与键盘
 // ==========================================
 function toggleVoiceInput() {
-  const field = $("#fld"), btn = $("#voice-btn"), icon = $("#voice-icon");
-  
+  const field = $("#fld"),
+    btn = $("#voice-btn"),
+    icon = $("#voice-icon");
+
   if (field.style.display === "none") {
-    // 切换回文本输入
     field.style.display = "flex";
     btn.style.display = "none";
     icon.innerHTML = G.mic;
   } else {
-    // 切换为语音输入
     field.style.display = "none";
-    btn.style.display = "flex"; // 这里是 flex
+    btn.style.display = "flex";
     icon.innerHTML = G.keypad;
     closeKbd();
   }
@@ -414,11 +441,12 @@ function endRecord(e) {
   e.target.classList.remove("recording");
   e.target.textContent = "按住 说话";
   if (sec < 1) return;
-  
+
   chatData[chatId].push([`[语音] ${sec}`, "me", nowAmpm(), "rd"]);
   saveChat();
   refreshChat(true);
-  sfx("send"); vib(20);
+  sfx("send");
+  vib(20);
 }
 
 VIEWS.chat = () => ({
@@ -441,17 +469,21 @@ VIEWS.chat = () => ({
   <div class="kbd" id="kbd">${kbdHTML()}</div>`,
   init: () => {
     if (chatId) unread[chatId] = 0;
-    SS.typing = false; SS.pendingText = ""; scrollChat();
+    SS.typing = false;
+    SS.pendingText = "";
+    scrollChat();
   },
 });
 
 function scrollChat(smooth) {
-  const b = $("#msgs"); if (!b) return;
+  const b = $("#msgs");
+  if (!b) return;
   if (smooth) b.scrollTo({ top: b.scrollHeight, behavior: "smooth" });
   else b.scrollTop = b.scrollHeight;
 }
 function refreshChat(pop) {
-  const b = $("#msgs"); if (!b || view !== "chat") return;
+  const b = $("#msgs");
+  if (!b || view !== "chat") return;
   b.innerHTML = chatMsgs(chatId);
   scrollChat();
   if (pop) {
@@ -460,74 +492,126 @@ function refreshChat(pop) {
   }
 }
 
-const KB_LAT = ["qwertyuiop".split(""), "asdfghjkl".split(""), "zxcvbnm".split("")];
+const KB_LAT = [
+  "qwertyuiop".split(""),
+  "asdfghjkl".split(""),
+  "zxcvbnm".split(""),
+];
 function kbdHTML() {
   const k = (c) => `<div class="key" data-k="${c}" data-c="${c}">${c}</div>`;
   const R = KB_LAT;
   return `<div class="kin" onclick="event.stopPropagation();kbdTap(event)"><div class="kr">${R[0].map(k).join("")}</div><div class="kr" style="padding:0 3px">${R[1].map(k).join("")}</div><div class="kr"><div class="key sp" data-k="⇧">${G.shift}</div><span style="width:6px"></span>${R[2].map(k).join("")}<span style="width:6px"></span><div class="key sp" data-k="⌫">${G.bksp}</div></div><div class="kr"><div class="key sp" data-k="123" style="font-size:16px">123</div><div class="key sp" data-k="emo" style="font-size:20px">🙂</div><div class="key wide" data-k="space">空格</div><div class="key ret" data-k="ret">换行</div></div><div class="kbot">${G.globe}${G.mic}</div></div>`;
 }
 function openKbd() {
-  const k = $("#kbd"); if (!k || k.classList.contains("open")) return;
-  k.classList.add("open"); $("#cin").classList.remove("safe");
+  const k = $("#kbd");
+  if (!k || k.classList.contains("open")) return;
+  k.classList.add("open");
+  $("#cin").classList.remove("safe");
   const t0 = performance.now();
-  (function f() { scrollChat(); if (performance.now() - t0 < 420) requestAnimationFrame(f); })();
+  (function f() {
+    scrollChat();
+    if (performance.now() - t0 < 420) requestAnimationFrame(f);
+  })();
 }
 function closeKbd() {
-  const k = $("#kbd"); if (!k || !k.classList.contains("open")) return;
-  k.classList.remove("open"); $("#cin").classList.add("safe");
+  const k = $("#kbd");
+  if (!k || !k.classList.contains("open")) return;
+  k.classList.remove("open");
+  $("#cin").classList.add("safe");
 }
 function pressKey(k) {
-  const el = document.querySelector(`#kbd [data-k="${k}"]`); if (!el) return;
+  const el = document.querySelector(`#kbd [data-k="${k}"]`);
+  if (!el) return;
   el.classList.add("dn");
-  if (!el.classList.contains("sp") && !el.classList.contains("wide") && !el.classList.contains("ret")) el.classList.add("pv");
-  sfx("key"); setTimeout(() => el.classList.remove("dn", "pv"), 130);
+  if (
+    !el.classList.contains("sp") &&
+    !el.classList.contains("wide") &&
+    !el.classList.contains("ret")
+  )
+    el.classList.add("pv");
+  sfx("key");
+  setTimeout(() => el.classList.remove("dn", "pv"), 130);
 }
 function kbdTap(e) {
-  const k = e.target.closest(".key"); if (!k) return;
-  if (SS.typing) { pressKey(k.dataset.k); vib(5); return; }
-  if (!SS.pendingText && canType()) {
-    const c = CFG.chats[chatId], st = SS.stage[chatId] || 0, li = SS.lineIdx[chatId] || 0;
-    typeLine(c.replies[st].mine[li]); return;
+  const k = e.target.closest(".key");
+  if (!k) return;
+  if (SS.typing) {
+    pressKey(k.dataset.k);
+    vib(5);
+    return;
   }
-  pressKey(k.dataset.k); vib(5);
+  if (!SS.pendingText && canType()) {
+    const c = CFG.chats[chatId],
+      st = SS.stage[chatId] || 0,
+      li = SS.lineIdx[chatId] || 0;
+    typeLine(c.replies[st].mine[li]);
+    return;
+  }
+  pressKey(k.dataset.k);
+  vib(5);
 }
 function genSteps(str) {
-  const st = []; let done = ""; const letters = "qwertyuiopasdfghjklzxcvbnm".split("");
+  const st = [];
+  let done = "";
+  const letters = "qwertyuiopasdfghjklzxcvbnm".split("");
   for (const ch of str) {
-    done += ch; let k = [];
+    done += ch;
+    let k = [];
     if (ch === " ") k = ["space"];
     else if (/[a-zA-Z0-9]/.test(ch)) k = [ch.toLowerCase()];
     else {
       k = [letters[Math.floor(Math.random() * letters.length)]];
-      if (Math.random() > 0.6) k.push(letters[Math.floor(Math.random() * letters.length)]);
+      if (Math.random() > 0.6)
+        k.push(letters[Math.floor(Math.random() * letters.length)]);
     }
     st.push({ k, t: done });
   }
   return st;
 }
 function setField(txt, cursor) {
-  const f = $("#fld"); if (!f) return;
-  if (!txt && !cursor) { f.className = "wx-fld ph"; f.textContent = "输入消息"; return; }
-  f.className = "wx-fld"; f.innerHTML = esc(txt) + (cursor ? '<span class="cur"></span>' : "");
+  const f = $("#fld");
+  if (!f) return;
+  if (!txt && !cursor) {
+    f.className = "wx-fld ph";
+    f.textContent = "输入消息";
+    return;
+  }
+  f.className = "wx-fld";
+  f.innerHTML = esc(txt) + (cursor ? '<span class="cur"></span>' : "");
 }
 function canType() {
-  const c = CFG.chats && CFG.chats[chatId]; if (!c) return false;
-  const st = SS.stage[chatId] || 0, li = SS.lineIdx[chatId] || 0;
-  return (st < c.replies.length && !SS.typing && !SS.pendingText && !SS.replyBusy);
+  const c = CFG.chats && CFG.chats[chatId];
+  if (!c) return false;
+  const st = SS.stage[chatId] || 0,
+    li = SS.lineIdx[chatId] || 0;
+  return (
+    st < c.replies.length && !SS.typing && !SS.pendingText && !SS.replyBusy
+  );
 }
 function tapInput() {
   openKbd();
-  if (!canType()) { setField(SS.pendingText, true); return; }
+  if (!canType()) {
+    setField(SS.pendingText, true);
+    return;
+  }
   setField("", true);
 }
 function typeLine(line) {
-  SS.typing = true; const steps = genSteps(line); let i = 0;
+  SS.typing = true;
+  const steps = genSteps(line);
+  let i = 0;
   setField("", true);
   (function step() {
-    if (view !== "chat") { SS.typing = false; return; }
+    if (view !== "chat") {
+      SS.typing = false;
+      return;
+    }
     if (i >= steps.length) {
-      SS.typing = false; SS.pendingText = line;
-      const s = $("#snd"); if (s) s.classList.add("on"); return;
+      SS.typing = false;
+      SS.pendingText = line;
+      const s = $("#snd");
+      if (s) s.classList.add("on");
+      return;
     }
     const s = steps[i++];
     s.k.forEach((k, j) => setTimeout(() => pressKey(k), j * 45));
@@ -537,27 +621,39 @@ function typeLine(line) {
 }
 function sendLine() {
   if (!SS.pendingText) return;
-  const c = CFG.chats[chatId]; if (!c) return;
-  const st = SS.stage[chatId] || 0, li = SS.lineIdx[chatId] || 0, line = SS.pendingText;
+  const c = CFG.chats[chatId];
+  if (!c) return;
+  const st = SS.stage[chatId] || 0,
+    li = SS.lineIdx[chatId] || 0,
+    line = SS.pendingText;
 
   chatData[chatId].push([line, "me", nowAmpm(), "rd"]);
   SS.pendingText = "";
-  sfx("send"); vib(10);
-  setField("", false); $("#snd").classList.remove("on"); 
-  
+  sfx("send");
+  vib(10);
+  setField("", false);
+  $("#snd").classList.remove("on");
+
   saveChat();
   refreshChat(true);
   SS.lineIdx[chatId] = li + 1;
 
   const stage = c.replies[st];
   if (SS.lineIdx[chatId] < stage.mine.length) {
-    setTimeout(() => { if (view === "chat" && chatId && $("#kbd.open")) typeLine(stage.mine[SS.lineIdx[chatId]]); }, 500);
+    setTimeout(() => {
+      if (view === "chat" && chatId && $("#kbd.open"))
+        typeLine(stage.mine[SS.lineIdx[chatId]]);
+    }, 500);
     return;
   }
 
-  SS.stage[chatId] = st + 1; SS.lineIdx[chatId] = 0; SS.replyBusy = true;
+  SS.stage[chatId] = st + 1;
+  SS.lineIdx[chatId] = 0;
+  SS.replyBusy = true;
   setTimeout(() => {
-    chatData[chatId].forEach((x) => { if (x[3] === "rd") x[3] = ""; });
+    chatData[chatId].forEach((x) => {
+      if (x[3] === "rd") x[3] = "";
+    });
     saveChat();
     refreshChat();
   }, 900);
@@ -566,100 +662,118 @@ function sendLine() {
   stage.them.forEach((msg) => {
     setTimeout(() => showTypingFrom(chatId), t);
     t += 700 + msg.length * 40;
-    setTimeout(() => { hideTyping(); deliverFrom(chatId, msg); }, t);
+    setTimeout(() => {
+      hideTyping();
+      deliverFrom(chatId, msg);
+    }, t);
     t += 300;
   });
 
   setTimeout(() => {
     SS.replyBusy = false;
     if (SS.stage[chatId] >= c.replies.length) {
-      SS.completed.add(chatId); unlockFragment(chatId);
+      SS.completed.add(chatId);
+      unlockFragment(chatId);
     }
   }, t + 50);
 }
 
 function showTypingFrom(from) {
   if (!(view === "chat" && chatId === from)) return;
-  const title = $("#chatTitle"); if (title) title.textContent = "对方正在输入...";
+  const title = $("#chatTitle");
+  if (title) title.textContent = "对方正在输入...";
 }
 function hideTyping() {
-  const title = $("#chatTitle"); if (title && view === "chat") title.textContent = dn(chatId);
+  const title = $("#chatTitle");
+  if (title && view === "chat") title.textContent = dn(chatId);
 }
 function deliverFrom(from, text) {
   if (!chatData[from]) chatData[from] = [];
-  
-  // 👈 防重复拦截：如果最后一条一模一样的消息刚发过，就不重复推了
+
+  // 👈 防重复拦截
   const arr = chatData[from];
   if (arr.length > 0) {
     const last = arr[arr.length - 1];
-    if (last[0] === text && last[1] === "them") return; 
+    if (last[0] === text && last[1] === "them") return;
   }
 
   chatData[from].push([text, "them", nowAmpm()]);
   saveChat();
-  
-  if (view === "chat" && chatId === from) { refreshChat(true); tone(1318, 0, 0.12, 0.05); }
-  else {
-    unread[from] = (unread[from] || 0) + 1; notifyFrom(from, text);
-    if (view === "wechat") { const pg = APP.lastElementChild; if (pg) pg.innerHTML = VIEWS.wechat().html; }
-    if (view === "home") renderHome(); 
+
+  if (view === "chat" && chatId === from) {
+    refreshChat(true);
+    tone(1318, 0, 0.12, 0.05);
+  } else {
+    unread[from] = (unread[from] || 0) + 1;
+    notifyFrom(from, text);
+    if (view === "wechat") {
+      const pg = APP.lastElementChild;
+      if (pg) pg.innerHTML = VIEWS.wechat().html;
+    }
+    if (view === "home") renderHome();
   }
 }
 function incomingMsgFrom(from, text) {
   if (view === "chat" && chatId === from) {
     showTypingFrom(from);
-    setTimeout(() => { hideTyping(); deliverFrom(from, text); }, 1200);
+    setTimeout(() => {
+      hideTyping();
+      deliverFrom(from, text);
+    }, 1200);
   } else deliverFrom(from, text);
 }
 
 function notifyFrom(from, body) {
-  sfx("msg"); vib([30, 60, 30]);
+  // 👈 核心拦截：如果开启了免打扰，不播放音效、不弹横幅，直接返回
+  if (window.isDnd) {
+    return;
+  }
+
+  sfx("msg");
+  vib([30, 60, 30]);
   if (view === "lock" || view === "pin") {
     lockNotes.unshift({ title: dn(from), body, app: "wechat", time: t("now") });
-    renderLock(); return;
+    renderLock();
+    return;
   }
-  
+
   OV.querySelectorAll(".banner").forEach((b) => b.remove());
-  const b = document.createElement("div"); 
+  const b = document.createElement("div");
   b.className = "banner";
   b.innerHTML = `<div class="ncard">${ncardHTML({ title: dn(from), body, app: "wechat", time: t("now") })}</div>`;
   OV.appendChild(b);
 
-  // 1. 入场动画
   b.animate(
     [{ transform: "translateY(-140%) scale(.96)" }, { transform: "none" }],
-    { duration: 620, easing: "cubic-bezier(.2,1.25,.35,1)" }
+    { duration: 620, easing: "cubic-bezier(.2,1.25,.35,1)" },
   );
 
-  // 2. 自动消失定时器
   let tm = setTimeout(() => {
     closeBanner(b);
   }, 5600);
 
-  // 3. 滑动交互逻辑
-  let y0 = null, dy = 0, isDragging = false;
+  let y0 = null,
+    dy = 0,
+    isDragging = false;
 
   b.addEventListener("pointerdown", (e) => {
     y0 = e.clientY;
     dy = 0;
     isDragging = true;
-    clearTimeout(tm); // 用户按住时，暂停自动消失
-    b.getAnimations().forEach(a => a.cancel()); // 取消入场动画，防止冲突
-    b.style.transition = "none"; // 拖动时关闭过渡
-    b.setPointerCapture(e.pointerId); // 锁定指针，防止滑出屏幕丢失焦点
+    clearTimeout(tm);
+    b.getAnimations().forEach((a) => a.cancel());
+    b.style.transition = "none";
+    b.setPointerCapture(e.pointerId);
   });
 
   b.addEventListener("pointermove", (e) => {
     if (!isDragging) return;
     dy = e.clientY - y0;
-    
-    // 如果是向上滑动
     if (dy < 0) {
       const opacity = Math.max(0, 1 - Math.abs(dy) / 100);
       b.style.transform = `translateY(${dy}px) scale(${1 - Math.abs(dy) / 1000})`;
       b.style.opacity = opacity;
     } else {
-      // 向下拖动给个微小的阻尼，表示拉不动
       b.style.transform = `translateY(${dy * 0.2}px)`;
     }
   });
@@ -671,36 +785,36 @@ function notifyFrom(from, body) {
     b.style.transition = "all 0.3s cubic-bezier(0.2, 0.9, 0.25, 1)";
 
     if (dy < -40) {
-      // 👈 上滑超过 40px，视为忽略，播放向上飞出的动画
       closeBanner(b, true);
     } else if (Math.abs(dy) < 5) {
-      // 👈 移动距离极小，视为点击，打开聊天
       b.remove();
       openChatFrom(from);
     } else {
-      // 👈 滑动距离不够，回弹归位
       b.style.transform = "none";
       b.style.opacity = 1;
-      // 重新计时 3 秒后自动消失
-      tm = setTimeout(() => { closeBanner(b); }, 3000);
+      tm = setTimeout(() => {
+        closeBanner(b);
+      }, 3000);
     }
   };
 
   b.addEventListener("pointerup", handlePointerUp);
   b.addEventListener("pointercancel", handlePointerUp);
 
-  // 统一的关闭逻辑
   function closeBanner(el, isSwipe = false) {
     clearTimeout(tm);
     const startTransform = el.style.transform || "none";
     const startOpacity = el.style.opacity || "1";
-    
     el.animate(
       [
         { transform: startTransform, opacity: startOpacity },
-        { transform: "translateY(-140%) scale(0.9)", opacity: 0 }
+        { transform: "translateY(-140%) scale(0.9)", opacity: 0 },
       ],
-      { duration: 300, easing: "cubic-bezier(0.3, 0.7, 0.2, 1)", fill: "forwards" }
+      {
+        duration: 300,
+        easing: "cubic-bezier(0.3, 0.7, 0.2, 1)",
+        fill: "forwards",
+      },
     ).onfinish = () => el.remove();
   }
 }
@@ -708,7 +822,8 @@ function notifyFrom(from, body) {
 function openChatFrom(from) {
   if (callState) return;
   chatId = from;
-  if (view === "home") openApp("chat", HOME.querySelector('.app[data-app="wechat"] .icon'));
+  if (view === "home")
+    openApp("chat", HOME.querySelector('.app[data-app="wechat"] .icon'));
   else if (view === "chat") show("chat");
   else push("chat");
 }
@@ -717,21 +832,37 @@ function unlockFragment(id) {
   const f = CFG.chats?.[id]?.fragment;
   if (!f || SS.fragments.has(id)) return;
   SS.fragments.add(id);
-  SS.goingHome = Math.round((SS.fragments.size / Object.keys(CFG.chats).filter((k) => CFG.chats[k].fragment).length) * 100);
+  SS.goingHome = Math.round(
+    (SS.fragments.size /
+      Object.keys(CFG.chats).filter((k) => CFG.chats[k].fragment).length) *
+      100,
+  );
   notes.unshift([`碎片 · ${id}`, f.title, f.body, "2026-11-15"]);
-  saveStory(); notifyFrom("系统", `已解锁：${f.title} · 回家进度 ${SS.goingHome}%`);
+  saveStory();
+  notifyFrom("系统", `已解锁：${f.title} · 回家进度 ${SS.goingHome}%`);
 }
 function saveStory() {
   try {
-    localStorage.setItem("wb_story", JSON.stringify({
-        stage: SS.stage, lineIdx: SS.lineIdx, fragments: [...SS.fragments], goingHome: SS.goingHome, choice: SS.choice, arriveHome: SS.arriveHome,
-        completed: [...SS.completed], fired: [...SS.fired], privateUnlocked: SS.privateUnlocked, memoUnlocked: SS.memoUnlocked,
-    }));
+    localStorage.setItem(
+      "wb_story",
+      JSON.stringify({
+        stage: SS.stage,
+        lineIdx: SS.lineIdx,
+        fragments: [...SS.fragments],
+        goingHome: SS.goingHome,
+        choice: SS.choice,
+        arriveHome: SS.arriveHome,
+        completed: [...SS.completed],
+        fired: [...SS.fired],
+        privateUnlocked: SS.privateUnlocked,
+        memoUnlocked: SS.memoUnlocked,
+      }),
+    );
   } catch (e) {}
 }
 
-// 保存聊天记录到本地
-function saveChat() {/*
+function saveChat() {
+  /*
   try {
     localStorage.setItem("wb_chatData", JSON.stringify(chatData));
   } catch (e) {}*/
