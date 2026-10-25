@@ -1044,15 +1044,24 @@ function hbAction() {
 }
 (function hbGesture() {
   const hb = $("#hb");
+  const bar = hb.querySelector("i"); // 只绑定在中间的小横条上
   let y0 = null;
-  hb.addEventListener("pointerdown", (e) => {
+  
+  bar.addEventListener("pointerdown", (e) => {
     y0 = e.clientY;
-    hb.setPointerCapture(e.pointerId);
+    bar.setPointerCapture(e.pointerId);
   });
-  hb.addEventListener("pointerup", (e) => {
+  
+  bar.addEventListener("pointerup", (e) => {
     if (y0 === null) return;
+    const dy = e.clientY - y0; // 计算滑动的距离
     y0 = null;
-    hbAction();
+    
+    // 只有向上滑动超过 20 像素，才触发退回主页！
+    // 如果只是原地“点”一下，什么都不会发生！
+    if (dy < -20) { 
+      hbAction();
+    }
   });
 })();
 (function edgeBack() {

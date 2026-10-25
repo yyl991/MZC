@@ -4345,3 +4345,16 @@ svg {
     font-size: 88px;
   }
 }
+
+/* 让底部大容器不拦截点击，只有中间的小横条才拦截 */
+#hb {
+    pointer-events: none !important;
+}
+#hb i {
+    pointer-events: auto;
+    /* 稍微扩大一点点小横条上下滑动的感应区，但不影响左右按钮 */
+    padding: 10px 0;
+    margin-bottom: -10px;
+    box-sizing: border-box;
+    background-clip: content-box;
+}
