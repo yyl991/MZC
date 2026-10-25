@@ -1,0 +1,10 @@
+{
+  "name": "newload",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node obfuscate.js"
+  },
+  "devDependencies": {
+    "javascript-obfuscator": "^4.1.0"
+  }
+}
