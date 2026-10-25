@@ -6,8 +6,10 @@ const SCREEN = $("#screen"),
   LOCK = $("#lockL"),
   OV = $("#ov"),
   PLAYER = $("#player");
+const base = Date.now();
+const elapsed = () => (Date.now() - base) / 1000;
 
-window.toastDev = function(customMsg) {
+window.toastDev = function (customMsg) {
   const msgs = [
     "这功能还在“局部宇宙”里没飞过来，请小纸团耐心等候~",
     "系统正在呼唤你：睡个好觉，功能还没写好，别熬夜等这个按钮了~",
@@ -21,56 +23,68 @@ window.toastDev = function(customMsg) {
     "世界那么大，馒头那么小，功能那么新，代码那么旧，这个按钮还没写好呢~",
     "欢迎来到属于我们的局部宇宙~宇宙太大了，功能还在飞尚未抵达（还没做完。）",
     "程序员正在给你的局部宇宙搭建功能，星星太多，得一颗一颗连",
-    "等一下等一下，等等等等等等，哎别这么着急好不好，我先和大家说一下我的趣事好不好——代码还在写",
-    "穆祉丞说‘怎么办，你们是不是要对我负责~’ 所以这个还没做完的功能，你得负责等。"
+    "等一下等一下，等等等等等等，哎别这么着急好不好——代码还在写",
+    "穆祉丞说‘怎么办，你们是不是要对我负责啊~’ 所以这个还没做完的功能，你得负责等。",
   ];
-  
   const msg = customMsg || msgs[Math.floor(Math.random() * msgs.length)];
-  
-  // 清除旧的提示
-  document.querySelectorAll('.dev-toast-wrap').forEach(e => e.remove());
-  
-  // 👇 1. 外层包裹器：固定占满左右，使用 flex 居中
+  document.querySelectorAll(".dev-toast-wrap").forEach((e) => e.remove());
   const wrap = document.createElement("div");
   wrap.className = "dev-toast-wrap";
-  wrap.style.cssText = "position:absolute; bottom:120px; left:0; right:0; display:flex; justify-content:center; pointer-events:none; z-index:999999;";
-  
-  // 👇 2. 内层气泡：限制最大宽度80%，自动换行
+  wrap.style.cssText =
+    "position:absolute; bottom:120px; left:0; right:0; display:flex; justify-content:center; pointer-events:none; z-index:999999;";
   const t = document.createElement("div");
-  t.style.cssText = "background:rgba(20,20,20,.9); color:#fff; padding:12px 22px; border-radius:16px; font-size:13.5px; transition:opacity 0.3s, transform 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-weight: 500; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1.5px solid rgba(255, 163, 107, 0.7); max-width: 80%; text-align: center; line-height: 1.5; word-break: break-word;";
+  t.style.cssText =
+    "background:rgba(20,20,20,.9); color:#fff; padding:12px 22px; border-radius:16px; font-size:13.5px; transition:opacity 0.3s, transform 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-weight: 500; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1.5px solid rgba(255, 163, 107, 0.7); max-width: 80%; text-align: center; line-height: 1.5; word-break: break-word;";
   t.textContent = msg;
-  
   wrap.appendChild(t);
   document.getElementById("screen").appendChild(wrap);
-  
-  // 出现动画
   t.style.opacity = "1";
   t.style.transform = "translateY(0)";
-  
-  // 消失动画
-  setTimeout(() => { 
-    t.style.opacity = "0"; 
-    t.style.transform = "translateY(10px)"; 
-    setTimeout(() => wrap.remove(), 300); 
+  setTimeout(() => {
+    t.style.opacity = "0";
+    t.style.transform = "translateY(10px)";
+    setTimeout(() => wrap.remove(), 300);
   }, 2500);
 };
-  
 
-const base = Date.now();
-const elapsed = () => (Date.now() - base) / 1000;
+window.alert = function (msg) {
+  if (
+    typeof msg === "string" &&
+    (msg.includes("开发") ||
+      msg.includes("暂无") ||
+      msg.includes("占位") ||
+      msg === "")
+  )
+    window.toastDev();
+  else window.toastDev(msg);
+};
+
+document.addEventListener("click", (e) => {
+  if (e.target.closest("input, textarea, video, [onclick]")) return;
+  const fakeBtn = e.target.closest(
+    'button, .row, .wx-item, .wx-tabbar button, .tabbar button, .mrw, .cal-d, [style*="cursor: pointer"], [style*="cursor:pointer"]',
+  );
+  if (!fakeBtn) return;
+  if (
+    fakeBtn.closest("#music-scroll") ||
+    fakeBtn.classList.contains("key") ||
+    fakeBtn.closest(".kbd") ||
+    fakeBtn.closest(".mapwrap")
+  )
+    return;
+  window.toastDev();
+});
 
 const CFG = window.STORY || {};
 const SS = window.STORY_STATE || {};
-
 if (!SS.fired) SS.fired = new Set();
 if (!SS.fragments) SS.fragments = new Set();
 if (!SS.completed) SS.completed = new Set();
 if (!SS.stage) SS.stage = {};
 if (!SS.lineIdx) SS.lineIdx = {};
 
-const GAME_START_MIN = 23 * 60 + 9;
-const GAME_END_AT = 300;
-
+const GAME_START_MIN = 23 * 60 + 9,
+  GAME_END_AT = 300;
 let view = "lock",
   curDark = true,
   SC = 1,
@@ -86,8 +100,8 @@ let pincode = "",
   mailId = 0,
   missOnly = false,
   safSearch = false;
-let unread = {};
-let callState = "",
+let unread = {},
+  callState = "",
   declined = 0,
   callStart = 0,
   callPrev = "",
@@ -120,7 +134,6 @@ const esc = (v) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
-
 function ampm(minutes) {
   const h = Math.floor(minutes / 60) % 24;
   const m = Math.floor(minutes % 60);
@@ -128,13 +141,10 @@ function ampm(minutes) {
   const h12 = h % 12 || 12;
   return `${ap} ${h12}:${pad(m)}`;
 }
-
 function gameMin() {
   const p = Math.min(1, elapsed() / GAME_END_AT);
   return GAME_START_MIN + Math.floor(p * 51);
 }
-
-// 👈 修改：加一个参数 showAmpm，默认 true
 function clock12(showAmpm = true) {
   const m = gameMin();
   const h = Math.floor(m / 60) % 24;
@@ -143,7 +153,6 @@ function clock12(showAmpm = true) {
   const h12 = h % 12 || 12;
   return showAmpm ? `${ampmStr} ${h12}:${pad(min)}` : `${h12}:${pad(min)}`;
 }
-
 function gameTime24() {
   const m = gameMin();
   const h = Math.floor(m / 60) % 24;
@@ -151,7 +160,6 @@ function gameTime24() {
   return pad(h) + ":" + pad(min);
 }
 const nowAmpm = () => clock12();
-
 function relRect(el) {
   const s = SCREEN.getBoundingClientRect(),
     r = el.getBoundingClientRect();
@@ -172,9 +180,9 @@ const T = { duration: 460, easing: "cubic-bezier(.32,.72,0,1)" };
 function devRadius() {
   return document.getElementById("phone").classList.contains("mob") ? 0 : 56;
 }
-
 const g = (p, o = "") =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${o}>${p}</svg>`;
+
 const G = {
   speaker: g(
     '<path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/>',
@@ -331,103 +339,71 @@ const APPS = {
   privateAlbum: "私密相册",
 };
 
+
 function appIcon(id) {
   const newApps = {
+    // 👇 1. 微信也改成读取本地图片
     wechat: {
       cls: "ic-wechat",
-      icon: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#07c160"/><g fill="#fff"><path d="M23 19c-7.7 0-14 5.2-14 11.7 0 3.7 2.1 7 5.4 9.1l-1.4 4.2 4.9-2.4c1.6.5 3.3.8 5.1.8 7.7 0 14-5.2 14-11.7S30.7 19 23 19Z"/><path d="M39 28c-7.7 0-14 5.2-14 11.7 0 3.7 2.1 7 5.4 9.1l-1.4 4.2 4.9-2.4c1.6.5 3.3.8 5.1.8 7.7 0 14-5.2 14-11.7S46.7 28 39 28Z"/><circle cx="18" cy="27" r="2.5" fill="#07c160"/><circle cx="28" cy="27" r="2.5" fill="#07c160"/><circle cx="34" cy="36" r="2.5" fill="#07c160"/><circle cx="44" cy="36" r="2.5" fill="#07c160"/></g></svg>`,
+      path: "./data/app/wechat.png",
+      fallback: `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#07c160"/><g fill="#fff"><path d="M23 19c-7.7 0-14 5.2-14 11.7 0 3.7 2.1 7 5.4 9.1l-1.4 4.2 4.9-2.4c1.6.5 3.3.8 5.1.8 7.7 0 14-5.2 14-11.7S30.7 19 23 19Z"/><path d="M39 28c-7.7 0-14 5.2-14 11.7 0 3.7 2.1 7 5.4 9.1l-1.4 4.2 4.9-2.4c1.6.5 3.3.8 5.1.8 7.7 0 14-5.2 14-11.7S46.7 28 39 28Z"/><circle cx="18" cy="27" r="2.5" fill="#07c160"/><circle cx="28" cy="27" r="2.5" fill="#07c160"/><circle cx="34" cy="36" r="2.5" fill="#07c160"/><circle cx="44" cy="36" r="2.5" fill="#07c160"/></g></svg>`
     },
-    weibo: { cls: "ic-weibo", icon: G.globe },
-    xianyu: { cls: "ic-xianyu", icon: G.bag },
-    bilibili: { cls: "ic-bili", icon: G.playF },
-    xhs: { cls: "ic-xhs", icon: G.book },
+    weibo: {
+      cls: "ic-weibo",
+      path: "./data/app/weibo.png",
+      fallback: `<div style="background:linear-gradient(135deg,#ff8a3d,#ff3b30); width:100%; height:100%; display:grid; place-items:center;">${G.globe}</div>`
+    },
+    xianyu: {
+      cls: "ic-xianyu",
+      path: "./data/app/xianyu.png",
+      fallback: `<div style="background:linear-gradient(135deg,#ffe25a,#ffb300); width:100%; height:100%; display:grid; place-items:center;">${G.bag}</div>`
+    },
+    bilibili: {
+      cls: "ic-bili",
+      path: "./data/app/bilibili.png",
+      fallback: `<div style="background:linear-gradient(135deg,#4fc3f7,#00a1d6); width:100%; height:100%; display:grid; place-items:center;">${G.playF}</div>`
+    },
+    xhs: {
+      cls: "ic-xhs",
+      path: "./data/app/xhs.png",
+      fallback: `<div style="background:linear-gradient(135deg,#ff6b8a,#ff2442); width:100%; height:100%; display:grid; place-items:center;">${G.book}</div>`
+    },
     sms: { cls: "ic-sms", icon: G.msgF },
     recorder: { cls: "ic-recorder", icon: G.mic },
     privateAlbum: { cls: "ic-private", icon: G.keypad },
   };
-  if (newApps[id])
-    return `<div class="${newApps[id].cls}"><div class="app-icon-fallback">${newApps[id].icon}</div></div>`;
-  const L = (a, b, c, d) =>
-    `<linearGradient id="${a}" x1="0" y1="${d ? 1 : 0}" x2="${d ? 1 : 0}" y2="${d ? 0 : 1}"><stop offset="0" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></linearGradient>`;
-  const W = (defs, body) =>
-    `<svg viewBox="0 0 60 60"><defs>${defs}</defs>${body}</svg>`;
+
+  // 👇 2. 新的安全渲染逻辑：不用恶心的 onerror 嵌套，直接原地叠层
+  if (newApps[id]) {
+    const app = newApps[id];
+    if (app.path) {
+      return `<div class="${app.cls}" style="width:100%; height:100%; border-radius:14px; overflow:hidden; position:relative;">
+        <!-- 图片层（如果加载失败，它就自己消失） -->
+        <img src="${app.path}" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0; z-index:2;" onerror="this.style.display='none';">
+        <!-- 兜底层（默认隐藏，如果上面图片没加载出来，就用 JS 让这个显示） -->
+        <div style="width:100%; height:100%; position:absolute; inset:0; z-index:1;">${app.fallback}</div>
+      </div>`;
+    } else {
+      return `<div class="${app.cls}" style="width:100%; height:100%; border-radius:14px; overflow:hidden;"><div class="app-icon-fallback">${app.icon}</div></div>`;
+    }
+  }
+
+  // 原生系统应用保持原样
+  const L = (a, b, c, d) => `<linearGradient id="${a}" x1="0" y1="${d ? 1 : 0}" x2="${d ? 1 : 0}" y2="${d ? 0 : 1}"><stop offset="0" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></linearGradient>`;
+  const W = (defs, body) => `<svg viewBox="0 0 60 60"><defs>${defs}</defs>${body}</svg>`;
   switch (id) {
-    case "instagram":
-      return W(
-        `<linearGradient id="gi" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#ffc35c"/><stop offset=".5" stop-color="#ff3d6e"/><stop offset="1" stop-color="#7c3bf0"/></linearGradient>`,
-        `<rect width="60" height="60" fill="url(#gi)"/><rect x="17" y="12.5" width="26" height="34" rx="4.5" fill="none" stroke="#fff" stroke-width="3.2"/><rect x="21.6" y="17" width="16.8" height="17" rx="2" fill="#fff"/>`,
-      );
-    case "photos": {
-      let p = "";
-      for (let i = 0; i < 10; i++)
-        p += `<ellipse cx="30" cy="18.2" rx="4.4" ry="10.5" fill="#fff" transform="rotate(${i * 36} 30 30)"/>`;
-      return W(
-        L("gp", "#9bdcff", "#d8f1ff"),
-        `<rect width="60" height="60" fill="url(#gp)"/>${p}<circle cx="30" cy="30" r="7.2" fill="#ffc83d"/><circle cx="30" cy="30" r="7.2" fill="none" stroke="#f0a500" stroke-width="1"/>`,
-      );
-    }
-    case "mail":
-      return W(
-        L("gm", "#3fb0ff", "#0a6cf5"),
-        `<rect width="60" height="60" fill="url(#gm)"/><rect x="11.5" y="18" width="37" height="25" rx="3.5" fill="#fff"/><path d="M12.5 20 30 32.5 47.5 20" fill="none" stroke="#1676f3" stroke-width="2.4" stroke-linejoin="round"/>`,
-      );
-    case "calendar":
-      return W(
-        "",
-        `<rect width="60" height="60" fill="#fff"/><text x="30" y="17.5" text-anchor="middle" font-size="9.5" font-weight="600" fill="#ff3b30" font-family="-apple-system,sans-serif">星期日</text><text x="30" y="47" text-anchor="middle" font-size="31" font-weight="300" fill="#111" font-family="-apple-system,sans-serif">15</text>`,
-      );
-    case "clock": {
-      const d = new Date(),
-        h = d.getHours() % 12,
-        m = d.getMinutes();
-      let t = "";
-      for (let i = 0; i < 12; i++)
-        t += `<path d="M30 8.5v${i % 3 ? 2.6 : 3.8}" stroke="#111" stroke-width="${i % 3 ? 1 : 1.6}" transform="rotate(${i * 30} 30 30)"/>`;
-      return W(
-        "",
-        `<rect width="60" height="60" fill="#000"/><circle cx="30" cy="30" r="24" fill="#fff"/>${t}<path d="M30 30V17" stroke="#111" stroke-width="2.6" stroke-linecap="round" transform="rotate(${h * 30 + m / 2} 30 30)"/><path d="M30 30V11.5" stroke="#111" stroke-width="1.8" stroke-linecap="round" transform="rotate(${m * 6} 30 30)"/><path d="M30 34V11" stroke="#ff9500" stroke-width="1" transform="rotate(${(m * 6 + 90) % 360} 30 30)"/><circle cx="30" cy="30" r="1.8" fill="#ff9500"/>`,
-      );
-    }
-    case "notes":
-      return W(
-        L("gn", "#ffe27a", "#ffc933"),
-        `<rect width="60" height="60" fill="#fff"/><rect width="60" height="17" fill="url(#gn)"/><g stroke="#d9d9de" stroke-width="1.2"><path d="M8 27h44M8 35h44M8 43h44M8 51h44"/></g><g fill="#cfcfd4"><circle cx="10" cy="17" r=".9"/><circle cx="14" cy="17" r=".9"/><circle cx="18" cy="17" r=".9"/><circle cx="22" cy="17" r=".9"/><circle cx="26" cy="17" r=".9"/><circle cx="30" cy="17" r=".9"/><circle cx="34" cy="17" r=".9"/><circle cx="38" cy="17" r=".9"/><circle cx="42" cy="17" r=".9"/><circle cx="46" cy="17" r=".9"/><circle cx="50" cy="17" r=".9"/></g>`,
-      );
-    case "weather":
-      return W(
-        L("gw", "#53b5ff", "#1f6fe0"),
-        `<rect width="60" height="60" fill="url(#gw)"/><circle cx="23" cy="23" r="9.5" fill="#ffd84a"/><path d="M19 45h21.5a7.5 7.5 0 0 0 .6-15 10 10 0 0 0-19.2 3.2A6 6 0 0 0 19 45Z" fill="#fff"/>`,
-      );
-    case "settings":
-      return W(
-        L("gs", "#a7adb6", "#6d727b"),
-        `<rect width="60" height="60" fill="url(#gs)"/><circle cx="30" cy="30" r="17" fill="none" stroke="#e9eaee" stroke-width="7" stroke-dasharray="4.4 4.5"/><circle cx="30" cy="30" r="14" fill="#878c95" stroke="#e9eaee" stroke-width="3.2"/><circle cx="30" cy="30" r="5.5" fill="none" stroke="#e9eaee" stroke-width="3"/><g stroke="#e9eaee" stroke-width="2.4"><path d="M30 17.5v7M30 35.5v7M17.5 30h7M35.5 30h7"/></g>`,
-      );
-    case "phone":
-      return W(
-        L("gph", "#65f38f", "#28c253"),
-        `<rect width="60" height="60" fill="url(#gph)"/><g transform="translate(12 12) scale(1.5)" fill="#fff">${G.handset.replace(/<\/?svg[^>]*>/g, "")}</g>`,
-      );
-    case "safari":
-      return W(
-        L("gsa", "#3aa8ff", "#0f5fe0"),
-        `<rect width="60" height="60" fill="#fff"/><circle cx="30" cy="30" r="21" fill="url(#gsa)"/><g fill="none" stroke="#fff" stroke-width="1.6" opacity=".95"><ellipse cx="30" cy="30" rx="8.5" ry="21"/><path d="M9 30h42M12 19.5h36M12 40.5h36M30 9v42"/></g>`,
-      );
-    case "wechat":
-      return W(
-        "",
-        `<rect width="60" height="60" fill="#07c160"/><path d="M30 14.5c-11.9 0-21.5 7.4-21.5 16.5 0 5.9 4 11.1 10 14l-2.2 7.8c-.2.7.6 1.3 1.2.8l9.2-6.1c1.1.1 2.2.2 3.3.2 11.9 0 21.5-7.4 21.5-16.6S41.9 14.5 30 14.5Z" fill="#fff"/><g fill="#07c160"><circle cx="21.5" cy="31" r="2.7"/><circle cx="30" cy="31" r="2.7"/><circle cx="38.5" cy="31" r="2.7"/></g>`,
-      );
-    case "music":
-      return W(
-        L("gmu", "#ff6f86", "#fa2b47"),
-        `<rect width="60" height="60" fill="url(#gmu)"/><g transform="translate(11 10) scale(1.55)" fill="#fff">${G.musicNote.replace(/<\/?svg[^>]*>/g, "")}</g>`,
-      );
-    case "maps":
-      return W(
-        "",
-        `<rect width="60" height="60" fill="#e9f2df"/><path d="M0 38 60 22v12L0 50Z" fill="#fff"/><path d="M24 0h9L27 60h-9Z" fill="#ffd966"/><path d="M0 12c14 6 30-4 60 6V0H0Z" fill="#bfe3a5"/><path d="M42 60c0-8 10-10 18-12v12Z" fill="#9fd0f5"/><path d="M40 14a8 8 0 0 0-8 8c0 6 8 14 8 14s8-8 8-14a8 8 0 0 0-8-8Z" fill="#ff3b30"/><circle cx="40" cy="22" r="3" fill="#fff"/>`,
-      );
+    case "instagram": return W(`<linearGradient id="gi" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#ffc35c"/><stop offset=".5" stop-color="#ff3d6e"/><stop offset="1" stop-color="#7c3bf0"/></linearGradient>`, `<rect width="60" height="60" fill="url(#gi)"/><rect x="17" y="12.5" width="26" height="34" rx="4.5" fill="none" stroke="#fff" stroke-width="3.2"/><rect x="21.6" y="17" width="16.8" height="17" rx="2" fill="#fff"/>`);
+    case "photos": { let p = ""; for (let i = 0; i < 10; i++) p += `<ellipse cx="30" cy="18.2" rx="4.4" ry="10.5" fill="#fff" transform="rotate(${i * 36} 30 30)"/>`; return W(L("gp", "#9bdcff", "#d8f1ff"), `<rect width="60" height="60" fill="url(#gp)"/>${p}<circle cx="30" cy="30" r="7.2" fill="#ffc83d"/><circle cx="30" cy="30" r="7.2" fill="none" stroke="#f0a500" stroke-width="1"/>`); }
+    case "mail": return W(L("gm", "#3fb0ff", "#0a6cf5"), `<rect width="60" height="60" fill="url(#gm)"/><rect x="11.5" y="18" width="37" height="25" rx="3.5" fill="#fff"/><path d="M12.5 20 30 32.5 47.5 20" fill="none" stroke="#1676f3" stroke-width="2.4" stroke-linejoin="round"/>`);
+    case "calendar": return W("", `<rect width="60" height="60" fill="#fff"/><text x="30" y="17.5" text-anchor="middle" font-size="9.5" font-weight="600" fill="#ff3b30" font-family="-apple-system,sans-serif">星期日</text><text x="30" y="47" text-anchor="middle" font-size="31" font-weight="300" fill="#111" font-family="-apple-system,sans-serif">15</text>`);
+    case "clock": { const d = new Date(), h = d.getHours() % 12, m = d.getMinutes(); let t = ""; for (let i = 0; i < 12; i++) t += `<path d="M30 8.5v${i % 3 ? 2.6 : 3.8}" stroke="#111" stroke-width="${i % 3 ? 1 : 1.6}" transform="rotate(${i * 30} 30 30)"/>`; return W("", `<rect width="60" height="60" fill="#000"/><circle cx="30" cy="30" r="24" fill="#fff"/>${t}<path d="M30 30V17" stroke="#111" stroke-width="2.6" stroke-linecap="round" transform="rotate(${h * 30 + m / 2} 30 30)"/><path d="M30 30V11.5" stroke="#111" stroke-width="1.8" stroke-linecap="round" transform="rotate(${m * 6} 30 30)"/><path d="M30 34V11" stroke="#ff9500" stroke-width="1" transform="rotate(${(m * 6 + 90) % 360} 30 30)"/><circle cx="30" cy="30" r="1.8" fill="#ff9500"/>`); }
+    case "notes": return W(L("gn", "#ffe27a", "#ffc933"), `<rect width="60" height="60" fill="#fff"/><rect width="60" height="17" fill="url(#gn)"/><g stroke="#d9d9de" stroke-width="1.2"><path d="M8 27h44M8 35h44M8 43h44M8 51h44"/></g><g fill="#cfcfd4"><circle cx="10" cy="17" r=".9"/><circle cx="14" cy="17" r=".9"/><circle cx="18" cy="17" r=".9"/><circle cx="22" cy="17" r=".9"/><circle cx="26" cy="17" r=".9"/><circle cx="30" cy="17" r=".9"/><circle cx="34" cy="17" r=".9"/><circle cx="38" cy="17" r=".9"/><circle cx="42" cy="17" r=".9"/><circle cx="46" cy="17" r=".9"/><circle cx="50" cy="17" r=".9"/></g>`);
+    case "weather": return W(L("gw", "#53b5ff", "#1f6fe0"), `<rect width="60" height="60" fill="url(#gw)"/><circle cx="23" cy="23" r="9.5" fill="#ffd84a"/><path d="M19 45h21.5a7.5 7.5 0 0 0 .6-15 10 10 0 0 0-19.2 3.2A6 6 0 0 0 19 45Z" fill="#fff"/>`);
+    case "settings": return W(L("gs", "#a7adb6", "#6d727b"), `<rect width="60" height="60" fill="url(#gs)"/><circle cx="30" cy="30" r="17" fill="none" stroke="#e9eaee" stroke-width="7" stroke-dasharray="4.4 4.5"/><circle cx="30" cy="30" r="14" fill="#878c95" stroke="#e9eaee" stroke-width="3.2"/><circle cx="30" cy="30" r="5.5" fill="none" stroke="#e9eaee" stroke-width="3"/><g stroke="#e9eaee" stroke-width="2.4"><path d="M30 17.5v7M30 35.5v7M17.5 30h7M35.5 30h7"/></g>`);
+    case "phone": return W(L("gph", "#65f38f", "#28c253"), `<rect width="60" height="60" fill="url(#gph)"/><g transform="translate(12 12) scale(1.5)" fill="#fff">${G.handset.replace(/<\/?svg[^>]*>/g, "")}</g>`);
+    case "safari": return W(L("gsa", "#3aa8ff", "#0f5fe0"), `<rect width="60" height="60" fill="#fff"/><circle cx="30" cy="30" r="21" fill="url(#gsa)"/><g fill="none" stroke="#fff" stroke-width="1.6" opacity=".95"><ellipse cx="30" cy="30" rx="8.5" ry="21"/><path d="M9 30h42M12 19.5h36M12 40.5h36M30 9v42"/></g>`);
+    case "music": return W(L("gmu", "#ff6f86", "#fa2b47"), `<rect width="60" height="60" fill="url(#gmu)"/><g transform="translate(11 10) scale(1.55)" fill="#fff">${G.musicNote.replace(/<\/?svg[^>]*>/g, "")}</g>`);
+    case "maps": return W("", `<rect width="60" height="60" fill="#e9f2df"/><path d="M0 38 60 22v12L0 50Z" fill="#fff"/><path d="M24 0h9L27 60h-9Z" fill="#ffd966"/><path d="M0 12c14 6 30-4 60 6V0H0Z" fill="#bfe3a5"/><path d="M42 60c0-8 10-10 18-12v12Z" fill="#9fd0f5"/><path d="M40 14a8 8 0 0 0-8 8c0 6 8 14 8 14s8-8 8-14a8 8 0 0 0-8-8Z" fill="#ff3b30"/><circle cx="40" cy="22" r="3" fill="#fff"/>`);
   }
   return "";
 }
@@ -486,114 +462,78 @@ function ringOnce() {
   });
 }
 
-// ==========================================
-// 🎧 音频调度中心（统一管理 BGM）
-// ==========================================
 window.bgmPausedByOther = false;
-
 window.AudioHub = {
   bgm: () => document.getElementById("bgm"),
-
-  // 判断当前有没有“其他媒体”在占用扬声器
   isBusy() {
-    // 1. 检查页面上的视频
-    const videos = document.querySelectorAll('video');
+    const videos = document.querySelectorAll("video");
     for (let v of videos) {
       if (!v.paused && !v.ended) return true;
     }
-    // 2. 检查页面上的其他音频 (语音等，排除 bgm)
-    const audios = document.querySelectorAll('audio');
+    const audios = document.querySelectorAll("audio");
     for (let a of audios) {
-      if (a.id === 'bgm') continue;
+      if (a.id === "bgm") continue;
       if (!a.paused && !a.ended) return true;
     }
-    // 3. 微信语音状态
     if (document.querySelector(".voice-bb.playing")) return true;
-    // 4. 通话中
     if (callState) return true;
-    // ...以前的视频和音频检查...
-  // 👇 加上这行：如果正在播音乐，也算占用
-    if (typeof PLAYER !== "undefined" && !PLAYER.paused && nowSong >= 0) return true;
-    
+    if (typeof PLAYER !== "undefined" && !PLAYER.paused && nowSong >= 0)
+      return true;
     return false;
   },
-
   pauseBGM() {
     const b = this.bgm();
     if (b) {
-      b.pause(); // 👈 只有 pause，绝不重置 currentTime，保证记住时间戳
+      b.pause();
       window.bgmPausedByOther = true;
     }
   },
-
   resumeBGM() {
     const b = this.bgm();
     if (!b || !window.bgmPausedByOther) return;
     if (this.isBusy()) return;
-    b.play().catch(() => {}); // 👈 直接从记住的时间戳继续播
+    b.play().catch(() => {});
     window.bgmPausedByOther = false;
-  }
+  },
 };
-
 window.pauseBGM = () => window.AudioHub.pauseBGM();
 window.resumeBGM = () => window.AudioHub.resumeBGM();
-
-// 全局拦截：只要有视频/音频开始播，就暂停 BGM
-document.addEventListener("play", (e) => {
-  if (e.target.tagName === "VIDEO" || (e.target.tagName === "AUDIO" && e.target.id !== "bgm")) {
-    window.AudioHub.pauseBGM();
-  }
-}, true);
-
-// 全局拦截：只要有视频/音频暂停/结束，延迟检查并恢复 BGM
-document.addEventListener("pause", (e) => {
-  if (e.target.tagName === "VIDEO" || (e.target.tagName === "AUDIO" && e.target.id !== "bgm")) {
-    setTimeout(() => window.AudioHub.resumeBGM(), 100);
-  }
-}, true);
-
-// 👇 补回这段：首次点击屏幕时激活并播放 BGM
+document.addEventListener(
+  "play",
+  (e) => {
+    if (
+      e.target.tagName === "VIDEO" ||
+      (e.target.tagName === "AUDIO" && e.target.id !== "bgm")
+    ) {
+      window.AudioHub.pauseBGM();
+    }
+  },
+  true,
+);
+document.addEventListener(
+  "pause",
+  (e) => {
+    if (
+      e.target.tagName === "VIDEO" ||
+      (e.target.tagName === "AUDIO" && e.target.id !== "bgm")
+    ) {
+      setTimeout(() => window.AudioHub.resumeBGM(), 100);
+    }
+  },
+  true,
+);
 document.addEventListener(
   "pointerdown",
   () => {
-    ac(); // 激活 Web Audio 引擎
+    ac();
     const BGM = document.getElementById("bgm");
-    // 只有在 BGM 暂停、且不是因为其他媒体占用而暂停时，才去播放
     if (BGM && BGM.paused && !window.bgmPausedByOther) {
-      BGM.volume = 0.1116; // 保持你原来的音量设置
+      BGM.volume = 0.1116;
       BGM.play().catch((e) => console.log("BGM播放被拦截", e));
     }
   },
-  { once: true } // 只需要监听第一次点击即可
+  { once: true },
 );
-
-
-function openVideo(url) {
-  const BGM = document.getElementById("bgm");
-  if (BGM) {
-    BGM.pause(); // 👈 只暂停，记住当前位置
-    // BGM.currentTime = 0; 👈 千万别加这行！加就从头开始了！
-    window.bgmPausedByOther = true;
-  }
-
-  const d = document.createElement("div");
-  d.className = "video-overlay";
-  d.innerHTML = `
-    <div class="video-close">×</div>
-    <video src="${url}" controls autoplay playsinline></video>
-  `;
-  document.getElementById("screen").appendChild(d);
-
-  const close = () => {
-    const v = d.querySelector('video');
-    if (v) { v.pause(); v.src = ""; }
-    d.remove();
-    resumeBGM();
-  };
-  d.querySelector('.video-close').onclick = close;
-  d.querySelector('video').onended = close;
-}
-
 
 function setStatus(dark) {
   curDark = !!dark;
@@ -622,34 +562,17 @@ function ncardHTML(n) {
   return `${av}<div class="nt"><div class="nh"><span>${esc(n.title)}</span><small>${n.time}</small></div><div class="nb">${esc(n.body)}</div></div>`;
 }
 function renderLock() {
-  // 👈 核心优化：只取前3条显示，防止撑爆锁屏
   const showNotes = lockNotes.slice(0, 7);
-
   $("#lkc").innerHTML =
-    `<div class="lk-date">${CFG.start?.date || "11月15日"} ${CFG.start?.weekday || "星期日"}</div>
-     <div class="lk-time" id="lkt">${clock12(false)}</div>
-     
-     <div class="lk-dnd-wrap">
-       <button class="lk-dnd ${window.isDnd ? "on" : ""}" onclick="toggleDnd(event)">
-         <span style="filter:${window.isDnd ? "none" : "grayscale(100%)"}; margin-right:4px;">🌙</span>
-         ${window.isDnd ? "免打扰已开启" : "开启免打扰"}
-       </button>
-     </div>
-
-     <div class="lk-notes">${showNotes.map((n, i) => `<button class="ncard" onclick="lockNoteTap(${i},event)">${ncardHTML(n)}</button>`).join("")}</div>
-     <div class="lk-hint">向上轻扫以打开</div>`;
+    `<div class="lk-date">${CFG.start?.date || "11月15日"} ${CFG.start?.weekday || "星期日"}</div><div class="lk-time" id="lkt">${clock12(false)}</div><div class="lk-dnd-wrap"><button class="lk-dnd ${window.isDnd ? "on" : ""}" onclick="toggleDnd(event)"><span style="filter:${window.isDnd ? "none" : "grayscale(100%)"}; margin-right:4px;">🌙</span>${window.isDnd ? "免打扰已开启" : "开启免打扰"}</button></div><div class="lk-notes">${showNotes.map((n, i) => `<button class="ncard" onclick="lockNoteTap(${i},event)">${ncardHTML(n)}</button>`).join("")}</div><div class="lk-hint">向上轻扫以打开</div>`;
 }
-
 function toggleDnd(e) {
   if (e) e.stopPropagation();
   window.isDnd = !window.isDnd;
   vib(10);
   renderLock();
-  
-  updateDndBadge(); // 👈 新增：刷新右上角角标
+  updateDndBadge();
 }
-
-// 👈 新增：控制右上角免打扰角标
 function updateDndBadge() {
   let badge = document.getElementById("dnd-badge");
   if (!badge) {
@@ -659,20 +582,18 @@ function updateDndBadge() {
     badge.innerHTML = "🌙";
     document.getElementById("screen").appendChild(badge);
   }
-  
-  // 👈 核心修改：只要开启了免打扰，无论在哪个界面都显示角标
   if (window.isDnd) {
     badge.style.display = "flex";
   } else {
     badge.style.display = "none";
   }
 }
-
 function lockNoteTap(i, e) {
   e.stopPropagation();
   if (lockNotes[i].app === "wechat") pendingOpen = "chat";
   goPin();
 }
+
 (function lockDrag() {
   const el = $("#lkc");
   let y0 = null,
@@ -713,7 +634,6 @@ function lockNoteTap(i, e) {
     }
   });
 })();
-
 function goPin(fromDy = 0) {
   view = "pin";
   pincode = "";
@@ -855,6 +775,7 @@ function unlock() {
   }
   updateDndBadge();
 }
+
 function badgeOf(id) {
   if (id === "phone") return 3 + declined;
   if (id === "mail") {
@@ -868,6 +789,13 @@ function badgeOf(id) {
     let totalUnread = Object.values(unread).reduce((a, b) => a + b, 0);
     return totalUnread > 0 ? Math.min(99, totalUnread) : 0;
   }
+  if (id === "sms") {
+    if (typeof smsData !== "undefined") {
+      const n = smsData.filter((m) => m.unread).length;
+      return n > 0 ? Math.min(99, n) : 0;
+    }
+    return 0;
+  }
   return 0;
 }
 function appBtn(id) {
@@ -877,13 +805,7 @@ function appBtn(id) {
   return `<button class="app" data-app="${id}" onclick="openApp('${id}',this.firstElementChild)"><div class="icon"><div class="ic">${appIcon(id)}</div>${b ? `<span class="bdg">${b}</span>` : ""}</div><span class="lbl">${name}</span></button>`;
 }
 function renderHome() {
-  HOME.innerHTML = `<div class="hgrid">
-  <button class="widget wcal" data-app="calendar" onclick="openApp('calendar',this)"><div class="wd">${wdLong(2026, 11, 15)}</div><div class="wn">15</div>${(events[15] || []).map((x) => `<div class="we">${esc(x)}<small>全天</small></div>`).join("")}</button>
-  <button class="widget wwx" data-app="weather" onclick="openApp('weather',this)"><div class="c">北京 ➚</div><div class="tp">18°</div><span style="position:absolute;top:14px;right:14px">${G.sun}</span><div class="ds">大部晴朗<small>最高:21° 最低:12°</small></div></button>
-  ${["photos", "mail", "calendar", "clock", "notes", "weather", "settings", "maps", "weibo", "xianyu", "bilibili", "xhs", "sms", "recorder"].map(appBtn).join("")}
- </div>
- <!-- 👇 核心修改：把这里的数组改成你要的四个应用 -->
- <div class="dock">${["wechat", "phone", "sms", "photos"].map(appBtn).join("")}</div>`;
+  HOME.innerHTML = `<div class="hgrid"><button class="widget wcal" data-app="calendar" onclick="openApp('calendar',this)"><div class="wd">${wdLong(2026, 11, 15)}</div><div class="wn">15</div>${(events[15] || []).map((x) => `<div class="we">${esc(x)}<small>全天</small></div>`).join("")}</button><button class="widget wwx" data-app="weather" onclick="openApp('weather',this)"><div class="c">北京 ➚</div><div class="tp">18°</div><span style="position:absolute;top:14px;right:14px">${G.sun}</span><div class="ds">大部晴朗<small>最高:21° 最低:12°</small></div></button>${["photos", "mail", "calendar", "clock", "notes", "weather", "settings", "maps", "weibo", "xianyu", "bilibili", "xhs", "sms", "recorder"].map(appBtn).join("")}</div><div class="dock">${["wechat", "phone", "sms", "photos"].map(appBtn).join("")}</div>`;
 }
 
 const PARENT = {
@@ -892,9 +814,15 @@ const PARENT = {
   maild: "mail",
   reel: "instagram",
   screentime: "settings",
-  sms_detail: "sms",        // 👈 加上
-  weibo_profile: "weibo",   // 👈 加上
-  mail_detail: "mail", 
+  sms_detail: "sms",
+  
+  weibo: "weibo",            
+  weibo_profile: "weibo",    
+  weibo_artist: "weibo",     
+  weibo_supertopic: "weibo_artist", 
+  weibo_follow: "weibo_profile", // 👈 必须加这一行！
+
+  mail_detail: "mail",
   weibo: "weibo",
   xianyu: "xianyu",
   xianyu_me: "xianyu",
@@ -920,15 +848,13 @@ function wireScroll(pg) {
       { passive: true },
     );
 }
-
 const VIEWS = {};
 
 function show(id, anim = "swap") {
   const old = [...APP.children];
   old.forEach((o) => o.querySelectorAll("video").forEach((v) => v.pause()));
-  if (view === "recorder" && id !== "recorder" && PLAYER.dataset.isRecorder) {
+  if (view === "recorder" && id !== "recorder" && PLAYER.dataset.isRecorder)
     PLAYER.pause();
-  }
   if (PLAYER.dataset.voice && !(id === "chat")) PLAYER.pause();
   view = id;
   const v = VIEWS[id]();
@@ -1035,9 +961,7 @@ function openApp(id, el) {
 }
 function closeApp() {
   if (callState || ["home", "lock", "pin"].includes(view)) return;
-   if (view === "recorder" && PLAYER.dataset.isRecorder) {
-    PLAYER.pause();
-  }
+  if (view === "recorder" && PLAYER.dataset.isRecorder) PLAYER.pause();
   const root = rootOf(view);
   if (PLAYER.dataset.voice) PLAYER.pause();
   view = "home";
@@ -1096,22 +1020,17 @@ function hbAction() {
 }
 (function hbGesture() {
   const hb = $("#hb");
-  const bar = hb.querySelector("i"); // 只绑定在中间的小横条上
+  const bar = hb.querySelector("i");
   let y0 = null;
-  
   bar.addEventListener("pointerdown", (e) => {
     y0 = e.clientY;
     bar.setPointerCapture(e.pointerId);
   });
-  
   bar.addEventListener("pointerup", (e) => {
     if (y0 === null) return;
-    const dy = e.clientY - y0; // 计算滑动的距离
+    const dy = e.clientY - y0;
     y0 = null;
-    
-    // 只有向上滑动超过 20 像素，才触发退回主页！
-    // 如果只是原地“点”一下，什么都不会发生！
-    if (dy < -20) { 
+    if (dy < -20) {
       hbAction();
     }
   });
@@ -1154,7 +1073,6 @@ function updateCrumb() {
   const on = !["lock", "pin", "home"].includes(view) && !callState;
   $("#sb").classList.toggle("crumb", on);
 }
-
 $("#sbk").innerHTML =
   `<svg viewBox="0 0 7 12"><path d="M6 1 1 6l5 5"/></svg>主页`;
 $("#sbk").addEventListener("click", (e) => {
@@ -1193,7 +1111,6 @@ function tabbar(items, on, cls = "") {
 }
 const sw = (on, fn) =>
   `<button class="sw ${on ? "on" : ""}" onclick="this.classList.toggle('on');vib(8);${fn || ""}"></button>`;
-
 function noteDate(d, full) {
   const [y, m, dd] = d.split("-").map(Number);
   if (full) return fmtYMD(y, m, dd);
@@ -1209,7 +1126,7 @@ VIEWS.notes = () => ({
   cls: "grouped notes-pg",
   html:
     navHTML({ title: "备忘录", back: "文件夹", right: G.dots }) +
-    `<div class="scroll"><h1 class="lt">备忘录</h1><div class="srch">${G.search}搜索</div><div class="gh" style="margin-top:8px">📌 置顶</div><div class="group note-l">${notes
+    `<div class="scroll"><h1 class="lt">备忘录</h1><div class="srch" onclick="toastDev()">${G.search}搜索</div><div class="gh" style="margin-top:8px">📌 置顶</div><div class="group note-l">${notes
       .slice(0, 3)
       .map((n, i) => noteRow(n, i))
       .join(
@@ -1219,7 +1136,7 @@ VIEWS.notes = () => ({
       .map((n, i) => noteRow(n, i + 3))
       .join(
         "",
-      )}</div></div><div class="toolbar"><span style="width:24px"></span><span style="color:#000;align-self:center;font-size:11px">${notes.length}个备忘录</span>${G.compose}</div>`,
+      )}</div></div><div class="toolbar"><span style="width:24px"></span><span style="color:#000;align-self:center;font-size:11px">${notes.length}个备忘录</span><span onclick="toastDev()">${G.compose}</span></div>`,
 });
 VIEWS.note = () => {
   const n = notes[noteId];
@@ -1229,10 +1146,10 @@ VIEWS.note = () => {
       navHTML({
         title: "",
         back: "备忘录",
-        right: G.share + G.dots,
+        right: `<span onclick="toastDev()">${G.share}${G.dots}</span>`,
         solid: false,
       }) +
-      `<div class="scroll"><div class="note-v"><div class="nd">${noteDate(n[3], true)}</div><h2>${esc(n[0])}</h2>${esc(n[2])}</div></div><div class="toolbar">${G.check}${G.camera}${G.pen}${G.compose}</div>`,
+      `<div class="scroll"><div class="note-v"><div class="nd">${noteDate(n[3], true)}</div><h2>${esc(n[0])}</h2>${esc(n[2])}</div></div><div class="toolbar"><span onclick="toastDev()">${G.check}</span><span onclick="toastDev()">${G.camera}</span><span onclick="toastDev()">${G.pen}</span><span onclick="toastDev()">${G.compose}</span></div>`,
   };
 };
 function calEvents() {
@@ -1265,13 +1182,13 @@ VIEWS.calendar = () => {
         title: "",
         back: "2026",
         backFn: "closeApp()",
-        right: G.list + G.search + G.plus,
+        right: `<span onclick="toastDev()">${G.list}${G.search}${G.plus}</span>`,
       }) +
       `<div class="scroll" style="padding-bottom:120px"><div style="display:flex;justify-content:space-between;align-items:center;margin:0 16px 8px"><h1 class="lt" style="margin:0">${fmtMonth(calMonth)}</h1><span style="display:flex;gap:26px;color:var(--blue)"><button style="width:22px" onclick="calNav(-1)">${G.chevLb}</button><button style="width:22px" onclick="calNav(1)">${G.chevRb}</button></span></div><div class="cal-g cal-w">${wdNarrow()
         .map((w) => `<div>${w}</div>`)
         .join(
           "",
-        )}</div><div class="cal-g" id="calg">${c}</div><div style="border-top:.5px solid var(--sep);margin-top:4px;padding-top:4px">${ev}</div></div><div class="tabbar" style="color:#ff3b30">${["今天", "日历", "收件箱"].map((x) => `<button style="color:#ff3b30;font-size:16px;justify-content:center">${x}</button>`).join("")}</div>`,
+        )}</div><div class="cal-g" id="calg">${c}</div><div style="border-top:.5px solid var(--sep);margin-top:4px;padding-top:4px">${ev}</div></div><div class="tabbar" style="color:#ff3b30">${["今天", "日历", "收件箱"].map((x) => `<button onclick="toastDev()" style="color:#ff3b30;font-size:16px;justify-content:center">${x}</button>`).join("")}</div>`,
   };
 };
 function calNav(d) {
@@ -1288,11 +1205,10 @@ function calNav(d) {
     { duration: 350, easing: "cubic-bezier(.2,.9,.25,1)" },
   );
 }
-
 VIEWS.clock = () => ({
   cls: "dark",
   dark: true,
-  html: `<div class="nav" style="color:#ff9f0a"><button style="color:#ff9f0a;font-size:17px;justify-self:start;padding-left:8px">编辑</button><div class="nb-title">闹钟</div><div class="nb-right" style="color:#ff9f0a">${G.plus}</div></div><div class="scroll"><h1 class="lt">闹钟</h1><div style="margin:18px 16px 4px;font-size:15px;font-weight:600">其他</div>${Array.from({ length: 3 }, (_, i) => `<div class="alarm"><div><div class="at">08:30</div><div class="al">起床</div></div>${sw(true)}</div>`).join("")}</div>${tabbar(
+  html: `<div class="nav" style="color:#ff9f0a"><button onclick="toastDev()" style="color:#ff9f0a;font-size:17px;justify-self:start;padding-left:8px">编辑</button><div class="nb-title">闹钟</div><div class="nb-right" style="color:#ff9f0a">${G.plus}</div></div><div class="scroll"><h1 class="lt">闹钟</h1><div style="margin:18px 16px 4px;font-size:15px;font-weight:600">其他</div>${Array.from({ length: 3 }, (_, i) => `<div class="alarm"><div><div class="at">08:30</div><div class="al">起床</div></div>${sw(true)}</div>`).join("")}</div>${tabbar(
     [
       ["globe", "世界时钟"],
       ["alarm", "闹钟"],
@@ -1302,7 +1218,6 @@ VIEWS.clock = () => ({
     1,
   ).replace('class="on"', 'class="on" style="color:#ff9f0a"')}`,
 });
-
 function callWhen(s) {
   if (s.startsWith("今天 ")) {
     const [h, m] = s.slice(3).split(":").map(Number);
@@ -1319,7 +1234,7 @@ VIEWS.phone = () => {
     (c) => !missOnly || c[2] === "未接来电",
   );
   return {
-    html: `<div class="nav"><button style="color:var(--blue);font-size:17px;justify-self:start;padding-left:8px">编辑</button><div class="seg"><button class="${missOnly ? "" : "on"}" onclick="missOnly=false;show('phone')">全部</button><button class="${missOnly ? "on" : ""}" onclick="missOnly=true;show('phone')">未接来电</button></div><span></span></div><div class="scroll"><h1 class="lt">最近通话</h1><div class="srch">${G.search}搜索</div>${all.map((c) => `<div class="prow ${c[2] === "未接来电" ? "miss" : ""}" style="cursor:pointer" onclick="dial('${esc(c[0].replace(/ \(\d+\)$/, ""))}')"><span class="pi">${c[2] === "呼出" ? G.handset : ""}</span><div class="pn"><b>${esc(callNameDisp(c[0]))}</b><small>手机</small></div><span class="pd">${callWhen(c[1])}</span><span class="inf">${G.info}</span></div>`).join("")}</div>${tabbar(
+    html: `<div class="nav"><button onclick="toastDev()" style="color:var(--blue);font-size:17px;justify-self:start;padding-left:8px">编辑</button><div class="seg"><button class="${missOnly ? "" : "on"}" onclick="missOnly=false;show('phone')">全部</button><button class="${missOnly ? "on" : ""}" onclick="missOnly=true;show('phone')">未接来电</button></div><span></span></div><div class="scroll"><h1 class="lt">最近通话</h1><div class="srch" onclick="toastDev()">${G.search}搜索</div>${all.map((c) => `<div class="prow ${c[2] === "未接来电" ? "miss" : ""}" style="cursor:pointer" onclick="dial('${esc(c[0].replace(/ \(\d+\)$/, ""))}')"><span class="pi">${c[2] === "呼出" ? G.handset : ""}</span><div class="pn"><b>${esc(callNameDisp(c[0]))}</b><small>手机</small></div><span class="pd">${callWhen(c[1])}</span><span class="inf">${G.info}</span></div>`).join("")}</div>${tabbar(
       [
         ["star", "收藏"],
         ["clock", "最近通话"],
@@ -1332,7 +1247,7 @@ VIEWS.phone = () => {
   };
 };
 function dial(name) {
-  pauseBGM(); 
+  pauseBGM();
   if (callState) return;
   callName = name;
   callDir = "out";
@@ -1364,7 +1279,7 @@ function stopRing() {
   } catch (e) {}
 }
 function incomingCallFrom(from = "穆祉丞") {
-  pauseBGM(); // 👈 加在这里！一有来电，立刻暂停BGM
+  pauseBGM();
   const BGM = document.getElementById("bgm");
   if (BGM) BGM.pause();
   callName = from;
@@ -1378,10 +1293,8 @@ function incomingCallFrom(from = "穆祉丞") {
   startRing();
   ringTo = setTimeout(missCall, 30000);
 }
-
 function incomingMailFrom(beat) {
   if (typeof emailData === "undefined") return;
-
   const newId = emailData.reduce((max, m) => Math.max(max, m.id), -1) + 1;
   emailData.unshift({
     id: newId,
@@ -1392,54 +1305,47 @@ function incomingMailFrom(beat) {
     preview: beat.preview || "点击查看邮件详情",
     time: "刚刚",
     unread: true,
-    body: beat.body || ""
+    body: beat.body || "",
   });
-
   if (view === "mail") {
     const pg = APP.lastElementChild;
     if (pg) pg.innerHTML = VIEWS.mail().html;
   }
   if (view === "home") renderHome();
-
-  if (window.isDnd) return; // 免打扰拦截
-
+  if (window.isDnd) return;
   sfx("msg");
   vib([30, 60, 30]);
   OV.querySelectorAll(".banner").forEach((b) => b.remove());
-
   const b = document.createElement("div");
   b.className = "banner";
   b.style.cursor = "pointer";
-  b.innerHTML = `<div class="ncard">
-    <div class="ni"><div class="app-icon-fallback" style="background:#3fb0ff;font-size:18px">${esc(beat.initial || "T")}</div></div>
-    <div class="nt">
-      <div class="nh"><span>${esc(beat.from || "TFEntertainment")}</span><small>刚刚</small></div>
-      <div class="nb">${esc(beat.subject || "新邮件")}</div>
-    </div>
-  </div>`;
+  b.innerHTML = `<div class="ncard"><div class="ni"><div class="app-icon-fallback" style="background:#3fb0ff;font-size:18px">${esc(beat.initial || "T")}</div></div><div class="nt"><div class="nh"><span>${esc(beat.from || "TFEntertainment")}</span><small>刚刚</small></div><div class="nb">${esc(beat.subject || "新邮件")}</div></div></div>`;
   OV.appendChild(b);
-
   b.animate(
     [{ transform: "translateY(-140%) scale(.96)" }, { transform: "none" }],
-    { duration: 620, easing: "cubic-bezier(.2,1.25,.35,1)" }
+    { duration: 620, easing: "cubic-bezier(.2,1.25,.35,1)" },
   );
-
   let tm = setTimeout(() => {
     b.animate(
-      [{ transform: "none", opacity: 1 }, { transform: "translateY(-140%) scale(.9)", opacity: 0 }],
-      { duration: 300, fill: "forwards" }
+      [
+        { transform: "none", opacity: 1 },
+        { transform: "translateY(-140%) scale(.9)", opacity: 0 },
+      ],
+      { duration: 300, fill: "forwards" },
     ).onfinish = () => b.remove();
   }, 5000);
-
   b.onclick = () => {
     clearTimeout(tm);
     b.remove();
-    if (view === "home") openApp("mail", HOME.querySelector('.app[data-app="mail"] .icon'));
+    if (view === "home")
+      openApp("mail", HOME.querySelector('.app[data-app="mail"] .icon'));
     else if (view === "mail") openMailDetail(newId);
-    else if (view === "mail_detail") { currentMailId = newId; show("mail_detail", "push"); }
+    else if (view === "mail_detail") {
+      currentMailId = newId;
+      show("mail_detail", "push");
+    }
   };
 }
-
 function callTop() {
   const r = CFG.roles && CFG.roles[callName];
   let content = "";
@@ -1493,7 +1399,7 @@ function renderCall() {
             return `<button class="cb red" onclick="endCall()"><span class="cc"><span style="display:block;transform:rotate(135deg)">${G.handset}</span></span>${l}</button>`;
           let onclick = "this.classList.toggle('on');vib(8)";
           if (i === "keypadF") onclick = "showDialpad()";
-          else if (i === "videoF" || i === "plusF") onclick = "";
+          else if (i === "videoF" || i === "plusF") onclick = "toastDev()";
           return `<button class="cb" onclick="${onclick}"><span class="cc">${G[i]}</span>${l}</button>`;
         },
       ).join("")}</div>`;
@@ -1558,7 +1464,7 @@ function declineCall() {
   declined++;
   extraCalls.unshift([callName, "今天 " + gameTime24(), "未接来电"]);
   closeCallUI();
-  }
+}
 function missCall() {
   if (callState !== "ring") return;
   stopRing();
@@ -1566,7 +1472,7 @@ function missCall() {
   declined++;
   extraCalls.unshift([callName, "今天 " + gameTime24(), "未接来电"]);
   closeCallUI();
-  }
+}
 function endCall() {
   if (typeof closeDialpad === "function") closeDialpad();
   if (callState === "dialing") {
@@ -1596,19 +1502,21 @@ function endCall() {
     if (view === "phone") show("phone");
   }, 1100);
 }
-
-
 function closeCallUI() {
   const c = OV.querySelector(".call");
   if (!c) return;
   c.animate([{ opacity: 1 }, { opacity: 0, transform: "scale(1.04)" }], {
     duration: 320,
-    fill: "forwards"
+    fill: "forwards",
   }).onfinish = () => {
     c.remove();
     callState = "";
-    // 👇 回到来电前的界面，防止卡在电话里出不去
-    if (callPrev && callPrev !== "lock" && callPrev !== "pin" && callPrev !== view) {
+    if (
+      callPrev &&
+      callPrev !== "lock" &&
+      callPrev !== "pin" &&
+      callPrev !== view
+    ) {
       view = callPrev;
       renderHome();
       HOME.style.visibility = "visible";
@@ -1620,7 +1528,6 @@ function closeCallUI() {
     resumeBGM();
   };
 }
-
 let dpVal = "";
 function showDialpad() {
   let dp = OV.querySelector(".dialpad");
@@ -1642,7 +1549,6 @@ function dpPress(k) {
   vib(10);
   sfx("key");
 }
-
 function showStoryChoice() {
   if (SS.choice) return;
   const d = document.createElement("div");
@@ -1671,7 +1577,6 @@ function showEnding(choice) {
   d.innerHTML = `<div class="vbg"></div><div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:32px;color:#fff;background:linear-gradient(180deg,#2a1f1a,#0b0b0d)"><div style="font-size:13px;opacity:.6;letter-spacing:2px">11-16 00:00</div><h1 style="font-size:30px;margin:10px 0 18px">${esc(E.title)}</h1><div style="font-size:17px;line-height:1.7;white-space:pre-line">${esc(E.body)}</div><button style="margin-top:28px;padding:14px;border-radius:14px;background:#fff;color:#000;font-weight:700" onclick="this.closest('.viewer').remove();location.reload()">重新开始</button></div>`;
   OV.appendChild(d);
 }
-
 function storyTick(e) {
   if (!CFG.timeline) return;
   CFG.timeline.forEach((beat, i) => {
@@ -1686,8 +1591,8 @@ function storyTick(e) {
       }
       SS.fired.add(key);
       if (beat.type === "notify") incomingMsgFrom(beat.from, beat.text);
-      if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");            
-      if (beat.type === "mail") incomingMailFrom(beat); 
+      if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");
+      if (beat.type === "mail") incomingMailFrom(beat);
       if (beat.type === "choice") showStoryChoice();
       if (beat.type === "ending") showEnding(SS.choice || "B");
     }
@@ -1696,9 +1601,9 @@ function storyTick(e) {
 let lastMin = -1;
 function tick() {
   typeof updateCrumb === "function" && updateCrumb();
-  $("#sbt").textContent = clock12(); // 状态栏保留 下午/上午
+  $("#sbt").textContent = clock12();
   const lk = $("#lkt");
-  if (lk) lk.textContent = clock12(false); // 👈 锁屏大时钟不显示 下午/上午
+  if (lk) lk.textContent = clock12(false);
   storyTick(elapsed());
   if (callState === "active") {
     const sec = Math.floor((Date.now() - callStart) / 1000);
@@ -1716,143 +1621,107 @@ function tick() {
     if (sec > S.length * 3 + 2) endCall();
   }
 }
-
 function fit() {
   const ph = $("#phone");
-  
-  // 强制去除 mob 类，永远保留手机外壳和圆角
   ph.classList.remove("mob");
   ph.classList.toggle("short", innerHeight < 740);
-
-  const baseW = 393;
-  const baseH = 852;
-
-  // 计算可以容纳手机的最大缩放比例，留出 30px 的上下呼吸空间
-  const safeH = innerHeight - 30; 
-  const safeW = innerWidth - 20;
-  SC = Math.min(safeW / baseW, safeH / baseH, 1); // 最大不超过1
-  
+  const baseW = 393,
+    baseH = 852;
+  const safeH = innerHeight - 30,
+    safeW = innerWidth - 20;
+  SC = Math.min(safeW / baseW, safeH / baseH, 1);
   ph.style.width = baseW + "px";
   ph.style.height = baseH + "px";
-  
-  // 使用绝对定位居中，彻底解决因为浏览器地址栏收缩导致的上下错位
-  ph.style.position = 'absolute';
-  ph.style.left = '50%';
-  ph.style.top = '50%';
-  ph.style.transformOrigin = 'center center';
+  ph.style.position = "absolute";
+  ph.style.left = "50%";
+  ph.style.top = "50%";
+  ph.style.transformOrigin = "center center";
   ph.style.transform = `translate(-50%, -50%) scale(${SC})`;
-  ph.style.margin = '0';
+  ph.style.margin = "0";
 }
 function initApp() {
   addEventListener("resize", fit);
   fit();
-
-  //renderLock();//锁屏需要开启，开发需要注释
-
-  
-  view = "home"; // 状态直接设为 home，非开发需要注释
-  LOCK.style.display = "none"; // 隐藏锁屏界面，非开发需要注释
-
-
+  view = "home";
+  LOCK.style.display = "none";
   renderHome();
-
-  HOME.style.visibility = "visible"; // 让桌面可见，非开发需要注释
-
+  HOME.style.visibility = "visible";
   setStatus(true);
-
   setInterval(tick, 250);
   tick();
 }
 
-
-
-// ==========================================
-// 🌟 全局通用媒体查看器 (支持图片/视频 + 左右滑动)
-// ==========================================
-let globalViewerList = [];
-let globalViewerIndex = 0;
-
-window.openMediaViewer = function(urls, startIndex = 0) {
-  let list = urls;
-  let index = startIndex;
-
-  // 兼容处理：如果只传了一个数字（比如相册里传的 i），就自动去全局变量拿列表
-  if (typeof urls === 'number') {
+let globalViewerList = [],
+  globalViewerIndex = 0;
+window.openMediaViewer = function (urls, startIndex = 0) {
+  let list = urls,
+    index = startIndex;
+  if (typeof urls === "number") {
     index = urls;
     list = window.currentMediaList || [];
   }
-
   globalViewerList = list || [];
   globalViewerIndex = index;
-  
-  if (globalViewerList.length === 0) {
-    console.warn("查看器没有获取到图片列表！");
-    return;
-  }
-
+  if (globalViewerList.length === 0) return;
   let d = document.querySelector(".global-media-viewer");
-  if (d) d.remove(); // 防止重复打开
-
+  if (d) d.remove();
   d = document.createElement("div");
   d.className = "global-media-viewer";
-  d.style.cssText = "position:fixed; inset:0; z-index:999999; background:#000; display:flex; align-items:center; justify-content:center; flex-direction:column; overflow:hidden; touch-action:pan-y;";
-  
+  d.style.cssText =
+    "position:fixed; inset:0; z-index:999999; background:#000; display:flex; align-items:center; justify-content:center; flex-direction:column; overflow:hidden; touch-action:pan-y;";
   const renderViewer = () => {
     const url = globalViewerList[globalViewerIndex];
     const isVideo = /\.(mp4|webm|mov)$/i.test(url);
-    
-    d.innerHTML = `
-      <div style="position:absolute; top:50px; left:20px; color:#fff; font-size:30px; cursor:pointer; padding:10px; z-index:10;" onclick="this.parentElement.remove()">×</div>
-      <div style="position:absolute; top:54px; right:20px; color:#fff; font-size:14px; opacity:0.8; z-index:10;">${globalViewerList.length > 1 ? (globalViewerIndex + 1) + ' / ' + globalViewerList.length : ''}</div>
-      
-      <div id="gmv-container" style="width:100%; height:80%; display:flex; align-items:center; justify-content:center; transition:transform 0.3s ease-out;">
-         ${isVideo 
-           ? `<video src="${url}" controls autoplay playsinline style="max-width:100%; max-height:100%; border-radius:8px;"></video>` 
-           : (url.length > 5 ? `<img src="${url}" style="max-width:100%; max-height:100%; object-fit:contain;">` : `<div style="font-size:20px; padding:40px; background:linear-gradient(45deg,#ff9a9e,#fecfef); border-radius:12px; color:#fff;">🎀 图片占位：${url}</div>`)}
-      </div>
-    `;
+    d.innerHTML = `<div style="position:absolute; top:50px; left:20px; color:#fff; font-size:30px; cursor:pointer; padding:10px; z-index:10;" onclick="this.parentElement.remove()">×</div><div style="position:absolute; top:54px; right:20px; color:#fff; font-size:14px; opacity:0.8; z-index:10;">${globalViewerList.length > 1 ? globalViewerIndex + 1 + " / " + globalViewerList.length : ""}</div><div id="gmv-container" style="width:100%; height:80%; display:flex; align-items:center; justify-content:center; transition:transform 0.3s ease-out;">${isVideo ? `<video src="${url}" controls autoplay playsinline style="max-width:100%; max-height:100%; border-radius:8px;"></video>` : url.length > 5 ? `<img src="${url}" style="max-width:100%; max-height:100%; object-fit:contain;">` : `<div style="font-size:20px; padding:40px; background:linear-gradient(45deg,#ff9a9e,#fecfef); border-radius:12px; color:#fff;">🎀 图片占位：${url}</div>`}</div>`;
   };
   renderViewer();
-
-  let startX = 0, startY = 0, moveX = 0, isDragging = false;
-
-  d.addEventListener('pointerdown', e => {
-    if (e.target.closest('div[onclick]') || e.target.tagName === 'VIDEO' || globalViewerList.length <= 1) return; 
+  let startX = 0,
+    startY = 0,
+    moveX = 0,
+    isDragging = false;
+  d.addEventListener("pointerdown", (e) => {
+    if (
+      e.target.closest("div[onclick]") ||
+      e.target.tagName === "VIDEO" ||
+      globalViewerList.length <= 1
+    )
+      return;
     isDragging = true;
     startX = e.clientX;
     startY = e.clientY;
     moveX = 0;
-    const c = d.querySelector('#gmv-container');
-    if (c) c.style.transition = 'none';
+    const c = d.querySelector("#gmv-container");
+    if (c) c.style.transition = "none";
   });
-
-  d.addEventListener('pointermove', e => {
+  d.addEventListener("pointermove", (e) => {
     if (!isDragging) return;
     moveX = e.clientX - startX;
-    const c = d.querySelector('#gmv-container');
+    const c = d.querySelector("#gmv-container");
     if (c) {
-      if ((globalViewerIndex === 0 && moveX > 0) || (globalViewerIndex === globalViewerList.length - 1 && moveX < 0)) {
+      if (
+        (globalViewerIndex === 0 && moveX > 0) ||
+        (globalViewerIndex === globalViewerList.length - 1 && moveX < 0)
+      )
         moveX *= 0.3;
-      }
       c.style.transform = `translateX(${moveX}px)`;
     }
   });
-
-  d.addEventListener('pointerup', () => {
+  d.addEventListener("pointerup", () => {
     if (!isDragging) return;
     isDragging = false;
-    const c = d.querySelector('#gmv-container');
-    if (c) c.style.transition = 'transform 0.3s ease-out';
-
+    const c = d.querySelector("#gmv-container");
+    if (c) c.style.transition = "transform 0.3s ease-out";
     if (moveX > 70 && globalViewerIndex > 0) {
       c.style.transform = `translateX(100%)`;
       setTimeout(() => {
         globalViewerIndex--;
         renderViewer();
-        const nc = d.querySelector('#gmv-container');
-        nc.style.transition = 'none'; nc.style.transform = `translateX(-100%)`;
+        const nc = d.querySelector("#gmv-container");
+        nc.style.transition = "none";
+        nc.style.transform = `translateX(-100%)`;
         requestAnimationFrame(() => {
-          nc.style.transition = 'transform 0.3s ease-out'; nc.style.transform = `translateX(0)`;
+          nc.style.transition = "transform 0.3s ease-out";
+          nc.style.transform = `translateX(0)`;
         });
       }, 250);
     } else if (moveX < -70 && globalViewerIndex < globalViewerList.length - 1) {
@@ -1860,19 +1729,18 @@ window.openMediaViewer = function(urls, startIndex = 0) {
       setTimeout(() => {
         globalViewerIndex++;
         renderViewer();
-        const nc = d.querySelector('#gmv-container');
-        nc.style.transition = 'none'; nc.style.transform = `translateX(100%)`;
+        const nc = d.querySelector("#gmv-container");
+        nc.style.transition = "none";
+        nc.style.transform = `translateX(100%)`;
         requestAnimationFrame(() => {
-          nc.style.transition = 'transform 0.3s ease-out'; nc.style.transform = `translateX(0)`;
+          nc.style.transition = "transform 0.3s ease-out";
+          nc.style.transform = `translateX(0)`;
         });
       }, 250);
     } else {
       c.style.transform = `translateX(0)`;
     }
   });
-
   document.getElementById("screen").appendChild(d);
 };
-
-// 兼容之前的旧代码调用
 window.openPhotoViewer = window.openMediaViewer;
