@@ -1658,36 +1658,30 @@ function tick() {
 
 function fit() {
   const ph = $("#phone");
-  const mob = innerWidth <= 540;
   
-  // 设定基准宽高
+  // 强制去除 mob 类，永远保留手机外壳和圆角
+  ph.classList.remove("mob");
+  ph.classList.toggle("short", innerHeight < 740);
+
   const baseW = 393;
   const baseH = 852;
 
-  ph.classList.toggle("mob", mob);
-  ph.classList.toggle("short", innerHeight < 740);
-
-  if (mob) {
-    // 手机端：计算屏幕宽高与基准的比例，取最小值进行等比缩放
-    // 留出 20px 上下安全区，防止被手机浏览器底栏遮挡
-    const safeH = innerHeight - 30; 
-    const safeW = innerWidth - 10;
-    SC = Math.min(safeW / baseW, safeH / baseH);
-    
-    ph.style.width = baseW + "px";
-    ph.style.height = baseH + "px";
-    ph.style.transform = `scale(${SC})`;
-    ph.style.transformOrigin = "center center";
-  } else {
-    // 电脑端保持原有逻辑
-    ph.style.width = baseW + "px";
-    ph.style.height = baseH + "px";
-    SC = Math.min((innerHeight - 40) / baseH, (innerWidth - 40) / baseW, 1.1);
-    ph.style.transform = `scale(${SC})`;
-    ph.style.transformOrigin = "center center";
-  }
+  // 计算可以容纳手机的最大缩放比例，留出 30px 的上下呼吸空间
+  const safeH = innerHeight - 30; 
+  const safeW = innerWidth - 20;
+  SC = Math.min(safeW / baseW, safeH / baseH, 1); // 最大不超过1
+  
+  ph.style.width = baseW + "px";
+  ph.style.height = baseH + "px";
+  
+  // 使用绝对定位居中，彻底解决因为浏览器地址栏收缩导致的上下错位
+  ph.style.position = 'absolute';
+  ph.style.left = '50%';
+  ph.style.top = '50%';
+  ph.style.transformOrigin = 'center center';
+  ph.style.transform = `translate(-50%, -50%) scale(${SC})`;
+  ph.style.margin = '0';
 }
-
 function initApp() {
   addEventListener("resize", fit);
   fit();
