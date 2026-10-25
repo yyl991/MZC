@@ -35,7 +35,7 @@ function openSmsDetail(id) {
 VIEWS.sms = () => ({
   html: navHTML({ title: "信息", back: "主页", backFn: "closeApp()" }) +
   `<div class="scroll" style="background:#f2f2f7;">
-    <div class="srch" style="margin-top:10px;">${G.search}搜索</div>
+    <div class="srch" style="margin-top:10px;" onclick="toastDev()">${G.search}搜索</div>
     <div style="background:#fff; margin:0 16px; border-radius:12px; overflow:hidden;">
       ${smsData.map(m => `
         <div onclick="openSmsDetail(${m.id})" style="display:flex; align-items:flex-start; padding:12px 16px; border-bottom:0.5px solid #e5e5ea; cursor:pointer;">
@@ -67,7 +67,7 @@ VIEWS.sms_detail = () => {
   if (!data) return { html: "" };
 
   return {
-    html: navHTML({ title: data.name, back: "信息", backFn: "back()", right: `<span style="color:#007aff; display:flex;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>` }) +
+    html: navHTML({ title: data.name, back: "信息", backFn: "back()", right: `<span onclick="toastDev()" style="color:#007aff; display:flex;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>` }) +
     `<div class="scroll" style="background:#f2f2f7; padding-top:88px; padding-bottom:100px; display:flex; flex-direction:column; gap:8px;">
         ${data.msgs.map(msg => {
           if (msg.type === "card") {
@@ -82,7 +82,7 @@ VIEWS.sms_detail = () => {
                <div style="padding:0 16px; display:flex; flex-direction:column; align-items:flex-start; margin-top:-4px;">
                   <div style="max-width:85%; background:#e9e9eb; border-radius:16px; overflow:hidden;">
                      ${msg.buttons.map((btn, i) => `
-                        <div style="font-size:15px; color:#007aff; padding:11px 16px; cursor:pointer; ${i > 0 ? 'border-top:0.5px solid #d1d1d6;' : ''}">
+                        <div onclick="toastDev()" style="font-size:15px; color:#007aff; padding:11px 16px; cursor:pointer; ${i > 0 ? 'border-top:0.5px solid #d1d1d6;' : ''}">
                            ${esc(btn)}
                         </div>
                      `).join('')}
@@ -102,8 +102,8 @@ VIEWS.sms_detail = () => {
         }).join('')}
       </div>
       <div style="position:absolute; bottom:34px; left:16px; right:16px; display:flex; align-items:flex-end; gap:12px;">
-         <div style="width:36px; height:36px; background:#fff; border-radius:50%; display:grid; place-items:center; color:#333; font-size:24px; font-weight:300; margin-bottom:2px; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,0.08);">+</div>
-         <div style="flex:1; background:#fff; height:38px; border-radius:19px; display:flex; align-items:center; justify-content:space-between; padding:0 14px; color:#8e8e93; box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+         <div onclick="toastDev()" style="width:36px; height:36px; background:#fff; border-radius:50%; display:grid; place-items:center; color:#333; font-size:24px; font-weight:300; margin-bottom:2px; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,0.08);">+</div>
+         <div onclick="toastDev()" style="flex:1; background:#fff; height:38px; border-radius:19px; display:flex; align-items:center; justify-content:space-between; padding:0 14px; color:#8e8e93; box-shadow:0 1px 4px rgba(0,0,0,0.05);">
             <span style="font-size:15px;">信息 · RCS</span>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
          </div>
@@ -169,9 +169,9 @@ VIEWS.weather = () => {
         </div>
       </div>
       <div style="position:absolute; bottom:0; left:0; right:0; height:84px; background:rgba(255,255,255,0.15); backdrop-filter:blur(20px); display:flex; justify-content:space-between; align-items:center; padding:0 24px;">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M9 20l-5.5 2.5V6L9 3.5M9 20l6-2.5M9 20V3.5M15 17.5l5.5 2.5V8L15 5.5M15 17.5V5.5"/></svg>
+        <svg onclick="toastDev()" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M9 20l-5.5 2.5V6L9 3.5M9 20l6-2.5M9 20V3.5M15 17.5l5.5 2.5V8L15 5.5M15 17.5V5.5"/></svg>
         <div style="display:flex; gap:8px;"><div style="width:8px; height:8px; border-radius:50%; background:#fff;"></div><div style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.4);"></div></div>
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <svg onclick="toastDev()" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
       </div>
     </div>`
   };
@@ -193,28 +193,17 @@ function playRecorder(id) {
   if (typeof PLAYER === 'undefined' || !PLAYER) return;
 
   if (currentRecorderId === id && !PLAYER.paused) {
-    PLAYER.pause();
-    updateRecorderUI();
-    if (typeof resumeBGM === 'function') resumeBGM();
-    return;
+    PLAYER.pause(); updateRecorderUI(); if (typeof resumeBGM === 'function') resumeBGM(); return;
   }
-
   if (typeof pauseBGM === 'function') pauseBGM();
-  
   if (typeof nowSong !== 'undefined') nowSong = -1;
   if (typeof updateMiniUI === 'function') updateMiniUI(); 
-
   currentRecorderId = id;
   PLAYER.dataset.isRecorder = "true"; 
   PLAYER.src = data.src;
   PLAYER.volume = 0.8;
   PLAYER.load();
-  
-  PLAYER.onended = () => {
-    updateRecorderUI();
-    if (typeof resumeBGM === 'function') resumeBGM();
-  };
-  
+  PLAYER.onended = () => { updateRecorderUI(); if (typeof resumeBGM === 'function') resumeBGM(); };
   PLAYER.play().catch(e => console.warn("录音播放失败:", e));
   updateRecorderUI();
 }
@@ -223,7 +212,6 @@ function updateRecorderUI() {
   if (typeof view === 'undefined' || view !== 'recorder') return;
   const pg = APP.lastElementChild;
   if (!pg) return;
-  
   RECORDER_DATA.forEach(r => {
     const btn = document.getElementById(`rec-btn-${r.id}`);
     if (btn) {
@@ -263,102 +251,12 @@ VIEWS.recorder = () => ({
       </div>
     </div>
     <div style="position:absolute; bottom:40px; left:50%; transform:translateX(-50%); z-index: 10;">
-      <button style="width:72px; height:72px; border-radius:50%; background:#ff3b30; color:#fff; border:4px solid #fff; box-shadow:0 4px 20px rgba(255,59,48,0.4); font-size:28px; display:grid; place-items:center;">🎙️</button>
+      <button onclick="toastDev()" style="width:72px; height:72px; border-radius:50%; background:#ff3b30; color:#fff; border:4px solid #fff; box-shadow:0 4px 20px rgba(255,59,48,0.4); font-size:28px; display:grid; place-items:center;">🎙️</button>
     </div>`,
   init: () => { setTimeout(updateRecorderUI, 50); }
 });
 
-// ---------------- 4. 微信子页面 ----------------
-VIEWS.wx_discover = () => {
-  const icPengyouquan = `<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="11" fill="#41b883"/><circle cx="12" cy="12" r="4" fill="#fff"/><path d="M12 1a11 11 0 0 1 9.5 5.5H12V1z" fill="#ffd200"/><path d="M22 13a11 11 0 0 1-6 9.5V13h6z" fill="#e96923"/><path d="M12 23A11 11 0 0 1 2.5 17.5H12V23z" fill="#2b9ded"/></svg>`;
-  const icShipinhao = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fa9d3b" stroke-width="2"><path d="M4 8c4-4 12-4 16 0M4 16c4 4 12 4 16 0"/><circle cx="8" cy="8" r="2" fill="#fa9d3b"/><circle cx="16" cy="16" r="2" fill="#fa9d3b"/></svg>`;
-  const icZhibo = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fa5151" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="#fa5151"/></svg>`;
-  const icSaoyisao = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#4a90e2" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><path d="M3 12h18"/></svg>`;
-  const icTingyiting = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fa5151" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
-  const icKanyikan = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#f5c84c" stroke-width="2"><path d="M12 2l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/></svg>`;
-  const icSouyisou = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fa5151" stroke-width="2"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M5 19l4-4M15 9l4-4"/></svg>`;
-  const icFujin = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#4a90e2" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="17" cy="10" r="2"/><path d="M17 15a3 3 0 0 1 3 3v3"/></svg>`;
-  const icYouxi = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke-width="2"><polygon points="12,2 22,8 22,16 12,22 2,16 2,8" fill="#a2e6ff" stroke="#4a90e2"/><polygon points="12,2 22,8 12,12 2,8" fill="#ffd200" stroke="#e9a623"/><polygon points="12,12 22,8 22,16 12,22" fill="#fa5151" stroke="#c73b3b"/></svg>`;
-  const icXiaochengxu = `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#8c65e3" stroke-width="2"><path d="M18 6a8 8 0 0 0-11.3 0M6 18a8 8 0 0 0 11.3 0"/><circle cx="12" cy="12" r="3"/></svg>`;
-  const svgSearch = `<svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>`;
-  const svgPlus = `<svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>`;
-
-  const row = (icon, text, isLast = false) => `
-    <div class="row tap" style="min-height:56px; padding:0 16px; position:relative; display:flex; align-items:center; background:#fff; width:100%; text-align:left; border:none;">
-      <div style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; margin-right:16px; flex:none;">${icon}</div>
-      <div style="flex:1; font-size:16px; color:#111;">${text}</div>
-      <div style="width:16px; display:flex; justify-content:flex-end;">${G.chevR}</div>
-      ${!isLast ? `<div style="position:absolute; bottom:0; left:56px; right:0; height:.5px; background:#e5e5ea;"></div>` : ''}
-    </div>
-  `;
-
-  return {
-    cls: "wx-list",
-    html: `
-    <div class="wx-head" style="display:grid; grid-template-columns:1fr auto 1fr; align-items:center; height:88px; padding:44px 18px 0; background:#ededed; padding-bottom:8px;">
-        <div></div><h1 style="font-size:18px; font-weight:500; color:#000; margin:0; text-align:center;">发现</h1>
-        <div class="wx-actions" style="display:flex; gap:18px; justify-self:end; align-items:center;">${svgSearch}${svgPlus}</div>
-    </div>
-    <div class="wx-scroll" style="background:#ededed;">
-        <div style="background:#fff; margin-top:8px;">${row(icPengyouquan, "朋友圈", true)}</div>
-        <div style="background:#fff; margin-top:8px;">${row(icShipinhao, "视频号")}${row(icZhibo, "直播", true)}</div>
-        <div style="background:#fff; margin-top:8px;">${row(icSaoyisao, "扫一扫")}${row(icTingyiting, "听一听", true)}</div>
-        <div style="background:#fff; margin-top:8px;">${row(icKanyikan, "看一看")}${row(icSouyisou, "搜一搜", true)}</div>
-        <div style="background:#fff; margin-top:8px;">${row(icFujin, "附近的人", true)}</div>
-        <div style="background:#fff; margin-top:8px;">${row(icYouxi, "游戏", true)}</div>
-        <div style="background:#fff; margin-top:8px; margin-bottom:20px;">${row(icXiaochengxu, "小程序", true)}</div>
-    </div>
-    <div class="wx-tabbar">
-        <button onclick="back()"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4C7 4 3 7.1 3 11c0 2.4 1.5 4.5 3.9 5.8L6 20.5l4-2.4c.6.1 1.3.1 2 .1 5 0 9-3.1 9-7.1S17 4 12 4Z"/></svg></span><small>微信</small></button>
-        <button><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span><small>通讯录</small></button>
-        <button class="on" onclick="push('wx_discover')"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg></span><small>发现</small></button>
-        <button><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span class="wx-badge" style="top:-4px;right:-8px;">1</span></span><small>我</small></button>
-    </div>`,
-  };
-};
-
-VIEWS.wx_contacts = () => ({
-  cls: "wx-list",
-  html: `
-  <div class="wx-head"><h1>通讯录</h1><div class="wx-actions"></div></div>
-  <div class="wx-scroll" style="padding-top: 10px;">
-      ${chatNames.map(n => `<div class="wx-item"><div class="wx-av">${avatarFor(n)}</div><div class="wx-info"><div class="wx-name">${esc(dn(n))}</div></div></div>`).join('')}
-  </div>
-  <div class="wx-tabbar">
-      <button onclick="back()"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4C7 4 3 7.1 3 11c0 2.4 1.5 4.5 3.9 5.8L6 20.5l4-2.4c.6.1 1.3.1 2 .1 5 0 9-3.1 9-7.1S17 4 12 4Z"/></svg></span><small>微信</small></button>
-      <button class="on" onclick="push('wx_contacts')"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span><small>通讯录</small></button>
-      <button onclick="push('wx_discover')"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg></span><small>发现</small></button>
-      <button onclick="push('wx_me')"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span><small>我</small></button>
-  </div>`,
-});
-
-VIEWS.wx_me = () => ({
-  cls: "wx-list",
-  html: `
-  <div class="wx-head"><h1>我</h1><div class="wx-actions"></div></div>
-  <div class="wx-scroll" style="padding-top: 20px;">
-      <div class="wx-item" style="background:#fff; margin-bottom:10px; padding:20px 16px;">
-          <div class="wx-av" style="width:64px;height:64px;">${CFG.myAvatar ? `<img src="${CFG.myAvatar}" style="width:100%;height:100%;border-radius:6px;object-fit:cover;">` : G.sil}</div>
-          <div class="wx-info" style="margin-left:12px;">
-              <div class="wx-name" style="font-size:20px; font-weight:600;">我</div>
-              <div class="wx-msg" style="margin-top:6px;">微信号：wan_wan</div>
-          </div>
-      </div>
-      <div class="wx-item" style="background:#fff;"><div class="wx-info"><div class="wx-name">收藏</div></div></div>
-      <div class="wx-item" style="background:#fff;"><div class="wx-info"><div class="wx-name">朋友圈</div></div></div>
-      <div class="wx-item" style="background:#fff;"><div class="wx-info"><div class="wx-name">卡包</div></div></div>
-      <div class="wx-item" style="background:#fff;"><div class="wx-info"><div class="wx-name">表情</div></div></div>
-      <div class="wx-item" style="background:#fff; margin-top:10px;"><div class="wx-info"><div class="wx-name">设置</div></div></div>
-  </div>
-  <div class="wx-tabbar">
-      <button onclick="back()"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4C7 4 3 7.1 3 11c0 2.4 1.5 4.5 3.9 5.8L6 20.5l4-2.4c.6.1 1.3.1 2 .1 5 0 9-3.1 9-7.1S17 4 12 4Z"/></svg></span><small>微信</small></button>
-      <button onclick="push('wx_contacts')"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span><small>通讯录</small></button>
-      <button onclick="push('wx_discover')"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5Z"/></svg></span><small>发现</small></button>
-      <button class="on" onclick="push('wx_me')"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span><small>我</small></button>
-  </div>`,
-});
-
-// ---------------- 5. 基础占位 ----------------
+// ---------------- 4. 基础占位 ----------------
 const placeholderView = (title) => () => ({
   html: navHTML({ title: title, back: "主页", backFn: "closeApp()" }) +
   `<div class="scroll" style="display:flex;align-items:center;justify-content:center;height:80vh;color:#8e8e93;font-size:15px">暂无内容</div>`,

@@ -1,8 +1,7 @@
 // ==========================================
-// 🎵 音乐播放器 (app_music.js) - 终极防呆版
+// 🎵 音乐播放器 (app_music.js)
 // ==========================================
 
-// 自己定义需要的图标，防止 app.js 里没有
 const SVG_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5Z"/></svg>';
 const SVG_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4.5" width="4" height="15" rx="1"/><rect x="14" y="4.5" width="4" height="15" rx="1"/></svg>';
 const SVG_FWD = '<svg viewBox="0 0 32 24" fill="currentColor"><path d="M2 4.5v15l12-7.5Z"/><path d="M15 4.5v15l12-7.5Z"/></svg>';
@@ -18,7 +17,6 @@ const MUSIC_DATA = [
 
 const artStyle = i => MUSIC_DATA[i] && MUSIC_DATA[i].cover ? `background-image:url(${MUSIC_DATA[i].cover})` : '';
 
-// ---------- 歌单页 ----------
 VIEWS.music = () => ({
   html: navHTML({ title: "歌曲", back: "资料库", backFn: "closeApp()", right: "" }) +
   `<div class="scroll" style="padding-bottom:180px">
@@ -31,21 +29,20 @@ VIEWS.music = () => ({
       <button class="mrow" onclick="playSong(${i})">
         <span class="art" style="${artStyle(i)}">${s.cover ? '' : SVG_NOTE}</span>
         <span class="mt ${i===nowSong?'pl':''}">${esc(s.name)}<small>${s.artist}</small></span>
-        <span style="color:#8e8e93">${G.dotsH ? G.dotsH.replace('<svg','<svg width="20"') : ''}</span>
+        <span onclick="event.stopPropagation();toastDev()" style="color:#8e8e93">${G.dotsH ? G.dotsH.replace('<svg','<svg width="20"') : ''}</span>
       </button>
     `).join('')}
   </div>
   ${miniHTML()}
   <div class="tabbar">
-    <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 5 3.5-5 3.5Z" fill="currentColor"/></svg><span>现在就听</span></button>
-    <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>浏览</span></button>
-    <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"/></svg><span>广播</span></button>
+    <button onclick="toastDev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="m10 8.5 5 3.5-5 3.5Z" fill="currentColor"/></svg><span>现在就听</span></button>
+    <button onclick="toastDev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>浏览</span></button>
+    <button onclick="toastDev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"/></svg><span>广播</span></button>
     <button class="on" style="color:#fa2d48"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 4v16M10 4v16M14.5 4.5l5 15"/></svg><span>资料库</span></button>
-    <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>搜索</span></button>
+    <button onclick="toastDev()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>搜索</span></button>
   </div>`
 });
 
-// ---------- 底部悬浮条 (Mini Player) ----------
 function miniHTML() {
   if (nowSong < 0 || !MUSIC_DATA[nowSong]) return '';
   const s = MUSIC_DATA[nowSong];
@@ -61,27 +58,16 @@ function miniHTML() {
   </div>`;
 }
 
-// ---------- 播放控制 ----------
 function playSong(i) {
   if (!MUSIC_DATA[i] || !MUSIC_DATA[i].src) return;
-  
-  // 激活时暂停背景乐
   if (typeof pauseBGM === 'function') pauseBGM();
-
   nowSong = i;
-  
   delete PLAYER.dataset.isRecorder; 
-
   PLAYER.src = MUSIC_DATA[i].src;
   PLAYER.volume = 0.5;
   PLAYER.load();
   PLAYER.onended = () => nextSong(1);
-  
-  PLAYER.play().catch((e) => {
-    console.warn("音频播放失败:", e);
-  });
-
-  // 刷新 UI
+  PLAYER.play().catch((e) => { console.warn("音频播放失败:", e); });
   if (view === 'music') {
     const sc = APP.querySelector('.scroll');
     const st = sc ? sc.scrollTop : 0;
@@ -93,14 +79,9 @@ function playSong(i) {
 function toggleSong(e) {
   if (e) e.stopPropagation();
   if (nowSong < 0 || !MUSIC_DATA[nowSong]) return;
-
   if (typeof pauseBGM === 'function') pauseBGM();
-
-  if (PLAYER.paused) {
-    PLAYER.play().catch(() => {});
-  } else {
-    PLAYER.pause();
-  }
+  if (PLAYER.paused) PLAYER.play().catch(() => {});
+  else PLAYER.pause();
   updateMiniUI();
 }
 
@@ -109,12 +90,10 @@ function nextSong(d) {
   playSong(target);
 }
 
-// ---------- UI 状态同步 ----------
 function updateMiniUI() {
   const m = APP.querySelector('.mini');
   if (m) m.outerHTML = miniHTML();
 }
 
-// 监听原生事件，保证点击暂停、自然播完时按钮图标能变
 PLAYER.addEventListener('play', updateMiniUI);
 PLAYER.addEventListener('pause', updateMiniUI);

@@ -89,7 +89,7 @@ svg {
 #wall {
     position: absolute;
     inset: -2px;
-    background: #000 url('./data/wallpaper.jpg') center/cover;
+    background: #000 url('./data/app/wallpaper.jpg') center/cover;
     transition: filter .45s, transform .45s
 }
 

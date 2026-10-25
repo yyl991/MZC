@@ -1,10 +1,9 @@
 // ==========================================
-// 📱 相册模块 (app_photos.js) - 终极防错版
+// 📱 相册模块 (app_photos.js)
 // ==========================================
 
 window.currentMediaList = [];
 
-// ---------------- 普通相册 ----------------
 VIEWS.photos = () => {
   let allPhotos = [];
   if (typeof photoSections !== 'undefined' && photoSections.length > 0) {
@@ -12,7 +11,6 @@ VIEWS.photos = () => {
   } else {
     allPhotos = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"];
   }
-  
   window.currentMediaList = allPhotos;
 
   return {
@@ -20,7 +18,7 @@ VIEWS.photos = () => {
     `<div class="scroll" style="background:#fff; padding-bottom: 100px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin: 0 16px 10px;">
          <h1 class="lt" style="margin:0; font-size:28px;">最近项目</h1>
-         <span style="color:#007aff; font-size:16px;">选择</span>
+         <span onclick="toastDev()" style="color:#007aff; font-size:16px;">选择</span>
       </div>
       <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; padding:0 4px;">
         ${allPhotos.map((p, i) => {
@@ -51,14 +49,12 @@ VIEWS.photos = () => {
   };
 };
 
-// ---------------- 私密相册 ----------------
 let privateAlbumUnlocked = false;
 
 VIEWS.privateAlbum = () => {
   const pics = (typeof CFG !== 'undefined' && CFG.privateAlbum) 
     ? CFG.privateAlbum 
     : [{ src: "p_secret1", label: "占位 · 剪影" }, { src: "p_secret2", label: "占位 · 舞台灯" }];
-  
   const correctPassword = (typeof CFG !== 'undefined' && CFG.start?.privatePin) ? CFG.start.privatePin : "1116";
 
   window.checkPrivatePin = () => {

@@ -6,6 +6,56 @@ const SCREEN = $("#screen"),
   LOCK = $("#lockL"),
   OV = $("#ov"),
   PLAYER = $("#player");
+
+window.toastDev = function(customMsg) {
+  const msgs = [
+    "这功能还在“局部宇宙”里没飞过来，请小纸团耐心等候~",
+    "系统正在呼唤你：睡个好觉，功能还没写好，别熬夜等这个按钮了~",
+    "我在后台看到你点了，但我不想理你（理直气壮）",
+    "其它按钮点起来，这个功能I don't care",
+    "这个功能还没写，别催，正在做数据",
+    "穆祉丞说门留着等你回家，但没说这个假按钮今天能点开",
+    "这是九岁的穆瑞恩画的按钮，他还没学会怎么让它动起来",
+    "作者正在为了买馒头的钱努力搬砖写代码，这个按钮还没做好，再等等！",
+    "功能开发进度：0.01%，但至少开始了，就像当初认识丞丞一样",
+    "世界那么大，馒头那么小，功能那么新，代码那么旧，这个按钮还没写好呢~",
+    "欢迎来到属于我们的局部宇宙~宇宙太大了，功能还在飞尚未抵达（还没做完。）",
+    "程序员正在给你的局部宇宙搭建功能，星星太多，得一颗一颗连",
+    "等一下等一下，等等等等等等，哎别这么着急好不好，我先和大家说一下我的趣事好不好——代码还在写",
+    "穆祉丞说‘怎么办，你们是不是要对我负责~’ 所以这个还没做完的功能，你得负责等。"
+  ];
+  
+  const msg = customMsg || msgs[Math.floor(Math.random() * msgs.length)];
+  
+  // 清除旧的提示
+  document.querySelectorAll('.dev-toast-wrap').forEach(e => e.remove());
+  
+  // 👇 1. 外层包裹器：固定占满左右，使用 flex 居中
+  const wrap = document.createElement("div");
+  wrap.className = "dev-toast-wrap";
+  wrap.style.cssText = "position:absolute; bottom:120px; left:0; right:0; display:flex; justify-content:center; pointer-events:none; z-index:999999;";
+  
+  // 👇 2. 内层气泡：限制最大宽度80%，自动换行
+  const t = document.createElement("div");
+  t.style.cssText = "background:rgba(20,20,20,.9); color:#fff; padding:12px 22px; border-radius:16px; font-size:13.5px; transition:opacity 0.3s, transform 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-weight: 500; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1.5px solid rgba(255, 163, 107, 0.7); max-width: 80%; text-align: center; line-height: 1.5; word-break: break-word;";
+  t.textContent = msg;
+  
+  wrap.appendChild(t);
+  document.getElementById("screen").appendChild(wrap);
+  
+  // 出现动画
+  t.style.opacity = "1";
+  t.style.transform = "translateY(0)";
+  
+  // 消失动画
+  setTimeout(() => { 
+    t.style.opacity = "0"; 
+    t.style.transform = "translateY(10px)"; 
+    setTimeout(() => wrap.remove(), 300); 
+  }, 2500);
+};
+  
+
 const base = Date.now();
 const elapsed = () => (Date.now() - base) / 1000;
 
@@ -831,7 +881,9 @@ function renderHome() {
   <button class="widget wcal" data-app="calendar" onclick="openApp('calendar',this)"><div class="wd">${wdLong(2026, 11, 15)}</div><div class="wn">15</div>${(events[15] || []).map((x) => `<div class="we">${esc(x)}<small>全天</small></div>`).join("")}</button>
   <button class="widget wwx" data-app="weather" onclick="openApp('weather',this)"><div class="c">北京 ➚</div><div class="tp">18°</div><span style="position:absolute;top:14px;right:14px">${G.sun}</span><div class="ds">大部晴朗<small>最高:21° 最低:12°</small></div></button>
   ${["photos", "mail", "calendar", "clock", "notes", "weather", "settings", "maps", "weibo", "xianyu", "bilibili", "xhs", "sms", "recorder"].map(appBtn).join("")}
- </div><div class="dock">${["wechat", "phone", "safari", "music"].map(appBtn).join("")}</div>`;
+ </div>
+ <!-- 👇 核心修改：把这里的数组改成你要的四个应用 -->
+ <div class="dock">${["wechat", "phone", "sms", "photos"].map(appBtn).join("")}</div>`;
 }
 
 const PARENT = {

@@ -1,15 +1,15 @@
 // ==========================================
-// 📱 微博模块 (app_weibo.js) - 独立版
+// 📱 微博模块 (app_weibo.js)
 // ==========================================
 
 const WEIBO_DATA = [
-    { 
+  { 
     id: 1,
     text: "小萌萌", 
     time: "10-16", 
     device: "来自 HarmonyOS设备", 
     images: ["./data/avatar/mzc.jpg", "E404", "E404"], 
-    video: "./data/chat/1.mp4", // 👈 新增：微博带视频
+    video: "./data/chat/1.mp4",
     repost: "@与橡树至世界尽头：🐼➡️😡➡️啊打", 
     likes: 1024, liked: false, comments: 88, forwards: 56 
   },
@@ -19,12 +19,9 @@ const WEIBO_DATA = [
     time: "10-15", 
     device: "来自 iPhone 15 Pro", 
     images: [], 
-    video: "./data/chat/1.mp4", // 如果路径不对，请改成你实际存在的视频路径
+    video: "./data/chat/1.mp4", 
     repost: "",
-    likes: 2048, 
-    liked: false,
-    comments: 156, 
-    forwards: 23 
+    likes: 2048, liked: false, comments: 156, forwards: 23 
   },
   { 
     id: 3,
@@ -34,38 +31,26 @@ const WEIBO_DATA = [
     images: ["E404"], 
     video: "",
     repost: "",
-    likes: 5120, 
-    liked: false,
-    comments: 420, 
-    forwards: 102 
+    likes: 5120, liked: false, comments: 420, forwards: 102 
   }
 ];
 
-// 点赞交互
 function likeWeibo(id, btn) {
   const w = WEIBO_DATA.find(x => x.id === id);
   if (!w) return;
-  
   w.liked = !w.liked;
   w.likes += w.liked ? 1 : -1;
   vib(15);
-  
-  // 点赞动画
   if (w.liked) {
     btn.style.color = "#ff8200";
     btn.querySelector(".like-count").textContent = w.likes;
-    btn.animate([
-      { transform: "scale(1)" },
-      { transform: "scale(1.3)" },
-      { transform: "scale(1)" }
-    ], { duration: 300, easing: "cubic-bezier(.2,1.4,.4,1)" });
+    btn.animate([{ transform: "scale(1)" }, { transform: "scale(1.3)" }, { transform: "scale(1)" }], { duration: 300, easing: "cubic-bezier(.2,1.4,.4,1)" });
   } else {
     btn.style.color = "#666";
     btn.querySelector(".like-count").textContent = w.likes;
   }
 }
 
-// 全屏看图 (独立封装，不依赖全局)
 window.viewWeiboImg = (url) => {
   if (url === 'E404') return;
   const d = document.createElement("div");
@@ -79,22 +64,21 @@ window.viewWeiboImg = (url) => {
 };
 
 VIEWS.weibo = () => ({
-  html: navHTML({ title: "微博", back: "主页", backFn: "closeApp()", right: G.gear }) +
+  html: navHTML({ title: "微博", back: "主页", backFn: "closeApp()", right: `<span onclick="toastDev()" style="cursor:pointer">${G.gear}</span>` }) +
     `<div class="scroll" style="background:#f5f5f5; padding-top:88px; padding-bottom:20px;">
       
       <div style="background:#fff; padding:10px 16px 0;">
         <div style="display:flex; gap:20px; overflow-x:auto; white-space:nowrap; font-size:16px; color:#666; padding-bottom:10px; scrollbar-width:none;">
           <span style="font-weight:700; color:#111; position:relative;">全部<span style="position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); width:20px; height:3px; background:#ff8200; border-radius:2px;"></span></span>
-          <span>超话帖</span>
-          <span>原创</span>
-          <span>视频</span>
-          <span>文章</span>
-          <span>图片</span>
+          <span onclick="toastDev()">超话帖</span>
+          <span onclick="toastDev()">原创</span>
+          <span onclick="toastDev()">视频</span>
+          <span onclick="toastDev()">文章</span>
+          <span onclick="toastDev()">图片</span>
         </div>
-        <div class="srch" style="margin:10px 0; background:#f5f5f5;">${G.search}搜我的微博</div>
+        <div onclick="toastDev()" class="srch" style="margin:10px 0; background:#f5f5f5;">${G.search}搜我的微博</div>
       </div>
 
-      <!-- 个人主页入口 -->
       <div style="background:#fff; margin-top:10px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
         <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onclick="push('weibo_profile')">
            <div style="width:48px; height:48px; border-radius:50%; background:#eee; overflow:hidden;">
@@ -109,7 +93,7 @@ VIEWS.weibo = () => ({
 
       <div style="padding:10px 16px; font-size:13px; color:#666; display:flex; justify-content:space-between;">
         <span>全部微博(${WEIBO_DATA.length})</span>
-        <span>☰ 筛选</span>
+        <span onclick="toastDev()">☰ 筛选</span>
       </div>
 
       ${WEIBO_DATA.map(w => `
@@ -125,10 +109,8 @@ VIEWS.weibo = () => ({
           </div>
           
           <div style="font-size:15px; color:#333; line-height:1.5; margin-bottom:8px;">${esc(w.text)}</div>
-          
           ${w.repost ? `<div style="font-size:13px; color:#666; margin-bottom:8px; background:#f5f5f5; padding:8px; border-radius:4px;">${esc(w.repost)}</div>` : ''}
           
-          <!-- 👇 这里开始是新加的视频逻辑 -->
           ${w.video ? `
             <div style="border-radius:8px; overflow:hidden; margin-bottom:12px; background:#000; position:relative; cursor:pointer;" onclick="event.stopPropagation();openMediaViewer(['${w.video}'], 0)">
               <video src="${w.video}" muted preload="metadata" style="width:100%; max-height:300px; display:block; object-fit:cover; pointer-events:none;"></video>
@@ -136,7 +118,6 @@ VIEWS.weibo = () => ({
             </div>
           ` : ''}
 
-          <!-- 👇 这里是图片逻辑，换成了全局查看器 -->
           ${w.images && w.images.length > 0 ? `
             <div style="display:grid; grid-template-columns:repeat(${w.images.length === 1 ? 1 : w.images.length === 4 ? 2 : 3}, 1fr); gap:4px; margin-bottom:12px;">
               ${w.images.map((img, idx) => `
@@ -148,10 +129,9 @@ VIEWS.weibo = () => ({
             </div>
           ` : ''}
         
-
           <div style="display:flex; justify-content:space-between; align-items:center; border-top:0.5px solid #f0f0f0; padding-top:12px; color:#666; font-size:13px;">
-            <span style="display:flex; align-items:center; gap:4px; cursor:pointer;">↻ ${w.forwards}</span>
-            <span style="display:flex; align-items:center; gap:4px; cursor:pointer;">💬 ${w.comments}</span>
+            <span onclick="toastDev()" style="display:flex; align-items:center; gap:4px; cursor:pointer;">↻ ${w.forwards}</span>
+            <span onclick="toastDev()" style="display:flex; align-items:center; gap:4px; cursor:pointer;">💬 ${w.comments}</span>
             <button onclick="likeWeibo(${w.id}, this)" style="display:flex; align-items:center; gap:4px; border:none; background:none; color:${w.liked ? '#ff8200' : '#666'}; cursor:pointer; padding:0; font-size:13px;">
               <span>👍</span> <span class="like-count">${w.likes}</span>
             </button>
@@ -162,7 +142,7 @@ VIEWS.weibo = () => ({
 });
 
 VIEWS.weibo_profile = () => ({
-  html: navHTML({ title: "个人主页", back: "微博", backFn: "back()" }) +
+  html: navHTML({ title: "个人主页", back: "微博", backFn: "back()", right: `<span onclick="toastDev()" style="cursor:pointer">${G.dotsH}</span>` }) +
     `<div class="scroll" style="background:#f5f5f5; padding-bottom:20px;">
        <div style="background:linear-gradient(180deg, #ff9a9e, #fecfef); height:120px; position:relative;">
           <div style="position:absolute; bottom:-30px; left:20px; width:80px; height:80px; border-radius:50%; border:3px solid #fff; overflow:hidden; background:#fff;">
