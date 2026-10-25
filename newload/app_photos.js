@@ -1,24 +1,19 @@
 // ==========================================
-// 📱 相册模块 (app_photos.js) - 独立版
+// 📱 相册模块 (app_photos.js) - 终极防错版
 // ==========================================
 
-window.openPhotoViewer = (url) => {
-  const d = document.createElement("div");
-  d.className = "viewer";
-  d.style.cssText = "position:fixed; inset:0; z-index:99999; background:#000; display:flex; align-items:center; justify-content:center; flex-direction:column;";
-  d.innerHTML = `
-    <div style="position:absolute; top:50px; left:20px; color:#fff; font-size:30px; cursor:pointer;" onclick="this.parentElement.remove()">×</div>
-    <div style="width:100%; height:80%; display:flex; align-items:center; justify-content:center; color:#fff;">
-       ${url.length > 5 ? `<img src="${url}" style="max-width:100%; max-height:100%; object-fit:contain;">` : `<div style="font-size:20px; padding:40px; background:linear-gradient(45deg,#ff9a9e,#fecfef); border-radius:12px;">🎀 图片占位：${url}</div>`}
-    </div>
-    <div style="color:rgba(255,255,255,0.6); font-size:14px; margin-top:20px;">2026年11月15日</div>
-  `;
-  document.getElementById("screen").appendChild(d);
-};
+window.currentMediaList = [];
 
+// ---------------- 普通相册 ----------------
 VIEWS.photos = () => {
-  const photos = (typeof photoSections !== 'undefined' && photoSections.length > 0) 
-    ? photoSections[0][1] : ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"];
+  let allPhotos = [];
+  if (typeof photoSections !== 'undefined' && photoSections.length > 0) {
+    photoSections.forEach(sec => allPhotos = allPhotos.concat(sec[1]));
+  } else {
+    allPhotos = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"];
+  }
+  
+  window.currentMediaList = allPhotos;
 
   return {
     html: navHTML({ title: "照片", back: "主页", backFn: "closeApp()" }) + 
@@ -28,26 +23,21 @@ VIEWS.photos = () => {
          <span style="color:#007aff; font-size:16px;">选择</span>
       </div>
       <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; padding:0 4px;">
-        ${photos.map((p, i) => `
-          <div style="aspect-ratio:1; background:#eee; overflow:hidden; cursor:pointer;" onclick="openPhotoViewer('${p}')">
-             ${p.length > 5 ? `<img src="${p}" style="width:100%; height:100%; object-fit:cover;">` : `
-               <div style="width:100%; height:100%; background:linear-gradient(45deg, hsl(${i*40},80%,80%), hsl(${i*40+20},80%,90%)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px;">
-                 [照片]
-               </div>
-             `}
+        ${allPhotos.map((p, i) => {
+          const isVideo = /\.(mp4|webm|mov)$/i.test(p);
+          return `
+          <div style="aspect-ratio:1; background:#eee; overflow:hidden; cursor:pointer; position:relative;" onclick="openMediaViewer(${i})">
+             ${isVideo 
+               ? `<video src="${p}" muted preload="metadata" style="width:100%; height:100%; object-fit:cover; pointer-events:none;"></video>
+                  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:30px; height:30px; background:rgba(0,0,0,0.5); border-radius:50%; display:grid; place-items:center; color:#fff; font-size:14px; padding-left:2px;">▶</div>`
+               : (p.length > 5 ? `<img src="${p}" style="width:100%; height:100%; object-fit:cover;">` : `
+                 <div style="width:100%; height:100%; background:linear-gradient(45deg, hsl(${i*40},80%,80%), hsl(${i*40+20},80%,90%)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px;">[照片]</div>
+               `)}
           </div>
-        `).join('')}
+        `}).join('')}
       </div>
       <h1 class="lt" style="margin: 24px 16px 10px; font-size:22px;">我的相簿</h1>
       <div style="padding:0 16px; display:flex; flex-direction:column; gap:12px;">
-        <div style="display:flex; align-items:center; gap:16px;">
-          <div style="width:80px; height:80px; border-radius:8px; background:linear-gradient(45deg, #a1c4fd, #c2e9fb); display:grid; place-items:center; color:#fff; font-size:12px;">封面</div>
-          <div style="flex:1;">
-            <div style="font-size:16px; font-weight:600; color:#111;">旧时光</div>
-            <div style="font-size:13px; color:#888; margin-top:4px;">${photos.length} 个项目</div>
-          </div>
-          <div style="color:#999;">${G.chevR}</div>
-        </div>
         <div style="display:flex; align-items:center; gap:16px; cursor:pointer;" onclick="push('privateAlbum')">
           <div style="width:80px; height:80px; border-radius:8px; background:#3a3a3c; display:grid; place-items:center; color:#fff; font-size:24px;">🔒</div>
           <div style="flex:1;">
@@ -61,6 +51,7 @@ VIEWS.photos = () => {
   };
 };
 
+// ---------------- 私密相册 ----------------
 let privateAlbumUnlocked = false;
 
 VIEWS.privateAlbum = () => {
@@ -99,6 +90,9 @@ VIEWS.privateAlbum = () => {
     };
   }
 
+  const validSrcs = pics.map(p => p.src);
+  window.currentMediaList = validSrcs;
+
   return {
     html: navHTML({ title: "私密相册", back: "照片", backFn: "back()" }) + 
     `<div class="scroll" style="background:#000; padding-bottom: 100px; min-height:100vh;">
@@ -107,16 +101,21 @@ VIEWS.privateAlbum = () => {
          <span style="color:#ff3b30; font-size:16px;" onclick="privateAlbumUnlocked=false; show('privateAlbum')">重新锁定</span>
       </div>
       <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; padding:0 16px;">
-        ${pics.map((p, i) => `
-          <div style="aspect-ratio:3/4; background:#222; overflow:hidden; border-radius:10px; position:relative; cursor:pointer;" onclick="openPhotoViewer('${p.src}')">
-             ${p.src.length > 5 ? `<img src="${p.src}" style="width:100%; height:100%; object-fit:cover;">` : `
-               <div style="width:100%; height:100%; background:linear-gradient(135deg, #4a00e0, #8e2de2); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
-                 <div style="font-size:12px; opacity:0.8;">${esc(p.label)}</div>
-                 <div style="font-size:24px; margin-top:10px;">🔒</div>
-               </div>
-             `}
+        ${pics.map((p, i) => {
+          const isVideo = /\.(mp4|webm|mov)$/i.test(p.src);
+          return `
+          <div style="aspect-ratio:3/4; background:#222; overflow:hidden; border-radius:10px; position:relative; cursor:pointer;" onclick="openMediaViewer(${i})">
+             ${isVideo 
+               ? `<video src="${p.src}" muted preload="metadata" style="width:100%; height:100%; object-fit:cover; pointer-events:none;"></video>
+                  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:44px; height:44px; background:rgba(0,0,0,0.5); border-radius:50%; display:grid; place-items:center; color:#fff; font-size:20px; padding-left:4px;">▶</div>`
+               : (p.src.length > 5 ? `<img src="${p.src}" style="width:100%; height:100%; object-fit:cover;">` : `
+                 <div style="width:100%; height:100%; background:linear-gradient(135deg, #4a00e0, #8e2de2); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
+                   <div style="font-size:12px; opacity:0.8;">${esc(p.label)}</div>
+                   <div style="font-size:24px; margin-top:10px;">🔒</div>
+                 </div>
+               `)}
           </div>
-        `).join('')}
+        `}).join('')}
       </div>
     </div>`,
   };

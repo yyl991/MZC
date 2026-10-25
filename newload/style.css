@@ -4346,15 +4346,32 @@ svg {
   }
 }
 
-/* 让底部大容器不拦截点击，只有中间的小横条才拦截 */
+/* 让大容器不拦截点击，避免遮挡底部图标 */
 #hb {
     pointer-events: none !important;
 }
+
+/* 恢复小横条原本的精致外观 */
 #hb i {
+    position: relative;
     pointer-events: auto;
-    /* 稍微扩大一点点小横条上下滑动的感应区，但不影响左右按钮 */
-    padding: 10px 0;
-    margin-bottom: -10px;
-    box-sizing: border-box;
-    background-clip: content-box;
+    width: 139px;
+    height: 5px;
+    border-radius: 3px;
+    background: #000;
+    transition: background .3s, transform .2s;
+}
+
+#hb.light i {
+    background: #fff;
+}
+
+/* ✨ 黑科技：用一个透明的伪元素撑大点击区域，视觉上完全不变形！ */
+#hb i::after {
+    content: '';
+    position: absolute;
+    top: -15px;
+    bottom: -15px;
+    left: -20px;
+    right: -20px;
 }

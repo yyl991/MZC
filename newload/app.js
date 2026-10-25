@@ -830,7 +830,7 @@ function renderHome() {
   HOME.innerHTML = `<div class="hgrid">
   <button class="widget wcal" data-app="calendar" onclick="openApp('calendar',this)"><div class="wd">${wdLong(2026, 11, 15)}</div><div class="wn">15</div>${(events[15] || []).map((x) => `<div class="we">${esc(x)}<small>全天</small></div>`).join("")}</button>
   <button class="widget wwx" data-app="weather" onclick="openApp('weather',this)"><div class="c">北京 ➚</div><div class="tp">18°</div><span style="position:absolute;top:14px;right:14px">${G.sun}</span><div class="ds">大部晴朗<small>最高:21° 最低:12°</small></div></button>
-  ${["instagram", "photos", "mail", "calendar", "clock", "notes", "weather", "settings", "maps", "weibo", "xianyu", "bilibili", "xhs", "sms", "recorder", "privateAlbum"].map(appBtn).join("")}
+  ${["photos", "mail", "calendar", "clock", "notes", "weather", "settings", "maps", "weibo", "xianyu", "bilibili", "xhs", "sms", "recorder"].map(appBtn).join("")}
  </div><div class="dock">${["wechat", "phone", "safari", "music"].map(appBtn).join("")}</div>`;
 }
 
@@ -1711,3 +1711,116 @@ function initApp() {
   setInterval(tick, 250);
   tick();
 }
+
+
+
+// ==========================================
+// 🌟 全局通用媒体查看器 (支持图片/视频 + 左右滑动)
+// ==========================================
+let globalViewerList = [];
+let globalViewerIndex = 0;
+
+window.openMediaViewer = function(urls, startIndex = 0) {
+  let list = urls;
+  let index = startIndex;
+
+  // 兼容处理：如果只传了一个数字（比如相册里传的 i），就自动去全局变量拿列表
+  if (typeof urls === 'number') {
+    index = urls;
+    list = window.currentMediaList || [];
+  }
+
+  globalViewerList = list || [];
+  globalViewerIndex = index;
+  
+  if (globalViewerList.length === 0) {
+    console.warn("查看器没有获取到图片列表！");
+    return;
+  }
+
+  let d = document.querySelector(".global-media-viewer");
+  if (d) d.remove(); // 防止重复打开
+
+  d = document.createElement("div");
+  d.className = "global-media-viewer";
+  d.style.cssText = "position:fixed; inset:0; z-index:999999; background:#000; display:flex; align-items:center; justify-content:center; flex-direction:column; overflow:hidden; touch-action:pan-y;";
+  
+  const renderViewer = () => {
+    const url = globalViewerList[globalViewerIndex];
+    const isVideo = /\.(mp4|webm|mov)$/i.test(url);
+    
+    d.innerHTML = `
+      <div style="position:absolute; top:50px; left:20px; color:#fff; font-size:30px; cursor:pointer; padding:10px; z-index:10;" onclick="this.parentElement.remove()">×</div>
+      <div style="position:absolute; top:54px; right:20px; color:#fff; font-size:14px; opacity:0.8; z-index:10;">${globalViewerList.length > 1 ? (globalViewerIndex + 1) + ' / ' + globalViewerList.length : ''}</div>
+      
+      <div id="gmv-container" style="width:100%; height:80%; display:flex; align-items:center; justify-content:center; transition:transform 0.3s ease-out;">
+         ${isVideo 
+           ? `<video src="${url}" controls autoplay playsinline style="max-width:100%; max-height:100%; border-radius:8px;"></video>` 
+           : (url.length > 5 ? `<img src="${url}" style="max-width:100%; max-height:100%; object-fit:contain;">` : `<div style="font-size:20px; padding:40px; background:linear-gradient(45deg,#ff9a9e,#fecfef); border-radius:12px; color:#fff;">🎀 图片占位：${url}</div>`)}
+      </div>
+    `;
+  };
+  renderViewer();
+
+  let startX = 0, startY = 0, moveX = 0, isDragging = false;
+
+  d.addEventListener('pointerdown', e => {
+    if (e.target.closest('div[onclick]') || e.target.tagName === 'VIDEO' || globalViewerList.length <= 1) return; 
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    moveX = 0;
+    const c = d.querySelector('#gmv-container');
+    if (c) c.style.transition = 'none';
+  });
+
+  d.addEventListener('pointermove', e => {
+    if (!isDragging) return;
+    moveX = e.clientX - startX;
+    const c = d.querySelector('#gmv-container');
+    if (c) {
+      if ((globalViewerIndex === 0 && moveX > 0) || (globalViewerIndex === globalViewerList.length - 1 && moveX < 0)) {
+        moveX *= 0.3;
+      }
+      c.style.transform = `translateX(${moveX}px)`;
+    }
+  });
+
+  d.addEventListener('pointerup', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    const c = d.querySelector('#gmv-container');
+    if (c) c.style.transition = 'transform 0.3s ease-out';
+
+    if (moveX > 70 && globalViewerIndex > 0) {
+      c.style.transform = `translateX(100%)`;
+      setTimeout(() => {
+        globalViewerIndex--;
+        renderViewer();
+        const nc = d.querySelector('#gmv-container');
+        nc.style.transition = 'none'; nc.style.transform = `translateX(-100%)`;
+        requestAnimationFrame(() => {
+          nc.style.transition = 'transform 0.3s ease-out'; nc.style.transform = `translateX(0)`;
+        });
+      }, 250);
+    } else if (moveX < -70 && globalViewerIndex < globalViewerList.length - 1) {
+      c.style.transform = `translateX(-100%)`;
+      setTimeout(() => {
+        globalViewerIndex++;
+        renderViewer();
+        const nc = d.querySelector('#gmv-container');
+        nc.style.transition = 'none'; nc.style.transform = `translateX(100%)`;
+        requestAnimationFrame(() => {
+          nc.style.transition = 'transform 0.3s ease-out'; nc.style.transform = `translateX(0)`;
+        });
+      }, 250);
+    } else {
+      c.style.transform = `translateX(0)`;
+    }
+  });
+
+  document.getElementById("screen").appendChild(d);
+};
+
+// 兼容之前的旧代码调用
+window.openPhotoViewer = window.openMediaViewer;

@@ -3,18 +3,15 @@
 // ==========================================
 
 const WEIBO_DATA = [
-  { 
+    { 
     id: 1,
     text: "小萌萌", 
     time: "10-16", 
     device: "来自 HarmonyOS设备", 
     images: ["./data/avatar/mzc.jpg", "E404", "E404"], 
-    video: "",
+    video: "./data/chat/1.mp4", // 👈 新增：微博带视频
     repost: "@与橡树至世界尽头：🐼➡️😡➡️啊打", 
-    likes: 1024, 
-    liked: false,
-    comments: 88, 
-    forwards: 56 
+    likes: 1024, liked: false, comments: 88, forwards: 56 
   },
   { 
     id: 2,
@@ -131,21 +128,26 @@ VIEWS.weibo = () => ({
           
           ${w.repost ? `<div style="font-size:13px; color:#666; margin-bottom:8px; background:#f5f5f5; padding:8px; border-radius:4px;">${esc(w.repost)}</div>` : ''}
           
+          <!-- 👇 这里开始是新加的视频逻辑 -->
           ${w.video ? `
-            <div style="border-radius:8px; overflow:hidden; margin-bottom:12px; background:#000;">
-              <video src="${w.video}" controls playsinline style="width:100%; max-height:300px; display:block;"></video>
+            <div style="border-radius:8px; overflow:hidden; margin-bottom:12px; background:#000; position:relative; cursor:pointer;" onclick="event.stopPropagation();openMediaViewer(['${w.video}'], 0)">
+              <video src="${w.video}" muted preload="metadata" style="width:100%; max-height:300px; display:block; object-fit:cover; pointer-events:none;"></video>
+              <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:44px; height:44px; background:rgba(0,0,0,0.5); border-radius:50%; display:grid; place-items:center; color:#fff; font-size:20px; padding-left:4px;">▶</div>
             </div>
           ` : ''}
 
+          <!-- 👇 这里是图片逻辑，换成了全局查看器 -->
           ${w.images && w.images.length > 0 ? `
             <div style="display:grid; grid-template-columns:repeat(${w.images.length === 1 ? 1 : w.images.length === 4 ? 2 : 3}, 1fr); gap:4px; margin-bottom:12px;">
-              ${w.images.map(img => `
-                <div style="aspect-ratio:1; border-radius:4px; overflow:hidden; background:#eee; display:flex; align-items:center; justify-content:center; color:#999; font-size:12px; cursor:${img === 'E404' ? 'default' : 'pointer'};" onclick="viewWeiboImg('${img}')">
+              ${w.images.map((img, idx) => `
+                <div style="aspect-ratio:1; border-radius:4px; overflow:hidden; background:#eee; display:flex; align-items:center; justify-content:center; color:#999; font-size:12px; cursor:${img === 'E404' ? 'default' : 'pointer'};" 
+                     onclick="event.stopPropagation();${img !== 'E404' ? `openMediaViewer(${JSON.stringify(w.images).replace(/"/g, '&quot;')}, ${idx})` : ''}">
                   ${img === 'E404' ? '图片占位' : `<img src="${img}" style="width:100%; height:100%; object-fit:cover;">`}
                 </div>
               `).join('')}
             </div>
           ` : ''}
+        
 
           <div style="display:flex; justify-content:space-between; align-items:center; border-top:0.5px solid #f0f0f0; padding-top:12px; color:#666; font-size:13px;">
             <span style="display:flex; align-items:center; gap:4px; cursor:pointer;">↻ ${w.forwards}</span>

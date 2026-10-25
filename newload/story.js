@@ -299,9 +299,12 @@ var INCOMING = [];
   S.incoming = ["快回家。"];
 
   S.privateAlbum = [
-    { src: "photos/placeholder_private_01.jpg", label: "占位 · 剪影" },
-    { src: "photos/placeholder_private_02.jpg", label: "占位 · 舞台灯" },
-  ];
+  { src: "./data/album/1leader.jpg", label: "" },
+  { src: "./data/album/1.mp4", label: "" },
+  { src: "p_secret3", label: "占位 · 被折叠的信" },
+  { src: "p_secret4", label: "占位 · 模糊的剪影" }
+];
+
   S.ending = {
     B: {
       title: "结局一｜拥抱此刻",
