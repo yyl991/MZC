@@ -5,6 +5,7 @@
     "build": "node obfuscate.js"
   },
   "devDependencies": {
+    "glob": "^13.0.6",
     "javascript-obfuscator": "^4.1.0"
   }
 }

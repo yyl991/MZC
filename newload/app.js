@@ -1655,21 +1655,36 @@ function tick() {
     if (sec > S.length * 3 + 2) endCall();
   }
 }
+
 function fit() {
   const ph = $("#phone");
   const mob = innerWidth <= 540;
+  
+  // 设定基准宽高
+  const baseW = 393;
+  const baseH = 852;
+
   ph.classList.toggle("mob", mob);
-  ph.classList.toggle("short", mob && innerHeight < 740);
+  ph.classList.toggle("short", innerHeight < 740);
+
   if (mob) {
-    ph.style.width = innerWidth + "px";
-    ph.style.height = innerHeight + "px";
-    ph.style.transform = "";
-    SC = 1;
-  } else {
-    ph.style.width = "393px";
-    ph.style.height = "852px";
-    SC = Math.min((innerHeight - 40) / 852, (innerWidth - 40) / 393, 1.1);
+    // 手机端：计算屏幕宽高与基准的比例，取最小值进行等比缩放
+    // 留出 20px 上下安全区，防止被手机浏览器底栏遮挡
+    const safeH = innerHeight - 30; 
+    const safeW = innerWidth - 10;
+    SC = Math.min(safeW / baseW, safeH / baseH);
+    
+    ph.style.width = baseW + "px";
+    ph.style.height = baseH + "px";
     ph.style.transform = `scale(${SC})`;
+    ph.style.transformOrigin = "center center";
+  } else {
+    // 电脑端保持原有逻辑
+    ph.style.width = baseW + "px";
+    ph.style.height = baseH + "px";
+    SC = Math.min((innerHeight - 40) / baseH, (innerWidth - 40) / baseW, 1.1);
+    ph.style.transform = `scale(${SC})`;
+    ph.style.transformOrigin = "center center";
   }
 }
 

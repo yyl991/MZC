@@ -4306,3 +4306,42 @@ svg {
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(255, 255, 255, 0.2);
 }
+
+/* 针对手机端短屏幕的适配 */
+@media (max-width: 540px) {
+  .hgrid {
+    top: 60px;
+    row-gap: 18px;
+  }
+  .app {
+    width: 68px;
+    gap: 4px;
+  }
+  .icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 13px;
+  }
+  .lbl {
+    font-size: 11px;
+  }
+  .widget {
+    border-radius: 20px;
+    padding: 12px 14px;
+  }
+  .wcal .wn {
+    font-size: 38px;
+  }
+  .wwx .tp {
+    font-size: 38px;
+  }
+  .dock {
+    height: 84px;
+    bottom: 10px;
+    border-radius: 30px;
+  }
+  /* 锁屏时钟稍微缩小 */
+  .lk-time {
+    font-size: 88px;
+  }
+}
