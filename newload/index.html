@@ -71,6 +71,10 @@
 
             // 2. 操作系统核心
             await load('app.js');
+
+            
+            // 👇 新增：注入主屏幕自定义 UI
+            await load('home_ui.js');
             
             // 👇 你刚才拆出来的新模块，加在这里
             await load('app_safari.js');   // 浏览器
@@ -86,6 +90,7 @@
             await load('app_photos.js');   // 👈 新增：相册 & 私密相册
             await load('app_extra.js');   // 杂项：短信、天气等
             await load('mail.js');         // 独立的邮件
+            //await load('app_paopao.js');
             // 4. 全部加载完毕，启动系统 
                 initApp();
             } catch (e) {

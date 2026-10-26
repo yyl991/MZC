@@ -339,10 +339,8 @@ const APPS = {
   privateAlbum: "私密相册",
 };
 
-
 function appIcon(id) {
   const newApps = {
-    // 👇 1. 微信也改成读取本地图片
     wechat: {
       cls: "ic-wechat",
       path: "./data/app/wechat.png",
@@ -369,18 +367,24 @@ function appIcon(id) {
       fallback: `<div style="background:linear-gradient(135deg,#ff6b8a,#ff2442); width:100%; height:100%; display:grid; place-items:center;">${G.book}</div>`
     },
     sms: { cls: "ic-sms", icon: G.msgF },
-    recorder: { cls: "ic-recorder", icon: G.mic },
     privateAlbum: { cls: "ic-private", icon: G.keypad },
+    
+    // 👇 录音也改成读取本地图片
+    recorder: {
+      cls: "ic-recorder",
+      path: "./data/app/recorder.png", // 👈 如果你本地的图片名字不是这个，请修改这里
+      fallback: (() => {
+        const B = (x, c) => `<rect x="${x}" y="22" width="3.5" height="16" rx="1.75" fill="${c}"/>`;
+        return `<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#000"/>${B(14, "#ff3b30")}${B(20.5, "#ff9500")}${B(27, "#ffcc00")}${B(33.5, "#34c759")}${B(40, "#007aff")}${B(46.5, "#af52de")}</svg>`;
+      })()
+    }
   };
 
-  // 👇 2. 新的安全渲染逻辑：不用恶心的 onerror 嵌套，直接原地叠层
   if (newApps[id]) {
     const app = newApps[id];
     if (app.path) {
       return `<div class="${app.cls}" style="width:100%; height:100%; border-radius:14px; overflow:hidden; position:relative;">
-        <!-- 图片层（如果加载失败，它就自己消失） -->
         <img src="${app.path}" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0; z-index:2;" onerror="this.style.display='none';">
-        <!-- 兜底层（默认隐藏，如果上面图片没加载出来，就用 JS 让这个显示） -->
         <div style="width:100%; height:100%; position:absolute; inset:0; z-index:1;">${app.fallback}</div>
       </div>`;
     } else {
@@ -388,9 +392,9 @@ function appIcon(id) {
     }
   }
 
-  // 原生系统应用保持原样
   const L = (a, b, c, d) => `<linearGradient id="${a}" x1="0" y1="${d ? 1 : 0}" x2="${d ? 1 : 0}" y2="${d ? 0 : 1}"><stop offset="0" stop-color="${b}"/><stop offset="1" stop-color="${c}"/></linearGradient>`;
   const W = (defs, body) => `<svg viewBox="0 0 60 60"><defs>${defs}</defs>${body}</svg>`;
+
   switch (id) {
     case "instagram": return W(`<linearGradient id="gi" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#ffc35c"/><stop offset=".5" stop-color="#ff3d6e"/><stop offset="1" stop-color="#7c3bf0"/></linearGradient>`, `<rect width="60" height="60" fill="url(#gi)"/><rect x="17" y="12.5" width="26" height="34" rx="4.5" fill="none" stroke="#fff" stroke-width="3.2"/><rect x="21.6" y="17" width="16.8" height="17" rx="2" fill="#fff"/>`);
     case "photos": { let p = ""; for (let i = 0; i < 10; i++) p += `<ellipse cx="30" cy="18.2" rx="4.4" ry="10.5" fill="#fff" transform="rotate(${i * 36} 30 30)"/>`; return W(L("gp", "#9bdcff", "#d8f1ff"), `<rect width="60" height="60" fill="url(#gp)"/>${p}<circle cx="30" cy="30" r="7.2" fill="#ffc83d"/><circle cx="30" cy="30" r="7.2" fill="none" stroke="#f0a500" stroke-width="1"/>`); }
@@ -804,8 +808,40 @@ function appBtn(id) {
   if (name === "app_" + id) name = APPS[id] || id;
   return `<button class="app" data-app="${id}" onclick="openApp('${id}',this.firstElementChild)"><div class="icon"><div class="ic">${appIcon(id)}</div>${b ? `<span class="bdg">${b}</span>` : ""}</div><span class="lbl">${name}</span></button>`;
 }
+
+// 渲染主屏幕 在这里添加删除app
+// 渲染主屏幕
 function renderHome() {
-  HOME.innerHTML = `<div class="hgrid"><button class="widget wcal" data-app="calendar" onclick="openApp('calendar',this)"><div class="wd">${wdLong(2026, 11, 15)}</div><div class="wn">15</div>${(events[15] || []).map((x) => `<div class="we">${esc(x)}<small>全天</small></div>`).join("")}</button><button class="widget wwx" data-app="weather" onclick="openApp('weather',this)"><div class="c">北京 ➚</div><div class="tp">18°</div><span style="position:absolute;top:14px;right:14px">${G.sun}</span><div class="ds">大部晴朗<small>最高:21° 最低:12°</small></div></button>${["photos", "mail", "calendar", "clock", "notes", "weather", "settings", "maps", "weibo", "xianyu", "bilibili", "xhs", "recorder"].map(appBtn).join("")}</div><div class="dock">${["wechat", "phone", "sms", "photos"].map(appBtn).join("")}</div>`;
+  // 把要在桌面和 Dock 栏显示的 App 提取出来，方便以后增减
+  const homeApps = ["photos", "mail", "clock", "notes", "weibo", "xianyu", "bilibili", "xhs"];
+  const dockApps = ["wechat", "phone", "sms", "recorder"];
+
+  HOME.innerHTML = `
+    <div class="hgrid">
+      <!-- 日历组件 -->
+      <button class="widget wcal" data-app="calendar" onclick="openApp('calendar',this)">
+        <div class="wd">${wdLong(2026, 11, 15)}</div>
+        <div class="wn">15</div>
+        ${(events[15] || []).map((x) => `<div class="we">${esc(x)}<small>全天</small></div>`).join("")}
+      </button>
+      
+      <!-- 天气组件 -->
+      <button class="widget wwx" data-app="weather" onclick="openApp('weather',this)">
+        <div class="c">北京 ➚</div>
+        <div class="tp">18°</div>
+        <span style="position:absolute;top:14px;right:14px">${G.sun}</span>
+        <div class="ds">大部晴朗<small>最高:21° 最低:12°</small></div>
+      </button>
+      
+      <!-- 桌面 App 列表 -->
+      ${homeApps.map(appBtn).join("")}
+    </div>
+    
+    <!-- 底部 Dock 栏 -->
+    <div class="dock">
+      ${dockApps.map(appBtn).join("")}
+    </div>
+  `;
 }
 
 const PARENT = {
@@ -1761,7 +1797,7 @@ function storyTick(e) {
       if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");
       if (beat.type === "mail") incomingMailFrom(beat);
       if (beat.type === "choice") showStoryChoice();
-      if (beat.type === "ending") showEnding(SS.choice || "B");
+      //if (beat.type === "ending") showEnding(SS.choice || "B");
     }
   });
 }

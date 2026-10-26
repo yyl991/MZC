@@ -29,7 +29,7 @@ var INCOMING = [];
 
   /*
   S.roles = {
-    闺蜜: { initial: "闺", color: "#8e8e93" },
+    穆小恩: { initial: "闺", color: "#8e8e93" },
     MuAMuA: { initial: "妈", color: "#f6b6c8" },
     穆老爹: { initial: "爸", color: "#7d8ea8" },
     丞哥: { initial: "哥", color: "#c9a227" },
@@ -40,7 +40,7 @@ var INCOMING = [];
   };*/
 
   S.roles = {
-    闺蜜: { initial: "闺", color: "#8e8e93", avatar: "./data/avatar/guimi.jpg", pat: "的脑壳说醒醒" },
+    穆小恩: { initial: "闺", color: "#8e8e93", avatar: "./data/avatar/guimi.jpg", pat: "的脑壳说醒醒" },
     MuAMuA: { initial: "妈", color: "#f6b6c8", avatar: "./data/avatar/mama.jpg", pat: ":不是说学了吗‎•᷄ࡇ•᷅" },
     恩恩: { initial: "婆", color: "#f6b6c8", avatar: "./data/avatar/enen.jpg", pat: "的小屁股" },
     穆老爹: { initial: "爸", color: "#7d8ea8", avatar: "./data/avatar/baba.jpg", pat: "的保温杯" },
@@ -68,7 +68,7 @@ var INCOMING = [];
   S.myPat = "的聪明小脑瓜"; 
 
     S.chats = {
-    '闺蜜': {
+    '穆小恩': {
       init: [['11月15日','date']],
       replies: [
         { mine:['我好像……捡到了自己的手机。'], them:['啊？你在说什么，先找个暖和的地方站着。'] },
@@ -167,13 +167,38 @@ var INCOMING = [];
       ],
       fragment: null
     }
+        'tiger': {
+      init: [['11月15日','date']],
+      replies: [
+        { mine:['你到底是猫还是老虎？'], them:['嗷呜！'] }
+      ],
+      fragment: null
+    },
+    
+    // 👇 新增 '恩恩' 的剧情配置 👇
+    '恩恩': {
+      init: [['11月15日','date']],
+      replies: [
+        { mine:['我尽量早点过去。'], them:['好，我等你。'] }
+      ],
+      fragment: null
+    },
+    
+    // 👇 如果你把 '闺蜜' 改成了 '穆小恩'，要在这里也加上 👇
+    '穆小恩': {
+      init: [['11月15日','date']],
+      replies: [
+        { mine:['我马上回去。'], them:['好，别乱跑。穆祉丞急得要死……你自己看着办吧。'] }
+      ],
+      fragment: null
+    }
   };
 
   /* 完整时间线：所有人都会按秒数弹出来 */
   S.timeline = [
-    // 闺蜜 0秒
-    { at: 0,  type:'notify', from:'闺蜜', text:'你跑哪去了？刚刚还跟我说话，一转眼人不见了。' },
-    { at: 3,  type:'notify', from:'闺蜜', text:'你手机怎么丢在街上？我打了好几通都没人接。' },
+    // 穆小恩 0秒
+    { at: 0,  type:'notify', from:'穆小恩', text:'你跑哪去了？刚刚还跟我说话，一转眼人不见了。' },
+    { at: 3,  type:'notify', from:'穆小恩', text:'你手机怎么丢在街上？我打了好几通都没人接。' },
     // 妈妈 8秒
     { at: 8,  type:'notify', from:'MuAMuA', text:'跑去哪里了？外面很冷，不要一个人待在外边好不好。' },
     { at: 11, type:'notify', from:'MuAMuA', text:'我看到你已读了。回我一句，就一句。' },
@@ -251,7 +276,7 @@ var INCOMING = [];
     ["大麦", "演出提醒", "你关注的演出即将开票。", "11/15"],
   ];
   S.calls = [
-    ["闺蜜", "今天 23:08", "呼出"],
+    ["穆小恩", "今天 23:08", "呼出"],
     ["MuAMuA", "今天 23:05", "未接来电"],
     ["穆祉丞", "今天 23:00", "未接来电"],    
     ["穆祉丞", "今天 20:07", "未接来电"],
