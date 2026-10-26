@@ -34,7 +34,8 @@ files.forEach(file => {
         'mzc1116-10g3u3eg.maozi.io', // 帽子云永久链接
         'mzc1116.cc.cd',                      // 你的专属域名（以后切过来也能用）
         'mzc-dpv14dr9uz2g.edgeone.dev',       // EdgeOne 备用
-        'localhost'                           // 本地测试
+        'localhost',
+        'cgcgdsg.cc.cd'                         // 本地测试
       ] 
     }).getObfuscatedCode();
     
