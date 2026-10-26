@@ -4419,3 +4419,21 @@ svg {
     box-sizing: border-box;
     box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
+/* 全局极简返回按钮（去除文字，只留图标） */
+.nb-back {
+    display: flex;
+    align-items: center;
+    color: inherit !important;
+    justify-self: start;
+    height: 44px;
+    padding: 0 16px 0 0;
+    margin-left: -8px;
+    cursor: pointer;
+    font-size: 0; /* 隐藏文字 */
+}
+.nb-back svg {
+    width: 14px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2.4;
+}

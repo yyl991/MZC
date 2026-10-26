@@ -1070,7 +1070,8 @@ function goBack() {
   back();
 }
 function updateCrumb() {
-  const on = !["lock", "pin", "home"].includes(view) && !callState;
+  // 把 weibo_profile 排除，使用页面自身的滑动返回按钮
+  const on = !["lock", "pin", "home", "weibo_profile"].includes(view) && !callState;
   $("#sb").classList.toggle("crumb", on);
 }
 $("#sbk").innerHTML =
@@ -1104,8 +1105,9 @@ try {
 } catch (e) {}
 
 function navHTML(o) {
-  return `<div class="nav ${o.solid ? "solid" : ""}">${o.back !== undefined ? `<button class="nb-back" onclick="${o.backFn || "back()"}">${G.chevL}${o.back}</button>` : o.left || "<span></span>"}<div class="nb-title">${o.title || ""}</div><div class="nb-right">${o.right || ""}</div></div>`;
+  return `<div class="nav ${o.solid ? "solid" : ""}">${o.back !== undefined ? `<button class="nb-back" onclick="${o.backFn || "back()"}">${G.chevL}</button>` : o.left || "<span></span>"}<div class="nb-title">${o.title || ""}</div><div class="nb-right">${o.right || ""}</div></div>`;
 }
+
 function tabbar(items, on, cls = "") {
   return `<div class="tabbar ${cls}">${items.map(([ic, l], i) => `<button class="${i === on ? "on" : ""}">${G[ic] || ic}<span>${l}</span></button>`).join("")}</div>`;
 }

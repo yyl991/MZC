@@ -1,33 +1,62 @@
 // ==========================================
-// 📱 微博模块 (app_weibo.js) - 最终稳定版
+// 📱 微博模块 (app_weibo.js) - 终极像素级复刻版
 // ==========================================
 
-// 1. 首页展示的生活流（包含你真人的转发）
+window.openSuperTopic = function() {
+  window._prev_wb_view = view;
+  push('weibo_supertopic');
+};
+
+window.backSuperTopic = function() {
+  show(window._prev_wb_view || 'weibo_artist', 'pop');
+};
+
+// 1. 首页展示的生活流
 const LIFE_WEIBO_DATA = [
   { 
     id: 1, 
     text: "小萌萌", 
     time: "10-16", 
     device: "来自 HarmonyOS设备", 
-    images: ["./data/avatar/mzc.jpg", "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop", "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop"], 
+    images: ["./data/avatar/miantuan.jpg", "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop", "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop"], 
     likes: "118万", comments: "100万+", forwards: "100万+", read: "55", isRepost: true, originalAuthor: "与橡树至世界尽头", originalText: "🐼➡️😡➡️啊打"
-  },
-  { 
-    id: 2, 
-    text: "小猪宝宝🐷", 
-    time: "10-16", 
-    device: "来自 HarmonyOS设备", 
-    images: ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop"], 
-    likes: "42万", comments: "1.2万", forwards: "5千", read: "55", isRepost: true, originalAuthor: "TF_ING穆祉丞MUA", originalText: "#大哥小助理收官# 又想和哥哥们一起吃火锅了，谢谢哥哥们的照顾，必须批准！#大哥小助理#" }
+  }
 ];
 
 // 2. 你的“我-微博(112)”列表
 const DATA_WEIBO_DATA = [
-  { id: 10, text: "小萌萌", time: "10-16", device: "来自 HarmonyOS设备", images: ["./data/avatar/mzc.jpg", "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop"], likes: "186万", comments: "5万", forwards: "100万+", read: "55", isRepost: true, originalAuthor: "与橡树至世界尽头", originalText: "🐼➡️😡➡️啊打" },
-  { id: 9, text: "小猪宝宝🐷", time: "10-16", device: "来自 HarmonyOS设备", images: ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop"], likes: "186万", comments: "5万", forwards: "100万+", read: "55", isRepost: true, originalAuthor: "TF_ING穆祉丞MUA", originalText: "#大哥小助理收官# 又想和哥哥们一起吃火锅了，谢谢哥哥们的照顾，必须批准！#大哥小助理#" }
+  { 
+    id: 12, 
+    text: "啊啊啊啊啊新歌好好听！！！单曲循环一整天！", 
+    time: "刚刚", 
+    device: "来自 iPhone客户端", 
+    likes: "56万", comments: "1万", forwards: "10万", read: "12", 
+    isRepost: true, 
+    originalAuthor: "TF_ING穆祉丞MUA", 
+    originalText: "If you want me to be with you\n\n#朝朝穆穆#\n\n查看翻译" 
+  },
+  { 
+    id: 11, 
+    text: "今天天气真不错，出门溜达溜达~顺便买杯奶茶！", 
+    time: "10-25", 
+    device: "来自 HarmonyOS设备", 
+    images: ["https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=400&auto=format&fit=crop"], 
+    likes: "120", comments: "5", forwards: "2", read: "6"
+  },
+  { 
+    id: 10, 
+    text: "小萌萌", 
+    time: "10-16", 
+    device: "来自 HarmonyOS设备", 
+    images: ["./data/avatar/miantuan.jpg", "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop"], 
+    likes: "186万", comments: "5万", forwards: "100万+", read: "55", 
+    isRepost: true, 
+    originalAuthor: "与橡树至世界尽头", 
+    originalText: "🐼➡️😡➡️啊打" 
+  }
 ];
 
-// 3. 艺人主页置顶数据（图2）
+// 3. 艺人主页置顶数据
 const ARTIST_PINNED_WEIBO = [
   { 
     id: 1, 
@@ -41,7 +70,7 @@ const ARTIST_PINNED_WEIBO = [
   { 
     id: 2, 
     isTop: true, 
-    text: "If you want me to be with you\n\n#朝朝穆穆#", 
+    text: "If you want me to be with you\n\n#朝朝穆穆#\n\n查看翻译", 
     time: "昨天 17:20", 
     device: "来自 微博视频号", 
     video: "./data/chat/1.mp4", 
@@ -49,29 +78,39 @@ const ARTIST_PINNED_WEIBO = [
   }
 ];
 
-// 4. 艺人新发动态（首页只显示这个）
+// 4. 艺人新发动态
 const ARTIST_NEW_WEIBO = [
   { 
     id: 3, 
-    text: "今天排练好累，但想到你们就不累了。#穆祉丞#", 
-    time: "10-16", 
+    text: "If you want me to be with you\n\n#朝朝穆穆#\n\n查看翻译", 
+    time: "昨天 17:20", 
+    device: "来自 微博视频号", 
+    video: "./data/chat/1.mp4", 
+    likes: "202万", comments: "69.3万", forwards: "100万+", hot: "30000+"
+  },
+  { 
+    id: 4, 
+    text: "根据图片写出文案\n\n#朝朝穆穆#", 
+    time: "10-22", 
     device: "来自 iPhone客户端", 
-    images: ["./data/avatar/mzc.jpg"], 
-    likes: "50万", comments: "10万", forwards: "20万", hot: "12000+"
+    images: [
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop"
+    ], 
+    likes: "150万", comments: "10万", forwards: "20万", hot: "15000+"
   }
 ];
 
 // 5. 关注列表数据
 const FOLLOW_DATA = [
-  { name: "TF_ING穆祉丞MUA", isArtist: true, desc: "北京时代峰峻旗下音乐厂牌...", latest: "If you want me to be with you...", supertopic: "穆祉丞超话", status: "特别关注", avatar: "./data/avatar/mzc.jpg" },
-  { name: "新浪娱乐", isArtist: false, desc: "新浪娱乐频道官方微博", latest: "【午间娱乐播报】#第二届...", supertopic: "新浪娱乐超话", status: "已关注", avatar: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=100&auto=format&fit=crop" },
-  { name: "钟嘉诚ZZzzz", isArtist: false, desc: "《声鸣远扬2025》选手...", latest: "很荣幸收到@MAC魅可的邀...", supertopic: "", status: "已关注", avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=100&auto=format&fit=crop" },
-  { name: "我们共同呼吸局部...", isArtist: false, desc: "爱恩记<Ɛ>. < 3ω", latest: "救救#穆祉丞[超话]#井为...", supertopic: "", status: "已关注", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop" }
+  { name: "TF_ING穆祉丞MUA", isArtist: true, desc: "北京时代峰峻旗下音乐厂牌...", latest: "If you want me to be with you...", supertopic: "穆祉丞超话", status: "特别关注", avatar: "./data/avatar/miantuan.jpg" },
+  { name: "新浪娱乐", isArtist: false, desc: "新浪娱乐频道官方微博", latest: "【午间娱乐播报】#第二届...", supertopic: "新浪娱乐超话", status: "已关注", avatar: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=100&auto=format&fit=crop" }
 ];
 
 // 6. 超话数据
 const SUPERTopic_DATA = [
-  { user: "我零食呢nn", isArtist: false, text: "#为穆祉丞守护星愿#\n“一百岁大家还会陪着我吗”", time: "刚刚 最后评论 已编辑", likes: "12", comments: "5", forwards: "1", images: ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&auto=format&fit=crop", "./data/avatar/mzc.jpg", "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=200&auto=format&fit=crop", "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop", "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=200&auto=format&fit=crop", "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=200&auto=format&fit=crop"] }
+  { user: "我零食呢nn", isArtist: false, text: "#为穆祉丞守护星愿#\n“一百岁大家还会陪着我吗”", time: "刚刚 最后评论 已编辑", likes: "12", comments: "5", forwards: "1", images: ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&auto=format&fit=crop", "./data/avatar/miantuan.jpg", "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=200&auto=format&fit=crop"] }
 ];
 
 const discoverIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/><circle cx="16" cy="8" r="5" fill="#ff3b30" stroke="none"/><text x="16" y="10" font-size="6" fill="#fff" text-anchor="middle" font-weight="bold">热</text></svg>`;
@@ -118,10 +157,16 @@ const WB_ACTION_BAR = (likes, comments, forwards) => `
   </div>
 `;
 
-const renderRepostCard = (w) => `
-  <div style="background:#f7f7f7; border-radius:8px; padding:12px; margin-bottom:12px; cursor:pointer;" onclick="event.stopPropagation(); window._wbData={type:'pinned', id:2}; push('weibo_detail');">
+// ✨ 如果是穆祉丞的转发，名字高亮并支持点击跳转 (去掉了名字后的V)
+const renderRepostCard = (w) => {
+  const isMzc = w.originalAuthor === "TF_ING穆祉丞MUA";
+  const clickAction = isMzc ? "push('weibo_artist')" : "toastDev()";
+  const authorColor = isMzc ? "#ff8200" : "#5c8bd6"; 
+  
+  return `
+  <div style="background:#f7f7f7; border-radius:8px; padding:12px; margin-bottom:12px;">
     <div style="font-size:14px; line-height:1.5; color:#333; margin-bottom:8px;">
-      <span style="color:#5c8bd6; font-weight:600;" onclick="event.stopPropagation(); push('weibo_artist')">@${w.originalAuthor}</span>：${esc(w.originalText)}
+      <span style="color:${authorColor}; font-weight:600;" onclick="event.stopPropagation(); ${clickAction}">@${w.originalAuthor}</span>：${esc(w.originalText)}
     </div>
     ${w.images && w.images.length > 0 ? `
       <div style="display:grid; grid-template-columns:repeat(${w.images.length === 1 ? 1 : w.images.length === 4 ? 2 : 3}, 1fr); gap:4px;">
@@ -133,13 +178,12 @@ const renderRepostCard = (w) => `
       </div>
     ` : ''}
   </div>
-`;
+  `;
+};
 
-// 👇 极度安全的话题高亮，不会崩溃
 function renderWeiboText(text) {
   if (!text) return '';
   let safeText = esc(text);
-  // 匹配话题变蓝
   safeText = safeText.replace(/#([^#]+?)#/g, '<span style="color:#5c8bd6;">#$1#</span>');
 
   if (text.length > 120) {
@@ -179,37 +223,66 @@ window.toggleWbLike = function(el, initialLikes) {
 };
 
 // ==========================================
-// 📱 页面 1：微博首页 (只显示新发动态)
+// 📱 页面 1：微博首页
 // ==========================================
 VIEWS.weibo = () => ({
   html: `
+    <!-- 最外层固定容器：只保留顶部状态栏和Tab栏 -->
     <div style="position:absolute; top:0; left:0; right:0; z-index:10; background:#fff;">
-      <div style="height:30px;"></div> 
-      <div style="display:flex; align-items:center; justify-content:space-around; height:44px; padding:0 16px;">
-        <div style="color:#666; font-size:18px; font-weight:bold; text-shadow:0 0 1px #ff8200, 0 0 1px #ff8200;">超话</div>
-        <div style="color:#666; font-size:16px;">推荐</div>
-        <div style="color:#111; font-size:17px; font-weight:700; position:relative;">特别关注<span style="position:absolute; bottom:-6px; left:0; right:0; height:3px; background:#ffc107; border-radius:2px;"></span></div>
-        <div style="display:flex; gap:12px;">
+      
+      <!-- 1. 顶部状态栏留白 -->
+      <div style="height:44px;"></div> 
+      
+      <!-- 2. 导航栏 (固定不动) -->
+      <div style="display:flex; align-items:center; justify-content:center; position:relative; height:44px;">
+        
+        <!-- 左侧：推荐 + 特别关注 (作为一组居中) -->
+        <div style="display:flex; align-items:center; gap:32px;">
+          <div style="color:#666; font-size:16px;">推荐</div>
+          
+          <!-- 特别关注区域 -->
+          <div style="display:flex; align-items:center; gap:4px; position:relative;">
+            <!-- 文字和黄线 -->
+            <div style="color:#111; font-size:17px; font-weight:700; position:relative;">
+              特别关注
+              <span style="position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); width:24px; height:3px; background:#ffc107; border-radius:2px;"></span>
+            </div>
+            <!-- 小黑三角 (向下) -->
+            <svg viewBox="0 0 10 6" width="10" height="6" fill="#111" style="margin-top:2px;">
+              <path d="M0 0l5 6 5-6H0z"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- 右侧：图标组 (绝对定位贴在最右边) -->
+        <div style="position:absolute; right:16px; display:flex; gap:12px;">
           <div onclick="toastDev()" style="width:24px; height:24px; background:#ff5d5d; border-radius:4px; display:grid; place-items:center; color:#ffd700; font-size:16px;">🧧</div>
           <div onclick="toastDev()" style="width:24px; height:24px; background:#ff8200; border-radius:50%; display:grid; place-items:center; color:#fff; font-size:20px; font-weight:300; line-height:1;">+</div>
         </div>
+
       </div>
-      <div onclick="toastDev()" style="display:flex; justify-content:space-between; align-items:center; padding:10px 16px; border-bottom:8px solid #f5f5f5; background:#fff;">
+    </div> <!-- 关闭最外层固定容器 -->
+
+    <!-- 帖子列表滚动区：把管理栏挪进来一起滑 -->
+    <div class="scroll" style="background:#f5f5f5; padding-top:88px; padding-bottom:80px;">
+      
+      <!-- 3. 管理特别关注栏 (现在可以跟着滑了) -->
+      <div onclick="toastDev()" style="display:flex; justify-content:space-between; align-items:center; padding:10px 16px; border-top:0.5px solid #eee; border-bottom:8px solid #f5f5f5; background:#fff;">
         <div style="display:flex; align-items:center; gap:6px; font-size:14px; color:#333;">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="#5c8bd6"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
           管理 特别关注
         </div>
         <div style="font-size:14px; color:#999;">1人</div>
       </div>
-    </div>
-    <div class="scroll" style="background:#f5f5f5; padding-top:120px; padding-bottom:80px;">
+
+      <!-- 4. 帖子列表 -->
       ${ARTIST_NEW_WEIBO.map(w => `
-        <div style="background:#fff; margin-bottom:10px; padding:16px;" onclick="window._wbData={type:'new',id:${w.id}}; push('weibo_detail');">
+        <div style="background:#fff; margin-bottom:10px; padding:16px;">
           <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px;">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <div style="width:44px; height:44px; border-radius:50%; overflow:hidden; background:#eee; position:relative;">
-                <img src="./data/avatar/mzc.jpg" style="width:100%; height:100%; object-fit:cover;">
-                <div style="position:absolute; bottom:-2px; right:-2px; background:#ff8200; color:#fff; font-size:9px; width:14px; height:14px; border-radius:50%; display:grid; place-items:center; border:1px solid #fff;">V</div>
+            <div style="display:flex; align-items:center; gap:10px;" onclick="event.stopPropagation(); push('weibo_artist')">
+              <div style="width:44px; height:44px; position:relative; flex:none;">
+                <img src="./data/avatar/miantuan.jpg" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                <div style="position:absolute; bottom:0; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:15px; height:15px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div>
               </div>
               <div>
                 <div style="font-size:16px; font-weight:600; color:#ff8200; display:flex; align-items:center; gap:4px;">TF_ING穆祉丞MUA <span style="font-size:14px;">👑</span></div>
@@ -250,135 +323,247 @@ VIEWS.weibo = () => ({
 });
 
 // ==========================================
-// 📱 页面 2：我的个人主页 (图1，去掉顶栏)
+// 📱 页面 2：我的个人主页
 // ==========================================
 VIEWS.weibo_profile = () => ({
   html: `
-       <div class="scroll" style="background:#f5f5f5; padding-top:54px; padding-bottom:80px;">
-       <div style="background:#fff; padding:16px;">
+       <div class="nav" id="wb-me-nav" style="position:absolute; z-index:6; top:0; left:0; right:0; height:98px; padding:54px 16px 0; display:flex; align-items:center; justify-content:space-between; background:transparent; transition: background 0.3s, box-shadow 0.3s;">
+         <button class="nb-back" onclick="back()" style="opacity:0; transition:opacity 0.3s;" id="wb-me-nav-back">${G.chevL}</button>
+         <div id="wb-me-nav-title" style="font-size:17px; font-weight:600; color:#111; opacity:0; transition:opacity 0.3s;">小狗团汪汪</div>
+         <div style="width:24px;"></div>
+       </div>
+       
+       <div class="scroll" id="wb-me-scroll" style="background:#f5f5f5; padding-top:0; padding-bottom:80px;">
+       
+       <div style="padding:54px 16px 0px;">
          <div style="display:flex; gap:16px;">
-           <div style="width:80px; height:80px; border-radius:50%; background:#eee; overflow:hidden; border:1px solid #eee;">
+           <div style="width:72px; height:72px; border-radius:50%; background:#eee; overflow:hidden; border:1px solid #eee;">
              <img src="${CFG.myAvatar || 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop'}" style="width:100%; height:100%; object-fit:cover;">
            </div>
            <div style="flex:1;">
-             <div style="font-size:20px; font-weight:700; color:#111; display:flex; align-items:center; gap:6px;">小狗团汪汪 <span style="background:linear-gradient(90deg,#ffd700,#ff8c00); color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:10px; transform:scale(0.9);">🧧 抢红包</span></div>
-             <div style="font-size:13px; color:#666; margin-top:6px;">简介：已有主人，勿扰</div>
-             <div onclick="toastDev()" style="display:inline-flex; align-items:center; gap:4px; background:#eaf7ea; color:#5cb85c; border-radius:12px; padding:2px 10px; font-size:12px; margin-top:8px;">在线 ></div>
+             <div style="font-size:18px; font-weight:700; color:#111; display:flex; align-items:center; gap:6px;">小狗团汪汪 <span style="background:linear-gradient(90deg,#ffd700,#ff8c00); color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:10px; transform:scale(0.9);">🧧 抢红包</span></div>
+             <div style="font-size:13px; color:#666; margin-top:4px;">简介：已有主人，勿扰</div>
+             <div onclick="toastDev()" style="display:inline-flex; align-items:center; gap:4px; background:#eaf7ea; color:#5cb85c; border-radius:12px; padding:2px 10px; font-size:11px; margin-top:6px;">在线 ></div>
            </div>
          </div>
        </div>
-       <div style="background:#fff; padding:0 16px 16px;">
-          <div onclick="toastDev()" style="background:linear-gradient(90deg, #fdf3f3, #fce4e4); border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; border:1px solid #f0e0e0; position:relative; overflow:hidden;">
-             <div style="position:absolute; right:40px; top:0; height:100%; width:100px; background:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&auto=format&fit=crop') center/cover; opacity:0.2; mask-image:linear-gradient(to right, transparent, black); -webkit-mask-image:linear-gradient(to right, transparent, black);"></div>
-             <div style="color:#b25e5e; font-size:14px; font-weight:600; z-index:2;">👑 新户专享价<br><span style="font-size:11px; font-weight:400;">点亮皇冠送会员时长 ></span></div>
-             <div style="background:#fff; color:#b25e5e; font-size:12px; font-weight:600; padding:6px 14px; border-radius:14px; box-shadow:0 2px 4px rgba(0,0,0,0.05); z-index:2;">去看看</div>
+       
+       <div style="display:grid; grid-template-columns:repeat(4, 1fr); padding:12px 24px 0px;">
+          <div style="text-align:center; cursor:pointer;" onclick="push('weibo_my_posts')">
+            <div style="font-size:18px; font-weight:600; color:#111; font-family:-apple-system, sans-serif;">112</div>
+            <div style="font-size:12px; color:#999; margin-top:2px;">微博</div>
+          </div>
+          <div style="text-align:center; cursor:pointer;" onclick="push('weibo_follows')">
+            <div style="font-size:18px; font-weight:600; color:#111; font-family:-apple-system, sans-serif;">1</div>
+            <div style="font-size:12px; color:#999; margin-top:2px;">关注</div>
+          </div>
+          <div style="text-align:center;" onclick="toastDev()">
+            <div style="font-size:18px; font-weight:600; color:#111; font-family:-apple-system, sans-serif;">8</div>
+            <div style="font-size:12px; color:#999; margin-top:2px;">粉丝</div>
+          </div>
+          <div style="text-align:center; position:relative;" onclick="toastDev()">
+            <div style="position:absolute; top:0; left:55%; width:6px; height:6px; background:#ff3b30; border-radius:50%;"></div>
+            <div style="font-size:18px; font-weight:600; color:#111; font-family:-apple-system, sans-serif;">36</div>
+            <div style="font-size:12px; color:#999; margin-top:2px;">访客</div>
           </div>
        </div>
-       <div style="background:#fff; display:flex; justify-content:space-between; padding:16px 24px; border-bottom:8px solid #f5f5f5;">
-          <div style="text-align:center; cursor:pointer;" onclick="push('weibo_my_posts')"><div style="font-size:18px; font-weight:700; color:#111;">112</div><div style="font-size:13px; color:#999;">微博</div></div>
-          <div style="text-align:center; cursor:pointer;" onclick="push('weibo_follows')"><div style="font-size:18px; font-weight:700; color:#111;">1</div><div style="font-size:13px; color:#999;">关注</div></div>
-          <div style="text-align:center;" onclick="toastDev()"><div style="font-size:18px; font-weight:700; color:#111;">8</div><div style="font-size:13px; color:#999;">粉丝</div></div>
-          <div style="text-align:center;" onclick="toastDev()"><div style="font-size:18px; font-weight:700; color:#111;">36</div><div style="font-size:13px; color:#999;">访客</div></div>
-       </div>
-       <div style="background:#fff; margin:10px 12px; border-radius:12px; padding:16px;">
-         <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px 0; text-align:center; font-size:12px; color:#333;">
-           <div onclick="toastDev()"><div style="font-size:28px; margin-bottom:6px;">🖼️</div>我的相册</div>
-           <div onclick="toastDev()"><div style="font-size:28px; margin-bottom:6px;">⭐</div>赞/收藏</div>
-           <div onclick="toastDev()"><div style="font-size:28px; margin-bottom:6px;">🕒</div>浏览记录</div>
-           <div onclick="toastDev()"><div style="font-size:28px; margin-bottom:6px;">📝</div>草稿箱</div>
-           <div onclick="toastDev()" style="position:relative;"><div style="font-size:28px; margin-bottom:6px;">👛</div>我的钱包<div style="position:absolute; top:-2px; right:8px; width:6px; height:6px; background:#ff3b30; border-radius:50%;"></div></div>
-           <div onclick="toastDev()"><div style="font-size:28px; margin-bottom:6px;">🛍️</div>微博购订单</div>
-           <div onclick="toastDev()"><div style="font-size:28px; margin-bottom:6px;">💡</div>创作中心</div>
-           <div onclick="toastDev()"><div style="font-size:28px; margin-bottom:6px;">📅</div>粉丝头条</div>
+             
+       <div style="background:#fff; margin:10px 12px; border-radius:12px; padding:16px 12px 12px;">
+         <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px 0; text-align:center; font-size:13px; color:#222;">
+           
+           <div onclick="toastDev()">
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">
+               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="#ff8200" stroke="none"/><polyline points="21 15 16 10 5 21" stroke="#222"/></svg>
+             </div>
+             我的相册
+           </div>
+           
+           <div onclick="toastDev()">
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">
+               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polygon points="12 7 13.5 10.5 17 11 14.5 13.5 15 17 12 15.5 9 17 9.5 13.5 7 11 10.5 10.5" fill="#ff8200" stroke="none"/></svg>
+             </div>
+             赞/收藏
+           </div>
+           
+           <div onclick="toastDev()">
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">
+               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2" stroke="#ff8200"/></svg>
+             </div>
+             浏览记录
+           </div>
+           
+           <div onclick="toastDev()">
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">
+               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13l-4 4-2 1 1-2 4-4a1.4 1.4 0 0 1 2 2z" fill="#ff8200" stroke="none"/></svg>
+             </div>
+             草稿箱
+           </div>
+           
+           <div onclick="toastDev()" style="position:relative;">
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">
+               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M7 6V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2"/><circle cx="17" cy="15" r="2.5" fill="#ff8200" stroke="none"/></svg>
+             </div>
+             我的钱包
+             <div style="position:absolute; top:-2px; right:12px; width:8px; height:8px; background:#ff3b30; border-radius:50%;"></div>
+           </div>
+           
+           <div onclick="toastDev()">
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">
+               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0" stroke="#ff8200"/></svg>
+             </div>
+             微博购订单
+           </div>
+           
+           <div onclick="toastDev()">
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">
+               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7z"/><path d="M12 8l-2 4h4l-2 3" stroke="#ff8200"/></svg>
+             </div>
+             创作中心
+           </div>
+           
+           <div onclick="toastDev()">
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">
+               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 15h8" stroke="#ff8200" stroke-width="2.5"/></svg>
+             </div>
+             粉丝头条
+           </div>
+
          </div>
        </div>
-       <div style="background:#fff; margin:10px 12px; border-radius:12px; padding:16px;">
-         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+
+       <div style="background:#fff; margin:0 12px 10px; border-radius:12px; padding:14px 16px;">
+         <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
            <div onclick="toastDev()" style="display:flex; align-items:center; justify-content:space-between;">
-             <div><div style="font-size:15px; font-weight:700; color:#111;">任务中心</div><div style="font-size:12px; color:#c26a32; margin-top:4px;">今日待领670积分</div></div>
-             <div style="font-size:24px;">🧧</div>
+             <div><div style="font-size:14px; font-weight:700; color:#111;">任务中心</div><div style="font-size:12px; color:#c26a32; margin-top:2px;">今日待领670积分</div></div>
+             <div style="font-size:22px;">🧧</div>
            </div>
            <div onclick="toastDev()" style="display:flex; align-items:center; justify-content:space-between;">
-             <div><div style="font-size:15px; font-weight:700; color:#111;">🍁 金秋答题赛</div><div style="font-size:12px; color:#c26a32; margin-top:4px;">参与瓜分十万现金</div></div>
-             <div style="font-size:24px;">💰</div>
+             <div><div style="font-size:14px; font-weight:700; color:#111;">🍁 金秋答题赛</div><div style="font-size:12px; color:#c26a32; margin-top:2px;">参与瓜分十万现金</div></div>
+             <div style="font-size:22px;">💰</div>
            </div>
-           <div onclick="toastDev()" style="display:flex; align-items:center; justify-content:space-between; border-top:0.5px solid #eee; padding-top:12px;">
-             <div><div style="font-size:15px; font-weight:700; color:#111;">每日签到</div><div style="font-size:12px; color:#c26a32; margin-top:4px;">点击领10积分</div></div>
-             <div style="background:#ff8200; color:#fff; font-size:12px; padding:4px 12px; border-radius:12px;">签到</div>
+           <div onclick="toastDev()" style="display:flex; align-items:center; justify-content:space-between; border-top:0.5px solid #eee; padding-top:10px;">
+             <div><div style="font-size:14px; font-weight:700; color:#111;">每日签到</div><div style="font-size:12px; color:#c26a32; margin-top:2px;">点击领10积分</div></div>
+             <div style="background:#ff8200; color:#fff; font-size:12px; padding:2px 10px; border-radius:12px;">签到</div>
            </div>
-           <div onclick="toastDev()" style="display:flex; align-items:center; justify-content:space-between; border-top:0.5px solid #eee; padding-top:12px;">
-             <div><div style="font-size:15px; font-weight:700; color:#111;">🍔 环球美食嘉年华</div><div style="font-size:12px; color:#c26a32; margin-top:4px;">答题瓜分十万奖池</div></div>
-             <div style="font-size:24px;">🎁</div>
+           <div onclick="toastDev()" style="display:flex; align-items:center; justify-content:space-between; border-top:0.5px solid #eee; padding-top:10px;">
+             <div><div style="font-size:14px; font-weight:700; color:#111;">🍔 环球美食嘉年华</div><div style="font-size:12px; color:#c26a32; margin-top:2px;">答题瓜分十万奖池</div></div>
+             <div style="font-size:22px;">🎁</div>
            </div>
          </div>
        </div>
-       <div style="background:#fff; margin:10px 12px; border-radius:12px; padding:16px;">
-         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div style="font-size:16px; font-weight:700; color:#111;">我的钱包</div><div onclick="toastDev()" style="font-size:13px; color:#999;">查看详情 ></div></div>
+
+       <div style="background:#fff; margin:0 12px 10px; border-radius:12px; padding:14px 16px;">
+         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-size:15px; font-weight:700; color:#111;">我的钱包</div><div onclick="toastDev()" style="font-size:13px; color:#999;">查看详情 ></div></div>
          <div style="display:flex; justify-content:space-between; text-align:center;">
-           <div onclick="toastDev()" style="position:relative;"><div style="font-size:16px; font-weight:700; color:#111;">1.22万</div><div style="font-size:12px; color:#999; margin-top:4px;">可借额度</div><div style="position:absolute; top:-4px; left:0; width:6px; height:6px; background:#ff3b30; border-radius:50%;"></div></div>
-           <div onclick="toastDev()"><div style="font-size:16px; font-weight:700; color:#111;">租·手机</div><div style="font-size:12px; color:#999; margin-top:4px;">抢iphone18</div></div>
-           <div onclick="toastDev()"><div style="font-size:16px; font-weight:700; color:#111;">✨5888✨</div><div style="font-size:12px; color:#999; margin-top:4px;">应急额度</div></div>
-           <div onclick="toastDev()"><div style="font-size:16px; font-weight:700; color:#111;">钱包</div><div style="font-size:12px; color:#999; margin-top:4px;">金融资产</div></div>
+           <div onclick="toastDev()" style="position:relative;"><div style="font-size:15px; font-weight:700; color:#111;">1.22万</div><div style="font-size:11px; color:#999; margin-top:2px;">可借额度</div><div style="position:absolute; top:-2px; left:0; width:6px; height:6px; background:#ff3b30; border-radius:50%;"></div></div>
+           <div onclick="toastDev()"><div style="font-size:15px; font-weight:700; color:#111;">租·手机</div><div style="font-size:11px; color:#999; margin-top:2px;">抢iphone18</div></div>
+           <div onclick="toastDev()"><div style="font-size:15px; font-weight:700; color:#111;">✨5888✨</div><div style="font-size:11px; color:#999; margin-top:2px;">应急额度</div></div>
+           <div onclick="toastDev()"><div style="font-size:15px; font-weight:700; color:#111;">钱包</div><div style="font-size:11px; color:#999; margin-top:2px;">金融资产</div></div>
          </div>
        </div>
-       <div style="background:#fff; margin:10px 12px; border-radius:12px; padding:16px; padding-bottom:8px;">
-         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div style="font-size:16px; font-weight:700; color:#111;">我的经常访问</div><div onclick="toastDev()" style="font-size:13px; color:#999;">有更新 ></div></div>
-         <div style="display:flex; gap:16px; overflow-x:auto; scrollbar-width:none; padding-bottom:8px;">
-           <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex:none;" onclick="toastDev()">
-             <div style="width:56px; height:56px; border-radius:50%; overflow:hidden; border:1px solid #eee; position:relative;"><img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop" style="width:100%; height:100%; object-fit:cover;"><div style="position:absolute; bottom:0; right:0; background:#ff8200; color:#fff; font-size:9px; width:14px; height:14px; border-radius:50%; display:grid; place-items:center; border:1px solid #fff;">V</div></div>
+
+       <div style="background:#fff; margin:0 12px 10px; border-radius:12px; padding:14px 16px;">
+         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-size:15px; font-weight:700; color:#111;">我的经常访问</div><div onclick="toastDev()" style="font-size:13px; color:#999;">有更新 ></div></div>
+         <div style="display:flex; gap:16px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px;">
+           <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:none;" onclick="toastDev()">
+             <div style="width:48px; height:48px; border:1px solid #eee; border-radius:50%; position:relative;"><img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:16px; height:16px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div></div>
              <span style="font-size:12px; color:#333;">内八小...</span>
              <span style="font-size:10px; color:#999;">访问1次</span>
            </div>
-           <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex:none;" onclick="push('weibo_artist')">
-             <div style="width:56px; height:56px; border-radius:50%; overflow:hidden; border:1px solid #eee; position:relative;"><img src="./data/avatar/mzc.jpg" style="width:100%; height:100%; object-fit:cover;"><div style="position:absolute; bottom:0; right:0; background:#ff8200; color:#fff; font-size:9px; width:14px; height:14px; border-radius:50%; display:grid; place-items:center; border:1px solid #fff;">V</div></div>
+           <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:none;" onclick="push('weibo_artist')">
+             <div style="width:48px; height:48px; border:1px solid #eee; border-radius:50%; position:relative;"><img src="./data/avatar/miantuan.jpg" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:16px; height:16px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div></div>
              <span style="font-size:12px; color:#333;">TF_ING穆...</span>
              <span style="font-size:10px; color:#999;">访问1次</span>
            </div>
          </div>
-         <div onclick="toastDev()" style="display:flex; justify-content:space-between; align-items:center; border-top:0.5px solid #f0f0f0; padding-top:12px; margin-top:4px;">
-            <span style="font-size:12px; color:#666;">添加桌面组件，随时关注博主动态</span>
-            <span style="font-size:12px; color:#ff8200; font-weight:600;">去添加 ></span>
-         </div>
        </div>
-       <div style="background:#fff; margin:10px 12px 20px; border-radius:12px; padding:16px;">
-         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div style="font-size:16px; font-weight:700; color:#111;">超话社区</div><div onclick="toastDev()" style="font-size:13px; color:#999;">立即签到 ></div></div>
+       
+       <div style="background:#fff; margin:0 12px 20px; border-radius:12px; padding:14px 16px;">
+         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+           <div style="font-size:15px; font-weight:700; color:#111;">超话社区</div>
+           <div onclick="toastDev()" style="font-size:13px; color:#999;">立即签到 ></div>
+         </div>
          <div style="display:flex; gap:12px; overflow-x:auto; scrollbar-width:none;">
-           <div style="flex:none; width:76px; text-align:center;" onclick="push('weibo_supertopic')">
-             <div style="width:76px; height:76px; border-radius:8px; overflow:hidden; background:#f5f5f5; position:relative;">
-               <img src="./data/avatar/mzc.jpg" style="width:100%; height:100%; object-fit:cover;">
+           <div style="flex:none; width:58px; text-align:center;" onclick="openSuperTopic()">
+             <div style="width:58px; height:58px; border-radius:8px; overflow:hidden; background:#f5f5f5; position:relative;">
+               <img src="./data/avatar/miantuan.jpg" style="width:100%; height:100%; object-fit:cover;">
                <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(255,130,0,0.8); color:#fff; font-size:10px; text-align:center; padding:2px 0;">待签</div>
              </div>
              <div style="font-size:13px; font-weight:600; color:#333; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">穆祉丞</div>
-             <div style="font-size:10px; color:#999;">日新帖10.1万</div>
+             <div style="font-size:10px; color:#999;">日新帖11.8万</div>
            </div>
-           <div style="flex:none; width:76px; text-align:center;" onclick="toastDev()">
-             <div style="width:76px; height:76px; border-radius:8px; overflow:hidden; background:#f5f5f5; position:relative;">
+           
+           <div style="flex:none; width:58px; text-align:center;" onclick="toastDev()">
+             <div style="width:58px; height:58px; border-radius:8px; overflow:hidden; background:#f5f5f5; position:relative;">
                <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=200&auto=format&fit=crop" style="width:100%; height:100%; object-fit:cover;">
                <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(255,130,0,0.8); color:#fff; font-size:10px; text-align:center; padding:2px 0;">待签</div>
              </div>
-             <div style="font-size:13px; font-weight:600; color:#333; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">童禹坤周...</div>
-             <div style="font-size:10px; color:#999;">日新帖82</div>
+             <div style="font-size:13px; font-weight:600; color:#333; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">团穆</div>
+             <div style="font-size:10px; color:#999;">日新帖4</div>
            </div>
-           <div style="flex:none; width:76px; text-align:center;" onclick="toastDev()">
-             <div style="width:76px; height:76px; border-radius:8px; overflow:hidden; background:#f5f5f5; position:relative;">
+           
+           <div style="flex:none; width:58px; text-align:center;" onclick="toastDev()">
+             <div style="width:58px; height:58px; border-radius:8px; overflow:hidden; background:#f5f5f5; position:relative;">
+               <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop" style="width:100%; height:100%; object-fit:cover;">
+               <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(90,200,250,0.8); color:#fff; font-size:10px; text-align:center; padding:2px 0;">推荐</div>
+             </div>
+             <div style="font-size:13px; font-weight:600; color:#333; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">C罗</div>
+             <div style="font-size:10px; color:#999;">日新帖42</div>
+           </div>
+           
+           <div style="flex:none; width:58px; text-align:center;" onclick="toastDev()">
+             <div style="width:58px; height:58px; border-radius:8px; overflow:hidden; background:#f5f5f5; position:relative;">
                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop" style="width:100%; height:100%; object-fit:cover;">
                <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(90,200,250,0.8); color:#fff; font-size:10px; text-align:center; padding:2px 0;">推荐</div>
              </div>
-             <div style="font-size:13px; font-weight:600; color:#333; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">肖战</div>
+             <div style="font-size:13px; font-weight:600; color:#333; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">穆梦补给站</div>
              <div style="font-size:10px; color:#999;">当前热门</div>
+           </div>
+
+           <div style="flex:none; width:58px; text-align:center;" onclick="toastDev()">
+             <div style="width:58px; height:58px; border-radius:8px; overflow:hidden; background:#f5f5f5; position:relative;">
+               <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&auto=format&fit=crop" style="width:100%; height:100%; object-fit:cover;">
+               <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(255,130,0,0.8); color:#fff; font-size:10px; text-align:center; padding:2px 0;">待签</div>
+             </div>
+             <div style="font-size:13px; font-weight:600; color:#333; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">all穆</div>
+             <div style="font-size:10px; color:#999;">周新帖7</div>
            </div>
          </div>
        </div>
+
     </div>
-    ${getWBTabbar('me')}`
+    ${getWBTabbar('me')}`,
+  init: (pg) => {
+    const nav = pg.querySelector('#wb-me-nav');
+    const title = pg.querySelector('#wb-me-nav-title');
+    const backBtn = pg.querySelector('#wb-me-nav-back');
+    const scroll = pg.querySelector('#wb-me-scroll');
+    if (scroll && nav && title) {
+      scroll.addEventListener('scroll', () => {
+        if (scroll.scrollTop > 40) {
+          nav.style.background = 'rgba(255, 255, 255, 0.96)';
+          nav.style.backdropFilter = 'blur(10px)';
+          nav.style.boxShadow = '0 0.5px 0 #eee';
+          title.style.opacity = '1';
+          if(backBtn) backBtn.style.opacity = '1';
+        } else {
+          nav.style.background = 'transparent';
+          nav.style.backdropFilter = 'none';
+          nav.style.boxShadow = 'none';
+          title.style.opacity = '0';
+          if(backBtn) backBtn.style.opacity = '0';
+        }
+      });
+    }
+  }
 });
 
 // ==========================================
 // 📱 页面 3：我的关注
 // ==========================================
 VIEWS.weibo_follows = () => ({
-  html: navHTML({ title: "关注", back: "返回", backFn: "back()", right: `<span onclick="toastDev()" style="color:#111; font-size:15px;">发现用户</span>` }) +
-    `<div class="scroll" style="background:#f5f5f5; padding-top:88px; padding-bottom:20px;">
+  html: navHTML({ title: "关注", back: "", solid: true, right: `<span onclick="toastDev()" style="color:#111; font-size:15px;">发现用户</span>` }) +
+    `<div class="scroll" style="background:#f5f5f5; padding-top:98px; padding-bottom:20px;">
       <div style="display:flex; justify-content:space-around; background:#fff; padding:12px 0; border-bottom:0.5px solid #eee; font-size:15px; color:#666;">
         <span style="font-weight:700; color:#111; position:relative;">关注的人<span style="position:absolute; bottom:-12px; left:50%; transform:translateX(-50%); width:20px; height:3px; background:#ffc107; border-radius:2px;"></span></span>
         <span onclick="toastDev()">经常访问</span>
@@ -396,9 +581,9 @@ VIEWS.weibo_follows = () => ({
       </div>
       ${FOLLOW_DATA.map(u => `
         <div style="background:#fff; padding:16px; display:flex; gap:12px; border-bottom:0.5px solid #eee; cursor:pointer;" onclick="if(${u.isArtist}) push('weibo_artist'); else toastDev();">
-          <div style="width:50px; height:50px; border-radius:50%; overflow:hidden; flex:none; position:relative;">
-            <img src="${u.avatar}" style="width:100%; height:100%; object-fit:cover;">
-            ${u.isArtist ? `<div style="position:absolute; bottom:0; right:0; background:#ff8200; color:#fff; font-size:9px; width:14px; height:14px; border-radius:50%; display:grid; place-items:center; border:1px solid #fff;">V</div>` : ''}
+          <div style="width:50px; height:50px; flex:none; position:relative;">
+            <img src="${u.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+            ${u.isArtist ? `<div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:16px; height:16px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div>` : ''}
           </div>
           <div style="flex:1; min-width:0;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -425,8 +610,8 @@ VIEWS.weibo_follows = () => ({
 // 📱 页面 4：我-微博列表
 // ==========================================
 VIEWS.weibo_my_posts = () => ({
-  html: navHTML({ title: "微博", back: "返回", backFn: "back()", right: `<span onclick="toastDev()" style="cursor:pointer">${G.gear}</span>` }) +
-    `<div class="scroll" style="background:#f5f5f5; padding-top:88px; padding-bottom:20px;">
+  html: navHTML({ title: "微博", back: "", solid: true, right: `<span onclick="toastDev()" style="cursor:pointer">${G.gear}</span>` }) +
+    `<div class="scroll" style="background:#f5f5f5; padding-top:98px; padding-bottom:20px;">
       <div style="display:flex; overflow-x:auto; white-space:nowrap; font-size:15px; color:#666; border-bottom:0.5px solid #eee; background:#fff; scrollbar-width:none;">
         <div style="padding:12px 16px; font-weight:700; color:#111; position:relative;">全部<span style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:24px; height:3px; background:#ff8200; border-radius:2px;"></span></div>
         <div style="padding:12px 16px;" onclick="toastDev()">超话帖</div>
@@ -461,7 +646,7 @@ VIEWS.weibo_my_posts = () => ({
         <span onclick="toastDev()">☰ 筛选</span>
       </div>
       ${DATA_WEIBO_DATA.map(w => `
-        <div style="background:#fff; margin-bottom:10px; padding:16px;" onclick="window._wbData={type:'my',id:${w.id}}; push('weibo_detail');">
+        <div style="background:#fff; margin-bottom:10px; padding:16px;">
           <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px; color:#666; font-size:12px;">
              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11V7a2 2 0 0 1 2-2h10l4 4v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/><path d="m4 11 4-4"/></svg> 公开
           </div>
@@ -492,98 +677,192 @@ VIEWS.weibo_my_posts = () => ({
 // 📱 页面 5：艺人主页
 // ==========================================
 VIEWS.weibo_artist = () => ({
-  html: navHTML({ title: "TF_ING穆祉丞MUA", back: "返回", backFn: "back()", right: `<span onclick="toastDev()" style="cursor:pointer">${G.search}</span><span onclick="toastDev()" style="cursor:pointer; margin-left:16px;">${G.dotsH}</span>` }) +
-    `<div class="scroll" style="background:#f5f5f5; padding-bottom:20px; padding-top:0;">
-       <div style="position:relative; height:180px; background:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop') center/cover; margin-top:-98px;">
-         <div style="position:absolute; top:98px; width:100%; text-align:center; color:#fff; font-size:13px; text-shadow:0 1px 3px rgba(0,0,0,0.5); padding-top:44px;">访问量 71万+</div>
-         <div style="position:absolute; bottom:-30px; left:16px; width:80px; height:80px; border-radius:50%; border:3px solid #fff; overflow:hidden; background:#fff;">
-            <img src="./data/avatar/mzc.jpg" style="width:100%; height:100%; object-fit:cover;">
+  html: `
+       <div class="nav" id="wb-artist-nav" style="color:#fff; position:absolute; z-index:6; top:0; left:0; right:0; height:98px; padding:54px 16px 0; display:flex; align-items:center; justify-content:space-between; background:transparent; transition: background 0.3s, box-shadow 0.3s;">
+         <button class="nb-back" id="wb-artist-back" onclick="back()" style="color:#fff; transition: color 0.3s;">${G.chevL}</button>
+         
+         <div id="wb-artist-title" style="position:absolute; left:50%; transform:translateX(-50%); font-size:17px; font-weight:600; color:#111; opacity:0; transition: opacity 0.3s;">TF_ING穆祉丞MUA</div>
+         
+         <div id="wb-artist-right" style="display:flex; gap:16px; color:#fff; transition: color 0.3s;">
+           <span onclick="toastDev()">${G.search}</span>
+           <span onclick="toastDev()">${G.dotsH}</span>
          </div>
        </div>
-       <div style="background:#fff; padding:42px 16px 16px;">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="font-size:20px; font-weight:700; color:#111;">TF_ING穆祉丞MUA</span>
-            <span style="color:#5ac8fa; font-size:14px;">♂</span>
-            <span style="background:linear-gradient(90deg,#ffd700,#ff8c00); color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px;">👑 SVIP8</span>
+
+       <div class="scroll" id="wb-artist-scroll" style="background:#f5f5f5; padding-bottom:20px; padding-top:0;">
+       
+       <div style="position:relative; height:310px; background:url('./data/weibo/background.jpg') center/cover; margin-top:-98px;">
+         <div style="position:absolute; top:98px; width:100%; text-align:center; color:#fff; font-size:13px; text-shadow:0 1px 3px rgba(0,0,0,0.5); padding-top:70px; font-weight:500;">访问量 66万+</div>
+       </div>
+
+       <div style="background:#fff; padding:0 16px 16px; border-radius:20px 20px 0 0; margin-top:-20px; position:relative; z-index:2;">
+          
+          <div style="display:flex; align-items:flex-end; gap:12px; margin-bottom:12px;">
+             <div style="margin-top:-48px; width:96px; height:96px; border-radius:50%; border:4px solid #fff; background:#fff; position:relative; z-index:10; box-shadow:0 2px 10px rgba(0,0,0,0.05); flex:none;">
+                <img src="./data/avatar/miantuan.jpg" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                <div style="position:absolute; bottom:0px; right:0px; background:#ff3b30; color:#fff; font-size:12px; width:24px; height:24px; border-radius:50%; display:grid; place-items:center; border:2px solid #fff; font-weight:bold; z-index:20;">V</div>
+             </div>
+
+             <div style="flex:1; display:flex; align-items:center; gap:6px; padding-bottom:8px;">
+               <span style="font-size:17px; font-weight:700; color:#111;">TF_ING穆祉丞MUA</span>
+               <span style="color:#5ac8fa; font-size:16px; font-weight:bold;">♂</span>
+               <div style="background:linear-gradient(90deg,#ffd700,#ff8c00); color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px; display:flex; align-items:center; gap:2px;">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="#fff"><path d="M2 18h20L20 7l-5 4-3-6-3 6-5-4z"/></svg> SVIP8
+               </div>
+             </div>
           </div>
-          <div style="display:flex; gap:16px; margin-top:12px; font-size:13px; color:#666;">
-            <span><b style="font-size:16px; color:#111;">544.2万</b> 粉丝</span>
-            <span><b style="font-size:16px; color:#111;">68</b> 关注</span>
-            <span><b style="font-size:16px; color:#111;">19.14亿</b> 转评赞</span>
+          
+          <div style="display:flex; gap:20px; font-size:12px; color:#666; align-items:baseline;">
+            <span><b style="font-size:15px; color:#111;">544.2万</b> 粉丝</span>
+            <span><b style="font-size:15px; color:#111;">68</b> 关注</span>
+            <span><b style="font-size:15px; color:#111;">19.24亿</b> 转评赞</span>
           </div>
-          <div style="display:flex; gap:10px; margin-top:16px;">
-            <div onclick="push('weibo_supertopic')" style="flex:1; background:#f8f8f8; border-radius:8px; padding:10px; display:flex; align-items:center; gap:10px;">
-              <div style="width:36px; height:36px; border-radius:4px; background:linear-gradient(135deg,#ffd700,#ff8c00); display:grid; place-items:center; color:#fff; font-size:18px;">💎</div>
-              <div>
-                <div style="font-size:14px; font-weight:700; color:#111;">超话</div>
-                <div style="font-size:11px; color:#999; margin-top:2px;">194万小纸团</div>
+
+          <div style="display:flex; gap:8px; margin-top:12px; font-size:12px;">
+             <span style="background:#fff0eb; color:#ff8200; padding:4px 8px; border-radius:4px;">V指数 文娱 93.37分</span>
+             <span style="background:#fff0eb; color:#ff8200; padding:4px 8px; border-radius:4px;">娱乐明星领域 互动数飙升</span>
+          </div>
+          <div style="margin-top:12px; font-size:13px; color:#666; display:flex; align-items:center; gap:6px;">
+             <svg viewBox="0 0 24 24" width="16" height="16" fill="#b3b3b3"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"/></svg>
+             北京时代峰峻旗下音乐厂牌TF_ING成员 穆祉丞
+          </div>
+
+          <div style="display:flex; gap:10px; margin-top:18px;">
+            <div onclick="openSuperTopic()" style="flex:1; background:#f7f7f7; border-radius:8px; padding:12px; display:flex; align-items:center; gap:8px;">
+              <div style="width:36px; height:36px; display:grid; place-items:center; flex:none;">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#666" stroke-width="1.6" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M12 21V9M6 3l6 6 6-6"/></svg>
               </div>
+              <div style="flex:1; overflow:hidden;">
+                <div style="font-size:15px; font-weight:600; color:#333;">超话</div>
+                <div style="font-size:11px; color:#999; margin-top:2px; white-space:nowrap;">194.2万小<br>纸团</div>
+              </div>
+              <div style="width:40px; height:40px; border-radius:4px; background:url('./data/avatar/miantuan.jpg') center/cover; flex:none;"></div>
             </div>
-            <div onclick="toastDev()" style="flex:1; background:#f8f8f8; border-radius:8px; padding:10px; display:flex; align-items:center; gap:10px;">
-              <div style="width:36px; height:36px; border-radius:4px; background:#ff8200; display:grid; place-items:center; color:#fff; font-size:18px;">📺</div>
-              <div>
-                <div style="font-size:14px; font-weight:700; color:#111;">直播</div>
+            
+            <div onclick="toastDev()" style="flex:1; background:#f7f7f7; border-radius:8px; padding:12px; display:flex; align-items:center; gap:8px;">
+              <div style="width:36px; height:36px; display:grid; place-items:center; flex:none;">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#666" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="m17 2-5 4-5-4"/><path d="m10 11 5 3-5 3z" fill="#666"/></svg>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:15px; font-weight:600; color:#333;">直播</div>
                 <div style="font-size:11px; color:#999; margin-top:2px;">查看精彩回放</div>
               </div>
             </div>
           </div>
        </div>
-       <div style="background:#fff; display:flex; padding:12px 16px; border-bottom:0.5px solid #eee; gap:24px; font-size:15px; color:#666;">
-         <span>动态</span>
-         <span style="font-weight:700; color:#111; position:relative;">微博<span style="position:absolute; bottom:-12px; left:50%; transform:translateX(-50%); width:20px; height:3px; background:#ff8200; border-radius:2px;"></span></span>
-         <span>视频</span>
-         <span>超话</span>
-         <span>音频</span>
+
+       <div style="background:#fff; display:flex; padding:14px 0; border-bottom:0.5px solid #eee; font-size:15px; color:#666; margin-top:8px; justify-content:space-around; align-items:center;">
+         <div style="text-align:center;">动态</div>
+         <div style="font-weight:700; color:#111; position:relative; text-align:center;">
+           微博
+           <div style="position:absolute; bottom:-15px; left:50%; transform:translateX(-50%); width:20px; height:3px; background:#ff8200; border-radius:2px;"></div>
+         </div>
+         <div style="text-align:center;">视频</div>
+         <div style="text-align:center;">超话</div>
+         <div style="text-align:center;">音频</div>
        </div>
-       <div style="padding:10px 0;">
+
+       <div style="background:#f5f5f5; padding:10px 16px; display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#666;">
+          <span>全部微博(919)</span>
+          <span onclick="toastDev()" style="display:flex; align-items:center; gap:4px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h16"/></svg> 筛选
+          </span>
+       </div>
+
+       <div style="background:#fff; display:flex; gap:8px; padding:8px 12px 12px;">
+         <div style="flex:1; background:#f9f9f9; border-radius:4px; padding:8px 0; display:flex; justify-content:center; align-items:center; gap:4px; font-size:12px; color:#333; white-space:nowrap;">
+           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 原创 ▾
+         </div>
+         <div style="flex:1; background:#f9f9f9; border-radius:4px; padding:8px 0; display:flex; justify-content:center; align-items:center; gap:4px; font-size:12px; color:#333; white-space:nowrap;">
+           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> 赞 ▾
+         </div>
+         <div style="flex:1; background:#f9f9f9; border-radius:4px; padding:8px 0; display:flex; justify-content:center; align-items:center; gap:4px; font-size:12px; color:#333; white-space:nowrap;">
+           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> 热门音频 ▾
+         </div>
+         <div style="flex:1; background:#f9f9f9; border-radius:4px; padding:8px 0; display:flex; justify-content:center; align-items:center; gap:4px; font-size:12px; color:#333; white-space:nowrap;">
+           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg> 近期热门 ▾
+         </div>
+       </div>
+
+       <div style="background:#fff; border-top:0.5px solid #f5f5f5; margin-bottom:8px;">
+         <div style="font-size:13px; color:#666; padding:12px 16px; border-bottom:0.5px solid #f5f5f5;">你已关注他127天</div>
+         <div style="display:flex; gap:16px; font-size:13px; color:#666; padding:12px 16px; background:#fafafa;">
+           <span>铁粉等级 <b style="color:#111;">Lv4</b> 铁粉</span>
+           <span>本月累计互动 <b style="color:#111;">2</b> 次</span>
+           <span>超话连续签到 <b style="color:#111;">1</b> 天</span>
+         </div>
+       </div>
+
+       <div style="padding-bottom:20px;">
          ${ARTIST_PINNED_WEIBO.map(w => `
-          <div style="background:#fff; margin-bottom:10px; padding:16px;" onclick="window._wbData={type:'pinned',id:${w.id}}; push('weibo_detail');">
-            <div style="color:#ff8200; font-size:12px; font-weight:600; margin-bottom:8px;">👑 置顶</div>
-            <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px;">
+          <div style="background:#fff; margin-bottom:10px; padding:0 16px 16px; position:relative;">
+            <div style="position:absolute; top:0; left:0; width:100px; height:40px; background:linear-gradient(135deg, #fffcf0, transparent); border-radius: 20px 0 0 0; z-index:0;"></div>
+            <div style="position:relative; z-index:1; display:flex; align-items:center; gap:4px; padding:12px 0 16px; font-size:12px; font-weight:700; color:#c9a227;">
+               <svg viewBox="0 0 24 24" width="14" height="14" fill="#c9a227"><path d="M2 18h20L20 7l-5 4-3-6-3 6-5-4z"/></svg> 置顶
+            </div>
+            
+            <div style="position:relative; z-index:1; display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px;">
               <div style="display:flex; align-items:center; gap:10px;">
-                <div style="width:44px; height:44px; border-radius:50%; overflow:hidden; background:#eee;">
-                  <img src="./data/avatar/mzc.jpg" style="width:100%; height:100%; object-fit:cover;">
+                <div style="width:44px; height:44px; position:relative; flex:none;">
+                  <img src="./data/avatar/miantuan.jpg" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                  <div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:15px; height:15px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div>
                 </div>
                 <div>
-                  <div style="font-size:15px; font-weight:700; color:#ff8200; display:flex; align-items:center; gap:4px;">TF_ING穆祉丞MUA <span style="background:#ffd700; color:#fff; font-size:9px; padding:1px 4px; border-radius:4px;">V</span></div>
+                  <!-- 名字后面的 V 已被删掉 -->
+                  <div style="font-size:15px; font-weight:700; color:#ff8200; display:flex; align-items:center; gap:4px;">
+                    TF_ING穆祉丞MUA 
+                    <span style="font-size:16px; margin-left:4px;">🌼</span>
+                  </div>
                   <div style="font-size:12px; color:#999;">${w.time} ${w.device}</div>
                 </div>
               </div>
             </div>
+            
             ${renderWeiboText(w.text)}
+            
             ${w.video ? `
               <div style="border-radius:8px; overflow:hidden; margin-bottom:12px; background:#000; position:relative; cursor:pointer;" onclick="event.stopPropagation();openMediaViewer(['${w.video}'], 0)">
                 <video src="${w.video}" muted preload="metadata" style="width:100%; max-height:300px; display:block; object-fit:cover; pointer-events:none;"></video>
                 <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:44px; height:44px; background:rgba(0,0,0,0.5); border-radius:50%; display:grid; place-items:center; color:#fff; font-size:20px; padding-left:4px;">▶</div>
               </div>
             ` : ''}
+            
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                <span style="background:#fff0eb; color:#ff3b30; font-size:11px; padding:3px 8px; border-radius:12px; border:0.5px solid #ff3b30;">🔥 爆文 热文指数${w.hot}</span>
                <span style="font-size:12px; color:#999;">1031人 😆😆😆</span>
             </div>
+            
             ${WB_ACTION_BAR(w.likes, w.comments, w.forwards)}
           </div>
-        `).join('')}
+         `).join('')}
+         
          ${ARTIST_NEW_WEIBO.map(w => `
-          <div style="background:#fff; margin-bottom:10px; padding:16px;" onclick="window._wbData={type:'new',id:${w.id}}; push('weibo_detail');">
+          <div style="background:#fff; margin-bottom:10px; padding:16px;">
             <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px;">
               <div style="display:flex; align-items:center; gap:10px;">
-                <div style="width:44px; height:44px; border-radius:50%; overflow:hidden; background:#eee;">
-                  <img src="./data/avatar/mzc.jpg" style="width:100%; height:100%; object-fit:cover;">
+                <div style="width:44px; height:44px; position:relative; flex:none;">
+                  <img src="./data/avatar/miantuan.jpg" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                  <div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:15px; height:15px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div>
                 </div>
                 <div>
-                  <div style="font-size:15px; font-weight:700; color:#ff8200; display:flex; align-items:center; gap:4px;">TF_ING穆祉丞MUA <span style="background:#ffd700; color:#fff; font-size:9px; padding:1px 4px; border-radius:4px;">V</span></div>
+                  <!-- 名字后面的 V 已被删掉 -->
+                  <div style="font-size:15px; font-weight:700; color:#ff8200; display:flex; align-items:center; gap:4px;">
+                    TF_ING穆祉丞MUA 
+                  </div>
                   <div style="font-size:12px; color:#999;">${w.time} ${w.device}</div>
                 </div>
               </div>
             </div>
+            
             ${renderWeiboText(w.text)}
+            
             ${w.video ? `
               <div style="border-radius:8px; overflow:hidden; margin-bottom:12px; background:#000; position:relative; cursor:pointer;" onclick="event.stopPropagation();openMediaViewer(['${w.video}'], 0)">
                 <video src="${w.video}" muted preload="metadata" style="width:100%; max-height:300px; display:block; object-fit:cover; pointer-events:none;"></video>
                 <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:44px; height:44px; background:rgba(0,0,0,0.5); border-radius:50%; display:grid; place-items:center; color:#fff; font-size:20px; padding-left:4px;">▶</div>
               </div>
             ` : ''}
+            
             ${w.images && w.images.length > 0 ? `
               <div style="display:grid; grid-template-columns:repeat(${w.images.length === 1 ? 1 : w.images.length === 4 ? 2 : 3}, 1fr); gap:4px; margin-bottom:12px;">
                 ${w.images.map((img, idx) => `
@@ -593,15 +872,44 @@ VIEWS.weibo_artist = () => ({
                 `).join('')}
               </div>
             ` : ''}
+            
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                <span style="background:#fff0eb; color:#ff3b30; font-size:11px; padding:3px 8px; border-radius:12px; border:0.5px solid #ff3b30;">🔥 爆文 热文指数${w.hot}</span>
                <span style="font-size:12px; color:#999;">1031人 😆😆😆</span>
             </div>
+            
             ${WB_ACTION_BAR(w.likes, w.comments, w.forwards)}
           </div>
         `).join('')}
        </div>
-    </div>`
+    </div>`,
+  init: (pg) => {
+    const nav = pg.querySelector('#wb-artist-nav');
+    const title = pg.querySelector('#wb-artist-title');
+    const backBtn = pg.querySelector('#wb-artist-back');
+    const rightIcons = pg.querySelector('#wb-artist-right');
+    const scroll = pg.querySelector('#wb-artist-scroll');
+    
+    if (scroll && nav && title) {
+      scroll.addEventListener('scroll', () => {
+        if (scroll.scrollTop > 180) {
+          nav.style.background = 'rgba(255, 255, 255, 0.96)';
+          nav.style.backdropFilter = 'blur(10px)';
+          nav.style.boxShadow = '0 0.5px 0 #eee';
+          title.style.opacity = '1';
+          if(backBtn) backBtn.style.color = '#111';
+          if(rightIcons) rightIcons.style.color = '#111';
+        } else {
+          nav.style.background = 'transparent';
+          nav.style.backdropFilter = 'none';
+          nav.style.boxShadow = 'none';
+          title.style.opacity = '0';
+          if(backBtn) backBtn.style.color = '#fff';
+          if(rightIcons) rightIcons.style.color = '#fff';
+        }
+      });
+    }
+  }
 });
 
 // ==========================================
@@ -610,13 +918,13 @@ VIEWS.weibo_artist = () => ({
 VIEWS.weibo_supertopic = () => ({
   html: `<div style="position:absolute; inset:0; background:#f5f5f5;">
     <div class="scroll" style="padding-bottom:80px; padding-top:0;">
-       <div style="background:linear-gradient(180deg,#a8847b 0%, #b4978e 100%); padding:54px 16px 20px; position:relative; color:#fff;">
-          <div style="display:flex; justify-content:space-between; font-size:22px;">
-             <span onclick="back()" style="cursor:pointer;">‹</span>
+       <div style="background:linear-gradient(180deg,#a8847b 0%, #b4978e 100%); padding:44px 16px 20px; position:relative; color:#fff;">
+          <div style="display:flex; justify-content:space-between; font-size:22px; align-items:center;">
+             <span onclick="backSuperTopic()" style="cursor:pointer; display:flex; align-items:center; padding:10px 10px 10px 0;">${G.chevL.replace('<svg', '<svg style="width:14px;height:24px;stroke:#fff"')}</span>
              <div style="display:flex; gap:16px;"><span onclick="toastDev()">🔍</span><span onclick="toastDev()">↗️</span></div>
           </div>
-          <div style="display:flex; gap:12px; margin-top:16px;">
-             <div style="width:60px; height:60px; border-radius:8px; background:#fff; overflow:hidden;"><img src="./data/avatar/mzc.jpg" style="width:100%; height:100%; object-fit:cover;"></div>
+          <div style="display:flex; gap:12px; margin-top:12px;">
+             <div style="width:60px; height:60px; border-radius:8px; background:#fff; overflow:hidden;"><img src="./data/avatar/miantuan.jpg" style="width:100%; height:100%; object-fit:cover;"></div>
              <div>
                 <div style="font-size:20px; font-weight:700; display:flex; align-items:center; gap:4px;">穆祉丞 <span style="background:#e9d5ff; color:#8b5cf6; font-size:10px; padding:1px 4px; border-radius:4px;">💎 钻超</span></div>
                 <div style="font-size:12px; opacity:0.9; margin-top:4px;">5561万 帖子 | 194万 小纸团 ></div>
@@ -675,7 +983,8 @@ VIEWS.weibo_supertopic = () => ({
                       <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <div>
-                       <div style="font-size:14px; font-weight:600; color:#ff8200; display:flex; align-items:center; gap:4px;">${t.user} <span style="background:#ffd700; color:#fff; font-size:9px; padding:1px 4px; border-radius:4px;">V</span> <span style="background:#f5f5f5; color:#666; font-size:9px; padding:1px 4px; border-radius:4px;">创作官</span></div>
+                       <!-- 名字后面的 V 已被删掉 -->
+                       <div style="font-size:14px; font-weight:600; color:#ff8200; display:flex; align-items:center; gap:4px;">${t.user} <span style="background:#f5f5f5; color:#666; font-size:9px; padding:1px 4px; border-radius:4px;">创作官</span></div>
                        <div style="font-size:11px; color:#999;">${t.time}</div>
                     </div>
                  </div>
@@ -712,7 +1021,7 @@ VIEWS.weibo_supertopic = () => ({
 });
 
 // ==========================================
-// 📱 页面 7：微博详情页 (安全版)
+// 📱 页面 7：微博详情页
 // ==========================================
 VIEWS.weibo_detail = () => {
   const data = window._wbData || {};
@@ -727,14 +1036,16 @@ VIEWS.weibo_detail = () => {
   if (!post) return { html: `<div style="padding:100px 20px;text-align:center;color:#999;font-size:14px;">找不到这条微博</div>` };
 
   return {
-    html: navHTML({ title: type === 'my' ? "微博正文" : "TF_ING穆祉丞MUA", back: "返回", backFn: "back()", right: `<span onclick="toastDev()">${G.dotsH}</span>` }) +
-      `<div class="scroll" style="background:#f5f5f5; padding-top:88px; padding-bottom:20px;">
+    html: navHTML({ title: type === 'my' ? "微博正文" : "TF_ING穆祉丞MUA", back: "", solid: true, right: `<span onclick="toastDev()">${G.dotsH}</span>` }) +
+      `<div class="scroll" style="background:#f5f5f5; padding-top:98px; padding-bottom:20px;">
         <div style="background:#fff; padding:16px;">
-          <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-            <div style="width:44px; height:44px; border-radius:50%; overflow:hidden;">
-              <img src="${type === 'my' ? (CFG.myAvatar || 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop') : './data/avatar/mzc.jpg'}" style="width:100%; height:100%; object-fit:cover;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;" onclick="if('${type}' !== 'my') push('weibo_artist')">
+            <div style="width:44px; height:44px; position:relative; flex:none;">
+              <img src="${type === 'my' ? (CFG.myAvatar || 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop') : './data/avatar/miantuan.jpg'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+              ${type !== 'my' ? `<div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:15px; height:15px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div>` : ''}
             </div>
             <div>
+              <!-- 名字后面的 V 已被删掉 -->
               <div style="font-size:16px; font-weight:600; color:${type === 'my' ? '#333' : '#ff8200'};">${type === 'my' ? '小狗团汪汪' : 'TF_ING穆祉丞MUA'}</div>
               <div style="font-size:12px; color:#999;">${post.time} ${post.device}</div>
             </div>
