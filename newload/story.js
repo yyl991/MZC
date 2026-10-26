@@ -55,7 +55,7 @@ var INCOMING = [];
     // 👇 新增的三个角色
     cat: { initial: "猫", color: "#3a3a3c", avatar: "./data/avatar/cat.jpg", pat: "踩了一脚" },
     rabbit: { initial: "兔", color: "#ffb3c1", avatar: "./data/avatar/rabbit.jpg", pat: "的长耳朵" },
-    tiger: { initial: "虎", color: "#ff9f0a", avatar: "./data/avatar/cuttiger.jpg", pat: "的尾巴" },
+    tiger: { initial: "虎", color: "#ff9f0a", avatar: "./data/avatar/tiger.jpg", pat: "的尾巴" },
   };  
     S.display = {
     pig: "🐖",      // 侧面的小猪
@@ -166,7 +166,7 @@ var INCOMING = [];
         { mine:['你到底是猫还是老虎？'], them:['嗷呜！'] }
       ],
       fragment: null
-    }
+    },
         'tiger': {
       init: [['11月15日','date']],
       replies: [
