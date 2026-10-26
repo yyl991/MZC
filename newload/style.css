@@ -4375,3 +4375,47 @@ svg {
     left: -20px;
     right: -20px;
 }
+
+/* 修改：增加相对定位和 outline 消除，防止点击出现黑框 */
+.app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: 74px;
+    transition: transform .15s, filter .15s;
+    position: relative;
+    outline: none; 
+}
+
+/* 修改：提升图标整体层级 */
+.icon {
+    position: relative;
+    width: 62px;
+    height: 62px;
+    border-radius: 14.5px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .18);
+    z-index: 2; 
+}
+
+/* 修改：角标防遮挡、加白边、加层级、防挤压 */
+.bdg {
+    position: absolute;
+    top: -7px;
+    right: -8px;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 7px;
+    border-radius: 12px;
+    background: #ff3b30;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99; /* 确保角标永远在最上层 */
+    /*border: 2px solid #fff; /* iOS 特征：红底外面包一圈白边，防止和图标颜色融为一体 */
+    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
