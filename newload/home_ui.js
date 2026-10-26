@@ -488,7 +488,7 @@
         cover.style.backgroundImage = `url('${musicImages[currentMusicImageIdx]}')`;
       }
       // 2. 播放音乐
-      bgm.volume = 0.1116; 
+      bgm.volume = 0.3; 
       bgm.play().catch(e => console.log("播放被拦截:", e));
     } else {
       // 当前是播放状态，即将暂停 -> 只暂停，不换图
