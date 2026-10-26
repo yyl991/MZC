@@ -1796,7 +1796,7 @@ function storyTick(e) {
       if (beat.type === "notify") incomingMsgFrom(beat.from, beat.text);
       if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");
       if (beat.type === "mail") incomingMailFrom(beat);
-      if (beat.type === "choice") showStoryChoice();
+      //if (beat.type === "choice") showStoryChoice();
       //if (beat.type === "ending") showEnding(SS.choice || "B");
     }
   });
