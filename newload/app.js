@@ -1207,19 +1207,184 @@ function calNav(d) {
     { duration: 350, easing: "cubic-bezier(.2,.9,.25,1)" },
   );
 }
-VIEWS.clock = () => ({
-  cls: "dark",
-  dark: true,
-  html: `<div class="nav" style="color:#ff9f0a"><button onclick="toastDev()" style="color:#ff9f0a;font-size:17px;justify-self:start;padding-left:8px">编辑</button><div class="nb-title">闹钟</div><div class="nb-right" style="color:#ff9f0a">${G.plus}</div></div><div class="scroll"><h1 class="lt">闹钟</h1><div style="margin:18px 16px 4px;font-size:15px;font-weight:600">其他</div>${Array.from({ length: 3 }, (_, i) => `<div class="alarm"><div><div class="at">08:30</div><div class="al">起床</div></div>${sw(true)}</div>`).join("")}</div>${tabbar(
-    [
-      ["globe", "世界时钟"],
-      ["alarm", "闹钟"],
-      ["stopwatch", "秒表"],
-      ["timer", "计时器"],
-    ],
-    1,
-  ).replace('class="on"', 'class="on" style="color:#ff9f0a"')}`,
-});
+
+// ==========================================
+// 📱 时钟应用 (默认世界时钟，完美复刻截图UI)
+// ==========================================
+
+if (typeof window.clockTab === "undefined") window.clockTab = "world";
+
+window.switchClockTab = function (tabName) {
+  window.clockTab = tabName;
+  show("clock");
+};
+
+// ==========================================
+// 📱 时钟应用 (默认世界时钟，完美复刻截图UI)
+// ==========================================
+
+// 全局记录当前选中的 Tab
+if (typeof window.clockTab === "undefined") window.clockTab = "world";
+
+// 切换时钟 Tab 的辅助函数
+window.switchClockTab = function (tabName) {
+  window.clockTab = tabName;
+  show("clock"); 
+};
+
+VIEWS.clock = () => {
+  const tabs = [
+    { id: "world", label: "世界时钟", icon: G.globe },
+    { id: "alarm", label: "闹钟", icon: G.alarm },
+    { id: "stopwatch", label: "秒表", icon: G.stopwatch },
+    { id: "timer", label: "计时器", icon: G.timer },
+  ];
+
+  // 底部 Tab 栏 HTML
+  const bottomTabHTML = `
+    <div style="position:absolute; bottom:34px; left:16px; right:16px; background:#1c1c1e; border-radius:40px; display:flex; padding:8px; z-index:100; box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+      ${tabs.map((t) => {
+        const isActive = window.clockTab === t.id;
+        const color = isActive ? "#ff9f0a" : "#fff";
+        const bg = isActive ? "rgba(255, 159, 10, 0.15)" : "transparent";
+        return `
+          <button onclick="switchClockTab('${t.id}')" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; border:none; background:${bg}; border-radius:30px; color:${color}; padding:8px 0; transition: background 0.2s;">
+            <span style="width:24px; height:24px; display:grid; place-items:center;">${t.icon.replace('<svg', '<svg width="100%" height="100%" stroke="currentColor" fill="none" stroke-width="1.6"')}</span>
+            <small style="font-size:10px; font-weight:500;">${t.label}</small>
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
+
+  let contentHTML = "";
+
+  // ==============================
+  // 1. 世界时钟
+  // ==============================
+  if (window.clockTab === "world") {
+    const cities = [
+      { name: "戛纳", utc: 1 },
+      { name: "巴黎", utc: 1 },
+      { name: "釜山", utc: 9 },
+      { name: "北京", utc: 8 },
+      { name: "利雅得", utc: 3 },
+    ];
+
+    contentHTML = `
+      <div class="scroll" style="padding-top:60px; padding-bottom:120px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 16px 20px;">
+          <button onclick="toastDev()" style="background:#2c2c2e; color:#fff; border-radius:20px; padding:8px 16px; border:none; font-size:15px; font-weight:500;">编辑</button>
+          <button onclick="toastDev()" style="background:#2c2c2e; color:#fff; border-radius:50%; width:36px; height:36px; display:grid; place-items:center; border:none;">${G.plus.replace('<svg', '<svg width="20" height="20"')}</button>
+        </div>
+        
+        <h1 style="margin: 0 16px 10px; font-size:34px; font-weight:700; color:#fff; letter-spacing:0.5px;">世界时钟</h1>
+        
+        <div style="padding: 0 16px;">
+          ${cities.map((c) => {
+            const currentMin = gameMin(); 
+            let cityMin = currentMin + (c.utc - 8) * 60;
+            let dayStr = "今天";
+            
+            if (cityMin < 0) {
+              cityMin += 1440;
+              dayStr = "昨天";
+            } else if (cityMin >= 1440) {
+              cityMin -= 1440;
+              dayStr = "明天";
+            }
+
+            const h = Math.floor(cityMin / 60) % 24;
+            const m = Math.floor(cityMin % 60);
+            const timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+            
+            const diff = c.utc - 8;
+            const diffStr = diff === 0 ? "当前时间" : (diff > 0 ? "+" : "") + diff + "小时";
+
+            return `
+              <div style="border-bottom: 0.5px solid #333; padding: 16px 0 20px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <div style="font-size:24px; font-weight:500; color:#fff; margin-bottom:4px; letter-spacing:0.5px;">${c.name}</div>
+                  <div style="font-size:13px; color:#8e8e93; font-weight:500;">${dayStr} ${diffStr}</div>
+                </div>
+                <div style="font-size:62px; font-weight:100; color:#fff; line-height:1; letter-spacing:-1px;">${timeStr}</div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `;
+  } 
+  // ==============================
+  // 2. 闹钟
+  // ==============================
+  else if (window.clockTab === "alarm") {
+    contentHTML = `
+      <div class="scroll" style="padding-top:60px; padding-bottom:120px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 16px 20px;">
+          <button onclick="toastDev()" style="background:#2c2c2e; color:#fff; border-radius:20px; padding:8px 16px; border:none; font-size:15px; font-weight:500;">编辑</button>
+          <button onclick="toastDev()" style="background:#2c2c2e; color:#fff; border-radius:50%; width:36px; height:36px; display:grid; place-items:center; border:none;">${G.plus.replace('<svg', '<svg width="20" height="20"')}</button>
+        </div>
+        
+        <h1 style="margin: 0 16px 24px; font-size:34px; font-weight:700; color:#fff; letter-spacing:0.5px;">闹钟</h1>
+        
+        <div style="margin: 0 16px;">
+          ${Array.from({ length: 3 }, (_, i) => `
+            <div style="border-bottom:0.5px solid #333; padding:16px 0; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:56px; font-weight:100; color:#fff; line-height:1; letter-spacing:-1px;">08:30</div>
+                <div style="font-size:15px; color:#fff; margin-top:4px;">起床</div>
+              </div>
+              <!-- 原生风格绿色开关 -->
+              <div class="sw on" onclick="this.classList.toggle('on'); vib(8);" style="width:51px; height:31px; border-radius:16px; background:#34c759; position:relative; cursor:pointer; flex:none;">
+                <div style="position:absolute; top:2px; right:2px; width:27px; height:27px; background:#fff; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.2); transition: transform 0.2s;"></div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  } 
+  // ==============================
+  // 3. 秒表
+  // ==============================
+  else if (window.clockTab === "stopwatch") {
+    contentHTML = `
+      <div class="scroll" style="padding-top:100px; padding-bottom:120px; display:flex; flex-direction:column; align-items:center;">
+        <div style="font-size:86px; font-weight:100; color:#fff; font-variant-numeric:tabular-nums; letter-spacing:-3px;">
+          00:00<span style="font-size:40px; margin-left:4px; font-weight:200;">.00</span>
+        </div>
+        <div style="display:flex; justify-content:space-around; width:100%; margin-top:60px; padding: 0 30px;">
+          <button onclick="toastDev()" style="width:86px; height:86px; border-radius:50%; background:#333; color:#fff; font-size:17px; border:none; font-weight:500;">计次</button>
+          <button onclick="toastDev()" style="width:86px; height:86px; border-radius:50%; background:#0a3a22; color:#30d158; font-size:17px; border:none; font-weight:500;">启动</button>
+        </div>
+      </div>
+    `;
+  } 
+  // ==============================
+  // 4. 计时器
+  // ==============================
+  else if (window.clockTab === "timer") {
+    contentHTML = `
+      <div class="scroll" style="padding-top:100px; padding-bottom:120px; display:flex; flex-direction:column; align-items:center;">
+        <div style="width:280px; height:280px; border-radius:50%; border:6px solid #333; display:flex; align-items:center; justify-content:center; position:relative; margin-bottom:40px;">
+          <div style="font-size:76px; font-weight:100; color:#fff;">5:00</div>
+        </div>
+        <div style="display:flex; justify-content:space-around; width:100%; padding: 0 30px;">
+          <button onclick="toastDev()" style="width:86px; height:86px; border-radius:50%; background:#333; color:#fff; font-size:17px; border:none; font-weight:500;">取消</button>
+          <button onclick="toastDev()" style="width:86px; height:86px; border-radius:50%; background:#0a3a22; color:#30d158; font-size:17px; border:none; font-weight:500;">启动</button>
+        </div>
+      </div>
+    `;
+  }
+
+  return {
+    cls: "dark",
+    dark: true,
+    html: contentHTML + bottomTabHTML,
+  };
+};
+
 function callWhen(s) {
   if (s.startsWith("今天 ")) {
     const [h, m] = s.slice(3).split(":").map(Number);

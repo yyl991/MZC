@@ -2,122 +2,188 @@
 // 📱 微博模块 (app_weibo.js) - 终极像素级复刻版
 // ==========================================
 
-window.openSuperTopic = function() {
+window.openSuperTopic = function () {
   window._prev_wb_view = view;
-  push('weibo_supertopic');
+  push("weibo_supertopic");
 };
 
-window.backSuperTopic = function() {
-  show(window._prev_wb_view || 'weibo_artist', 'pop');
+window.backSuperTopic = function () {
+  show(window._prev_wb_view || "weibo_artist", "pop");
 };
 
 // 1. 首页展示的生活流
 const LIFE_WEIBO_DATA = [
-  { 
-    id: 1, 
-    text: "小萌萌", 
-    time: "10-16", 
-    device: "来自 HarmonyOS设备", 
-    images: ["./data/avatar/miantuan.jpg", "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop", "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop"], 
-    likes: "118万", comments: "100万+", forwards: "100万+", read: "55", isRepost: true, originalAuthor: "与橡树至世界尽头", originalText: "🐼➡️😡➡️啊打"
-  }
+  {
+    id: 1,
+    text: "小萌萌",
+    time: "10-16",
+    device: "来自 HarmonyOS设备",
+    images: [
+      "./data/avatar/miantuan.jpg",
+      "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
+    ],
+    likes: "118万",
+    comments: "100万+",
+    forwards: "100万+",
+    read: "55",
+    isRepost: true,
+    originalAuthor: "与橡树至世界尽头",
+    originalText: "🐼➡️😡➡️啊打",
+  },
 ];
 
 // 2. 你的“我-微博(112)”列表
 const DATA_WEIBO_DATA = [
-  { 
-    id: 12, 
-    text: "啊啊啊啊啊新歌好好听！！！单曲循环一整天！", 
-    time: "刚刚", 
-    device: "来自 iPhone客户端", 
-    likes: "56万", comments: "1万", forwards: "10万", read: "12", 
-    isRepost: true, 
-    originalAuthor: "TF_ING穆祉丞MUA", 
-    originalText: "If you want me to be with you\n\n#朝朝穆穆#\n\n查看翻译" 
+  {
+    id: 12,
+    text: "啊啊啊啊啊新歌好好听！！！单曲循环一整天！",
+    time: "刚刚",
+    device: "来自 iPhone客户端",
+    likes: "56万",
+    comments: "1万",
+    forwards: "10万",
+    read: "12",
+    isRepost: true,
+    originalAuthor: "TF_ING穆祉丞MUA",
+    originalText: "If you want me to be with you\n\n#朝朝穆穆#\n\n查看翻译",
   },
-  { 
-    id: 11, 
-    text: "今天天气真不错，出门溜达溜达~顺便买杯奶茶！", 
-    time: "10-25", 
-    device: "来自 HarmonyOS设备", 
-    images: ["https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=400&auto=format&fit=crop"], 
-    likes: "120", comments: "5", forwards: "2", read: "6"
+  {
+    id: 11,
+    text: "今天天气真不错，出门溜达溜达~顺便买杯奶茶！",
+    time: "10-25",
+    device: "来自 HarmonyOS设备",
+    images: [
+      "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=400&auto=format&fit=crop",
+    ],
+    likes: "120",
+    comments: "5",
+    forwards: "2",
+    read: "6",
   },
-  { 
-    id: 10, 
-    text: "小萌萌", 
-    time: "10-16", 
-    device: "来自 HarmonyOS设备", 
-    images: ["./data/avatar/miantuan.jpg", "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop"], 
-    likes: "186万", comments: "5万", forwards: "100万+", read: "55", 
-    isRepost: true, 
-    originalAuthor: "与橡树至世界尽头", 
-    originalText: "🐼➡️😡➡️啊打" 
-  }
+  {
+    id: 10,
+    text: "小萌萌",
+    time: "10-16",
+    device: "来自 HarmonyOS设备",
+    images: [
+      "./data/avatar/miantuan.jpg",
+      "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop",
+    ],
+    likes: "186万",
+    comments: "5万",
+    forwards: "100万+",
+    read: "55",
+    isRepost: true,
+    originalAuthor: "与橡树至世界尽头",
+    originalText: "🐼➡️😡➡️啊打",
+  },
 ];
 
 // 3. 艺人主页置顶数据
 const ARTIST_PINNED_WEIBO = [
-  { 
-    id: 1, 
-    isTop: true, 
-    text: "大人是什么？\n\n曾经的我陷入过迷茫和绝望，有过不甘和愤怒，我几乎被这些负面情绪吞噬，让我一度怀疑我自己。然而，当时间流逝，我真正敢于直面它们之后我发现，它们对我来说，已经是“过去”了。\n美好的也好、痛苦的也罢，它们都构成了我热烈而勇敢的“未成年”时期，变成了一份记忆永远留在了我的回忆录里。\n\n大人的第一站，要从哪里开始呢？\n我思考了很久，最后决定：管他的呢！不纠结于过去，只管冲向属于我的未来。无论多少岁，我永远都是我自己！\n\n#穆祉丞18岁生日主题Eleutheria# #朝朝穆穆#", 
-    time: "25-11-16", 
-    device: "来自 微博视频号", 
-    video: "./data/chat/1.mp4", 
-    likes: "189万", comments: "100万+", forwards: "100万+", hot: "30000+" 
+  {
+    id: 1,
+    isTop: true,
+    text: "大人是什么？\n\n曾经的我陷入过迷茫和绝望，有过不甘和愤怒，我几乎被这些负面情绪吞噬，让我一度怀疑我自己。然而，当时间流逝，我真正敢于直面它们之后我发现，它们对我来说，已经是“过去”了。\n美好的也好、痛苦的也罢，它们都构成了我热烈而勇敢的“未成年”时期，变成了一份记忆永远留在了我的回忆录里。\n\n大人的第一站，要从哪里开始呢？\n我思考了很久，最后决定：管他的呢！不纠结于过去，只管冲向属于我的未来。无论多少岁，我永远都是我自己！\n\n#穆祉丞18岁生日主题Eleutheria# #朝朝穆穆#",
+    time: "25-11-16",
+    device: "来自 微博视频号",
+    video: "./data/chat/1.mp4",
+    likes: "189万",
+    comments: "100万+",
+    forwards: "100万+",
+    hot: "30000+",
   },
-  { 
-    id: 2, 
-    isTop: true, 
-    text: "If you want me to be with you\n\n#朝朝穆穆#\n\n查看翻译", 
-    time: "昨天 17:20", 
-    device: "来自 微博视频号", 
-    video: "./data/chat/1.mp4", 
-    likes: "202万", comments: "69.3万", forwards: "100万+", hot: "30000+" 
-  }
+  {
+    id: 2,
+    isTop: true,
+    text: "If you want me to be with you\n\n#朝朝穆穆#\n\n查看翻译",
+    time: "昨天 17:20",
+    device: "来自 微博视频号",
+    video: "./data/chat/1.mp4",
+    likes: "202万",
+    comments: "69.3万",
+    forwards: "100万+",
+    hot: "30000+",
+  },
 ];
 
 // 4. 艺人新发动态
 const ARTIST_NEW_WEIBO = [
-  { 
-    id: 3, 
-    text: "If you want me to be with you\n\n#朝朝穆穆#\n\n查看翻译", 
-    time: "昨天 17:20", 
-    device: "来自 微博视频号", 
-    video: "./data/chat/1.mp4", 
-    likes: "202万", comments: "69.3万", forwards: "100万+", hot: "30000+"
+  {
+    id: 3,
+    text: "If you want me to be with you\n\n#朝朝穆穆#\n\n查看翻译",
+    time: "昨天 17:20",
+    device: "来自 微博视频号",
+    video: "./data/chat/1.mp4",
+    likes: "202万",
+    comments: "69.3万",
+    forwards: "100万+",
+    hot: "30000+",
   },
-  { 
-    id: 4, 
-    text: "根据图片写出文案\n\n#朝朝穆穆#", 
-    time: "10-22", 
-    device: "来自 iPhone客户端", 
+  {
+    id: 4,
+    text: "根据图片写出文案\n\n#朝朝穆穆#",
+    time: "10-22",
+    device: "来自 iPhone客户端",
     images: [
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop"
-    ], 
-    likes: "150万", comments: "10万", forwards: "20万", hot: "15000+"
-  }
+      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop",
+    ],
+    likes: "150万",
+    comments: "10万",
+    forwards: "20万",
+    hot: "15000+",
+  },
 ];
 
 // 5. 关注列表数据
 const FOLLOW_DATA = [
-  { name: "TF_ING穆祉丞MUA", isArtist: true, desc: "北京时代峰峻旗下音乐厂牌...", latest: "If you want me to be with you...", supertopic: "穆祉丞超话", status: "特别关注", avatar: "./data/avatar/miantuan.jpg" },
-  { name: "新浪娱乐", isArtist: false, desc: "新浪娱乐频道官方微博", latest: "【午间娱乐播报】#第二届...", supertopic: "新浪娱乐超话", status: "已关注", avatar: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=100&auto=format&fit=crop" }
+  {
+    name: "TF_ING穆祉丞MUA",
+    isArtist: true,
+    desc: "北京时代峰峻旗下音乐厂牌...",
+    latest: "If you want me to be with you...",
+    supertopic: "穆祉丞超话",
+    status: "特别关注",
+    avatar: "./data/avatar/miantuan.jpg",
+  },
+  {
+    name: "新浪娱乐",
+    isArtist: false,
+    desc: "新浪娱乐频道官方微博",
+    latest: "【午间娱乐播报】#第二届...",
+    supertopic: "新浪娱乐超话",
+    status: "已关注",
+    avatar:
+      "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=100&auto=format&fit=crop",
+  },
 ];
 
 // 6. 超话数据
 const SUPERTopic_DATA = [
-  { user: "我零食呢nn", isArtist: false, text: "#为穆祉丞守护星愿#\n“一百岁大家还会陪着我吗”", time: "刚刚 最后评论 已编辑", likes: "12", comments: "5", forwards: "1", images: ["https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&auto=format&fit=crop", "./data/avatar/miantuan.jpg", "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=200&auto=format&fit=crop"] }
+  {
+    user: "我零食呢nn",
+    isArtist: false,
+    text: "#为穆祉丞守护星愿#\n“一百岁大家还会陪着我吗”",
+    time: "刚刚 最后评论 已编辑",
+    likes: "12",
+    comments: "5",
+    forwards: "1",
+    images: [
+      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&auto=format&fit=crop",
+      "./data/avatar/miantuan.jpg",
+      "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=200&auto=format&fit=crop",
+    ],
+  },
 ];
 
 const discoverIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/><circle cx="16" cy="8" r="5" fill="#ff3b30" stroke="none"/><text x="16" y="10" font-size="6" fill="#fff" text-anchor="middle" font-weight="bold">热</text></svg>`;
 
 const getWBTabbar = (active) => `
   <div class="tabbar" style="position:absolute; bottom:0; left:0; right:0; z-index:20; background:#fff; border-top:0.5px solid #eee; display:flex; padding-bottom:20px;">
-    <button onclick="show('weibo')" style="color:${active === 'home' ? '#111' : '#666'}; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none;">
+    <button onclick="show('weibo')" style="color:${active === "home" ? "#111" : "#666"}; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M12 3 2 10v11h7v-7h6v7h7V10L12 3z"/></svg>
       <span style="font-size:10px; font-weight:500;">首页</span>
     </button>
@@ -135,7 +201,7 @@ const getWBTabbar = (active) => `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
       <span style="font-size:10px; font-weight:500;">消息</span>
     </button>
-    <button onclick="show('weibo_profile')" style="color:${active === 'me' ? '#111' : '#666'}; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none;">
+    <button onclick="show('weibo_profile')" style="color:${active === "me" ? "#111" : "#666"}; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       <span style="font-size:10px; font-weight:500;">我</span>
     </button>
@@ -157,34 +223,44 @@ const WB_ACTION_BAR = (likes, comments, forwards) => `
   </div>
 `;
 
-// ✨ 如果是穆祉丞的转发，名字高亮并支持点击跳转 (去掉了名字后的V)
 const renderRepostCard = (w) => {
   const isMzc = w.originalAuthor === "TF_ING穆祉丞MUA";
   const clickAction = isMzc ? "push('weibo_artist')" : "toastDev()";
-  const authorColor = isMzc ? "#ff8200" : "#5c8bd6"; 
-  
+  const authorColor = isMzc ? "#ff8200" : "#5c8bd6";
+
   return `
   <div style="background:#f7f7f7; border-radius:8px; padding:12px; margin-bottom:12px;">
     <div style="font-size:14px; line-height:1.5; color:#333; margin-bottom:8px;">
       <span style="color:${authorColor}; font-weight:600;" onclick="event.stopPropagation(); ${clickAction}">@${w.originalAuthor}</span>：${esc(w.originalText)}
     </div>
-    ${w.images && w.images.length > 0 ? `
+    ${
+      w.images && w.images.length > 0
+        ? `
       <div style="display:grid; grid-template-columns:repeat(${w.images.length === 1 ? 1 : w.images.length === 4 ? 2 : 3}, 1fr); gap:4px;">
-        ${w.images.map((img, idx) => `
+        ${w.images
+          .map(
+            (img, idx) => `
           <div style="aspect-ratio:1; border-radius:4px; overflow:hidden; background:#eee;">
             <img src="${img}" style="width:100%; height:100%; object-fit:cover;">
           </div>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </div>
-    ` : ''}
+    `
+        : ""
+    }
   </div>
   `;
 };
 
 function renderWeiboText(text) {
-  if (!text) return '';
+  if (!text) return "";
   let safeText = esc(text);
-  safeText = safeText.replace(/#([^#]+?)#/g, '<span style="color:#5c8bd6;">#$1#</span>');
+  safeText = safeText.replace(
+    /#([^#]+?)#/g,
+    '<span style="color:#5c8bd6;">#$1#</span>',
+  );
 
   if (text.length > 120) {
     return `
@@ -197,28 +273,35 @@ function renderWeiboText(text) {
   return `<div style="font-size:15px; color:#333; line-height:1.6; margin-bottom:12px; white-space:pre-wrap;">${safeText}</div>`;
 }
 
-window.toggleWbLike = function(el, initialLikes) {
-  const icon = el.querySelector('svg');
-  const count = el.querySelector('.like-count');
-  if (el.classList.contains('liked')) {
-    el.classList.remove('liked');
-    el.style.color = '#666';
-    icon.setAttribute('fill', 'none');
-    icon.setAttribute('stroke', 'currentColor');
+window.toggleWbLike = function (el, initialLikes) {
+  const icon = el.querySelector("svg");
+  const count = el.querySelector(".like-count");
+  if (el.classList.contains("liked")) {
+    el.classList.remove("liked");
+    el.style.color = "#666";
+    icon.setAttribute("fill", "none");
+    icon.setAttribute("stroke", "currentColor");
     count.textContent = initialLikes;
   } else {
-    el.classList.add('liked');
-    el.style.color = '#ff8200';
-    icon.setAttribute('fill', '#ff8200');
-    icon.setAttribute('stroke', '#ff8200');
-    if (initialLikes.includes('万')) {
-       let n = parseFloat(initialLikes) + 0.1;
-       count.textContent = n.toFixed(1) + '万';
+    el.classList.add("liked");
+    el.style.color = "#ff8200";
+    icon.setAttribute("fill", "#ff8200");
+    icon.setAttribute("stroke", "#ff8200");
+    if (initialLikes.includes("万")) {
+      let n = parseFloat(initialLikes) + 0.1;
+      count.textContent = n.toFixed(1) + "万";
     } else {
-       count.textContent = parseInt(initialLikes) + 1;
+      count.textContent = parseInt(initialLikes) + 1;
     }
-    el.animate([{ transform: "scale(1)" }, { transform: "scale(1.3)" }, { transform: "scale(1)" }], { duration: 300, easing: "cubic-bezier(.2,1.4,.4,1)" });
-    if(typeof vib === 'function') vib(10);
+    el.animate(
+      [
+        { transform: "scale(1)" },
+        { transform: "scale(1.3)" },
+        { transform: "scale(1)" },
+      ],
+      { duration: 300, easing: "cubic-bezier(.2,1.4,.4,1)" },
+    );
+    if (typeof vib === "function") vib(10);
   }
 };
 
@@ -227,46 +310,31 @@ window.toggleWbLike = function(el, initialLikes) {
 // ==========================================
 VIEWS.weibo = () => ({
   html: `
-    <!-- 最外层固定容器：只保留顶部状态栏和Tab栏 -->
     <div style="position:absolute; top:0; left:0; right:0; z-index:10; background:#fff;">
-      
-      <!-- 1. 顶部状态栏留白 -->
       <div style="height:44px;"></div> 
       
-      <!-- 2. 导航栏 (固定不动) -->
       <div style="display:flex; align-items:center; justify-content:center; position:relative; height:44px;">
-        
-        <!-- 左侧：推荐 + 特别关注 (作为一组居中) -->
         <div style="display:flex; align-items:center; gap:32px;">
           <div style="color:#666; font-size:16px;">推荐</div>
-          
-          <!-- 特别关注区域 -->
           <div style="display:flex; align-items:center; gap:4px; position:relative;">
-            <!-- 文字和黄线 -->
             <div style="color:#111; font-size:17px; font-weight:700; position:relative;">
               特别关注
               <span style="position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); width:24px; height:3px; background:#ffc107; border-radius:2px;"></span>
             </div>
-            <!-- 小黑三角 (向下) -->
             <svg viewBox="0 0 10 6" width="10" height="6" fill="#111" style="margin-top:2px;">
               <path d="M0 0l5 6 5-6H0z"/>
             </svg>
           </div>
         </div>
-
-        <!-- 右侧：图标组 (绝对定位贴在最右边) -->
         <div style="position:absolute; right:16px; display:flex; gap:12px;">
           <div onclick="toastDev()" style="width:24px; height:24px; background:#ff5d5d; border-radius:4px; display:grid; place-items:center; color:#ffd700; font-size:16px;">🧧</div>
           <div onclick="toastDev()" style="width:24px; height:24px; background:#ff8200; border-radius:50%; display:grid; place-items:center; color:#fff; font-size:20px; font-weight:300; line-height:1;">+</div>
         </div>
-
       </div>
-    </div> <!-- 关闭最外层固定容器 -->
+    </div>
 
-    <!-- 帖子列表滚动区：把管理栏挪进来一起滑 -->
     <div class="scroll" style="background:#f5f5f5; padding-top:88px; padding-bottom:80px;">
       
-      <!-- 3. 管理特别关注栏 (现在可以跟着滑了) -->
       <div onclick="toastDev()" style="display:flex; justify-content:space-between; align-items:center; padding:10px 16px; border-top:0.5px solid #eee; border-bottom:8px solid #f5f5f5; background:#fff;">
         <div style="display:flex; align-items:center; gap:6px; font-size:14px; color:#333;">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="#5c8bd6"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
@@ -275,8 +343,8 @@ VIEWS.weibo = () => ({
         <div style="font-size:14px; color:#999;">1人</div>
       </div>
 
-      <!-- 4. 帖子列表 -->
-      ${ARTIST_NEW_WEIBO.map(w => `
+      ${ARTIST_NEW_WEIBO.map(
+        (w) => `
         <div style="background:#fff; margin-bottom:10px; padding:16px;">
           <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px;">
             <div style="display:flex; align-items:center; gap:10px;" onclick="event.stopPropagation(); push('weibo_artist')">
@@ -292,34 +360,47 @@ VIEWS.weibo = () => ({
             <div style="color:#ccc; font-size:16px;">﹀</div>
           </div>
           ${renderWeiboText(w.text)}
-          ${w.video ? `
+          ${
+            w.video
+              ? `
             <div style="border-radius:8px; overflow:hidden; margin-bottom:12px; background:#000; position:relative; cursor:pointer;" onclick="event.stopPropagation();openMediaViewer(['${w.video}'], 0)">
               <video src="${w.video}" muted preload="metadata" style="width:100%; max-height:300px; display:block; object-fit:cover; pointer-events:none;"></video>
               <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:44px; height:44px; background:rgba(0,0,0,0.5); border-radius:50%; display:grid; place-items:center; color:#fff; font-size:20px; padding-left:4px;">▶</div>
             </div>
-          ` : ''}
-          ${w.images && w.images.length > 0 ? `
+          `
+              : ""
+          }
+          ${
+            w.images && w.images.length > 0
+              ? `
             <div style="display:grid; grid-template-columns:repeat(${w.images.length === 1 ? 1 : w.images.length === 4 ? 2 : 3}, 1fr); gap:4px; margin-bottom:12px;">
-              ${w.images.map((img, idx) => `
-                <div style="aspect-ratio:1; border-radius:4px; overflow:hidden; background:#eee;" onclick="event.stopPropagation();openMediaViewer(${JSON.stringify(w.images).replace(/"/g, '&quot;')}, ${idx})">
+              ${w.images
+                .map(
+                  (img, idx) => `
+                <div style="aspect-ratio:1; border-radius:4px; overflow:hidden; background:#eee;" onclick="event.stopPropagation();openMediaViewer(${JSON.stringify(w.images).replace(/"/g, "&quot;")}, ${idx})">
                   <img src="${img}" style="width:100%; height:100%; object-fit:cover;">
                 </div>
-              `).join('')}
+              `,
+                )
+                .join("")}
             </div>
-          ` : ''}
+          `
+              : ""
+          }
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
              <span style="background:#fff0eb; color:#ff3b30; font-size:11px; padding:3px 8px; border-radius:12px; border:0.5px solid #ff3b30;">🔥 爆文 热文指数${w.hot}</span>
              <span style="font-size:12px; color:#999;">70人 😆😆😆</span>
           </div>
           <div style="display:flex; gap:10px; align-items:center; background:#f5f5f5; border-radius:20px; padding:8px 12px; margin-bottom:12px;">
-            <img src="${CFG.myAvatar || 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop'}" style="width:24px; height:24px; border-radius:50%;">
+            <img src="${CFG.myAvatar || "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop"}" style="width:24px; height:24px; border-radius:50%;">
             <span style="font-size:14px; color:#999;">发条评论说说你的看法吧</span>
           </div>
           ${WB_ACTION_BAR(w.likes, w.comments, w.forwards)}
         </div>
-      `).join('')}
+      `,
+      ).join("")}
     </div>
-    ${getWBTabbar('home')}`
+    ${getWBTabbar("home")}`,
 });
 
 // ==========================================
@@ -338,7 +419,7 @@ VIEWS.weibo_profile = () => ({
        <div style="padding:54px 16px 0px;">
          <div style="display:flex; gap:16px;">
            <div style="width:72px; height:72px; border-radius:50%; background:#eee; overflow:hidden; border:1px solid #eee;">
-             <img src="${CFG.myAvatar || 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop'}" style="width:100%; height:100%; object-fit:cover;">
+             <img src="${CFG.myAvatar || "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop"}" style="width:100%; height:100%; object-fit:cover;">
            </div>
            <div style="flex:1;">
              <div style="font-size:18px; font-weight:700; color:#111; display:flex; align-items:center; gap:6px;">小狗团汪汪 <span style="background:linear-gradient(90deg,#ffd700,#ff8c00); color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:10px; transform:scale(0.9);">🧧 抢红包</span></div>
@@ -532,37 +613,43 @@ VIEWS.weibo_profile = () => ({
        </div>
 
     </div>
-    ${getWBTabbar('me')}`,
+    ${getWBTabbar("me")}`,
   init: (pg) => {
-    const nav = pg.querySelector('#wb-me-nav');
-    const title = pg.querySelector('#wb-me-nav-title');
-    const backBtn = pg.querySelector('#wb-me-nav-back');
-    const scroll = pg.querySelector('#wb-me-scroll');
+    const nav = pg.querySelector("#wb-me-nav");
+    const title = pg.querySelector("#wb-me-nav-title");
+    const backBtn = pg.querySelector("#wb-me-nav-back");
+    const scroll = pg.querySelector("#wb-me-scroll");
     if (scroll && nav && title) {
-      scroll.addEventListener('scroll', () => {
+      scroll.addEventListener("scroll", () => {
         if (scroll.scrollTop > 40) {
-          nav.style.background = 'rgba(255, 255, 255, 0.96)';
-          nav.style.backdropFilter = 'blur(10px)';
-          nav.style.boxShadow = '0 0.5px 0 #eee';
-          title.style.opacity = '1';
-          if(backBtn) backBtn.style.opacity = '1';
+          nav.style.background = "rgba(255, 255, 255, 0.96)";
+          nav.style.backdropFilter = "blur(10px)";
+          nav.style.boxShadow = "0 0.5px 0 #eee";
+          title.style.opacity = "1";
+          if (backBtn) backBtn.style.opacity = "1";
         } else {
-          nav.style.background = 'transparent';
-          nav.style.backdropFilter = 'none';
-          nav.style.boxShadow = 'none';
-          title.style.opacity = '0';
-          if(backBtn) backBtn.style.opacity = '0';
+          nav.style.background = "transparent";
+          nav.style.backdropFilter = "none";
+          nav.style.boxShadow = "none";
+          title.style.opacity = "0";
+          if (backBtn) backBtn.style.opacity = "0";
         }
       });
     }
-  }
+  },
 });
 
 // ==========================================
 // 📱 页面 3：我的关注
 // ==========================================
 VIEWS.weibo_follows = () => ({
-  html: navHTML({ title: "关注", back: "", solid: true, right: `<span onclick="toastDev()" style="color:#111; font-size:15px;">发现用户</span>` }) +
+  html:
+    navHTML({
+      title: "关注",
+      back: "",
+      solid: true,
+      right: `<span onclick="toastDev()" style="color:#111; font-size:15px;">发现用户</span>`,
+    }) +
     `<div class="scroll" style="background:#f5f5f5; padding-top:98px; padding-bottom:20px;">
       <div style="display:flex; justify-content:space-around; background:#fff; padding:12px 0; border-bottom:0.5px solid #eee; font-size:15px; color:#666;">
         <span style="font-weight:700; color:#111; position:relative;">关注的人<span style="position:absolute; bottom:-12px; left:50%; transform:translateX(-50%); width:20px; height:3px; background:#ffc107; border-radius:2px;"></span></span>
@@ -579,38 +666,50 @@ VIEWS.weibo_follows = () => ({
         <div style="text-align:center; font-size:12px; color:#333;" onclick="toastDev()"><div style="font-size:24px; color:#ffc107; margin-bottom:6px;">👥</div>关注分组</div>
         <div style="text-align:center; font-size:12px; color:#333;" onclick="toastDev()"><div style="font-size:24px; color:#af52de; margin-bottom:6px;">💜</div>兴趣主页</div>
       </div>
-      ${FOLLOW_DATA.map(u => `
+      ${FOLLOW_DATA.map(
+        (u) => `
         <div style="background:#fff; padding:16px; display:flex; gap:12px; border-bottom:0.5px solid #eee; cursor:pointer;" onclick="if(${u.isArtist}) push('weibo_artist'); else toastDev();">
           <div style="width:50px; height:50px; flex:none; position:relative;">
             <img src="${u.avatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
-            ${u.isArtist ? `<div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:16px; height:16px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div>` : ''}
+            ${u.isArtist ? `<div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:16px; height:16px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div>` : ""}
           </div>
           <div style="flex:1; min-width:0;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="font-size:15px; font-weight:600; color:${u.isArtist ? '#ff8200' : '#333'};">${u.name} ${u.isArtist ? '👑' : ''}</span>
+              <span style="font-size:15px; font-weight:600; color:${u.isArtist ? "#ff8200" : "#333"};">${u.name} ${u.isArtist ? "👑" : ""}</span>
               <div style="border:1px solid #ccc; border-radius:14px; padding:2px 10px; font-size:12px; color:#666; display:flex; align-items:center; gap:2px;">
-                ${u.status === '特别关注' ? '☆' : '✓'} ${u.status}
+                ${u.status === "特别关注" ? "☆" : "✓"} ${u.status}
               </div>
             </div>
             <div style="font-size:13px; color:#666; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${u.desc}</div>
             <div style="font-size:13px; color:#999; margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${u.latest}</div>
-            ${u.supertopic ? `
+            ${
+              u.supertopic
+                ? `
               <div style="background:#f5f5f5; border-radius:6px; padding:6px 10px; margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:12px; color:#ff8200;">💎 ${u.supertopic}</span>
                 <span style="font-size:12px; color:#ff8200;">去超话 ></span>
               </div>
-            ` : ''}
+            `
+                : ""
+            }
           </div>
         </div>
-      `).join('')}
-    </div>`
+      `,
+      ).join("")}
+    </div>`,
 });
 
 // ==========================================
 // 📱 页面 4：我-微博列表
 // ==========================================
 VIEWS.weibo_my_posts = () => ({
-  html: navHTML({ title: "微博", back: "", solid: true, right: `<span onclick="toastDev()" style="cursor:pointer">${G.gear}</span>` }) +
+  html:
+    navHTML({
+      title: "微博",
+      back: "",
+      solid: true,
+      right: `<span onclick="toastDev()" style="cursor:pointer">${G.gear}</span>`,
+    }) +
     `<div class="scroll" style="background:#f5f5f5; padding-top:98px; padding-bottom:20px;">
       <div style="display:flex; overflow-x:auto; white-space:nowrap; font-size:15px; color:#666; border-bottom:0.5px solid #eee; background:#fff; scrollbar-width:none;">
         <div style="padding:12px 16px; font-weight:700; color:#111; position:relative;">全部<span style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:24px; height:3px; background:#ff8200; border-radius:2px;"></span></div>
@@ -645,7 +744,8 @@ VIEWS.weibo_my_posts = () => ({
         <span>全部微博(112)</span>
         <span onclick="toastDev()">☰ 筛选</span>
       </div>
-      ${DATA_WEIBO_DATA.map(w => `
+      ${DATA_WEIBO_DATA.map(
+        (w) => `
         <div style="background:#fff; margin-bottom:10px; padding:16px;">
           <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px; color:#666; font-size:12px;">
              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11V7a2 2 0 0 1 2-2h10l4 4v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/><path d="m4 11 4-4"/></svg> 公开
@@ -653,7 +753,7 @@ VIEWS.weibo_my_posts = () => ({
           <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px;">
             <div style="display:flex; align-items:center; gap:10px;">
               <div style="width:44px; height:44px; border-radius:50%; overflow:hidden; background:#eee;">
-                 <img src="${CFG.myAvatar || 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop'}" style="width:100%; height:100%; object-fit:cover;">
+                 <img src="${CFG.myAvatar || "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop"}" style="width:100%; height:100%; object-fit:cover;">
               </div>
               <div>
                 <div style="font-size:16px; font-weight:600; color:#333;">小狗团汪汪</div>
@@ -666,24 +766,28 @@ VIEWS.weibo_my_posts = () => ({
             </div>
           </div>
           ${renderWeiboText(w.text)}
-          ${w.isRepost ? renderRepostCard(w) : ''}
+          ${w.isRepost ? renderRepostCard(w) : ""}
           ${WB_ACTION_BAR(w.likes, w.comments, w.forwards)}
         </div>
-      `).join('')}
-    </div>`
+      `,
+      ).join("")}
+    </div>`,
 });
-
 // ==========================================
 // 📱 页面 5：艺人主页
 // ==========================================
 VIEWS.weibo_artist = () => ({
   html: `
-       <div class="nav" id="wb-artist-nav" style="color:#fff; position:absolute; z-index:6; top:0; left:0; right:0; height:98px; padding:54px 16px 0; display:flex; align-items:center; justify-content:space-between; background:transparent; transition: background 0.3s, box-shadow 0.3s;">
-         <button class="nb-back" id="wb-artist-back" onclick="back()" style="color:#fff; transition: color 0.3s;">${G.chevL}</button>
+       <!-- 顶部透明悬浮导航 -->
+       <div class="nav" id="wb-artist-nav" style="color:#fff; position:absolute; z-index:6; top:0; left:0; right:0; height:98px; padding:54px 16px 0; display:flex; align-items:center; justify-content:space-between; background:transparent; transition: background 0.3s, color 0.3s, box-shadow 0.3s;">
+         
+         <!-- 返回键：去掉写死的 color，继承 nav 的颜色 -->
+         <button class="nb-back" id="wb-artist-back" onclick="back()" style="transition: color 0.3s, filter 0.3s; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));">${G.chevL}</button>
          
          <div id="wb-artist-title" style="position:absolute; left:50%; transform:translateX(-50%); font-size:17px; font-weight:600; color:#111; opacity:0; transition: opacity 0.3s;">TF_ING穆祉丞MUA</div>
          
-         <div id="wb-artist-right" style="display:flex; gap:16px; color:#fff; transition: color 0.3s;">
+         <!-- 右侧图标：去掉写死的 color，继承 nav 的颜色 -->
+         <div id="wb-artist-right" style="display:flex; gap:16px; transition: color 0.3s, filter 0.3s; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));">
            <span onclick="toastDev()">${G.search}</span>
            <span onclick="toastDev()">${G.dotsH}</span>
          </div>
@@ -808,7 +912,6 @@ VIEWS.weibo_artist = () => ({
                   <div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:15px; height:15px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div>
                 </div>
                 <div>
-                  <!-- 名字后面的 V 已被删掉 -->
                   <div style="font-size:15px; font-weight:700; color:#ff8200; display:flex; align-items:center; gap:4px;">
                     TF_ING穆祉丞MUA 
                     <span style="font-size:16px; margin-left:4px;">🌼</span>
@@ -845,7 +948,6 @@ VIEWS.weibo_artist = () => ({
                   <div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:15px; height:15px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div>
                 </div>
                 <div>
-                  <!-- 名字后面的 V 已被删掉 -->
                   <div style="font-size:15px; font-weight:700; color:#ff8200; display:flex; align-items:center; gap:4px;">
                     TF_ING穆祉丞MUA 
                   </div>
@@ -886,26 +988,30 @@ VIEWS.weibo_artist = () => ({
   init: (pg) => {
     const nav = pg.querySelector('#wb-artist-nav');
     const title = pg.querySelector('#wb-artist-title');
-    const backBtn = pg.querySelector('#wb-artist-back');
-    const rightIcons = pg.querySelector('#wb-artist-right');
     const scroll = pg.querySelector('#wb-artist-scroll');
     
     if (scroll && nav && title) {
       scroll.addEventListener('scroll', () => {
         if (scroll.scrollTop > 180) {
+          // 👇 下滑后：背景变白底，nav 继承黑色，图标也变黑
           nav.style.background = 'rgba(255, 255, 255, 0.96)';
           nav.style.backdropFilter = 'blur(10px)';
           nav.style.boxShadow = '0 0.5px 0 #eee';
+          nav.style.color = '#111'; 
           title.style.opacity = '1';
-          if(backBtn) backBtn.style.color = '#111';
-          if(rightIcons) rightIcons.style.color = '#111';
+          
+          const rightIcons = pg.querySelector('#wb-artist-right');
+          if (rightIcons) rightIcons.style.filter = 'none'; 
         } else {
+          // 👇 滚回顶部：透明，nav 继承白色，图标变白带阴影
           nav.style.background = 'transparent';
           nav.style.backdropFilter = 'none';
           nav.style.boxShadow = 'none';
+          nav.style.color = '#fff'; 
           title.style.opacity = '0';
-          if(backBtn) backBtn.style.color = '#fff';
-          if(rightIcons) rightIcons.style.color = '#fff';
+          
+          const rightIcons = pg.querySelector('#wb-artist-right');
+          if (rightIcons) rightIcons.style.filter = 'drop-shadow(0 1px 3px rgba(0,0,0,0.3))'; 
         }
       });
     }
@@ -920,7 +1026,7 @@ VIEWS.weibo_supertopic = () => ({
     <div class="scroll" style="padding-bottom:80px; padding-top:0;">
        <div style="background:linear-gradient(180deg,#a8847b 0%, #b4978e 100%); padding:44px 16px 20px; position:relative; color:#fff;">
           <div style="display:flex; justify-content:space-between; font-size:22px; align-items:center;">
-             <span onclick="backSuperTopic()" style="cursor:pointer; display:flex; align-items:center; padding:10px 10px 10px 0;">${G.chevL.replace('<svg', '<svg style="width:14px;height:24px;stroke:#fff"')}</span>
+             <span onclick="backSuperTopic()" style="cursor:pointer; display:flex; align-items:center; padding:10px 10px 10px 0;">${G.chevL.replace("<svg", '<svg style="width:14px;height:24px;stroke:#fff"')}</span>
              <div style="display:flex; gap:16px;"><span onclick="toastDev()">🔍</span><span onclick="toastDev()">↗️</span></div>
           </div>
           <div style="display:flex; gap:12px; margin-top:12px;">
@@ -975,7 +1081,8 @@ VIEWS.weibo_supertopic = () => ({
             <span style="flex:1;"></span>
             <span style="color:#999;">﹀</span>
          </div>
-         ${SUPERTopic_DATA.map(t => `
+         ${SUPERTopic_DATA.map(
+           (t) => `
            <div style="background:#fff; margin-bottom:10px; padding:16px; border-bottom:0.5px solid #f0f0f0;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                  <div style="display:flex; align-items:center; gap:10px;">
@@ -983,7 +1090,6 @@ VIEWS.weibo_supertopic = () => ({
                       <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <div>
-                       <!-- 名字后面的 V 已被删掉 -->
                        <div style="font-size:14px; font-weight:600; color:#ff8200; display:flex; align-items:center; gap:4px;">${t.user} <span style="background:#f5f5f5; color:#666; font-size:9px; padding:1px 4px; border-radius:4px;">创作官</span></div>
                        <div style="font-size:11px; color:#999;">${t.time}</div>
                     </div>
@@ -993,17 +1099,29 @@ VIEWS.weibo_supertopic = () => ({
               <div onclick="toastDev()" style="margin-bottom:12px;">
                  ${renderWeiboText(t.text)}
               </div>
-              ${t.images && t.images.length > 0 ? `
+              ${
+                t.images && t.images.length > 0
+                  ? `
                 <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; margin-bottom:12px;">
-                  ${t.images.map((img, idx) => `<div style="aspect-ratio:1; border-radius:6px; overflow:hidden; position:relative;" onclick="event.stopPropagation();openMediaViewer(${JSON.stringify(t.images).replace(/"/g, '&quot;')}, ${idx})">
+                  ${t.images
+                    .map(
+                      (
+                        img,
+                        idx,
+                      ) => `<div style="aspect-ratio:1; border-radius:6px; overflow:hidden; position:relative;" onclick="event.stopPropagation();openMediaViewer(${JSON.stringify(t.images).replace(/"/g, "&quot;")}, ${idx})">
                     <img src="${img}" style="width:100%; height:100%; object-fit:cover;">
                     <div style="position:absolute; bottom:6px; left:6px; background:rgba(0,0,0,0.5); color:#fff; font-size:10px; padding:2px 6px; border-radius:10px; border:0.5px solid #fff;">◎ LIVE</div>
-                  </div>`).join('')}
+                  </div>`,
+                    )
+                    .join("")}
                 </div>
-              ` : ''}
+              `
+                  : ""
+              }
               ${WB_ACTION_BAR(t.likes, t.comments, t.forwards)}
            </div>
-         `).join('')}
+         `,
+         ).join("")}
        </div>
     </div>
     <div style="position:absolute; bottom:0; left:0; right:0; height:64px; background:#fff; border-top:0.5px solid #eee; display:flex; align-items:center; padding:0 16px; gap:16px; z-index:20; padding-bottom: env(safe-area-inset-bottom);">
@@ -1017,7 +1135,7 @@ VIEWS.weibo_supertopic = () => ({
          <span style="font-size:20px; color:#ff8200; font-weight:bold;">Lv8</span>我的
        </div>
     </div>
-  </div>`
+  </div>`,
 });
 
 // ==========================================
@@ -1025,47 +1143,71 @@ VIEWS.weibo_supertopic = () => ({
 // ==========================================
 VIEWS.weibo_detail = () => {
   const data = window._wbData || {};
-  const type = data.type || 'new';
+  const type = data.type || "new";
   const id = data.id || 3;
-  
-  let post = null;
-  if (type === 'my') post = DATA_WEIBO_DATA.find(w => w.id === id) || LIFE_WEIBO_DATA.find(w => w.id === id);
-  else if (type === 'pinned') post = ARTIST_PINNED_WEIBO.find(w => w.id === id);
-  else post = ARTIST_NEW_WEIBO.find(w => w.id === id);
 
-  if (!post) return { html: `<div style="padding:100px 20px;text-align:center;color:#999;font-size:14px;">找不到这条微博</div>` };
+  let post = null;
+  if (type === "my")
+    post =
+      DATA_WEIBO_DATA.find((w) => w.id === id) ||
+      LIFE_WEIBO_DATA.find((w) => w.id === id);
+  else if (type === "pinned")
+    post = ARTIST_PINNED_WEIBO.find((w) => w.id === id);
+  else post = ARTIST_NEW_WEIBO.find((w) => w.id === id);
+
+  if (!post)
+    return {
+      html: `<div style="padding:100px 20px;text-align:center;color:#999;font-size:14px;">找不到这条微博</div>`,
+    };
 
   return {
-    html: navHTML({ title: type === 'my' ? "微博正文" : "TF_ING穆祉丞MUA", back: "", solid: true, right: `<span onclick="toastDev()">${G.dotsH}</span>` }) +
+    html:
+      navHTML({
+        title: type === "my" ? "微博正文" : "TF_ING穆祉丞MUA",
+        back: "",
+        solid: true,
+        right: `<span onclick="toastDev()">${G.dotsH}</span>`,
+      }) +
       `<div class="scroll" style="background:#f5f5f5; padding-top:98px; padding-bottom:20px;">
         <div style="background:#fff; padding:16px;">
           <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;" onclick="if('${type}' !== 'my') push('weibo_artist')">
             <div style="width:44px; height:44px; position:relative; flex:none;">
-              <img src="${type === 'my' ? (CFG.myAvatar || 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop') : './data/avatar/miantuan.jpg'}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
-              ${type !== 'my' ? `<div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:15px; height:15px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div>` : ''}
+              <img src="${type === "my" ? CFG.myAvatar || "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop" : "./data/avatar/miantuan.jpg"}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+              ${type !== "my" ? `<div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:15px; height:15px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div>` : ""}
             </div>
             <div>
-              <!-- 名字后面的 V 已被删掉 -->
-              <div style="font-size:16px; font-weight:600; color:${type === 'my' ? '#333' : '#ff8200'};">${type === 'my' ? '小狗团汪汪' : 'TF_ING穆祉丞MUA'}</div>
+              <div style="font-size:16px; font-weight:600; color:${type === "my" ? "#333" : "#ff8200"};">${type === "my" ? "小狗团汪汪" : "TF_ING穆祉丞MUA"}</div>
               <div style="font-size:12px; color:#999;">${post.time} ${post.device}</div>
             </div>
           </div>
           ${renderWeiboText(post.text)}
-          ${post.isRepost ? renderRepostCard(post) : ''}
-          ${post.video ? `
+          ${post.isRepost ? renderRepostCard(post) : ""}
+          ${
+            post.video
+              ? `
             <div style="border-radius:8px; overflow:hidden; margin-bottom:16px; background:#000; position:relative;">
               <video src="${post.video}" controls preload="metadata" style="width:100%; max-height:400px; display:block; object-fit:contain;"></video>
             </div>
-          ` : ''}
-          ${post.images && post.images.length > 0 ? `
+          `
+              : ""
+          }
+          ${
+            post.images && post.images.length > 0
+              ? `
             <div style="display:grid; grid-template-columns:repeat(${post.images.length === 1 ? 1 : post.images.length === 4 ? 2 : 3}, 1fr); gap:4px; margin-bottom:12px;">
-              ${post.images.map((img, idx) => `
-                <div style="aspect-ratio:1; border-radius:4px; overflow:hidden; background:#eee;" onclick="event.stopPropagation();openMediaViewer(${JSON.stringify(post.images).replace(/"/g, '&quot;')}, ${idx})">
+              ${post.images
+                .map(
+                  (img, idx) => `
+                <div style="aspect-ratio:1; border-radius:4px; overflow:hidden; background:#eee;" onclick="event.stopPropagation();openMediaViewer(${JSON.stringify(post.images).replace(/"/g, "&quot;")}, ${idx})">
                   <img src="${img}" style="width:100%; height:100%; object-fit:cover;">
                 </div>
-              `).join('')}
+              `,
+                )
+                .join("")}
             </div>
-          ` : ''}
+          `
+              : ""
+          }
           <div style="display:flex; justify-content:space-between; align-items:center; border-top:0.5px solid #f0f0f0; padding-top:16px; color:#666; font-size:14px; margin-top:16px;">
             <div style="display:flex; align-items:center; gap:6px;" onclick="toastDev()">
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m15 5-7 7 7 7"/><path d="M20 12H8"/></svg> ${post.forwards}
@@ -1090,6 +1232,6 @@ VIEWS.weibo_detail = () => {
              </div>
            </div>
         </div>
-      </div>`
+      </div>`,
   };
 };

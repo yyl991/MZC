@@ -992,16 +992,7 @@ svg {
     box-shadow: 0 .5px 0 rgba(255, 255, 255, .15)
 }
 
-.nb-back {
-    display: flex;
-    align-items: center;
-    gap: 1px;
-    color: var(--blue);
-    font-size: 17px;
-    justify-self: start;
-    height: 44px;
-    padding-right: 8px
-}
+
 
 .nb-back svg {
     width: 13px;
@@ -4419,18 +4410,24 @@ svg {
     box-sizing: border-box;
     box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
-/* 全局极简返回按钮（去除文字，只留图标） */
+/* =========================================
+   全局修正：只调整返回键，不覆盖 App 自定义边距
+   ========================================= */
+
 .nb-back {
     display: flex;
     align-items: center;
     color: inherit !important;
     justify-self: start;
     height: 44px;
-    padding: 0 16px 0 0;
-    margin-left: -8px;
+    /* 关键修改：去掉负边距，并给左侧增加 6px 的缓冲 */
+    margin-left: 0px !important; 
+    padding-left: 6px !important; 
+    padding-right: 16px;
     cursor: pointer;
     font-size: 0; /* 隐藏文字 */
 }
+
 .nb-back svg {
     width: 14px;
     height: 24px;
