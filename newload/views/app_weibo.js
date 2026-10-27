@@ -1,5 +1,5 @@
 // ==========================================
-// 📱 微博模块 (app_weibo.js) - 去红点/加主页按钮/删钱包版
+// 📱 微博模块 (app_weibo.js) - 纯净无SVG版
 // ==========================================
 
 window.openSuperTopic = function () {
@@ -169,17 +169,17 @@ const SUPERTopic_DATA = [
   },
 ];
 
-const discoverIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/><circle cx="16" cy="8" r="5" fill="#ff3b30" stroke="none"/><text x="16" y="10" font-size="6" fill="#fff" text-anchor="middle" font-weight="bold">热</text></svg>`;
+const discoverIcon = G.wbDiscover;
 
 // 👇 核心修改：去掉了视频和消息的红色数字角标
 const getWBTabbar = (active) => `
   <div class="tabbar" style="position:absolute; bottom:0; left:0; right:0; z-index:20; background:#fff; border-top:0.5px solid #eee; display:flex; padding-bottom:20px;">
     <button onclick="show('weibo')" style="color:${active === "home" ? "#111" : "#666"}; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M12 3 2 10v11h7v-7h6v7h7V10L12 3z"/></svg>
+      ${G.wbTabHome}
       <span style="font-size:10px; font-weight:500;">首页</span>
     </button>
     <button onclick="toastDev()" style="color:#666; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="m10 10 5 2-5 2v-4z" fill="currentColor"/></svg>
+      ${G.wbTabVideo}
       <span style="font-size:10px; font-weight:500;">视频</span>
     </button>
     <button onclick="toastDev()" style="color:#666; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none;">
@@ -187,11 +187,11 @@ const getWBTabbar = (active) => `
       <span style="font-size:10px; font-weight:500;">发现</span>
     </button>
     <button onclick="toastDev()" style="color:#666; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      ${G.wbTabMessage}
       <span style="font-size:10px; font-weight:500;">消息</span>
     </button>
     <button onclick="show('weibo_profile')" style="color:${active === "me" ? "#111" : "#666"}; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      ${G.wbTabMe}
       <span style="font-size:10px; font-weight:500;">我</span>
     </button>
   </div>
@@ -200,13 +200,13 @@ const getWBTabbar = (active) => `
 const WB_ACTION_BAR = (likes, comments, forwards) => `
   <div style="display:flex; justify-content:space-between; align-items:center; border-top:0.5px solid #f0f0f0; padding-top:12px; color:#666; font-size:13.5px; margin-top:12px;">
     <div style="display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="toastDev()">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m15 5-7 7 7 7"/><path d="M20 12H8"/></svg> ${forwards}
+      ${G.wbForward18} ${forwards}
     </div>
     <div style="display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="toastDev()">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> ${comments}
+      ${G.wbComment18} ${comments}
     </div>
     <div class="like-btn" style="display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="toggleWbLike(this, '${likes}')">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> 
+      <div class="like-icon-wrapper" style="display:flex;">${G.wbLike18}</div>
       <span class="like-count">${likes}</span>
     </div>
   </div>
@@ -263,7 +263,7 @@ function renderWeiboText(text) {
 }
 
 window.toggleWbLike = function (el, initialLikes) {
-  const icon = el.querySelector("svg");
+  const icon = el.querySelector(".like-icon-wrapper svg");
   const count = el.querySelector(".like-count");
   if (el.classList.contains("liked")) {
     el.classList.remove("liked");
@@ -310,9 +310,7 @@ VIEWS.weibo = () => ({
               特别关注
               <span style="position:absolute; bottom:-6px; left:50%; transform:translateX(-50%); width:24px; height:3px; background:#ffc107; border-radius:2px;"></span>
             </div>
-            <svg viewBox="0 0 10 6" width="10" height="6" fill="#111" style="margin-top:2px;">
-              <path d="M0 0l5 6 5-6H0z"/>
-            </svg>
+            ${G.chevDown}
           </div>
         </div>
         <div style="position:absolute; right:16px; display:flex; gap:12px;">
@@ -326,8 +324,7 @@ VIEWS.weibo = () => ({
       
       <div onclick="toastDev()" style="display:flex; justify-content:space-between; align-items:center; padding:10px 16px; border-top:0.5px solid #eee; border-bottom:8px solid #f5f5f5; background:#fff;">
         <div style="display:flex; align-items:center; gap:6px; font-size:14px; color:#333;">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="#5c8bd6"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-          管理 特别关注
+          ${G.wbSearch} 管理 特别关注
         </div>
         <div style="font-size:14px; color:#999;">1人</div>
       </div>
@@ -442,59 +439,43 @@ VIEWS.weibo_profile = () => ({
          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:18px 0; text-align:center; font-size:13px; color:#222;">
            
            <div onclick="toastDev()">
-             <div style="display:flex; justify-content:center; margin-bottom:6px;">
-               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="#ff8200" stroke="none"/><polyline points="21 15 16 10 5 21" stroke="#222"/></svg>
-             </div>
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">${G.wbGridXiangce}</div>
              我的相册
            </div>
            
            <div onclick="toastDev()">
-             <div style="display:flex; justify-content:center; margin-bottom:6px;">
-               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polygon points="12 7 13.5 10.5 17 11 14.5 13.5 15 17 12 15.5 9 17 9.5 13.5 7 11 10.5 10.5" fill="#ff8200" stroke="none"/></svg>
-             </div>
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">${G.wbGridZan}</div>
              赞/收藏
            </div>
            
            <div onclick="toastDev()">
-             <div style="display:flex; justify-content:center; margin-bottom:6px;">
-               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2" stroke="#ff8200"/></svg>
-             </div>
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">${G.wbGridLiulan}</div>
              浏览记录
            </div>
            
            <div onclick="toastDev()">
-             <div style="display:flex; justify-content:center; margin-bottom:6px;">
-               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13l-4 4-2 1 1-2 4-4a1.4 1.4 0 0 1 2 2z" fill="#ff8200" stroke="none"/></svg>
-             </div>
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">${G.wbGridCaogao}</div>
              草稿箱
            </div>
            
            <div onclick="toastDev()" style="position:relative;">
-             <div style="display:flex; justify-content:center; margin-bottom:6px;">
-               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M7 6V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v2"/><circle cx="17" cy="15" r="2.5" fill="#ff8200" stroke="none"/></svg>
-             </div>
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">${G.wbGridQianbao}</div>
              我的钱包
              <div style="position:absolute; top:-2px; right:12px; width:8px; height:8px; background:#ff3b30; border-radius:50%;"></div>
            </div>
            
            <div onclick="toastDev()">
-             <div style="display:flex; justify-content:center; margin-bottom:6px;">
-               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0" stroke="#ff8200"/></svg>
-             </div>
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">${G.wbGridDingdan}</div>
              微博购订单
            </div>
            
            <div onclick="toastDev()">
-             <div style="display:flex; justify-content:center; margin-bottom:6px;">
-               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7z"/><path d="M12 8l-2 4h4l-2 3" stroke="#ff8200"/></svg>
-             </div>
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">${G.wbGridChuangzuo}</div>
              创作中心
            </div>
            
            <div onclick="toastDev()">
-             <div style="display:flex; justify-content:center; margin-bottom:6px;">
-               <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#222" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 15h8" stroke="#ff8200" stroke-width="2.5"/></svg>
-             </div>
+             <div style="display:flex; justify-content:center; margin-bottom:6px;">${G.wbGridFensi}</div>
              粉丝头条
            </div>
 
@@ -521,8 +502,6 @@ VIEWS.weibo_profile = () => ({
            </div>
          </div>
        </div>
-
-       <!-- 👇 已删除：我的钱包 整个模块 -->
 
        <div style="background:#fff; margin:0 12px 10px; border-radius:12px; padding:14px 16px;">
          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-size:15px; font-weight:700; color:#111;">我的经常访问</div><div onclick="toastDev()" style="font-size:13px; color:#999;">有更新 ></div></div>
@@ -726,7 +705,7 @@ VIEWS.weibo_my_posts = () => ({
         (w) => `
         <div style="background:#fff; margin-bottom:10px; padding:16px;">
           <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px; color:#666; font-size:12px;">
-             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11V7a2 2 0 0 1 2-2h10l4 4v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/><path d="m4 11 4-4"/></svg> 公开
+             ${G.wbPublic} 公开
           </div>
           <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px;">
             <div style="display:flex; align-items:center; gap:10px;">
@@ -788,7 +767,7 @@ VIEWS.weibo_artist = () => ({
                <span style="font-size:17px; font-weight:700; color:#111;">TF_ING穆祉丞MUA</span>
                <span style="color:#5ac8fa; font-size:16px; font-weight:bold;">♂</span>
                <div style="background:linear-gradient(90deg,#ffd700,#ff8c00); color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px; display:flex; align-items:center; gap:2px;">
-                  <svg viewBox="0 0 24 24" width="12" height="12" fill="#fff"><path d="M2 18h20L20 7l-5 4-3-6-3 6-5-4z"/></svg> SVIP8
+                  ${G.wbSVIPCrown} SVIP8
                </div>
              </div>
           </div>
@@ -804,14 +783,14 @@ VIEWS.weibo_artist = () => ({
              <span style="background:#fff0eb; color:#ff8200; padding:4px 8px; border-radius:4px;">娱乐明星领域 互动数飙升</span>
           </div>
           <div style="margin-top:12px; font-size:13px; color:#666; display:flex; align-items:center; gap:6px;">
-             <svg viewBox="0 0 24 24" width="16" height="16" fill="#b3b3b3"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"/></svg>
+             ${G.wbVerified}
              北京时代峰峻旗下音乐厂牌TF_ING成员 穆祉丞
           </div>
 
           <div style="display:flex; gap:10px; margin-top:18px;">
             <div onclick="openSuperTopic()" style="flex:1; background:#f7f7f7; border-radius:8px; padding:12px; display:flex; align-items:center; gap:8px;">
               <div style="width:36px; height:36px; display:grid; place-items:center; flex:none;">
-                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#666" stroke-width="1.6" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M12 21V9M6 3l6 6 6-6"/></svg>
+                ${G.wbShiPinhao}
               </div>
               <div style="flex:1; overflow:hidden;">
                 <div style="font-size:15px; font-weight:600; color:#333;">超话</div>
@@ -822,7 +801,7 @@ VIEWS.weibo_artist = () => ({
             
             <div onclick="toastDev()" style="flex:1; background:#f7f7f7; border-radius:8px; padding:12px; display:flex; align-items:center; gap:8px;">
               <div style="width:36px; height:36px; display:grid; place-items:center; flex:none;">
-                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#666" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="m17 2-5 4-5-4"/><path d="m10 11 5 3-5 3z" fill="#666"/></svg>
+                ${G.wbLive}
               </div>
               <div style="flex:1;">
                 <div style="font-size:15px; font-weight:600; color:#333;">直播</div>
@@ -846,22 +825,22 @@ VIEWS.weibo_artist = () => ({
        <div style="background:#f5f5f5; padding:10px 16px; display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#666;">
           <span>全部微博(919)</span>
           <span onclick="toastDev()" style="display:flex; align-items:center; gap:4px;">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h16"/></svg> 筛选
+            ${G.wbFilter} 筛选
           </span>
        </div>
 
        <div style="background:#fff; display:flex; gap:8px; padding:8px 12px 12px;">
          <div style="flex:1; background:#f9f9f9; border-radius:4px; padding:8px 0; display:flex; justify-content:center; align-items:center; gap:4px; font-size:12px; color:#333; white-space:nowrap;">
-           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> 原创 ▾
+           ${G.wbYuanchuang} 原创 ▾
          </div>
          <div style="flex:1; background:#f9f9f9; border-radius:4px; padding:8px 0; display:flex; justify-content:center; align-items:center; gap:4px; font-size:12px; color:#333; white-space:nowrap;">
-           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> 赞 ▾
+           ${G.wbLike18} 赞 ▾
          </div>
          <div style="flex:1; background:#f9f9f9; border-radius:4px; padding:8px 0; display:flex; justify-content:center; align-items:center; gap:4px; font-size:12px; color:#333; white-space:nowrap;">
-           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> 热门音频 ▾
+           ${G.wbAudio} 热门音频 ▾
          </div>
          <div style="flex:1; background:#f9f9f9; border-radius:4px; padding:8px 0; display:flex; justify-content:center; align-items:center; gap:4px; font-size:12px; color:#333; white-space:nowrap;">
-           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg> 近期热门 ▾
+           ${G.wbRecent} 近期热门 ▾
          </div>
        </div>
 
@@ -879,7 +858,7 @@ VIEWS.weibo_artist = () => ({
           <div style="background:#fff; margin-bottom:10px; padding:0 16px 16px; position:relative;">
             <div style="position:absolute; top:0; left:0; width:100px; height:40px; background:linear-gradient(135deg, #fffcf0, transparent); border-radius: 20px 0 0 0; z-index:0;"></div>
             <div style="position:relative; z-index:1; display:flex; align-items:center; gap:4px; padding:12px 0 16px; font-size:12px; font-weight:700; color:#c9a227;">
-               <svg viewBox="0 0 24 24" width="14" height="14" fill="#c9a227"><path d="M2 18h20L20 7l-5 4-3-6-3 6-5-4z"/></svg> 置顶
+               ${G.wbTopCrown} 置顶
             </div>
             
             <div style="position:relative; z-index:1; display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px;">
@@ -1185,13 +1164,13 @@ VIEWS.weibo_detail = () => {
           }
           <div style="display:flex; justify-content:space-between; align-items:center; border-top:0.5px solid #f0f0f0; padding-top:16px; color:#666; font-size:14px; margin-top:16px;">
             <div style="display:flex; align-items:center; gap:6px;" onclick="toastDev()">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m15 5-7 7 7 7"/><path d="M20 12H8"/></svg> ${post.forwards}
+              ${G.wbForward22} ${post.forwards}
             </div>
             <div style="display:flex; align-items:center; gap:6px;" onclick="toastDev()">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> ${post.comments}
+              ${G.wbComment22} ${post.comments}
             </div>
             <div class="like-btn" style="display:flex; align-items:center; gap:6px; cursor:pointer;" onclick="toggleWbLike(this, '${post.likes}')">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg> 
+              <div class="like-icon-wrapper" style="display:flex;">${G.wbLike22}</div>
               <span class="like-count">${post.likes}</span>
             </div>
           </div>

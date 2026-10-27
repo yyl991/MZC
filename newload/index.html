@@ -94,28 +94,31 @@
                 // 👇 核心加载顺序（数组格式，以后加新文件直接在这里加一行就行）
                 const scripts = [
                     // 1. 数据层与工具
-                    'chat_history.js', 
-                    'story.js',
-                    'utils.js',
+                    './data/chat_history.js', 
+                    './data/story.js',
+                    './core/utils.js',
+                    './core/icons.js',
+                    './core/audio.js',
+                    './core/app.js',
+                    './views/home_ui.js',
+                    './views/app_extra.js',
 
-                    // 2. 操作系统核心与主屏幕
-                    'app.js',
-                    'home_ui.js',
-                    
                     // 3. 基础组件与杂项（包含日历、时钟、电话、相册、备忘录等所有系统级组件）
-                    'app_extra.js',
-                    'mail.js',
-                    'app_safari.js',
-                    'app_music.js',
-                    'app_map.js',
-                    'app_photos.js',
+                    
+                    './views/app_safari.js',
+                    './views/app_music.js',
+                    './views/app_map.js',
+
+
+                    './views/mail.js',
+                    './views/app_photos.js',
 
                     // 4. 独立 App 模块
-                    'app_wechat.js',
-                    'app_weibo.js',
-                    'app_xianyu.js',
-                    'app_bilibili.js',
-                    'app_xhs.js'
+                    './views/app_wechat.js',
+                    './views/app_weibo.js',
+                    './views/app_xianyu.js',
+                    './views/app_bilibili.js',
+                    './views/app_xhs.js'
                 ];
 
                 // 循环按顺序加载

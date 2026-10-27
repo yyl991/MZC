@@ -220,13 +220,14 @@ VIEWS.privateAlbum = () => {
     ? CFG.privateAlbum 
     : defaultSecretPics;
 
+  // ================= 未解锁状态 =================
   if (!privateAlbumUnlocked) {
     privatePincode = "";
     return {
       cls: "dark",
-      html: navHTML({ title: "私密相册", back: "照片", backFn: "back()", solid: true }) + 
-      `<div style="height:100vh; background:#000; display:flex; flex-direction:column; align-items:center; padding-top:12vh;">
-        
+      dark: true, // 👈 核心修改：告诉系统状态栏变白字！
+      html: `
+      <div style="height:100vh; background:#000; display:flex; flex-direction:column; align-items:center; padding-top:12vh;">
         <div style="width:60px; height:60px; background:#222; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:16px; box-shadow:0 4px 15px rgba(0,0,0,0.5);">🔒</div>
         <div class="pt" style="color:#fff; font-size:20px; font-weight:500; margin-bottom: 24px;">输入密码以查看</div>
         
@@ -234,7 +235,6 @@ VIEWS.privateAlbum = () => {
             ${[0,1,2,3].map(i => `<i class="${i < privatePincode.length ? "on" : ""}"></i>`).join("")}
         </div>
 
-        <!-- 👇 修复：改成 onclick 触发，彻底绕过全局的假按钮拦截 -->
         <div class="pkeys">
             ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="pk" onclick="pressPrivatePin('${n}',this)"><b>${n}</b><small>${["","ABC","DEF","GHI","JKL","MNO","PQRS","TUV","WXYZ"][n-1]}</small></button>`).join("")}
             <span></span>
@@ -242,7 +242,6 @@ VIEWS.privateAlbum = () => {
             <span></span>
         </div>
         
-        <!-- 👇 修复：去掉了 width:100%，让它居中且自适应 -->
         <div class="pbot" style="position:absolute; bottom:48px; left:46px; right:46px; display:flex; justify-content:center;">
             <button id="private-del-btn" onclick="delPrivatePin()" style="color:#007aff; font-size:16px; text-align:center; background:transparent; border:none; cursor:pointer;">取消</button>
         </div>
@@ -250,14 +249,16 @@ VIEWS.privateAlbum = () => {
     };
   }
 
-  // 已解锁的相册部分保持不变
+  // ================= 已解锁状态 =================
   const validSrcs = pics.map(p => p.src);
   window.currentMediaList = validSrcs;
 
   return {
-    html: navHTML({ title: "私密相册", back: "照片", backFn: "back()" }) + 
-    `<div class="scroll" style="background:#000; padding-bottom: 100px; min-height:100vh;">
-      <div style="padding: 10px 16px; display:flex; justify-content:space-between; align-items:center;">
+    cls: "dark",
+    dark: true, // 👈 核心修改：解锁后依然保持白字状态栏，并去掉了多余的黑色导航栏
+    html: `
+    <div class="scroll" style="background:#000; padding-bottom: 100px; min-height:100vh; padding-top: 60px;">
+      <div style="padding: 10px 16px 20px; display:flex; justify-content:space-between; align-items:center;">
          <h1 class="lt" style="margin:0; color:#fff; font-size:24px;">私密照片</h1>
          <span style="color:#ff3b30; font-size:16px; cursor:pointer; padding:4px;" onclick="privateAlbumUnlocked=false; show('privateAlbum')">重新锁定</span>
       </div>
@@ -280,6 +281,6 @@ VIEWS.privateAlbum = () => {
           </div>
         `}).join('')}
       </div>
-    </div>`,
+    </div>`
   };
 };
