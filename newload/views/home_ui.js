@@ -5,9 +5,9 @@
 (function() {
   // 👇 你的图片数组
   const musicImages = [
-    "./data/music/大胖猫.jpg", 
+    "./data/music/pangmao1.jpg", 
     "./data/avatar/miantuan.jpg",   
-    "./data/music/pangmao.jpg",    
+    "./data/music/pangmao2.jpg",    
     "./data/avatar/miantuan.jpg"
   ];
   
@@ -49,9 +49,12 @@
     .wcal-wide .cal-right { display: flex; flex-direction: column; justify-content: center; margin-left: 8px; width: 52%; gap: 4px; }
     .wcal-wide .cal-month-title { font-size: 13px; color: #ff3b30; font-weight: 600; width: 100%; text-align: left; padding-left: 2px; }
     .wcal-wide .mini-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px 0; font-size: 11px; text-align: center; width: 100%; }
-    .wcal-wide .mini-cal span { width: 18px; height: 18px; line-height: 18px; color: #111; font-weight: 500; justify-self: center; }
+    .wcal-wide .mini-cal span { width: 18px; height: 18px; line-height: 18px; color: #111; font-weight: 500; justify-self: center; position: relative; }
     .wcal-wide .mini-cal span.dim { color: #999; font-weight: 400; }
     .wcal-wide .mini-cal span.today { background: #ff3b30; color: #fff; border-radius: 50%; font-weight: 600; }
+    
+    /* 👇 将小圆点颜色改成 #FDAFAB (橙色) */
+    .wcal-wide .mini-cal span.has-event::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: #FDAFAB; border-radius: 50%; }
 
     .wwx-dark { grid-column: span 2; grid-row: span 2; width: 100%; aspect-ratio: 1 / 1.05; background: linear-gradient(180deg, #5c6670, #3a4149); border-radius: 22px; padding: 12px; color: #fff; position: relative; text-align: left; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
     .wwx-dark .w-top { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -107,7 +110,11 @@
     for (let i = 0; i < firstDay; i++) html += `<span></span>`;
     for (let d = 1; d <= daysInMonth; d++) {
       const isToday = (d === todayDate && month === 11);
-      html += `<span class="${isToday ? 'today' : ''}">${d}</span>`;
+      
+      // 判断该日是否有日程（支持 events 数据或 11 月 16 号默认触发）
+      const hasEv = (typeof events !== 'undefined' && events[d] && events[d].length > 0) || (d === 16 && month === 11);
+      
+      html += `<span class="${isToday ? 'today' : ''} ${hasEv ? 'has-event' : ''}">${d}</span>`;
     }
     return html;
   }
@@ -190,8 +197,16 @@
     if (bgm) bgm.loop = false; 
     const isPlaying = bgm && !bgm.paused;
 
-    const evs = events[15] || [];
-    const evHTML = evs.length > 0 ? evs.map(x => `<div class="we">${esc(x)}<small>全天</small></div>`).join("") : `<div style="color:#999;font-size:12px;">今天无日程</div>`;
+    // 👇 获取今天和明天的日程
+    const evsToday = events[15] || [];
+    const evsTomorrow = events[16] || ["🎂 穆祉丞生日"]; // 确保明天一定有生日
+
+    // 👇 删掉了没有日程时的默认提示文案，直接为空
+    let evHTML = evsToday.map(x => `<div class="we">${esc(x)}<small>全天</small></div>`).join("");
+    
+    // 👇 将明天的生日加在下面，边框颜色改成 #FDAFAB (橙色)
+    evHTML += evsTomorrow.map(x => `<div class="we" style="border-left-color:#FDAFAB">${esc(x)}<small>明天</small></div>`).join("");
+
     const musicHTML = getMusicWidgetHTML(isPlaying);
     const dockApps = ["wechat", "phone", "sms", "recorder"];
 

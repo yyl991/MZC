@@ -542,11 +542,51 @@ function show(id, anim = "swap") {
   view = id;
   const v = VIEWS[id] && VIEWS[id]();
   if (!v) return;
+  
   const pg = document.createElement("div");
   pg.className = "pg " + (v.cls || "");
   pg.innerHTML = v.html;
   pg.dataset.view = id;
   pg.dataset.dark = v.dark ? "1" : "";
+
+  // ==========================================
+  // 👇 全自动全局返回键管理 (一级隐藏，二级自动注入)
+  // ==========================================
+  const ROOT_VIEWS = [
+    "home", "lock", "pin",
+    "wechat", "wx_contacts", "wx_discover", "wx_me",
+    "phone", "sms", "weather", "recorder", "calendar", "clock", "notes", "safari", "music", "maps", "photos", "settings", "mail",
+    "weibo", "weibo_profile", "xianyu", "xianyu_me", "bilibili", "xhs", "instagram"
+  ];
+
+  if (ROOT_VIEWS.includes(id)) {
+    // 1. 如果是一级界面，强制隐藏页面里所有可能存在的返回键
+    pg.querySelectorAll('.nb-back, .bk').forEach(el => {
+      el.style.visibility = 'hidden';
+      el.style.pointerEvents = 'none';
+    });
+  } else {
+    // 2. 如果是二级界面，检查是否有标准导航或手写的返回逻辑
+    const hasStandardNav = pg.querySelector('.nav') || pg.querySelector('.wx-chat-h');
+    const hasManualBack = pg.innerHTML.includes('onclick="back()"') || 
+                          pg.innerHTML.includes('onclick="closeApp()"') || 
+                          pg.innerHTML.includes('onclick="backSuperTopic()"');
+
+    if (!hasStandardNav && !hasManualBack) {
+      const isDark = !!v.dark || pg.classList.contains('dark');
+      const autoBack = document.createElement("div");
+      autoBack.className = "auto-global-back";
+      
+      // 极简无圆圈纯箭头
+      autoBack.style.cssText = `position: absolute; top: 45px; left: 10px; z-index: 999; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 8px;`;
+      
+      autoBack.innerHTML = `<button onclick="back()" style="display: flex; align-items: center; justify-content: center; color: ${isDark ? '#fff' : '#111'}; border: none; background: none; padding: 0; cursor: pointer;">${G.chevL.replace('<svg', '<svg width="22" height="22" stroke="currentColor" stroke-width="2.2"')}</button>`;
+      
+      pg.appendChild(autoBack);
+    }
+  }
+  // ==========================================
+
   if (anim === "pop") APP.insertBefore(pg, APP.firstChild);
   else APP.appendChild(pg);
   setStatus(v.dark);
@@ -582,11 +622,13 @@ function show(id, anim = "swap") {
     });
     setTimeout(done, T.duration);
   } else done();
+  
   v.init && v.init(pg);
   updateIsland();
   updateDndBadge();
   return pg;
 }
+
 function zoomFrames(r) {
   const W = SCREEN.clientWidth,
     H = SCREEN.clientHeight,

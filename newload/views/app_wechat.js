@@ -2,7 +2,7 @@ const MOCK_MOMENTS_DATA = {
   "穆祉丞": {
     wxid: "mzc_1108",
     region: "重庆",
-    cover: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=800", // 朋友圈封面图
+    cover: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=800",
     posts: [
       {
         id: 1,
@@ -29,6 +29,65 @@ const MOCK_MOMENTS_DATA = {
           { user: "恩仔", text: "奇缘2028呢。", replyTo: "" },
           { user: "穆祉丞", text: "郑棋元说听不懂给你比个心吧。", replyTo: "恩仔" }
         ]
+      }
+    ]
+  },
+  "穆小恩": {
+    wxid: "muxiaoen_99",
+    region: "北京",
+    cover: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=800",
+    posts: [
+      {
+        id: 3,
+        date: { day: "昨天", month: "" },
+        text: "今天的晚霞太绝了，分享给大家！🌇",
+        images: ["https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=500"],
+        location: "",
+        time: "昨天 18:30",
+        likes: ["穆祉丞", "恩仔"],
+        comments: [
+          { user: "恩仔", text: "真的好看！在哪儿拍的？", replyTo: "" },
+          { user: "穆小恩", text: "就在家楼下哈哈。", replyTo: "恩仔" }
+        ]
+      }
+    ]
+  },
+  "恩仔": {
+    wxid: "enzai_0412",
+    region: "浙江",
+    cover: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800",
+    posts: [
+      {
+        id: 4,
+        date: { day: "15", month: "10月" },
+        text: "我的猫今天终于愿意理我了，感动哭了😭",
+        images: [
+          "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=300",
+          "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?q=80&w=300"
+        ],
+        location: "",
+        time: "2026年10月15日 21:00",
+        likes: ["穆小恩"],
+        comments: [
+          { user: "穆小恩", text: "猫主子是这样的，习惯就好。", replyTo: "" }
+        ]
+      }
+    ]
+  },
+  "丞哥": {
+    wxid: "cheng_ge",
+    region: "北京",
+    cover: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800",
+    posts: [
+      {
+        id: 5,
+        date: { day: "12", month: "10月" },
+        text: "今天腿练废了。",
+        images: ["https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=500"],
+        location: "",
+        time: "2026年10月12日 19:30",
+        likes: ["穆祉丞"],
+        comments: []
       }
     ]
   }
@@ -1098,18 +1157,18 @@ VIEWS.wx_me = () => {
     </div>`,
   };
 };
-
 VIEWS.wx_profile = () => {
   const role = CFG.roles?.[chatId] || { initial: chatId.charAt(0) };
   const avatar = role.avatar || G.sil;
-  const data = MOCK_MOMENTS_DATA[chatId] || MOCK_MOMENTS_DATA["穆祉丞"];
+  const data = MOCK_MOMENTS_DATA[chatId] || { wxid: "wxid_default", region: "未知", posts: [] };
   const thumbnails = (data.posts || []).flatMap(p => p.images).slice(0, 4);
 
   return {
     cls: "wx-list",
     html: `
     <div class="wx-head" style="background:#fff; border-bottom:0.5px solid #e5e5ea; position:absolute; z-index:10; width:100%;">
-      <div class="wx-head-left"><button class="bk" onclick="back()" style="border:none; background:none;">${G.chevL}</button></div>
+      <!-- 👇 左侧留空，全局会自动注入返回键 -->
+      <div class="wx-head-left"></div>
       <h1 style="opacity:0;">资料</h1>
       <div class="wx-actions" onclick="toastDev()">${G.dotsH}</div>
     </div>
@@ -1162,18 +1221,16 @@ VIEWS.wx_profile = () => {
 VIEWS.wx_moments_user = () => {
   const role = CFG.roles?.[chatId] || { initial: chatId.charAt(0) };
   const avatar = role.avatar || G.sil;
-  const data = MOCK_MOMENTS_DATA[chatId] || MOCK_MOMENTS_DATA["穆祉丞"];
+  const data = MOCK_MOMENTS_DATA[chatId] || { cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800", posts: [] };
 
   window._wxMomentUserFeed = data.posts || [];
 
   return {
     cls: "wx-list",
     html: `
-    <div class="nav" id="wx-moments-nav" style="position:absolute; z-index:10; top:0; left:0; right:0; height:98px; padding:54px 16px 0; display:flex; align-items:center; justify-content:space-between; color:#fff; background:transparent; transition:all 0.3s;">
-      <button onclick="back()" style="filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3));">${G.chevL}</button>
-    </div>
+    <!-- 👇 手写的返回键已全部删除，交给 app.js 自动生成 -->
 
-    <div class="wx-scroll" id="wx-moments-scroll" style="background:#fff; padding-top:0; padding-bottom:50px;">
+    <div class="wx-scroll" id="wx-moments-scroll" style="background:#fff; padding-top:0; padding-bottom:20px;">
       
       <div style="position:relative; height:320px; background:url('${data.cover}') center/cover;">
         <div style="position:absolute; right:16px; bottom:-20px; display:flex; align-items:flex-end; gap:12px;">
@@ -1183,6 +1240,15 @@ VIEWS.wx_moments_user = () => {
       </div>
 
       <div style="margin-top:30px;">
+        <!-- 空状态：长横线+圆点+长横线 -->
+        ${(data.posts || []).length === 0 ? `
+          <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-top: 80px;">
+            <div style="width: 80px; height: 1px; background: #dcdcdc;"></div>
+            <div style="width: 4px; height: 4px; background: #dcdcdc; border-radius: 50%;"></div>
+            <div style="width: 80px; height: 1px; background: #dcdcdc;"></div>
+          </div>
+        ` : ''}
+        
         ${(data.posts || []).map((post, index) => `
           <div onclick="openMomentDetailFromUserFeed(${index})" style="display:flex; gap:16px; padding:16px; border-bottom:0.5px solid #f0f0f0; cursor:pointer;">
             <div style="width:44px; height:44px; flex-shrink:0;">
@@ -1201,30 +1267,11 @@ VIEWS.wx_moments_user = () => {
           </div>
         `).join('')}
       </div>
-    </div>
-
-    <div style="position:absolute; bottom:0; left:0; right:0; height:50px; background:#f7f7f7; border-top:0.5px solid #e5e5ea; display:flex; align-items:center; padding:0 12px; gap:12px;">
-      <div style="flex:1; background:#fff; height:34px; border-radius:4px; display:flex; align-items:center; padding:0 10px; color:#999; font-size:14px;">发表评论：</div>
-      <span style="font-size:20px;">${G.smile}</span>
-      <span style="font-size:20px;">${G.photo}</span>
     </div>`,
     init: (pg) => {
-      const nav = pg.querySelector('#wx-moments-nav');
       const scroll = pg.querySelector('#wx-moments-scroll');
       scroll.addEventListener('scroll', () => {
-        if (scroll.scrollTop > 250) {
-          nav.style.background = 'rgba(255,255,255,0.96)';
-          nav.style.color = '#111';
-          nav.style.backdropFilter = 'blur(10px)';
-          nav.style.boxShadow = '0 0.5px 0 #eee';
-          nav.querySelector('button').style.filter = 'none';
-        } else {
-          nav.style.background = 'transparent';
-          nav.style.color = '#fff';
-          nav.style.backdropFilter = 'none';
-          nav.style.boxShadow = 'none';
-          nav.querySelector('button').style.filter = 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))';
-        }
+        // 由于删了 nav，这里滑动变色逻辑也删了
       });
     }
   };
@@ -1241,7 +1288,7 @@ VIEWS.wx_moments_detail = () => {
     const role = CFG.roles?.[chatId] || { initial: chatId.charAt(0) };
     avatar = role.avatar || G.sil;
     authorName = dn(chatId);
-    const data = MOCK_MOMENTS_DATA[chatId] || MOCK_MOMENTS_DATA["穆祉丞"];
+    const data = MOCK_MOMENTS_DATA[chatId] || { posts: [] };
     const postId = window._currentMomentId || 1;
     post = data.posts.find(p => p.id === postId) || data.posts[0];
   }
@@ -1255,60 +1302,70 @@ VIEWS.wx_moments_detail = () => {
   return {
     cls: "wx-list",
     html: `
-    <div class="wx-head" style="background:#ededed; position:absolute; z-index:10; width:100%; border-bottom:none;">
-      <div class="wx-head-left"><button class="bk" onclick="back()" style="border:none; background:none;">${G.chevL}</button></div>
-      <h1 style="font-size:17px;">详情</h1>
-      <div class="wx-actions"></div>
+    <!-- 👇 顶部换成带返回键的标准 nav，删掉原来的 wx-head -->
+    <div class="nav solid" style="background:#ededed; position:absolute; z-index:10; width:100%; border-bottom:none;">
+      <button class="nb-back" onclick="back()" style="border:none; background:none; cursor:pointer; color:#111; pointer-events: auto;">${G.chevL}</button>
+      <div class="nb-title" style="opacity:1; font-size:17px; color:#111;">详情</div>
+      <div class="nb-right"></div>
     </div>
 
     <div class="wx-scroll" style="background:#fff; padding-top: 98px; padding-bottom: 60px;">
       
-      <div style="padding: 16px 16px 10px 16px;">
-        <div style="display:flex; gap:12px; margin-bottom:12px;">
-          <img src="${avatar}" onclick="event.stopPropagation(); openWxProfileFromDetail()" style="width:44px; height:44px; border-radius:6px; object-fit:cover; cursor:pointer;">
-          <div style="flex:1;">
-            <div style="color:#576b95; font-size:16px; font-weight:600;">${esc(authorName)}</div>
-          </div>
-        </div>
+      <!-- 设置统一的左右内边距 -->
+      <div style="padding: 16px;">
         
-        <div style="font-size:16px; color:#111; line-height:1.6; margin-bottom:12px; white-space:pre-wrap;">${esc(post.text)}</div>
-        
-        ${post.images && post.images.length > 0 ? `
-          <div style="display:grid; grid-template-columns:repeat(${post.images.length === 1 ? 1 : 3}, 1fr); gap:4px; margin-bottom:12px; max-width:${post.images.length === 1 ? '60%' : '100%'};">
-            ${post.images.map(img => `<img src="${img}" style="width:100%; aspect-ratio:${post.images.length === 1 ? '4/3' : '1'}; object-fit:cover; border-radius:4px;" onclick="openMediaViewer(['${img}'], 0)">`).join('')}
-          </div>
-        ` : ''}
-
-        <!-- 👇 时间和“··”放在同一行 -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 10px;">
-          <div style="font-size:13px; color:#999;">${post.time || '刚刚'}</div>
-          <div style="background:#f7f7f7; padding:4px 12px; border-radius:4px; color:#576b95; font-weight:600; letter-spacing:2px; cursor:pointer;" onclick="toastDev()">··</div>
-        </div>
-      </div>
-
-      <!-- 👇 评论区大框，紧贴着日期那一行 -->
-      <div style="background:#f7f7f7; border-radius:6px; margin: 0 16px 20px; padding: 12px;">
-        
-        ${post.likes && post.likes.length > 0 ? `
-          <div style="display:flex; align-items:flex-start; gap: 8px; ${post.comments && post.comments.length > 0 ? 'border-bottom:0.5px solid #e5e5ea; padding-bottom:12px; margin-bottom:12px;' : ''}">
-            <div style="width: 24px; height: 24px; flex: none; display: flex; align-items: center; justify-content: center;">
-               ${G.heart.replace('<svg', '<svg width="24" height="24" style="color:#576b95;"')}
-            </div>
-            <div style="display:flex; gap:6px; flex-wrap:wrap; flex: 1;">
-              ${post.likes.map(name => `<img src="${getLikeAvatar(name)}" onclick="event.stopPropagation(); window.openWxProfileByName('${name}', 'wx_moments_detail')" style="width:32px; height:32px; border-radius:4px; object-fit:cover; cursor:pointer;">`).join('')}
-            </div>
-          </div>
-        ` : ''}
-
-        <div style="display:flex; flex-direction:column; gap: 12px;">
-          ${(post.comments || []).map((c, index) => `
-            <div style="display:flex; align-items:flex-start; gap: 8px;">
-              <!-- 只有第一条评论有气泡图标，后续的留空白占位以保证头像对齐 -->
-              <div style="width: 24px; height: 24px; flex: none; display: flex; align-items: center; justify-content: center; margin-top: 4px;">
-                 ${index === 0 ? G.comment.replace('<svg', '<svg width="24" height="24" style="color:#576b95;"') : ''}
+        <!-- 顶部左右结构：大头像 + 右侧内容 -->
+        <div style="display:flex; gap: 12px; align-items: flex-start;">
+          
+          <!-- 左侧头像 -->
+          <img src="${avatar}" onclick="event.stopPropagation(); openWxProfileFromDetail()" style="width:40px; height:40px; border-radius:6px; object-fit:cover; flex: none; cursor:pointer;">
+          
+          <!-- 右侧文字、图片、时间等 -->
+          <div style="flex:1; min-width:0;">
+            <div style="color:#576b95; font-size:16px; font-weight:600; margin-bottom: 6px;">${esc(authorName)}</div>
+            <div style="font-size:15px; color:#111; line-height:1.45; margin-bottom:8px; white-space:pre-wrap;">${esc(post.text)}</div>
+            
+            ${post.images && post.images.length > 0 ? `
+              <div style="display:flex; flex-direction: column; margin-bottom: 8px;">
+                ${post.images.map(img => `<img src="${img}" style="max-width: 220px; width: 100%; aspect-ratio: ${post.images.length === 1 ? '4/3' : '1'}; object-fit: cover; border-radius: 4px;" onclick="openMediaViewer(['${img}'], 0)">`).join('')}
               </div>
-              <img src="${getLikeAvatar(c.user)}" onclick="event.stopPropagation(); window.openWxProfileByName('${c.user}', 'wx_moments_detail')" style="width: 32px; height: 32px; border-radius: 4px; object-fit: cover; flex: none; cursor: pointer;">
-              <div style="flex:1; min-width:0; padding-top:2px;">
+            ` : ''}
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+              <div style="font-size:13px; color:#999;">${post.time || '刚刚'}</div>
+              <div style="background:#f7f7f7; padding:4px 12px; border-radius:4px; color:#576b95; font-weight:600; letter-spacing:2px; cursor:pointer;" onclick="toastDev()">··</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 灰框（点赞评论）：跳出右侧容器，直接占满下方，左边缘与上方大头像对齐 -->
+        <div style="background:#f7f7f7; border-radius:6px; margin-top: 10px; padding: 12px 12px 12px 0; display: flex; flex-direction: column; gap: 10px;">
+          
+          <!-- 点赞区 -->
+          ${post.likes && post.likes.length > 0 ? `
+            <div style="display:flex; align-items:flex-start; ${post.comments && post.comments.length > 0 ? 'border-bottom:0.5px solid #e5e5ea; padding-bottom:10px;' : ''}">
+              <!-- 第一列占位 52px，图标居左，对齐大头像中心 -->
+              <div style="width: 52px; flex: none; display: flex; justify-content: flex-start; padding-left: 10px;">
+                 ${G.heart.replace('<svg', '<svg width="20" height="20" style="color:#576b95;"')}
+              </div>
+              <!-- 第二列从 52px 处开始，与上方文字完美对齐 -->
+              <div style="display:flex; gap:6px; flex-wrap:wrap; flex: 1; align-items:center;">
+                ${post.likes.map(name => `<img src="${getLikeAvatar(name)}" onclick="event.stopPropagation(); window.openWxProfileByName('${name}', 'wx_moments_detail')" style="width:24px; height:24px; border-radius:4px; object-fit:cover; cursor:pointer;">`).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- 评论区 -->
+          ${(post.comments || []).map((c, index) => `
+            <div style="display:flex; align-items:flex-start;">
+              <!-- 第一列占位 52px -->
+              <div style="width: 52px; flex: none; display: flex; justify-content: flex-start; padding-left: 10px; margin-top: 2px;">
+                 ${index === 0 ? G.comment.replace('<svg', '<svg width="20" height="20" style="color:#576b95;"') : ''}
+              </div>
+              <!-- 第二列头像从 52px 处开始，与上方文字完美对齐 -->
+              <img src="${getLikeAvatar(c.user)}" onclick="event.stopPropagation(); window.openWxProfileByName('${c.user}', 'wx_moments_detail')" style="width: 24px; height: 24px; border-radius: 4px; object-fit: cover; flex: none; margin-right: 8px; margin-top: 2px;">
+              <!-- 第三列名字和内容 -->
+              <div style="flex:1; min-width:0;">
                 <div style="color:#576b95; font-size:14px; font-weight:500;">
                   <span onclick="event.stopPropagation(); window.openWxProfileByName('${c.user}', 'wx_moments_detail')" style="cursor:pointer;">${esc(c.user)}</span>
                   ${c.replyTo ? `<span style="color:#111; font-weight:normal;"> 回复 </span><span onclick="event.stopPropagation(); window.openWxProfileByName('${c.replyTo}', 'wx_moments_detail')" style="color:#576b95; cursor:pointer;">${esc(c.replyTo)}</span>` : ''}
@@ -1317,7 +1374,9 @@ VIEWS.wx_moments_detail = () => {
               </div>
             </div>
           `).join('')}
+
         </div>
+
       </div>
     </div>
 
@@ -1362,7 +1421,6 @@ VIEWS.moments = () => {
     `;
   };
 
-  // 👇 强制在名字中间塞入逗号，防止 .join 被吞
   const renderSocial = (likes, comments) => {
     if ((!likes || likes.length === 0) && (!comments || comments.length === 0)) return '';
     let html = `<div style="background: #f7f7f7; border-radius: 4px; padding: 8px 10px; margin-top: 8px; font-size: 14px; line-height: 1.5;">`;

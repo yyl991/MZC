@@ -130,7 +130,7 @@ VIEWS.recorder = () => {
 /* ==========================================
    5. 日历 (Calendar)
    ========================================== */
-window.calEvents = function() { if (calMonth === 11) return selectedDay === 16 ? ["🎂 生日"] : events[selectedDay] || []; return events[selectedDay] || []; };
+window.calEvents = function() { if (calMonth === 11) return selectedDay === 16 ? ["🎂 19岁生日"] : events[selectedDay] || []; return events[selectedDay] || []; };
 window.calNav = function(d) { const n = calMonth + d; if (n < 11 || n > 11) return; calMonth = n; selectedDay = 15; const pg = show("calendar"); pg.querySelector("#calg").animate([{ transform: `translateX(${d * 40}%)`, opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 350, easing: "cubic-bezier(.2,.9,.25,1)" }); };
 VIEWS.calendar = () => {
   const nov = calMonth === 11, first = nov ? 0 : 4, days = nov ? 30 : 31; let c = "";
