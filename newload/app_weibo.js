@@ -1,5 +1,5 @@
 // ==========================================
-// 📱 微博模块 (app_weibo.js) - 终极像素级复刻版
+// 📱 微博模块 (app_weibo.js) - 去红点/加主页按钮/删钱包版
 // ==========================================
 
 window.openSuperTopic = function () {
@@ -149,16 +149,6 @@ const FOLLOW_DATA = [
     status: "特别关注",
     avatar: "./data/avatar/miantuan.jpg",
   },
-  {
-    name: "新浪娱乐",
-    isArtist: false,
-    desc: "新浪娱乐频道官方微博",
-    latest: "【午间娱乐播报】#第二届...",
-    supertopic: "新浪娱乐超话",
-    status: "已关注",
-    avatar:
-      "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=100&auto=format&fit=crop",
-  },
 ];
 
 // 6. 超话数据
@@ -181,14 +171,14 @@ const SUPERTopic_DATA = [
 
 const discoverIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/><circle cx="16" cy="8" r="5" fill="#ff3b30" stroke="none"/><text x="16" y="10" font-size="6" fill="#fff" text-anchor="middle" font-weight="bold">热</text></svg>`;
 
+// 👇 核心修改：去掉了视频和消息的红色数字角标
 const getWBTabbar = (active) => `
   <div class="tabbar" style="position:absolute; bottom:0; left:0; right:0; z-index:20; background:#fff; border-top:0.5px solid #eee; display:flex; padding-bottom:20px;">
     <button onclick="show('weibo')" style="color:${active === "home" ? "#111" : "#666"}; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M12 3 2 10v11h7v-7h6v7h7V10L12 3z"/></svg>
       <span style="font-size:10px; font-weight:500;">首页</span>
     </button>
-    <button onclick="toastDev()" style="color:#666; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none; position:relative;">
-      <div style="position:absolute; top:-2px; right:22px; background:#ff3b30; color:#fff; font-size:9px; padding:1px 4px; border-radius:8px; border:1px solid #fff;">1</div>
+    <button onclick="toastDev()" style="color:#666; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="m10 10 5 2-5 2v-4z" fill="currentColor"/></svg>
       <span style="font-size:10px; font-weight:500;">视频</span>
     </button>
@@ -196,8 +186,7 @@ const getWBTabbar = (active) => `
       ${discoverIcon}
       <span style="font-size:10px; font-weight:500;">发现</span>
     </button>
-    <button onclick="toastDev()" style="color:#666; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none; position:relative;">
-      <div style="position:absolute; top:-2px; right:22px; background:#ff3b30; color:#fff; font-size:9px; padding:1px 4px; border-radius:8px; border:1px solid #fff;">1</div>
+    <button onclick="toastDev()" style="color:#666; display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; border:none; background:none;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
       <span style="font-size:10px; font-weight:500;">消息</span>
     </button>
@@ -408,15 +397,15 @@ VIEWS.weibo = () => ({
 // ==========================================
 VIEWS.weibo_profile = () => ({
   html: `
-       <div class="nav" id="wb-me-nav" style="position:absolute; z-index:6; top:0; left:0; right:0; height:98px; padding:54px 16px 0; display:flex; align-items:center; justify-content:space-between; background:transparent; transition: background 0.3s, box-shadow 0.3s;">
-         <button class="nb-back" onclick="back()" style="opacity:0; transition:opacity 0.3s;" id="wb-me-nav-back">${G.chevL}</button>
+       <!-- 👇 顶部悬浮导航：只负责显示背景和中间的文字，不阻挡点击 -->
+       <div class="nav" id="wb-me-nav" style="position:absolute; z-index:6; top:0; left:0; right:0; height:98px; padding:54px 16px 0; display:flex; align-items:center; justify-content:center; background:transparent; transition: background 0.3s, box-shadow 0.3s; pointer-events:none;">
          <div id="wb-me-nav-title" style="font-size:17px; font-weight:600; color:#111; opacity:0; transition:opacity 0.3s;">小狗团汪汪</div>
-         <div style="width:24px;"></div>
        </div>
        
        <div class="scroll" id="wb-me-scroll" style="background:#f5f5f5; padding-top:0; padding-bottom:80px;">
        
-       <div style="padding:54px 16px 0px;">
+       <!-- 👇 调整 padding-top 留出状态栏和主页按钮的空间 -->
+       <div style="padding:60px 16px 0px;">
          <div style="display:flex; gap:16px;">
            <div style="width:72px; height:72px; border-radius:50%; background:#eee; overflow:hidden; border:1px solid #eee;">
              <img src="${CFG.myAvatar || "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop"}" style="width:100%; height:100%; object-fit:cover;">
@@ -533,15 +522,7 @@ VIEWS.weibo_profile = () => ({
          </div>
        </div>
 
-       <div style="background:#fff; margin:0 12px 10px; border-radius:12px; padding:14px 16px;">
-         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-size:15px; font-weight:700; color:#111;">我的钱包</div><div onclick="toastDev()" style="font-size:13px; color:#999;">查看详情 ></div></div>
-         <div style="display:flex; justify-content:space-between; text-align:center;">
-           <div onclick="toastDev()" style="position:relative;"><div style="font-size:15px; font-weight:700; color:#111;">1.22万</div><div style="font-size:11px; color:#999; margin-top:2px;">可借额度</div><div style="position:absolute; top:-2px; left:0; width:6px; height:6px; background:#ff3b30; border-radius:50%;"></div></div>
-           <div onclick="toastDev()"><div style="font-size:15px; font-weight:700; color:#111;">租·手机</div><div style="font-size:11px; color:#999; margin-top:2px;">抢iphone18</div></div>
-           <div onclick="toastDev()"><div style="font-size:15px; font-weight:700; color:#111;">✨5888✨</div><div style="font-size:11px; color:#999; margin-top:2px;">应急额度</div></div>
-           <div onclick="toastDev()"><div style="font-size:15px; font-weight:700; color:#111;">钱包</div><div style="font-size:11px; color:#999; margin-top:2px;">金融资产</div></div>
-         </div>
-       </div>
+       <!-- 👇 已删除：我的钱包 整个模块 -->
 
        <div style="background:#fff; margin:0 12px 10px; border-radius:12px; padding:14px 16px;">
          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-size:15px; font-weight:700; color:#111;">我的经常访问</div><div onclick="toastDev()" style="font-size:13px; color:#999;">有更新 ></div></div>
@@ -617,8 +598,8 @@ VIEWS.weibo_profile = () => ({
   init: (pg) => {
     const nav = pg.querySelector("#wb-me-nav");
     const title = pg.querySelector("#wb-me-nav-title");
-    const backBtn = pg.querySelector("#wb-me-nav-back");
     const scroll = pg.querySelector("#wb-me-scroll");
+    
     if (scroll && nav && title) {
       scroll.addEventListener("scroll", () => {
         if (scroll.scrollTop > 40) {
@@ -626,19 +607,16 @@ VIEWS.weibo_profile = () => ({
           nav.style.backdropFilter = "blur(10px)";
           nav.style.boxShadow = "0 0.5px 0 #eee";
           title.style.opacity = "1";
-          if (backBtn) backBtn.style.opacity = "1";
         } else {
           nav.style.background = "transparent";
           nav.style.backdropFilter = "none";
           nav.style.boxShadow = "none";
           title.style.opacity = "0";
-          if (backBtn) backBtn.style.opacity = "0";
         }
       });
     }
   },
 });
-
 // ==========================================
 // 📱 页面 3：我的关注
 // ==========================================
@@ -773,6 +751,7 @@ VIEWS.weibo_my_posts = () => ({
       ).join("")}
     </div>`,
 });
+
 // ==========================================
 // 📱 页面 5：艺人主页
 // ==========================================
@@ -781,12 +760,10 @@ VIEWS.weibo_artist = () => ({
        <!-- 顶部透明悬浮导航 -->
        <div class="nav" id="wb-artist-nav" style="color:#fff; position:absolute; z-index:6; top:0; left:0; right:0; height:98px; padding:54px 16px 0; display:flex; align-items:center; justify-content:space-between; background:transparent; transition: background 0.3s, color 0.3s, box-shadow 0.3s;">
          
-         <!-- 返回键：去掉写死的 color，继承 nav 的颜色 -->
          <button class="nb-back" id="wb-artist-back" onclick="back()" style="transition: color 0.3s, filter 0.3s; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));">${G.chevL}</button>
          
          <div id="wb-artist-title" style="position:absolute; left:50%; transform:translateX(-50%); font-size:17px; font-weight:600; color:#111; opacity:0; transition: opacity 0.3s;">TF_ING穆祉丞MUA</div>
          
-         <!-- 右侧图标：去掉写死的 color，继承 nav 的颜色 -->
          <div id="wb-artist-right" style="display:flex; gap:16px; transition: color 0.3s, filter 0.3s; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));">
            <span onclick="toastDev()">${G.search}</span>
            <span onclick="toastDev()">${G.dotsH}</span>
@@ -993,7 +970,6 @@ VIEWS.weibo_artist = () => ({
     if (scroll && nav && title) {
       scroll.addEventListener('scroll', () => {
         if (scroll.scrollTop > 180) {
-          // 👇 下滑后：背景变白底，nav 继承黑色，图标也变黑
           nav.style.background = 'rgba(255, 255, 255, 0.96)';
           nav.style.backdropFilter = 'blur(10px)';
           nav.style.boxShadow = '0 0.5px 0 #eee';
@@ -1003,7 +979,6 @@ VIEWS.weibo_artist = () => ({
           const rightIcons = pg.querySelector('#wb-artist-right');
           if (rightIcons) rightIcons.style.filter = 'none'; 
         } else {
-          // 👇 滚回顶部：透明，nav 继承白色，图标变白带阴影
           nav.style.background = 'transparent';
           nav.style.backdropFilter = 'none';
           nav.style.boxShadow = 'none';
