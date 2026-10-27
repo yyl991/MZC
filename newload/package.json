@@ -2,6 +2,7 @@
   "name": "newload",
   "version": "1.0.0",
   "scripts": {
+    "compress": "node compress.js",
     "build": "node obfuscate.js"
   },
   "devDependencies": {
