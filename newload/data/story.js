@@ -15,6 +15,9 @@ var speech = [];
 var SOHEE_AFTER = [];
 var INCOMING = [];
 
+
+
+
 (function () {
   const S = (window.STORY = {});
 
@@ -390,6 +393,8 @@ var INCOMING = [];
     // 把【历史记录】和原来的【初始初始化内容】拼在一起
     chatData[id] = [...history, ...S.chats[id].init];
   });
+
+
 
   chatNames.splice(0, chatNames.length, ...Object.keys(S.chats));
   notes.splice(0, notes.length, ...S.notes);

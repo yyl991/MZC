@@ -4433,3 +4433,40 @@ svg {
     stroke: currentColor;
     stroke-width: 2.4;
 }
+
+/* 通讯录右侧的字母索引悬浮条 */
+.contact-index-bar {
+  position: absolute;
+  top: 120px;
+  right: 2px;
+  bottom: 100px;
+  width: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  gap: 1px;
+}
+.contact-index-bar span {
+  font-size: 10px;
+  color: #555;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 1px 4px;
+  border-radius: 4px;
+  user-select: none;
+}
+.contact-index-bar span:active {
+  background: #07c160;
+  color: #fff;
+}
+
+/* 字母分组的小标题 */
+.contact-group-title {
+  padding: 4px 16px;
+  font-size: 12px;
+  color: #888;
+  background: #ededed;
+  font-weight: 400;
+}
