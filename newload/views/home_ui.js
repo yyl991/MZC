@@ -20,7 +20,7 @@
   // 定义基准大小
   const SIZE_PAUSE = 1.1;  // 暂停时的小尺寸
   const SIZE_PLAY = 1.2;   // 播放时的正常尺寸
-  const SIZE_BOUNCE = 1.5; // 弹跳时的最大尺寸
+  const SIZE_BOUNCE = 1.3; // 弹跳时的最大尺寸
 
   const style = document.createElement('style');
   style.innerHTML = `
@@ -219,13 +219,29 @@
           </div>
           <div class="cal-right"><div class="cal-month-title">11月</div><div class="mini-cal">${buildMiniCalHTML(2026, 11, 15)}</div></div>
         </button>
-        <button class="widget wwx-dark" data-app="weather" onclick="openApp('weather',this)">
-          <div class="w-top">
-            <div class="w-city">北京 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg></div>
-            <div style="font-size:16px;">${G.sun}</div>
+
+               <button class="widget wwx-dark" data-app="weather" onclick="openApp('weather',this)" style="position: relative; overflow: hidden;">
+          
+          <!-- 👇 右上角超大 Emoji -->
+          <div style="position: absolute; top: 30px; right: 0px; font-size: 90px; line-height: 1;">🌨️</div>
+          
+          <div style="font-size: 18px; font-weight: 500; margin-bottom: 2px; position: relative; z-index: 1;">北京</div>
+          
+          <div style="font-size: 64px; font-weight: 200; line-height: 1; letter-spacing: -1.5px; margin-top: 4px; margin-bottom: 2px; position: relative; z-index: 1;">0°</div>
+          
+          <div style="font-size: 17px; font-weight: 500; margin-top: 2px; margin-bottom: auto; position: relative; z-index: 1;">阴转小雪</div>
+          
+          <!-- 底部最高最低，结合 15 号的真实历史天气 -->
+          <div style="display: flex; gap: 12px; align-items: flex-end; margin-top: 8px; position: relative; z-index: 1;">
+            <div style="display: flex; align-items: flex-end;">
+              <div style="font-size: 11px; line-height: 1.1; margin-right: 3px; opacity: 0.9; margin-bottom: 2px;">最<br>高</div>
+              <div style="font-size: 22px; font-weight: 400; line-height: 1;">2°</div>
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+              <div style="font-size: 11px; line-height: 1.1; margin-right: 3px; opacity: 0.9; margin-bottom: 2px;">最<br>低</div>
+              <div style="font-size: 22px; font-weight: 400; line-height: 1;">-3°</div>
+            </div>
           </div>
-          <div><div class="w-temp">18°</div><div class="w-desc">大部晴朗</div></div>
-          <div class="w-range"><span>最高 21°</span><span>最低 12°</span></div>
         </button>
         ${appBtn("photos")}${appBtn("mail")}${appBtn("clock")}${appBtn("notes")}
         ${appBtn("weibo")}${appBtn("xianyu")}
