@@ -25,4 +25,11 @@ ok("emoji bubble",h.includes("wx-emoji"),"none");
 ok("voice bubble",h.includes("voice-bb"),"none");
 ok("voice trans btn",h.includes("转文字"));
 ok("avatar single click no profile",!h.includes("openWxProfileByName('穆祉丞', 'chat')"));
+// 拉黑/被删特效
+vm.runInContext("chatId = 'cat'", sb);
+const hc = sb.VIEWS.chat().html;
+ok("rejected icon", hc.includes("wx-reject-ic"), "none");
+ok("rejected tip", hc.includes("你还不是对方好友"), "none");
+ok("rejected tip only once", (hc.match(/wx-reject-tip/g)||[]).length === 1, "count="+(hc.match(/wx-reject-tip/g)||[]).length);
+ok("rejected count", (hc.match(/wx-reject-ic/g)||[]).length === 2, "count="+(hc.match(/wx-reject-ic/g)||[]).length);
 console.log(fails===0?"ALL PASS":fails+" FAILS");

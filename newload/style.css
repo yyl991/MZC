@@ -4100,6 +4100,32 @@ svg {
    ========================================= */
 
 /* 1. 系统提示 */
+/* 被对方删除后发出的消息：红色感叹号 + 灰色提示 */
+.wx-reject-ic {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fa5151;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    flex: none;
+    cursor: pointer;
+    user-select: none
+}
+
+.wx-reject-tip {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #b2b2b2;
+    line-height: 1.3;
+    text-align: right;
+    max-width: 100%
+}
+
 .wx-sys-tip {
     text-align: center;
     font-size: 12px;

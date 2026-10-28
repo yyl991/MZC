@@ -434,6 +434,7 @@ function chatItems(id) {
       sender: id,
       time: m[2] || "",
       rd: m[3] === "rd",
+      rejected: m[3] === "rejected", // 被对方删除后发出的消息
       rawIdx: rawIdx,
     });
   });
@@ -531,7 +532,17 @@ function chatMsgs(id) {
         textHtml = `<div class="voice-trans-text">${esc(transTxt)}</div>`;
       }
     }
-    o += `<div class="wx-ln ${me ? "me" : "th"}"><div class="wx-sav" onclick="event.stopPropagation();wxPatTap(event,${me},'${x.sender}')">${avatarFor(x.sender, false, me)}</div><div style="display: flex; flex-direction: column; align-items: ${me ? "flex-end" : "flex-start"}; max-width: calc(100% - 60px);"><div style="display: flex; align-items: center; flex-direction: ${me ? "row-reverse" : "row"}; gap: 6px;"><div class="${bubbleClass}" data-idx="${x.rawIdx}" ${onclickAttr} ${holdEvent}>${innerContent}</div>${!me ? dotHtml : ""}${!me ? btnHtml : ""}</div>${textHtml}</div></div>`;
+    const nextIt = it[i + 1];
+    const nextRej = nextIt && !nextIt.date && nextIt.rejected;
+    const rejHtml =
+      me && x.rejected
+        ? `<span class="wx-reject-ic" onclick="event.stopPropagation();toastDev('消息发送失败：你还不是对方好友')">!</span>`
+        : "";
+    const rejTip =
+      me && x.rejected && !nextRej
+        ? `<div class="wx-reject-tip">你还不是对方好友，请先发送朋友验证</div>`
+        : "";
+    o += `<div class="wx-ln ${me ? "me" : "th"}"><div class="wx-sav" onclick="event.stopPropagation();wxPatTap(event,${me},'${x.sender}')">${avatarFor(x.sender, false, me)}</div><div style="display: flex; flex-direction: column; align-items: ${me ? "flex-end" : "flex-start"}; max-width: calc(100% - 60px);"><div style="display: flex; align-items: center; flex-direction: ${me ? "row-reverse" : "row"}; gap: 6px;"><div class="${bubbleClass}" data-idx="${x.rawIdx}" ${onclickAttr} ${holdEvent}>${innerContent}</div>${rejHtml}${!me ? dotHtml : ""}${!me ? btnHtml : ""}</div>${rejTip}${textHtml}</div></div>`;
   });
   return o;
 }
