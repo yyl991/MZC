@@ -722,6 +722,23 @@ function doPat(isSelf) {
   chatData[chatId].push([msg, "sys", time]);
   saveChat();
   refreshChat(true);
+  // 拍完不回消息，对方会回一个「？」
+  if (!isSelf) {
+    const target = chatId;
+    const snap = chatData[target].length;
+    setTimeout(
+      () => {
+        if (view !== "chat" && view !== "wechat") return;
+        const arr = chatData[target] || [];
+        const replied =
+          typeof lastMsgFromMe === "function" && lastMsgFromMe(target);
+        if (replied || arr.length > snap) return;
+        if (typeof botSay === "function") botSay(target, "？");
+        if (chatId === target) refreshChat(true);
+      },
+      18000 + Math.random() * 4000,
+    );
+  }
 }
 // 头像单击不跳个人主页，双击 = 拍一拍
 window.wxPatTap = function (e, isSelf) {
@@ -1185,6 +1202,7 @@ function notifyFrom(from, body) {
   vib([30, 60, 30]);
   if (view === "lock" || view === "pin") {
     lockNotes.unshift({ title: wxName(from), body, app: "wechat", time: t("now") });
+    if (lockNotes.length > 30) lockNotes.length = 30;
     renderLock();
     return;
   }

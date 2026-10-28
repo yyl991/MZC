@@ -436,10 +436,20 @@ svg {
     position: absolute;
     left: 9px;
     right: 9px;
-    bottom: 132px;
+    bottom: 186px;
+    max-height: 300px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 8px
+}
+
+.lk-more {
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255, 255, 255, .72);
+    padding-top: 2px;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, .25)
 }
 
 .ncard {
@@ -4273,20 +4283,14 @@ svg {
 /* =========================================
    免打扰按钮样式
    ========================================= */
-.lk-dnd-wrap {
+.lk-actions {
     position: absolute;
-    top: 740px;
+    bottom: 92px;
     width: 100%;
     display: flex;
+    gap: 10px;
     justify-content: center;
-}
-
-.lk-reset-wrap {
-    position: absolute;
-    top: 790px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
+    align-items: center
 }
 
 .lk-dnd {

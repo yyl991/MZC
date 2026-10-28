@@ -258,9 +258,28 @@ function ncardHTML(n) {
 }
 
 function renderLock() {
-  const showNotes = lockNotes.slice(0, 7);
+  // iOS 风格：只展开最新 3 条，更早的折叠成一行提示
+  const MAX = 3;
+  const shown = lockNotes.slice(0, MAX);
+  const rest = lockNotes.length - shown.length;
   $("#lkc").innerHTML =
-    `<div class="lk-date">${CFG.start?.date || "11月15日"} ${CFG.start?.weekday || "星期日"}</div><div class="lk-time" id="lkt">${clock12(false)}</div><div class="lk-dnd-wrap"><button class="lk-dnd ${window.isDnd ? "on" : ""}" onclick="toggleDnd(event)"><span style="filter:${window.isDnd ? "none" : "grayscale(100%)"}; margin-right:4px;">🌙</span>${window.isDnd ? "免打扰已开启" : "开启免打扰"}</button></div><div class="lk-reset-wrap"><button class="lk-dnd" onclick="askResetProgress(event)">♻️ 重置进度</button></div><div class="lk-notes">${showNotes.map((n, i) => `<button class="ncard" onclick="lockNoteTap(${i},event)">${ncardHTML(n)}</button>`).join("")}</div><div class="lk-hint">向上轻扫以打开</div>`;
+    `<div class="lk-date">${CFG.start?.date || "11月15日"} ${CFG.start?.weekday || "星期日"}</div>` +
+    `<div class="lk-time" id="lkt">${clock12(false)}</div>` +
+    `<div class="lk-notes">${shown
+      .map(
+        (n, i) =>
+          `<button class="ncard" onclick="lockNoteTap(${i},event)">${ncardHTML(n)}</button>`,
+      )
+      .join("")}${
+      rest > 0
+        ? `<div class="lk-more">还有 ${rest} 条更早的通知</div>`
+        : ""
+    }</div>` +
+    `<div class="lk-actions">` +
+    `<button class="lk-dnd ${window.isDnd ? "on" : ""}" onclick="toggleDnd(event)"><span style="filter:${window.isDnd ? "none" : "grayscale(100%)"};margin-right:4px;">🌙</span>${window.isDnd ? "免打扰已开启" : "开启免打扰"}</button>` +
+    `<button class="lk-dnd" onclick="askResetProgress(event)">♻️ 重置进度</button>` +
+    `</div>` +
+    `<div class="lk-hint">向上轻扫以打开</div>`;
 }
 function toggleDnd(e) {
   if (e) e.stopPropagation();
@@ -1047,11 +1066,46 @@ function showEnding(choice) {
   d.innerHTML = `<div class="vbg"></div><div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:32px;color:#fff;background:linear-gradient(180deg,#2a1f1a,#0b0b0d)"><div style="font-size:13px;opacity:.6;letter-spacing:2px">11-16 00:00</div><h1 style="font-size:30px;margin:10px 0 18px">${esc(E.title)}</h1><div style="font-size:17px;line-height:1.7;white-space:pre-line">${esc(E.body)}</div><button style="margin-top:28px;padding:14px;border-radius:14px;background:#fff;color:#000;font-weight:700" onclick="this.closest('.viewer').remove();location.reload()">重新开始</button></div>`;
   OV.appendChild(d);
 }
+// 节奏控制：先安静一会儿让玩家自己逛，后面越来越急
+// CFG.pace = { offset: 40, k: 1.8, knee: 120, after: 0.9 }
+function pacedAt(at) {
+  const p = CFG.pace || {};
+  const off = p.offset != null ? p.offset : 40;
+  const k = p.k != null ? p.k : 1.8;
+  const knee = p.knee != null ? p.knee : 120;
+  const after = p.after != null ? p.after : 0.9;
+  if (at <= knee) return off + at * k;
+  return off + knee * k + (at - knee) * after;
+}
+// 零点炸弹：到 00:00 还没回家，全员开始轰炸
+const MIDNIGHT_LINES = {
+  穆祉丞: "零点过了。你说过会回来的。",
+  MuAMuA: "宝宝，已经零点了，回家好不好。",
+  丞哥: "零点了。别让我出去找你。",
+  恩仔: "蛋糕……还没切呢。",
+  穆瑞恩: "生日要过去了，你还不来吗。",
+  Mu: "我说过，不要消失。",
+};
+function midnightBoom() {
+  if (SS.midnightBoom) return;
+  SS.midnightBoom = true;
+  Object.keys(MIDNIGHT_LINES).forEach((n, i) => {
+    setTimeout(() => {
+      if (typeof incomingMsgFrom === "function")
+        incomingMsgFrom(n, MIDNIGHT_LINES[n]);
+    }, i * 1600);
+  });
+  setTimeout(() => {
+    if (typeof incomingCallFrom === "function" && !callState)
+      incomingCallFrom("穆祉丞");
+  }, 11000);
+}
+
 function storyTick(e) {
   if (!CFG.timeline) return;
   CFG.timeline.forEach((beat, i) => {
     const key = i + "@" + beat.at;
-    if (e >= beat.at && !SS.fired.has(key)) {
+    if (e >= pacedAt(beat.at) && !SS.fired.has(key)) {
       if (beat.needStage !== undefined && beat.from) {
         const currentStage = SS.stage[beat.from] || 0;
         if (currentStage > beat.needStage) {
@@ -1083,6 +1137,7 @@ function tick() {
 
   // 2. 剧情时间线检查 (每秒检查一次足够了)
   storyTick(elapsed());
+  if (elapsed() >= GAME_END_AT && !SS.arriveHome) midnightBoom();
 
   // 3. 通话状态实时更新 (严格基于真实流逝时间)
   if (typeof callState !== "undefined" && callState === "active") {

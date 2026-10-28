@@ -3,6 +3,7 @@
 /* ==========================================
    1. 电话 & 通话
    ========================================== */
+window._callHits = window._callHits || {};
 let callState = "",
   declined = 0,
   callStart = 0,
@@ -387,6 +388,7 @@ window.answerCall = function () {
   stopRing();
   vib(20);
   callState = "active";
+  window._callHits[callName] = 0;
   callStart = Date.now();
   capIdx = -1;
   renderCall();
@@ -395,17 +397,72 @@ window.declineCall = function () {
   stopRing();
   callState = "";
   declined++;
+  const who = callName;
   extraCalls.unshift([callName, "今天 " + gameTime24(), "未接来电"]);
   closeCallUI();
+  window.scheduleCallAgain(who, "miss");
 };
 window.missCall = function () {
   if (callState !== "ring") return;
   stopRing();
   callState = "";
   declined++;
+  const who = callName;
   extraCalls.unshift([callName, "今天 " + gameTime24(), "未接来电"]);
   closeCallUI();
+  window.scheduleCallAgain(who, "miss");
 };
+/* ---------- 挂断追命系统 ----------
+   mode: "miss" 没接/拒接 | "hangup" 接通后挂断 */
+function callChatData(name) {
+  return (typeof chatData !== "undefined" && chatData[name]) || [];
+}
+function lastMsgFromMe(name) {
+  const arr = callChatData(name);
+  for (let i = arr.length - 1; i >= 0; i--) {
+    if (arr[i][1] === "date") continue;
+    return arr[i][1] === "me";
+  }
+  return false;
+}
+function botSay(name, text) {
+  if (lastMsgFromMe(name)) return;
+  if (typeof chatData === "undefined" || !chatData[name]) return;
+  chatData[name].push([
+    text,
+    "them",
+    typeof nowAmpm === "function" ? nowAmpm() : "",
+  ]);
+  if (typeof saveChat === "function") saveChat();
+  if (typeof view !== "undefined" && view === "chat" && chatId === name) {
+    if (typeof refreshChat === "function") refreshChat(true);
+    if (typeof scrollChat === "function") scrollChat();
+  }
+  if (typeof notifyFrom === "function") notifyFrom(name, text);
+}
+const CALL_NAG = {
+  miss: ["？", "为什么不接电话", "你在哪，回我一句行不行"],
+  hangup: ["喂？", "怎么把我电话挂了", "刚刚不是接通了吗…人呢"],
+};
+window.scheduleCallAgain = function (name, mode) {
+  if (!name) return;
+  // 已经回过消息就不再追命
+  if (lastMsgFromMe(name)) return;
+  const n = (window._callHits[name] || 0) + 1;
+  window._callHits[name] = n;
+  const isMzc = name === "穆祉丞";
+  const maxHit = isMzc ? 5 : 3;
+  if (n > maxHit) return;
+  const texts = CALL_NAG[mode] || CALL_NAG.miss;
+  botSay(name, texts[Math.min(n - 1, texts.length - 1)]);
+  const wait = isMzc ? 2500 + n * 900 : 5000 + n * 1500;
+  setTimeout(() => {
+    if (callState) return;
+    if (lastMsgFromMe(name)) return;
+    incomingCallFrom(name);
+  }, wait);
+};
+
 // 你打给谁，对方都会回拨过来
 window.scheduleCallBack = function (name) {
   if (!name) return;
@@ -441,12 +498,15 @@ window.endCall = function () {
     callDir === "out" ? "呼出" : "接收",
   ]);
   isEnding = false;
+  const secs = Math.floor((Date.now() - callStart) / 1000);
+  const inName = callName;
   setTimeout(() => {
     callState = "";
     closeCallUI();
     if (view === "phone") show("phone");
   }, 1100);
   if (wasOut) window.scheduleCallBack(outName);
+  else if (secs < 8) window.scheduleCallAgain(inName, "hangup");
 };
 window.closeCallUI = function () {
   const c = OV.querySelector(".call");

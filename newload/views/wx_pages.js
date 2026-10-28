@@ -760,7 +760,7 @@ VIEWS.wx_profile = () => {
             ${esc(wxName(chatId))}
             <span style="font-size:14px; color:#5ac8fa; font-weight:normal;">♂</span>
           </div>
-          <div style="font-size:14px; color:#666; margin-top:6px;">微信号：${data.wxid}</div>
+          <div style="font-size:14px; color:#666; margin-top:6px;">微信号：${(CFG.wxids && CFG.wxids[chatId]) || data.wxid || "wxid_" + chatId}</div>
           <div style="font-size:14px; color:#666; margin-top:4px;">地区：${data.region}</div>
         </div>
       </div>

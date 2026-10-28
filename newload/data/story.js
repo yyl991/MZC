@@ -237,6 +237,25 @@ var INCOMING = [];
     { at: 300, type:'ending' }
   ];
 
+  // 每个人的微信号（资料页展示）
+  S.wxids = {
+    穆小恩: "muxiaoen_99",
+    MuAMuA: "muamua_1116",
+    穆老爹: "laomu_1109",
+    丞哥: "cheng_ge",
+    穆祉丞: "mzc_1108",
+    穆瑞恩: "muruien_0913",
+    恩仔: "enzai_0412",
+    Mu: "mu_csgo",
+    小队长: "xiaoduizhang_7",
+    蓝胖胖: "lanpangpang_2",
+    pig: "xiaozhu_chi",
+    cat: "heimao_0721",
+    rabbit: "tuzi_guai",
+    tiger: "laohu_henmeng",
+    恩恩: "enen_1116",
+  };
+
   S.notes = [
     [
       "旧备忘录 · 迟到",
