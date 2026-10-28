@@ -705,24 +705,12 @@ VIEWS.wx_settings = () => {
           .join("")}
       </div>
       <div style="background:#fff;margin-top:8px;">
-        ${wxCell("清空缓存", `<span style="color:#999;font-size:13px;">0 KB</span><span class="wx-cell-chev">${G.chevR}</span>`, "toastDev('缓存已经空啦~')")}
-        ${wxCell("重置聊天存档", `<span style="color:#999;font-size:13px;">恢复初始剧情</span><span class="wx-cell-chev">${G.chevR}</span>`, "wxResetChatAsk()", true)}
+        ${wxCell("清空缓存", `<span style="color:#999;font-size:13px;">0 KB</span><span class="wx-cell-chev">${G.chevR}</span>`, "toastDev('缓存已经空啦~')", true)}
       </div>
     </div>`,
   };
 };
 
-window.wxResetChatAsk = function () {
-  wxActionSheet("重置聊天存档？", [
-    {
-      label: "重置并重新开始",
-      danger: true,
-      onClick: () => {
-        if (typeof resetWxChat === "function") resetWxChat();
-      },
-    },
-  ]);
-};
 
 window.wxProfileMenu = function () {
   wxActionSheet("", [
@@ -793,4 +781,4 @@ VIEWS.wx_profile = () => {
     </div>`,
   };
 };
-
+

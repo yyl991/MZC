@@ -529,7 +529,7 @@ function chatMsgs(id) {
         textHtml = `<div class="voice-trans-text">${esc(transTxt)}</div>`;
       }
     }
-    o += `<div class="wx-ln ${me ? "me" : "th"}"><div class="wx-sav" onclick="event.stopPropagation();wxPatTap(event,${me})">${avatarFor(x.sender, false, me)}</div><div style="display: flex; flex-direction: column; align-items: ${me ? "flex-end" : "flex-start"}; max-width: calc(100% - 60px);"><div style="display: flex; align-items: center; flex-direction: ${me ? "row-reverse" : "row"}; gap: 6px;"><div class="${bubbleClass}" data-idx="${x.rawIdx}" ${onclickAttr} ${holdEvent}>${innerContent}</div>${!me ? dotHtml : ""}${!me ? btnHtml : ""}</div>${textHtml}</div></div>`;
+    o += `<div class="wx-ln ${me ? "me" : "th"}"><div class="wx-sav" onclick="event.stopPropagation();wxPatTap(event,${me},'${x.sender}')">${avatarFor(x.sender, false, me)}</div><div style="display: flex; flex-direction: column; align-items: ${me ? "flex-end" : "flex-start"}; max-width: calc(100% - 60px);"><div style="display: flex; align-items: center; flex-direction: ${me ? "row-reverse" : "row"}; gap: 6px;"><div class="${bubbleClass}" data-idx="${x.rawIdx}" ${onclickAttr} ${holdEvent}>${innerContent}</div>${!me ? dotHtml : ""}${!me ? btnHtml : ""}</div>${textHtml}</div></div>`;
   });
   return o;
 }
@@ -741,15 +741,24 @@ function doPat(isSelf) {
   }
 }
 // 头像单击不跳个人主页，双击 = 拍一拍
-window.wxPatTap = function (e, isSelf) {
+window.wxPatTap = function (e, isSelf, name) {
   const el = e && e.currentTarget;
   const now = Date.now();
-  if (el && el._patT && now - el._patT < 320) {
+  // 双击 = 拍一拍
+  if (el && el._patT && now - el._patT < 300) {
+    clearTimeout(el._tapTimer);
     el._patT = 0;
     doPat(isSelf);
     return;
   }
-  if (el) el._patT = now;
+  if (el) {
+    el._patT = now;
+    clearTimeout(el._tapTimer);
+    // 单击 = 进对方资料页（延迟 300ms，等双击判定）
+    el._tapTimer = setTimeout(() => {
+      if (!isSelf && name) openWxProfileByName(name, "chat");
+    }, 300);
+  }
 };
 function toggleVoiceInput() {
   closeKbd();
@@ -1337,63 +1346,9 @@ function unlockFragment(id) {
   saveStory();
   notifyFrom("系统", `已解锁：${f.title} · 回家进度 ${SS.goingHome}%`);
 }
-function saveStory() {
-  try {
-    localStorage.setItem(
-      "wb_story",
-      JSON.stringify({
-        sig: window.DATA_SIG || "",
-        base: window.GAME_BASE || Date.now(),
-        missed: [...(SS.missed || [])],
-        stage: SS.stage,
-        lineIdx: SS.lineIdx,
-        fragments: [...SS.fragments],
-        goingHome: SS.goingHome,
-        choice: SS.choice,
-        arriveHome: SS.arriveHome,
-        completed: [...SS.completed],
-        fired: [...SS.fired],
-        privateUnlocked: SS.privateUnlocked,
-        memoUnlocked: SS.memoUnlocked,
-      }),
-    );
-  } catch (e) {}
-}
-/* ---------- 聊天记录本地存档 ----------
-   存档 key 里带一份「初始数据指纹」：
-   只要你改了 data/chat_history.js，指纹就变，旧存档自动作废，
-   不会出现「改了剧情但页面还是老消息」的情况。 */
-function wxChatSig(obj) {
-  try {
-    const s = JSON.stringify(obj);
-    let h = 5381;
-    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
-    return (h >>> 0).toString(36);
-  } catch (e) {
-    return "0";
-  }
-}
-const WX_CHAT_KEY = "wx_chat_" + (window.DATA_SIG || wxChatSig(chatData));
-function saveChat() {
-  try {
-    localStorage.setItem(WX_CHAT_KEY, JSON.stringify(chatData));
-  } catch (e) {}
-}
-function loadChat() {
-  try {
-    const raw = localStorage.getItem(WX_CHAT_KEY);
-    if (!raw) return;
-    const d = JSON.parse(raw);
-    Object.keys(d).forEach((k) => {
-      if (Array.isArray(d[k])) chatData[k] = d[k];
-    });
-  } catch (e) {}
-}
-loadChat();
+// 不做任何持久化：每次刷新都是全新的一局
+function saveStory() {}
+function saveChat() {}
 window.resetWxChat = function () {
-  try {
-    localStorage.removeItem(WX_CHAT_KEY);
-  } catch (e) {}
   location.reload();
 };
-

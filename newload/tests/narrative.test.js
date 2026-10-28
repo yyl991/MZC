@@ -119,7 +119,7 @@ const lockHTML = String(vm.runInContext('document.querySelector("#lkc").innerHTM
 ok("锁屏只展开 3 条", (lockHTML.match(/class="ncard"/g) || []).length === 3);
 ok("锁屏显示折叠提示", lockHTML.includes("还有 3 条更早的通知"), lockHTML.slice(-200));
 ok("锁屏有免打扰", lockHTML.includes("免打扰"));
-ok("锁屏有重置进度", lockHTML.includes("重置进度"));
+ok("锁屏不再有重置按钮", !lockHTML.includes("重置进度"));
 
 // 3. 追命电话：已经回过消息就不再打
 const target = "穆祉丞";
@@ -151,6 +151,23 @@ ok("压力循环存在", typeof vm.runInContext("pressureTick", sb) === "functio
 
 // 5. 拍一拍后对方会「？」
 ok("拍一拍函数存在", typeof sb.wxPatTap === "function");
+
+// 6. 时间线交错：前 8 条不应该全是同一个人连发
+vm.runInContext("buildInterleavedTimeline()", sb);
+const senders = vm.runInContext(
+  "CFG.timeline.filter(b=>b.from).slice(0,8).map(b=>b.from)",
+  sb,
+);
+ok("消息交错发送", new Set(senders).size >= 4, senders.join(","));
+const maxRun = senders.reduce(
+  (m, x, i) => (i && x === senders[i - 1] ? m + 1 : m),
+  1,
+);
+ok("没有连续同一人", maxRun <= 2, "最长连发 " + maxRun);
+
+// 7. 不再存档
+ok("saveChat 是空实现", !sb.saveChat.toString().includes("localStorage"));
+ok("saveStory 是空实现", vm.runInContext("saveStory.toString().includes('localStorage')", sb) === false);
 
 console.log(fails === 0 ? "ALL PASS" : fails + " FAILS");
 process.exit(fails ? 1 : 0);

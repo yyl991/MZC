@@ -7,6 +7,7 @@ function ac() {
 }
 function tone(f, t0, dur, vol = 0.12, type = "sine") {
   const a = ac(); if (!a) return;
+  vol = Math.min(0.5, vol * 2.6); // 整体调响
   const t = a.currentTime + t0, o = a.createOscillator(), gn = a.createGain();
   o.type = type; o.frequency.value = f;
   gn.gain.setValueAtTime(0, t); gn.gain.linearRampToValueAtTime(vol, t + 0.008); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);

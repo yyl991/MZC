@@ -441,9 +441,26 @@ function botSay(name, text) {
   if (typeof notifyFrom === "function") notifyFrom(name, text);
 }
 const CALL_NAG = {
-  miss: ["？", "为什么不接电话", "你在哪，回我一句行不行"],
-  hangup: ["喂？", "怎么把我电话挂了", "刚刚不是接通了吗…人呢"],
+  miss: [
+    "？",
+    "为什么不接电话",
+    "你在哪",
+    "接一下行不行",
+    "我都打第几遍了",
+    "别装作没看见",
+    "电话都不接了是吗",
+  ],
+  hangup: [
+    "喂？",
+    "怎么把我电话挂了",
+    "刚刚不是接通了吗",
+    "人呢",
+    "你把我挂了",
+    "挂我电话算什么",
+  ],
 };
+const CALL_ANGRY = ["行，不打了。", "随便你吧。", "……好。", "我等你主动找我。"];
+window._lastNag = window._lastNag || {};
 window.scheduleCallAgain = function (name, mode) {
   if (!name) return;
   // 已经回过消息就不再追命
@@ -452,9 +469,17 @@ window.scheduleCallAgain = function (name, mode) {
   window._callHits[name] = n;
   const isMzc = name === "穆祉丞";
   const maxHit = isMzc ? 5 : 3;
-  if (n > maxHit) return;
+  if (n > maxHit) {
+    // 挂太多次，对方生气收手
+    botSay(name, CALL_ANGRY[Math.floor(Math.random() * CALL_ANGRY.length)]);
+    return;
+  }
   const texts = CALL_NAG[mode] || CALL_NAG.miss;
-  botSay(name, texts[Math.min(n - 1, texts.length - 1)]);
+  const last = window._lastNag[name];
+  const pool = texts.filter((t) => t !== last);
+  const line = pool[Math.floor(Math.random() * pool.length)] || texts[0];
+  window._lastNag[name] = line;
+  botSay(name, line);
   const wait = isMzc ? 2500 + n * 900 : 5000 + n * 1500;
   setTimeout(() => {
     if (callState) return;

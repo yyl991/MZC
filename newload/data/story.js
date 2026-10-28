@@ -487,38 +487,7 @@ var INCOMING = [];
     typing: false,
     replyBusy: false,
   };
-  // 读取本地剧情存档：避免刷新后时间线重新推送、聊天记录重复
-  // 只有数据指纹一致才认（改了 chat_history 就自动作废）
-  try {
-    const savedStory = localStorage.getItem("wb_story");
-    if (savedStory) {
-      const parsed = JSON.parse(savedStory);
-      const age = Date.now() - (parsed.base || 0);
-      const stale = age > 6 * 3600 * 1000;
-      if (parsed.sig && parsed.sig !== window.DATA_SIG) {
-        localStorage.removeItem("wb_story");
-        localStorage.removeItem("wx_chat_" + window.DATA_SIG);
-      } else if (stale) {
-        // 超过 6 小时的存档直接作废，连同聊天记录一起清掉，避免时间对不上
-        localStorage.removeItem("wb_story");
-        localStorage.removeItem("wx_chat_" + window.DATA_SIG);
-      } else if (!parsed.sig || parsed.sig === window.DATA_SIG) {
-        // 恢复游戏时钟起点，刷新后时间继续走
-        if (parsed.base) window.GAME_BASE = parsed.base;
-        window.STORY_STATE.stage = parsed.stage || {};
-        window.STORY_STATE.lineIdx = parsed.lineIdx || {};
-        window.STORY_STATE.choice = parsed.choice || null;
-        window.STORY_STATE.arriveHome = parsed.arriveHome || false;
-        window.STORY_STATE.goingHome = parsed.goingHome || 0;
-        window.STORY_STATE.privateUnlocked = !!parsed.privateUnlocked;
-        window.STORY_STATE.memoUnlocked = !!parsed.memoUnlocked;
-        window.STORY_STATE.fired = new Set(parsed.fired || []);
-        window.STORY_STATE.completed = new Set(parsed.completed || []);
-        window.STORY_STATE.fragments = new Set(parsed.fragments || []);
-        window.STORY_STATE.missed = new Set(parsed.missed || []);
-      }
-    }
-  } catch (e) {}
+  // 不做存档：每次刷新都是全新一局
   
 })();
 

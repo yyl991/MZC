@@ -283,7 +283,6 @@ function renderLock() {
     }</div>` +
     `<div class="lk-actions">` +
     `<button class="lk-dnd ${window.isDnd ? "on" : ""}" onclick="toggleDnd(event)"><span style="filter:${window.isDnd ? "none" : "grayscale(100%)"};margin-right:4px;">🌙</span>${window.isDnd ? "免打扰已开启" : "开启免打扰"}</button>` +
-    `<button class="lk-dnd" onclick="askResetProgress(event)">♻️ 重置进度</button>` +
     `</div>` +
     `<div class="lk-hint">向上轻扫以打开</div>`;
 }
@@ -295,27 +294,6 @@ function toggleDnd(e) {
   updateDndBadge();
 }
 
-// 清空聊天存档 + 剧情进度 + 微博签到，然后重启
-window.resetAllProgress = function () {
-  try {
-    Object.keys(localStorage)
-      .filter(
-        (k) =>
-          k.indexOf("wx_chat_") === 0 || k === "wb_story" || k === "wb_sign",
-      )
-      .forEach((k) => localStorage.removeItem(k));
-  } catch (e) {}
-  location.reload();
-};
-window.askResetProgress = function (e) {
-  if (e) e.stopPropagation();
-  const run = () => window.resetAllProgress();
-  if (typeof wxActionSheet === "function") {
-    wxActionSheet("重置所有进度？", [
-      { label: "清空聊天记录与剧情进度", danger: true, onClick: run },
-    ]);
-  } else if (confirm("重置所有进度？")) run();
-};
 function updateDndBadge() {
   let badge = document.getElementById("dnd-badge");
   if (!badge) {
@@ -1148,17 +1126,11 @@ function storyTick(e) {
         }
       }
       SS.fired.add(key);
-      window._storyDirty = true;
       if (beat.type === "notify") incomingMsgFrom(beat.from, beat.text);
       if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");
       if (beat.type === "mail") incomingMailFrom(beat);
     }
   });
-  // 时间线有推进就落盘，避免刷新后重复推送
-  if (window._storyDirty && typeof saveStory === "function") {
-    window._storyDirty = false;
-    saveStory();
-  }
 }
 
 let lastTickSec = -1;
@@ -1227,10 +1199,49 @@ function fit() {
   ph.style.transform = `translate(-50%, -50%) scale(${SC})`;
   ph.style.margin = "0";
 }
+// 把时间线按人打散：不再 aabbcc，而是 a-b-c-a-b-c 交错到达
+function buildInterleavedTimeline() {
+  const list = CFG.timeline || [];
+  const withFrom = list.filter((b) => b.from);
+  const rest = list.filter((b) => !b.from);
+  if (withFrom.length < 3) return;
+  const groups = {};
+  withFrom.forEach((b) => {
+    if (!groups[b.from]) groups[b.from] = [];
+    groups[b.from].push(b);
+  });
+  const times = withFrom.map((b) => b.at).sort((x, y) => x - y);
+  const keys = Object.keys(groups);
+  const out = [];
+  let turn = 0;
+  let guard = 0;
+  while (out.length < withFrom.length && guard++ < 2000) {
+    const k = keys[turn % keys.length];
+    const q = groups[k];
+    if (q && q.length) out.push(q.shift());
+    turn++;
+  }
+  out.forEach((b, i) => {
+    b.at = times[i];
+  });
+  CFG.timeline = out.concat(rest);
+}
+window.buildInterleavedTimeline = buildInterleavedTimeline;
+
+function hideBoot() {
+  const b = document.getElementById("boot");
+  if (!b) return;
+  b.style.opacity = "0";
+  setTimeout(() => {
+    if (b.parentNode) b.parentNode.removeChild(b);
+  }, 400);
+}
+
 function initApp() {
   addEventListener("resize", fit);
   fit();
   window.preloadAssets();
+  buildInterleavedTimeline();
   if (IS_DEV_HOST) {
     // 本地调试：跳过锁屏，直接进桌面
     view = "home";
@@ -1245,7 +1256,15 @@ function initApp() {
     LOCK.style.visibility = "visible";
     renderLock();
   }
+  try {
+    const bgmEl = document.getElementById("bgm");
+    if (bgmEl && !bgmEl.dataset.vol) {
+      bgmEl.volume = 0.7;
+      bgmEl.dataset.vol = "1";
+    }
+  } catch (e) {}
   setStatus(true);
   setInterval(tick, 1000);
   tick();
+  hideBoot();
 }

@@ -144,7 +144,6 @@ ok("路由函数存在", typeof sb.show === "function" && typeof sb.back === "fu
 ok("聊天存档函数存在", typeof sb.saveChat === "function");
 ok("数据已装载", sb.chatNames.length > 5, sb.chatNames.length);
 ok("本地调试判定存在", typeof vm.runInContext("IS_DEV_HOST", sb) === "boolean");
-ok("重置进度函数存在", typeof sb.askResetProgress === "function" && typeof sb.resetAllProgress === "function");
 let lockErr = null;
 try {
   vm.runInContext("renderLock()", sb);
@@ -154,7 +153,7 @@ try {
 ok("锁屏可渲染", !lockErr, lockErr);
 const lockHTML = vm.runInContext('document.querySelector("#lkc").innerHTML', sb);
 ok("锁屏有免打扰按钮", String(lockHTML).includes("免打扰"), lockHTML.slice(0, 60));
-ok("锁屏有重置进度按钮", String(lockHTML).includes("重置进度"));
+ok("锁屏不再有重置按钮", !String(lockHTML).includes("重置进度"));
 
 console.log(fails === 0 ? "ALL PASS" : fails + " FAILS");
 process.exit(fails ? 1 : 0);
