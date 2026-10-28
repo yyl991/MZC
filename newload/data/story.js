@@ -237,7 +237,7 @@ var INCOMING = [];
     { at: 196, type:'notify', from:'rabbit', text:'我不催你的，真的' },
     { at: 199, type:'notify', from:'穆小恩', text:'说真的，这手机明明是你的，为什么里面全是他？' },
     { at: 203, type:'notify', from:'MuAMuA', text:'我不问你去了哪。' },
-    { at: 206, type:'notify', from:'cat', text:'今天老子生日 回个话要你命哦' },
+    { at: 206, type:'notify', from:'cat', text:'今天老子生日 你要爪子嘛' },
     { at: 209, type:'notify', from:'恩仔', text:'后来真的有一个人看见了。' },
     { at: 213, type:'notify', from:'cat', text:'老子把门反锁了 生日你也别过了' },
     { at: 216, type:'notify', from:'丞哥', text:'气笑了。' },
