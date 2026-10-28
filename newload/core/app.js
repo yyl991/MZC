@@ -1073,14 +1073,42 @@ function showEnding(choice) {
 }
 // 节奏控制：先安静一会儿让玩家自己逛，后面越来越急
 // CFG.pace = { offset: 40, k: 1.8, knee: 120, after: 0.9 }
+// 用对数曲线压缩时间：越往后，两条消息之间的间隔越短
+// 开场安静 offset 秒；到 300 秒的节点大概落在 5 分钟左右
+// CFG.pace = { offset: 40, amp: 110, soft: 30 }
 function pacedAt(at) {
   const p = CFG.pace || {};
   const off = p.offset != null ? p.offset : 40;
-  const k = p.k != null ? p.k : 1.8;
-  const knee = p.knee != null ? p.knee : 120;
-  const after = p.after != null ? p.after : 0.9;
-  if (at <= knee) return off + at * k;
-  return off + knee * k + (at - knee) * after;
+  const amp = p.amp != null ? p.amp : 110;
+  const soft = p.soft != null ? p.soft : 30;
+  return off + amp * Math.log(1 + at / soft);
+}
+
+// 时间线跑完之后继续施压：间隔越来越短，最多 12 条
+const NAG_LINES = ["在吗", "回我一下", "？", "你在哪", "看到消息了吗", "别不回我"];
+function pressureTick() {
+  if (SS.arriveHome || SS.midnightBoom) return;
+  const from = CFG.nagFrom != null ? CFG.nagFrom : 150;
+  if (elapsed() < from) return;
+  const now = Date.now();
+  if (!window._nextNag) window._nextNag = now + 6000;
+  if (now < window._nextNag) return;
+  const n = window._nagCount || 0;
+  if (n >= 12) return;
+  const names = Object.keys(CFG.chats || {}).filter(
+    (k) => !(SS.missed && SS.missed.has(k)),
+  );
+  if (!names.length) return;
+  const who = names[Math.floor(Math.random() * names.length)];
+  if (typeof lastMsgFromMe === "function" && lastMsgFromMe(who)) {
+    window._nextNag = now + 2000;
+    return;
+  }
+  window._nagCount = n + 1;
+  const wait = Math.max(2600, 9000 * Math.pow(0.86, n));
+  window._nextNag = now + wait;
+  const line = NAG_LINES[Math.min(n, NAG_LINES.length - 1)];
+  if (typeof incomingMsgFrom === "function") incomingMsgFrom(who, line);
 }
 // 零点炸弹：到 00:00 还没回家，全员开始轰炸
 const MIDNIGHT_LINES = {
@@ -1148,6 +1176,7 @@ function tick() {
 
   // 2. 剧情时间线检查 (每秒检查一次足够了)
   storyTick(elapsed());
+  pressureTick();
   if (elapsed() >= GAME_END_AT && !SS.arriveHome) midnightBoom();
 
   // 3. 通话状态实时更新 (严格基于真实流逝时间)

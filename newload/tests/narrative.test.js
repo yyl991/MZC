@@ -144,6 +144,10 @@ const p300 = vm.runInContext("pacedAt(300)", sb);
 ok("开场先安静", p0 >= 30, p0);
 ok("时间线有延迟", p60 > 60, p60);
 ok("零点前能跑完", p300 < 900, p300);
+const gapEarly = vm.runInContext("pacedAt(30) - pacedAt(27)", sb);
+const gapLate = vm.runInContext("pacedAt(297) - pacedAt(294)", sb);
+ok("消息越来越急", gapLate < gapEarly * 0.5, gapEarly.toFixed(1) + "s -> " + gapLate.toFixed(1) + "s");
+ok("压力循环存在", typeof vm.runInContext("pressureTick", sb) === "function");
 
 // 5. 拍一拍后对方会「？」
 ok("拍一拍函数存在", typeof sb.wxPatTap === "function");
