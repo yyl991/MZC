@@ -288,7 +288,7 @@ window.openMomentDetailFromSelf = function (i) {
   if (!p) return;
   window._momentDetailFrom = "wx_moments_self";
   window._currentMomentDetail = {
-    author: "小狗团汪汪",
+    author: "我",
     authorId: "我",
     avatar: CFG.myAvatar || G.sil,
     post: p,
@@ -411,7 +411,7 @@ VIEWS.wx_moments_self = () => {
                   (post, index) => `<div onclick="openMomentDetailFromSelf(${index})" style="display:flex;gap:16px;padding:16px;border-bottom:.5px solid #f0f0f0;cursor:pointer;">
               <div style="width:44px;height:44px;flex-shrink:0;"><img src="${myAvatar}" style="width:100%;height:100%;border-radius:6px;object-fit:cover;"></div>
               <div style="flex:1;min-width:0;">
-                <div style="color:#576b95;font-size:16px;font-weight:600;margin-bottom:4px;">小狗团汪汪</div>
+                <div style="color:#576b95;font-size:16px;font-weight:600;margin-bottom:4px;">我</div>
                 <div style="font-size:15px;color:#111;line-height:1.45;margin-bottom:8px;white-space:pre-wrap;">${esc(post.text)}</div>
                 ${
                   post.images && post.images.length
@@ -451,7 +451,7 @@ VIEWS.moments = () => {
   (window._wxMyPosts || []).forEach((post) => {
     allPosts.push({
       ...post,
-      author: "小狗团汪汪",
+      author: "我",
       avatar: CFG.myAvatar || G.sil,
     });
   });
@@ -524,7 +524,7 @@ VIEWS.moments = () => {
         
         <div style="position: absolute; bottom: 20px; right: 16px; display: flex; align-items: flex-end; gap: 12px;">
           <div style="text-align: right; color: #fff; padding-bottom: 4px;">
-            <div style="font-size: 18px; font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">小狗团汪汪</div>
+            <div style="font-size: 18px; font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">我</div>
           </div>
           <img src="${CFG.myAvatar || './data/avatar/miantuan.jpg'}" style="width: 70px; height: 70px; border-radius: 8px; border: 2px solid #fff; object-fit: cover;">
         </div>
@@ -537,7 +537,7 @@ VIEWS.moments = () => {
             <img src="${m.avatar}" onclick="event.stopPropagation(); openWxProfileFromFeed(${index}, 'moments')" style="width: 44px; height: 44px; border-radius: 6px; object-fit: cover; flex-shrink: 0; cursor: pointer;">
             
             <div style="flex: 1; min-width: 0;">
-              <div style="color: #576b95; font-size: 16px; font-weight: 600; margin-bottom: 4px;">${esc(m.author)}</div>
+              <div style="color: #576b95; font-size: 16px; font-weight: 600; margin-bottom: 4px;">${esc(dn(m.author))}</div>
               <div style="font-size: 15px; color: #111; line-height: 1.45; white-space: pre-wrap; margin-bottom: 6px;">${esc(m.text)}</div>
               
               ${renderImages(m.images)}

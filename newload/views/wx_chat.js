@@ -1,93 +1,368 @@
 // 自动拆分自 app_wechat.js（2026-10-28）
+// 朋友圈数据（按 角色聊天记录总表.md 重写 · 2026-10-29）
 const MOCK_MOMENTS_DATA = {
   "穆祉丞": {
-    wxid: "mzc_1108",
+    wxid: "nanpengyou",
     region: "重庆",
     cover: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=800",
     posts: [
       {
-        id: 1,
+        id: 101,
         date: { day: "今天", month: "" },
-        text: "皇马早晚十一个幽灵在场上踢球。",
+        text: "今年也买了两个位置。",
         images: [],
-        location: "",
-        time: "刚刚",
-        likes: ["穆小恩", "恩仔"],
+        location: "家里",
+        time: "2026年11月15日 21:40",
+        likes: ["穆小恩", "恩恩", "兔子", "丞丞"],
         comments: [
-          { user: "穆小恩", text: "晚上出来吃夜宵不？", replyTo: "" },
-          { user: "穆祉丞", text: "好啊，老地方见。", replyTo: "穆小恩" }
+          { user: "穆小恩", text: "人呢？电话不接。", replyTo: "" }
         ]
       },
       {
-        id: 2,
-        date: { day: "16", month: "10月" },
-        text: "突然翻到一张绝望的饭撒牌。",
-        images: ["https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=500"],
+        id: 102,
+        date: { day: "13", month: "9月" },
+        text: "今天有人说我笑起来像高中生。我十九了。",
+        images: [],
         location: "",
-        time: "2026年10月16日 22:51",
-        likes: ["恩仔", "丞哥", "丞丞"],
-        comments: [
-          { user: "恩仔", text: "奇缘2028呢。", replyTo: "" },
-          { user: "穆祉丞", text: "郑棋元说听不懂给你比个心吧。", replyTo: "恩仔" }
-        ]
+        time: "2026年9月13日 23:11",
+        likes: ["丞丞", "Mu"],
+        comments: []
       }
     ]
   },
+
+  "穆瑞恩": {
+    wxid: "xiaobaobei",
+    region: "重庆",
+    cover: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=800",
+    posts: [
+      {
+        id: 201,
+        date: { day: "10", month: "9月" },
+        text: "下面有一千个人。我一个都看不见。只看得到我自己。",
+        images: [],
+        location: "Topking 舞社",
+        time: "2017年9月10日 22:40",
+        likes: ["张峻豪"],
+        comments: []
+      },
+      {
+        id: 202,
+        date: { day: "12", month: "12月" },
+        text: "压轴。老师说压轴就是最后一个，也是最重要的那个。",
+        images: [],
+        location: "重庆国际少儿时装周",
+        time: "2016年12月12日 21:10",
+        likes: [],
+        comments: []
+      },
+      {
+        id: 203,
+        date: { day: "13", month: "9月" },
+        text: "今天也没有偷懒。",
+        images: [],
+        location: "",
+        time: "2016年9月13日 21:30",
+        likes: [],
+        comments: []
+      }
+    ]
+  },
+
   "穆小恩": {
-    wxid: "muxiaoen_99",
+    wxid: "haoguimi",
     region: "北京",
     cover: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=800",
     posts: [
       {
-        id: 3,
+        id: 301,
         date: { day: "昨天", month: "" },
-        text: "今天的晚霞太绝了，分享给大家！🌇",
-        images: ["https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=500"],
-        location: "",
-        time: "昨天 18:30",
-        likes: ["穆祉丞", "恩仔"],
+        text: "等一个人。他不来我自己喝。",
+        images: [],
+        location: "楼下小馆",
+        time: "2026年11月14日 21:40",
+        likes: ["穆祉丞"],
         comments: [
-          { user: "恩仔", text: "真的好看！在哪儿拍的？", replyTo: "" },
-          { user: "穆小恩", text: "就在家楼下哈哈。", replyTo: "恩仔" }
+          { user: "穆祉丞", text: "两瓶？", replyTo: "" },
+          { user: "穆小恩", text: "一瓶没开，你猜是哪瓶。", replyTo: "穆祉丞" }
+        ]
+      },
+      {
+        id: 302,
+        date: { day: "10", month: "11月" },
+        text: "第一张是待办。下面六张都是骂人的。",
+        images: [],
+        location: "工位",
+        time: "2026年11月10日 12:30",
+        likes: ["恩仔"],
+        comments: [
+          { user: "恩仔", text: "穆小恩加油！", replyTo: "" }
         ]
       }
     ]
   },
-  "恩仔": {
-    wxid: "enzai_0412",
-    region: "浙江",
+
+  "恩恩": {
+    wxid: "laopo_jiao",
+    region: "重庆",
+    cover: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=800",
+    posts: [
+      {
+        id: 401,
+        date: { day: "今天", month: "" },
+        text: "等一个人，等到灯都困了。",
+        images: [],
+        location: "家",
+        time: "2026年11月15日 20:10",
+        likes: ["兔子", "穆小恩"],
+        comments: [
+          { user: "穆小恩", text: "别等了，他手机丢了。", replyTo: "" },
+          { user: "恩恩", text: "……哦。", replyTo: "穆小恩" }
+        ]
+      },
+      {
+        id: 402,
+        date: { day: "11", month: "11月" },
+        text: "一个在我这，一个在你那。",
+        images: [],
+        location: "",
+        time: "2026年11月11日 23:50",
+        likes: ["穆祉丞"],
+        comments: []
+      }
+    ]
+  },
+
+  "cat": {
+    wxid: "laopo_zuo",
+    region: "重庆",
     cover: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800",
     posts: [
       {
-        id: 4,
-        date: { day: "15", month: "10月" },
-        text: "我的猫今天终于愿意理我了，感动哭了😭",
-        images: [
-          "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=300",
-          "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?q=80&w=300"
-        ],
-        location: "",
-        time: "2026年10月15日 21:00",
-        likes: ["穆小恩"],
+        id: 501,
+        date: { day: "13", month: "11月" },
+        text: "他比我重要。",
+        images: ["https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=500"],
+        location: "家",
+        time: "2026年11月13日 02:14",
+        likes: ["恩恩"],
         comments: [
-          { user: "穆小恩", text: "猫主子是这样的，习惯就好。", replyTo: "" }
+          { user: "恩恩", text: "猫猫好可爱。", replyTo: "" },
+          { user: "黑猫", text: "重点是这个吗。", replyTo: "恩恩" }
         ]
       }
     ]
   },
-  "丞哥": {
-    wxid: "cheng_ge",
-    region: "北京",
-    cover: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800",
+
+  "丞丞": {
+    wxid: "chengcheng",
+    region: "重庆",
+    cover: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=800",
     posts: [
       {
-        id: 5,
-        date: { day: "12", month: "10月" },
-        text: "今天腿练废了。",
-        images: ["https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=500"],
+        id: 601,
+        date: { day: "15", month: "7月" },
+        text: "😼",
+        images: [],
         location: "",
-        time: "2026年10月12日 19:30",
+        time: "2026年7月15日 18:20",
+        likes: ["穆祉丞", "穆小恩"],
+        comments: [
+          { user: "穆祉丞", text: "恭喜。", replyTo: "" },
+          { user: "丞丞", text: "最后一名也是名。", replyTo: "穆祉丞" }
+        ]
+      },
+      {
+        id: 602,
+        date: { day: "20", month: "12月" },
+        text: "我想踢球了",
+        images: [],
+        location: "八中操场",
+        time: "2025年12月20日 10:58",
         likes: ["穆祉丞"],
+        comments: [
+          { user: "穆祉丞", text: "耍起！", replyTo: "" },
+          { user: "丞丞", text: "等考完。真的。", replyTo: "穆祉丞" }
+        ]
+      }
+    ]
+  },
+
+  "pig": {
+    wxid: "xiaopangpang",
+    region: "重庆",
+    cover: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800",
+    posts: [
+      {
+        id: 701,
+        date: { day: "今天", month: "" },
+        text: "等一个人回来吃饭。",
+        images: [],
+        location: "家",
+        time: "2026年11月15日 19:30",
+        likes: ["兔子", "恩恩", "黑猫"],
+        comments: [
+          { user: "兔子", text: "我也留了饭。", replyTo: "" },
+          { user: "猪", text: "那我们两个一起等。", replyTo: "兔子" }
+        ]
+      }
+    ]
+  },
+
+  "Mu": {
+    wxid: "CSGOD",
+    region: "上海",
+    cover: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800",
+    posts: [
+      {
+        id: 801,
+        date: { day: "14", month: "11月" },
+        text: "2:0",
+        images: [],
+        location: "训练室",
+        time: "2026年11月14日 23:52",
+        likes: ["丞丞"],
+        comments: []
+      },
+      {
+        id: 802,
+        date: { day: "12", month: "11月" },
+        text: "再打一局。",
+        images: [],
+        location: "训练室",
+        time: "2026年11月12日 01:30",
+        likes: [],
+        comments: [
+          { user: "丞丞", text: "几点了哥。", replyTo: "" },
+          { user: "Mu", text: "1", replyTo: "丞丞" }
+        ]
+      }
+    ]
+  },
+
+  "MuAMuA": {
+    wxid: "mama",
+    region: "重庆",
+    cover: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800",
+    posts: [
+      {
+        id: 901,
+        date: { day: "今天", month: "" },
+        text: "煲了汤，等一个不按时回家的人。",
+        images: [],
+        location: "厨房",
+        time: "2026年11月15日 18:00",
+        likes: ["恩恩", "穆小恩"],
+        comments: [
+          { user: "穆小恩", text: "阿姨我可以去喝吗。", replyTo: "" },
+          { user: "MuAMuA", text: "来吧，宝贝。", replyTo: "穆小恩" }
+        ]
+      }
+    ]
+  },
+
+  "丞哥": {
+    wxid: "cgcgdsg",
+    region: "重庆",
+    cover: "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?q=80&w=800",
+    posts: [
+      {
+        id: 1001,
+        date: { day: "11", month: "11月" },
+        text: "不乖。",
+        images: [],
+        location: "",
+        time: "2026年11月11日 23:40",
+        likes: [],
+        comments: []
+      }
+    ]
+  },
+
+  "恩仔": {
+    wxid: "enzai_0412",
+    region: "重庆",
+    cover: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800",
+    posts: [
+      {
+        id: 1101,
+        date: { day: "16", month: "11月" },
+        text: "十四岁了。不可以随便哭。",
+        images: [],
+        location: "练习室",
+        time: "2021年11月16日 22:50",
+        likes: [],
+        comments: []
+      },
+      {
+        id: 1102,
+        date: { day: "31", month: "7月" },
+        text: "今天有一场戏，我 NG 了七次。但是过了。",
+        images: [],
+        location: "片场",
+        time: "2020年7月31日 23:10",
+        likes: [],
+        comments: []
+      },
+      {
+        id: 1103,
+        date: { day: "12", month: "3月" },
+        text: "一个人也可以的。",
+        images: [],
+        location: "",
+        time: "2020年3月12日 22:40",
+        likes: [],
+        comments: []
+      },
+      {
+        id: 1104,
+        date: { day: "16", month: "11月" },
+        text: "今天我十二岁。",
+        images: [],
+        location: "",
+        time: "2019年11月16日 21:00",
+        likes: [],
+        comments: []
+      }
+    ]
+  },
+
+  "rabbit": {
+    wxid: "laopo_guai",
+    region: "重庆",
+    cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800",
+    posts: [
+      {
+        id: 1201,
+        date: { day: "昨天", month: "" },
+        text: "三个月前，他说过一次。",
+        images: [],
+        location: "",
+        time: "2026年11月14日 21:15",
+        likes: ["恩恩"],
+        comments: [
+          { user: "恩恩", text: "你还记着啊。", replyTo: "" },
+          { user: "兔子", text: "嗯，我记性好。", replyTo: "恩恩" }
+        ]
+      },
+      {
+        id: 1202,
+        date: { day: "12", month: "11月" },
+        text: "坐反了。不过终点站的日落挺好看的。",
+        images: [],
+        location: "地铁终点站",
+        time: "2026年11月12日 19:05",
+        likes: ["猪"],
+        comments: []
+      },
+      {
+        id: 1203,
+        date: { day: "10", month: "11月" },
+        text: "留了一份。等你回来。",
+        images: [],
+        location: "家",
+        time: "2026年11月10日 22:30",
+        likes: ["猪", "MuAMuA"],
         comments: []
       }
     ]
