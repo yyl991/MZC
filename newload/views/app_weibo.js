@@ -2,6 +2,35 @@
 // 📱 微博模块 (app_weibo.js) - 纯净无SVG版
 // ==========================================
 
+/* ---- 超话签到（做数据小号） ---- */
+window.wbSignedToday = function () {
+  try {
+    const d = JSON.parse(localStorage.getItem("wb_sign") || "{}");
+    return d && d.date === "2026-11-15";
+  } catch (e) {
+    return false;
+  }
+};
+window.wbSignIn = function (el) {
+  if (window.wbSignedToday()) {
+    if (typeof toastDev === "function") toastDev("今天已经签过啦，明天再来~");
+    return;
+  }
+  let d = {};
+  try {
+    d = JSON.parse(localStorage.getItem("wb_sign") || "{}");
+  } catch (e) {}
+  try {
+    localStorage.setItem(
+      "wb_sign",
+      JSON.stringify({ date: "2026-11-15", points: (d.points || 0) + 10 }),
+    );
+  } catch (e) {}
+  if (typeof vib === "function") vib([10, 30, 10]);
+  if (typeof toastDev === "function") toastDev("签到成功 +10 积分");
+  show("weibo_profile", "pop");
+};
+
 window.openSuperTopic = function () {
   window._prev_wb_view = view;
   push("weibo_supertopic");
@@ -492,9 +521,9 @@ VIEWS.weibo_profile = () => ({
              <div><div style="font-size:14px; font-weight:700; color:#111;">🍁 金秋答题赛</div><div style="font-size:12px; color:#c26a32; margin-top:2px;">参与瓜分十万现金</div></div>
              <div style="font-size:22px;">💰</div>
            </div>
-           <div onclick="toastDev()" style="display:flex; align-items:center; justify-content:space-between; border-top:0.5px solid #eee; padding-top:10px;">
-             <div><div style="font-size:14px; font-weight:700; color:#111;">每日签到</div><div style="font-size:12px; color:#c26a32; margin-top:2px;">点击领10积分</div></div>
-             <div style="background:#ff8200; color:#fff; font-size:12px; padding:2px 10px; border-radius:12px;">签到</div>
+           <div onclick="wbSignIn(this)" style="display:flex; align-items:center; justify-content:space-between; border-top:0.5px solid #eee; padding-top:10px;">
+             <div><div style="font-size:14px; font-weight:700; color:#111;">每日签到</div><div style="font-size:12px; color:#c26a32; margin-top:2px;">${wbSignedToday() ? "明天再来" : "点击领10积分"}</div></div>
+             <div class="wb-sign-badge" style="background:${wbSignedToday() ? "#c7c7cc" : "#ff8200"}; color:#fff; font-size:12px; padding:2px 10px; border-radius:12px;">${wbSignedToday() ? "已签到" : "签到"}</div>
            </div>
            <div onclick="toastDev()" style="display:flex; align-items:center; justify-content:space-between; border-top:0.5px solid #eee; padding-top:10px;">
              <div><div style="font-size:14px; font-weight:700; color:#111;">🍔 环球美食嘉年华</div><div style="font-size:12px; color:#c26a32; margin-top:2px;">答题瓜分十万奖池</div></div>
@@ -522,7 +551,7 @@ VIEWS.weibo_profile = () => ({
        <div style="background:#fff; margin:0 12px 20px; border-radius:12px; padding:14px 16px;">
          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
            <div style="font-size:15px; font-weight:700; color:#111;">超话社区</div>
-           <div onclick="toastDev()" style="font-size:13px; color:#999;">立即签到 ></div>
+           <div onclick="wbSignIn(this)" style="font-size:13px; color:${wbSignedToday() ? "#c7c7cc" : "#ff8200"};">${wbSignedToday() ? "已签到" : "立即签到 >"}</div>
          </div>
          <div style="display:flex; gap:12px; overflow-x:auto; scrollbar-width:none;">
            <div style="flex:none; width:58px; text-align:center;" onclick="openSuperTopic()">
