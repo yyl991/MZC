@@ -54,7 +54,7 @@ var INCOMING = [];
     丞丞: { initial: "丞", color: "#4a90e2", avatar: "./data/avatar/duizhang.jpg", pat: "一起SIU~~~" },
     pig: { initial: "Z", color: "#ffb6c1", avatar: "./data/avatar/pig.jpg", pat: "说老板要大份的谢谢" }, // 猪
     // 👇 新增的三个角色
-    cat: { initial: "猫", color: "#3a3a3c", avatar: "./data/avatar/cat.jpg", pat: "…你敢拍老子？" },
+    cat: { initial: "猫", color: "#3a3a3c", avatar: "./data/avatar/cat.jpg", pat: "…你敢拍我？" },
     rabbit: { initial: "兔", color: "#ffb3c1", avatar: "./data/avatar/rabbit.jpg", pat: "的小脑袋，听到了海浪声" },
     tiger: { initial: "虎", color: "#ff9f0a", avatar: "./data/avatar/tiger.jpg", pat: "的尾巴" },
   };  
@@ -137,7 +137,7 @@ var INCOMING = [];
     'cat': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['别生气了，我马上回。'], them:['蒽。','老子等着的。'] },
+        { mine:['别生气了，我马上回。'], them:['蒽。','等着呢。'] },
         { mine:['门锁了？'], them:['……没锁。','快点。'] }
       ],
       fragment: null
@@ -195,7 +195,7 @@ var INCOMING = [];
     { at: 34, type:'notify', from:'cat', text:'？' },
     { at: 37, type:'notify', from:'丞哥', text:'？' },
     { at: 40, type:'notify', from:'丞哥', text:'这样不乖哦。' },
-    { at: 47, type:'notify', from:'cat', text:'老子不问了' },
+    { at: 47, type:'notify', from:'cat', text:'不问了' },
     { at: 50, type: 'call', from: 'pig' },
     { at: 56, type:'notify', from:'rabbit', text:'下雪了 你回来的时候小心一点哦' },
     { at: 60, type:'notify', from:'穆瑞恩', text:'你在哪里呀？练习室好黑，大家都走了。' },
@@ -237,9 +237,9 @@ var INCOMING = [];
     { at: 196, type:'notify', from:'rabbit', text:'我不催你的，真的' },
     { at: 199, type:'notify', from:'穆小恩', text:'说真的，这手机明明是你的，为什么里面全是他？' },
     { at: 203, type:'notify', from:'MuAMuA', text:'我不问你去了哪。' },
-    { at: 206, type:'notify', from:'cat', text:'今天老子生日 你要爪子嘛' },
+    { at: 206, type:'notify', from:'cat', text:'今天什么日子 你要爪子嘛' },
     { at: 209, type:'notify', from:'恩仔', text:'后来真的有一个人看见了。' },
-    { at: 213, type:'notify', from:'cat', text:'老子把门反锁了 生日你也别过了' },
+    { at: 213, type:'notify', from:'cat', text:'门锁了 生日你也别过了' },
     { at: 216, type:'notify', from:'丞哥', text:'气笑了。' },
     { at: 219, type:'notify', from:'丞丞', text:'雪把球场盖了，球踢一半就散了' },
     { at: 223, type:'notify', from:'恩恩', text:'我不是非要你今天回来的。' },
@@ -256,7 +256,7 @@ var INCOMING = [];
     { at: 266, type:'notify', from:'rabbit', text:'我把蜡烛摆好了，不会点' },
     { at: 269, type:'notify', from:'丞哥', text:'我要开始数了。' },
     { at: 272, type:'notify', from:'恩恩', text:'我生气了（真的）。' },
-    { at: 276, type:'notify', from:'cat', text:'……老子一个人把蜡烛吹了' },
+    { at: 276, type:'notify', from:'cat', text:'……我一个人把蜡烛吹了' },
     { at: 279, type:'notify', from:'pig', text:'蛋糕要化了' },
     { at: 282, type:'notify', from:'恩仔', text:'我今天练完了，一个人在练习室。' },
     { at: 286, type:'notify', from:'rabbit', text:'你慢慢来，我不着急' },
@@ -265,7 +265,7 @@ var INCOMING = [];
     { at: 296, type:'notify', from:'穆祉丞', text:'穆祉丞。' },
     { at: 299, type:'notify', from:'Mu', text:'1' },
     { at: 303, type:'notify', from:'MuAMuA', text:'雪这么大，长寿面煮好了，汤还温着。' },
-    { at: 306, type:'notify', from:'cat', text:'你回来老子不打你' },
+    { at: 306, type:'notify', from:'cat', text:'你回来 我不打你' },
     { at: 309, type:'notify', from:'rabbit', text:'但是我有点想你了' },
     { at: 313, type:'notify', from:'丞哥', text:'三。' },
     { at: 316, type:'notify', from:'恩仔', text:'你还会来吗。' },
