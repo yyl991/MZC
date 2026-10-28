@@ -147,7 +147,7 @@ if (!SS.stage) SS.stage = {};
 if (!SS.lineIdx) SS.lineIdx = {};
 
 const GAME_START_MIN = 23 * 60 + 9,
-  GAME_END_AT = 460;
+  GAME_END_AT = 660;
 let view = "lock",
   curDark = true,
   SC = 1,
@@ -177,12 +177,12 @@ function ampm(minutes) {
   const h = Math.floor(minutes / 60) % 24;
   const m = Math.floor(minutes % 60);
   const ap = h >= 12 ? "下午" : "上午";
-  const h12 = h === 12 ? 12 : h % 12; // 0 点显示 0，中午 12 点显示 12
+  const h12 = h % 12 || 12; // 0 点 → 12（凌晨 00:09 显示「上午 12:09」），中午 12 点 → 12
   return `${ap} ${h12}:${pad(m)}`;
 }
 function gameMin() {
   const e = elapsed();
-  // 前 460 秒按剧情节奏走（23:09 → 00:00）；之后按真实时间 1:1 继续，不再卡在 12 点
+  // 前 GAME_END_AT 秒按剧情节奏走（23:09 → 00:00）；之后按真实时间 1:1 继续，不再卡在 12 点
   if (e <= GAME_END_AT)
     return GAME_START_MIN + Math.floor((e / GAME_END_AT) * 51);
   return GAME_START_MIN + 51 + Math.floor((e - GAME_END_AT) / 60);
@@ -192,7 +192,7 @@ function clock12(showAmpm = true) {
   const h = Math.floor(m / 60) % 24;
   const min = Math.floor(m % 60);
   const ampmStr = h >= 12 ? "下午" : "上午";
-  const h12 = h === 12 ? 12 : h % 12; // 0 点显示 0:xx，不是 12:xx
+  const h12 = h % 12 || 12; // 0 点 → 12（凌晨 00:09 显示「上午 12:09」）
   return showAmpm ? `${ampmStr}${h12}:${pad(min)}` : `${h12}:${pad(min)}`;
 }
 function gameTime24() {

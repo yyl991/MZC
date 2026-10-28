@@ -146,7 +146,8 @@ ok("时间线有延迟", p60 > 60, p60);
 ok("零点前能跑完", p300 < 900, p300);
 const gapEarly = vm.runInContext("pacedAt(30) - pacedAt(27)", sb);
 const gapLate = vm.runInContext("pacedAt(297) - pacedAt(294)", sb);
-ok("消息越来越急", gapLate < gapEarly * 0.5, gapEarly.toFixed(1) + "s -> " + gapLate.toFixed(1) + "s");
+// 后段仍然更密，但整体放慢了（作者要求给玩家留探索时间），所以陡度阈值放宽到 0.75
+ok("消息越来越急", gapLate < gapEarly * 0.75, gapEarly.toFixed(1) + "s -> " + gapLate.toFixed(1) + "s");
 ok("压力循环存在", typeof vm.runInContext("pressureTick", sb) === "function");
 
 // 5. 拍一拍后对方会「？」

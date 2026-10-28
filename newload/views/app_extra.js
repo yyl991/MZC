@@ -395,6 +395,10 @@ window.declineCall = function () {
   const who = callName;
   extraCalls.unshift([callName, "今天 " + gameTime24(), "未接来电"]);
   closeCallUI();
+  if (who === "pig") {
+    pigCryFlood();
+    return;
+  }
   window.scheduleCallAgain(who, "miss");
 };
 window.missCall = function () {
@@ -405,6 +409,10 @@ window.missCall = function () {
   const who = callName;
   extraCalls.unshift([callName, "今天 " + gameTime24(), "未接来电"]);
   closeCallUI();
+  if (who === "pig") {
+    pigCryFlood();
+    return;
+  }
   window.scheduleCallAgain(who, "miss");
 };
 /* ---------- 挂断追命系统 ----------
@@ -455,6 +463,27 @@ const CALL_NAG = {
   ],
 };
 const CALL_ANGRY = ["行，不打了。", "随便你吧。", "……好。", "我等你主动找我。"];
+/* 猪被挂电话：先扣一个问号，然后开始狂发哭脸表情包 */
+function pigCryFlood() {
+  if (typeof chatData === "undefined" || !chatData["pig"]) return;
+  const send = (text, delay) =>
+    setTimeout(() => {
+      chatData["pig"].push([
+        text,
+        "them",
+        typeof nowAmpm === "function" ? nowAmpm() : "",
+      ]);
+      if (typeof saveChat === "function") saveChat();
+      if (typeof view !== "undefined" && view === "chat" && chatId === "pig") {
+        if (typeof refreshChat === "function") refreshChat(true);
+        if (typeof scrollChat === "function") scrollChat();
+      }
+      if (typeof notifyFrom === "function") notifyFrom("pig", text);
+    }, delay);
+  send("？", 700);
+  for (let i = 0; i < 6; i++)
+    send("[表情] ./data/chat/pigcry.jpg", 1600 + i * 620);
+}
 window._lastNag = window._lastNag || {};
 window.scheduleCallAgain = function (name, mode) {
   if (!name) return;
@@ -526,7 +555,10 @@ window.endCall = function () {
     if (view === "phone") show("phone");
   }, 1100);
   if (wasOut && !callIsNumber) window.scheduleCallBack(outName);
-  else if (!wasOut && secs < 8) window.scheduleCallAgain(inName, "hangup");
+  else if (!wasOut && secs < 8) {
+    if (inName === "pig") pigCryFlood();
+    else window.scheduleCallAgain(inName, "hangup");
+  }
 };
 window.closeCallUI = function () {
   const c = OV.querySelector(".call");
