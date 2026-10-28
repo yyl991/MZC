@@ -280,7 +280,7 @@ const MOCK_MOMENTS_DATA = {
   },
 
   "恩仔": {
-    wxid: "enzai_0412",
+    wxid: "xiaolianxisheng",
     region: "重庆",
     cover: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800",
     posts: [
