@@ -1735,7 +1735,7 @@ svg {
 }
 
 .kbd.open {
-    height: 300px
+    height: 270px
 }
 
 .kbd .kin {
@@ -1743,7 +1743,7 @@ svg {
     display: flex;
     flex-direction: column;
     gap: 11px;
-    height: 300px
+    height: 270px
 }
 
 .kr {
