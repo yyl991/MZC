@@ -406,14 +406,26 @@ window.missCall = function () {
   extraCalls.unshift([callName, "今天 " + gameTime24(), "未接来电"]);
   closeCallUI();
 };
+// 你打给谁，对方都会回拨过来
+window.scheduleCallBack = function (name) {
+  if (!name) return;
+  clearTimeout(window._callBackTo);
+  window._callBackTo = setTimeout(() => {
+    if (callState) return;
+    incomingCallFrom(name);
+  }, 3000);
+};
 window.endCall = function () {
   if (typeof closeDialpad === "function") closeDialpad();
+  const wasOut = callDir === "out";
+  const outName = callName;
   if (callState === "dialing") {
     clearInterval(rbIv);
     callState = "";
     extraCalls.unshift([callName, "今天 " + gameTime24(), "呼出"]);
     closeCallUI();
     if (view === "phone") show("phone");
+    if (wasOut) window.scheduleCallBack(outName);
     return;
   }
   if (callState !== "active") return;
@@ -434,6 +446,7 @@ window.endCall = function () {
     closeCallUI();
     if (view === "phone") show("phone");
   }, 1100);
+  if (wasOut) window.scheduleCallBack(outName);
 };
 window.closeCallUI = function () {
   const c = OV.querySelector(".call");
@@ -1057,16 +1070,29 @@ let noteId = 0;
 (function initNotesApp() {
   function parseNoteDate(d, full) {
     if (!d || typeof d !== "string") return "";
-    const parts = d.split("-").map(Number);
+    const seg = d.split(" ");
+    const parts = seg[0].split("-").map(Number);
+    const hhmm = seg[1] || "";
     if (parts.length < 3 || parts.some(isNaN)) return d;
     const [y, m, dd] = parts;
-    if (full) return fmtYMD(y, m, dd);
-    if (d === "2026-11-15") return "23:09";
-    if (d === "2026-11-14") return "昨天";
+    if (full)
+      return fmtYMD(y, m, dd) + (hhmm ? " " + hhmm : "");
+    // 游戏内的今天（11.15 23:09 之后跨到 11.16 零点）
+    if (y === 2026 && m === 11 && dd === 15) return hhmm || "23:09";
+    if (y === 2026 && m === 11 && dd === 16) return hhmm || "00:00";
+    if (y === 2026 && m === 11 && dd === 14) return "昨天";
     const diff = (new Date(2026, 11, 15) - new Date(y, m - 1, dd)) / 864e5;
     if (diff < 7) return wdLong(y, m, dd);
     return fmtNum(y, m, dd);
   }
+  // 备忘录用「游戏内系统时间」，不是固定 23:09
+  window.noteNow = function () {
+    let mins = 1389; // 23:09
+    if (typeof gameMin === "function") mins = gameMin();
+    const day = mins >= 1440 ? 16 : 15;
+    const m = mins % 1440;
+    return `2026-11-${pad(day)} ${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+  };
   const renderRow = (n, i) => {
     if (!n || n.length < 4) return "";
     return `<button class="row tap note-row" data-note-search="${esc((n[0] + " " + n[1] + " " + n[2]).toLowerCase())}" onclick="noteId=${i};push('note')"><b>${esc(n[0])}</b><small><em>${parseNoteDate(n[3])}</em>${esc(n[1])}</small></button>`;
@@ -1206,9 +1232,14 @@ window.saveNote = function () {
   const preview = (body.split("\n")[0] || "暂无内容").slice(0, 26);
   const idx = window._noteEditIndex;
   if (idx >= 0 && notes[idx]) {
-    notes[idx] = [title, preview, body, notes[idx][3] || "2026-11-15"];
+    notes[idx] = [
+      title,
+      preview,
+      body,
+      notes[idx][3] || window.noteNow(),
+    ];
   } else {
-    notes.unshift([title, preview, body, "2026-11-15"]);
+    notes.unshift([title, preview, body, window.noteNow()]);
   }
   show("notes", "pop");
   toastDev("备忘录已保存");

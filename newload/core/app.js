@@ -518,6 +518,7 @@ const PARENT = {
   sms_detail: "sms",
   weibo: "weibo",
   weibo_profile: "weibo",
+  weibo_my_posts: "weibo_profile",
   weibo_artist: "weibo",
   weibo_supertopic: "weibo_artist",
   weibo_follow: "weibo_profile",

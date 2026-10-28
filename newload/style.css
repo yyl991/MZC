@@ -4079,6 +4079,19 @@ svg {
     display: block;
 }
 
+/* 素材缺失占位 */
+.wx-media-miss {
+    min-width: 120px;
+    min-height: 72px;
+    display: grid;
+    place-items: center;
+    border-radius: 6px;
+    background: #f2f2f5;
+    color: #b2b2b7;
+    font-size: 13px;
+    padding: 8px 12px;
+}
+
 /* 3. 表情包样式 (无气泡背景) */
 .wx-bb.emo-bb {
     padding: 0 !important;
@@ -4616,6 +4629,18 @@ svg {
 }
 .wx-sheet-item:active { background: #f2f2f7; }
 .wx-sheet-item.danger { color: #fa5151; }
+.wx-pad-key {
+    height: 50px;
+    border: none;
+    border-radius: 10px;
+    background: #f7f7f8;
+    font-size: 22px;
+    font-weight: 400;
+    color: #111;
+    font-family: inherit;
+    cursor: pointer;
+}
+.wx-pad-key:active { background: #e5e5ea; }
 @keyframes wxSheetUp { from { transform: translateY(100%); } }
 @keyframes wxFadeIn { from { opacity: 0; } }
 

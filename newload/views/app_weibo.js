@@ -535,11 +535,6 @@ VIEWS.weibo_profile = () => ({
        <div style="background:#fff; margin:0 12px 10px; border-radius:12px; padding:14px 16px;">
          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-size:15px; font-weight:700; color:#111;">我的经常访问</div><div onclick="toastDev()" style="font-size:13px; color:#999;">有更新 ></div></div>
          <div style="display:flex; gap:16px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px;">
-           <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:none;" onclick="toastDev()">
-             <div style="width:48px; height:48px; border:1px solid #eee; border-radius:50%; position:relative;"><img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=100&auto=format&fit=crop" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:16px; height:16px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div></div>
-             <span style="font-size:12px; color:#333;">内八小...</span>
-             <span style="font-size:10px; color:#999;">访问1次</span>
-           </div>
            <div style="display:flex; flex-direction:column; align-items:center; gap:4px; flex:none;" onclick="push('weibo_artist')">
              <div style="width:48px; height:48px; border:1px solid #eee; border-radius:50%; position:relative;"><img src="./data/avatar/miantuan.jpg" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"><div style="position:absolute; bottom:-2px; right:-2px; background:#ff3b30; color:#fff; font-size:10px; width:16px; height:16px; border-radius:50%; display:grid; place-items:center; border:1.5px solid #fff; font-weight:bold; z-index:2;">V</div></div>
              <span style="font-size:12px; color:#333;">TF_ING穆...</span>

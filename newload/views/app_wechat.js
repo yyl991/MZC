@@ -155,6 +155,58 @@ window.wxRunSheetItem = function (i) {
   if (it && it.onClick) setTimeout(it.onClick, 0);
 };
 
+// ============ 内置数字键盘（红包 / 转账用，不弹系统键盘） ============
+window.wxAmountPad = function (title, placeholder, cb) {
+  wxCloseSheet();
+  window._wxPadVal = "";
+  window._wxPadPh = placeholder || "0.00";
+  window._wxPadCb = cb;
+  const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "⌫"];
+  const wrap = document.createElement("div");
+  wrap.className = "wx-sheet-wrap";
+  wrap.innerHTML = `
+    <div class="wx-sheet-mask" onclick="wxCloseSheet()"></div>
+    <div class="wx-sheet" style="padding-bottom:calc(10px + env(safe-area-inset-bottom))">
+      <div class="wx-sheet-title">${esc(title)}</div>
+      <div id="wx-pad-val" style="text-align:center;font-size:34px;font-weight:500;color:#c7c7cc;padding:6px 16px 14px;letter-spacing:1px;">${esc(window._wxPadPh)}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 12px;">
+        ${keys
+          .map(
+            (k) =>
+              `<button class="wx-pad-key" onclick="wxPadTap('${k}')">${k}</button>`,
+          )
+          .join("")}
+      </div>
+      <button class="wx-sheet-item" id="wx-pad-done" style="color:#b2b2b2;font-weight:600;" onclick="wxPadDone()">确定</button>
+      <button class="wx-sheet-item" onclick="wxCloseSheet()">取消</button>
+    </div>`;
+  document.getElementById("screen").appendChild(wrap);
+};
+window.wxPadTap = function (k) {
+  if (k === "⌫") window._wxPadVal = window._wxPadVal.slice(0, -1);
+  else if (k === "." && window._wxPadVal.indexOf(".") >= 0) return;
+  else if (window._wxPadVal.length >= 8) return;
+  else {
+    if (k === "." && !window._wxPadVal) window._wxPadVal = "0";
+    window._wxPadVal += k;
+  }
+  if (typeof vib === "function") vib(6);
+  const el = document.getElementById("wx-pad-val");
+  if (el) {
+    el.textContent = window._wxPadVal || window._wxPadPh;
+    el.style.color = window._wxPadVal ? "#111" : "#c7c7cc";
+  }
+  const d = document.getElementById("wx-pad-done");
+  if (d) d.style.color = window._wxPadVal ? "#07c160" : "#b2b2b2";
+};
+window.wxPadDone = function () {
+  const v = window._wxPadVal;
+  const cb = window._wxPadCb;
+  if (!v) return;
+  wxCloseSheet();
+  if (cb) cb(v);
+};
+
 // ============ 通用输入弹窗 ============
 window.wxPrompt = function (title, placeholder, cb) {
   wxCloseSheet();
@@ -374,7 +426,7 @@ VIEWS.wechat = () => {
         const badge = cnt
           ? `<span class="wx-badge">${cnt > 99 ? "99+" : cnt}</span>`
           : "";
-        return `<button class="wx-item" onclick="window._chatBackTo=null;chatId=&quot;${n}&quot;;push('chat')"><div class="wx-av" onclick="event.stopPropagation(); openWxProfileByName('${n}', 'wechat')">${avatarFor(n, isGroup(n))}${badge}</div><div class="wx-info"><div class="wx-name">${esc(wxName(n))}</div><div class="wx-msg">${last ? esc(previewText(last[0], isGroup(n))) : ""}</div></div><div class="wx-meta"><span class="wx-time">${time}</span></div></button>`;
+        return `<button class="wx-item" onclick="window._chatBackTo=null;chatId=&quot;${n}&quot;;push('chat')"><div class="wx-av">${avatarFor(n, isGroup(n))}${badge}</div><div class="wx-info"><div class="wx-name">${esc(wxName(n))}</div><div class="wx-msg">${last ? esc(previewText(last[0], isGroup(n))) : ""}</div></div><div class="wx-meta"><span class="wx-time">${time}</span></div></button>`;
       })
       .join("")}</div>
     <div class="wx-tabbar">
@@ -457,11 +509,11 @@ function chatMsgs(id) {
       onclickAttr = "";
     if (x.text.startsWith("[图片]")) {
       const imgUrl = x.text.replace("[图片]", "").trim();
-      innerContent = `<img src="${imgUrl}" class="wx-img" style="cursor:pointer;" onclick="event.stopPropagation();openMediaViewer(['${imgUrl}'], 0)" />`;
+      innerContent = `<img src="${imgUrl}" class="wx-img" style="cursor:pointer;" onerror="wxMediaMiss(this,'图片未找到')" onclick="event.stopPropagation();openMediaViewer(['${imgUrl}'], 0)" />`;
       bubbleClass = "wx-bb img-bb";
     } else if (x.text.startsWith("[表情]")) {
       const emoUrl = x.text.replace("[表情]", "").trim();
-      innerContent = `<img src="${emoUrl}" class="wx-emoji" />`;
+      innerContent = `<img src="${emoUrl}" class="wx-emoji" onerror="wxMediaMiss(this,'表情')" />`;
       bubbleClass = "wx-bb emo-bb";
     } else if (x.text.startsWith("[语音]")) {
       const raw = x.text.replace("[语音]", "").trim();
@@ -518,10 +570,19 @@ function chatMsgs(id) {
         textHtml = `<div class="voice-trans-text">${esc(transTxt)}</div>`;
       }
     }
-    o += `<div class="wx-ln ${me ? "me" : "th"}"><div class="wx-sav" ondblclick="doPat(${me})" ${!me ? `onclick="event.stopPropagation(); openWxProfileByName('${x.sender}', 'chat')"` : ''}>${avatarFor(x.sender, false, me)}</div><div style="display: flex; flex-direction: column; align-items: ${me ? "flex-end" : "flex-start"}; max-width: calc(100% - 60px);"><div style="display: flex; align-items: center; flex-direction: ${me ? "row-reverse" : "row"}; gap: 6px;"><div class="${bubbleClass}" data-idx="${x.rawIdx}" ${onclickAttr} ${holdEvent}>${innerContent}</div>${!me ? dotHtml : ""}${!me ? btnHtml : ""}</div>${textHtml}</div></div>`;
+    o += `<div class="wx-ln ${me ? "me" : "th"}"><div class="wx-sav" onclick="event.stopPropagation();wxPatTap(event,${me})">${avatarFor(x.sender, false, me)}</div><div style="display: flex; flex-direction: column; align-items: ${me ? "flex-end" : "flex-start"}; max-width: calc(100% - 60px);"><div style="display: flex; align-items: center; flex-direction: ${me ? "row-reverse" : "row"}; gap: 6px;"><div class="${bubbleClass}" data-idx="${x.rawIdx}" ${onclickAttr} ${holdEvent}>${innerContent}</div>${!me ? dotHtml : ""}${!me ? btnHtml : ""}</div>${textHtml}</div></div>`;
   });
   return o;
 }
+
+// 素材缺失时给个占位，不要留破图
+window.wxMediaMiss = function (el, label) {
+  if (!el || !el.parentNode) return;
+  const d = document.createElement("div");
+  d.className = "wx-media-miss";
+  d.textContent = label || "图片未找到";
+  el.parentNode.replaceChild(d, el);
+};
 
 let holdTimer = null;
 function startHoldMsg(e, rawIdx) {
@@ -703,6 +764,17 @@ function doPat(isSelf) {
   saveChat();
   refreshChat(true);
 }
+// 头像单击不跳个人主页，双击 = 拍一拍
+window.wxPatTap = function (e, isSelf) {
+  const el = e && e.currentTarget;
+  const now = Date.now();
+  if (el && el._patT && now - el._patT < 320) {
+    el._patT = 0;
+    doPat(isSelf);
+    return;
+  }
+  if (el) el._patT = now;
+};
 function toggleVoiceInput() {
   closeKbd();
   const field = $("#fld"),
@@ -925,7 +997,7 @@ window.wxSendLocation = function () {
   sfx("send");
 };
 window.wxSendRedPacket = function () {
-  wxPrompt("红包金额", "0.00", function (v) {
+  wxAmountPad("红包金额", "0.00", function (v) {
     if (!chatData[chatId]) return;
     chatData[chatId].push([
       `[红包] 恭喜发财，大吉大利|${v}`,
@@ -938,7 +1010,7 @@ window.wxSendRedPacket = function () {
   });
 };
 window.wxSendTransfer = function () {
-  wxPrompt("转账金额", "0.00", function (v) {
+  wxAmountPad("转账金额", "0.00", function (v) {
     if (!chatData[chatId]) return;
     chatData[chatId].push([`[转账] ${v}|请你喝奶茶`, "me", nowAmpm()]);
     saveChat();
