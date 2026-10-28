@@ -105,7 +105,7 @@ ok("微信号不重复", new Set(Object.values(wxids)).size === Object.keys(wxid
 // 资料页能显示
 vm.runInContext('chatId = "MuAMuA"', sb);
 const prof = vm.runInContext('VIEWS.wx_profile().html', sb);
-ok("资料页显示微信号", prof.includes("muamua_1116"), "未找到");
+ok("资料页显示微信号", prof.includes("mama"), "未找到");
 
 // 2. 锁屏折叠
 vm.runInContext("lockNotes.length = 0", sb);

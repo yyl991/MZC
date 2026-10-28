@@ -25,7 +25,7 @@ const MOCK_MOMENTS_DATA = {
         images: ["https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=500"],
         location: "",
         time: "2026年10月16日 22:51",
-        likes: ["恩仔", "丞哥", "穆老爹"],
+        likes: ["恩仔", "丞哥", "丞丞"],
         comments: [
           { user: "恩仔", text: "奇缘2028呢。", replyTo: "" },
           { user: "穆祉丞", text: "郑棋元说听不懂给你比个心吧。", replyTo: "恩仔" }

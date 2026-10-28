@@ -46,14 +46,12 @@ var INCOMING = [];
     穆小恩: { initial: "恩", color: "#8e8e93", avatar: "./data/avatar/guimi.jpg", pat: "的脑壳说醒醒" },
     MuAMuA: { initial: "妈", color: "#f6b6c8", avatar: "./data/avatar/mama.jpg", pat: ":不是说学了吗‎•᷄ࡇ•᷅" },
     恩恩: { initial: "婆", color: "#f6b6c8", avatar: "./data/avatar/enen.jpg", pat: "的小屁股" },
-    穆老爹: { initial: "爸", color: "#7d8ea8", avatar: "./data/avatar/baba.jpg", pat: "的保温杯" },
     丞哥: { initial: "哥", color: "#c9a227", avatar: "./data/avatar/gege.jpg", pat: "说丞哥丞哥大帅哥" },
     穆祉丞: { initial: "丞", color: "#ff8a3d", avatar: "./data/avatar/mzc.jpg", pat: "的脸颊说真乖" },
     穆瑞恩: { initial: "瑞", color: "#9ad0ec", avatar: "./data/avatar/ruien.jpg", pat: "的小脸蛋" },
     恩仔: { initial: "恩", color: "#d9a7c7", avatar: "./data/avatar/enzai.jpg", pat: "的小脑袋" },
     Mu: { initial: "M", color: "#3a3a3c", avatar: "./data/avatar/mu.jpg", pat: ":汪汪" },
-    小队长: { initial: "M", color: "#3a3a3c", avatar: "./data/avatar/duizhang.jpg", pat: "并敬了个礼" },
-    蓝胖胖: { initial: "L", color: "#3a3a3c", avatar: "./data/avatar/lpp.jpg", pat: "的肥肉" },
+    丞丞: { initial: "丞", color: "#4a90e2", avatar: "./data/avatar/duizhang.jpg", pat: "一起SIU~~~" },
     pig: { initial: "Z", color: "#ffb6c1", avatar: "./data/avatar/pig.jpg", pat: "说别吃了" }, // 猪
     // 👇 新增的三个角色
     cat: { initial: "猫", color: "#3a3a3c", avatar: "./data/avatar/cat.jpg", pat: "踩了一脚" },
@@ -86,14 +84,6 @@ var INCOMING = [];
         { mine:['我好像错过了很多。'], them:['以前练习到深夜的时候，我多希望有人告诉我不用硬撑。现在你来了，就别再一个人扛。'] }
       ],
       fragment: { title:'碎片 · 温柔', body:'他学会的第一件事，是把别人的情绪轻轻接住。\n\n“如果你也会害怕，就靠过来一点。”' }
-    },
-    '穆老爹': {
-      init: [['11月15日','date']],
-      replies: [
-        { mine:['我在回去了。'], them:['嗯。'] },
-        { mine:['对不起，让你担心。'], them:['我已经熬过很多难走的夜晚。不想你也熬。'] }
-      ],
-      fragment: { title:'碎片 · 沉默', body:'他不太会说“疼”。\n\n但每一次咬牙撑过去，都希望有人看见。' }
     },
     '丞哥': {
       init: [['11月15日','date']],
@@ -135,14 +125,7 @@ var INCOMING = [];
       ],
       fragment: { title:'碎片 · 铠甲', body:'摔过话筒之后，他学会先把自己包起来。\n\n但铠甲里面，还是那个想被接住的人。' }
     },
-        '蓝胖胖': {
-      init: [['11月15日','date']], // 必须有一个初始日期分割线
-      replies: [
-        { mine:['不玩了，我今天有点事。'], them:['哎？这么扫兴！'] }
-      ],
-      fragment: null
-    },
-    'pig': {
+        'pig': {
       init: [['11月15日','date']],
       replies: [
         { mine:['别闹了，早点睡。'], them:['好吧，晚安小猪。'] }
@@ -170,14 +153,17 @@ var INCOMING = [];
       ],
       fragment: null
     },
-        'tiger': {
+
+    // 八中足球队队长 · 艺体两开花的 if 线
+    '丞丞': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['你到底是猫还是老虎？'], them:['嗷呜！'] }
+        { mine:['我马上回去。'], them:['快回去啊，别让人等 😾'] },
+        { mine:['你今天怎么这么晚还踢球。'], them:['路过你家，灯是暗的。'] }
       ],
       fragment: null
     },
-    
+        
     // 👇 新增 '恩恩' 的剧情配置 👇
     '恩恩': {
       init: [['11月15日','date']],
@@ -188,13 +174,6 @@ var INCOMING = [];
     },
     
     // 👇 如果你把 '闺蜜' 改成了 '穆小恩'，要在这里也加上 👇
-    '穆小恩': {
-      init: [['11月15日','date']],
-      replies: [
-        { mine:['我马上回去。'], them:['好，别乱跑。穆祉丞急得要死……你自己看着办吧。'] }
-      ],
-      fragment: null
-    }
   };
 
   /* 完整时间线：所有人都会按秒数弹出来 */
@@ -205,9 +184,9 @@ var INCOMING = [];
     // 妈妈 8秒
     { at: 8,  type:'notify', from:'MuAMuA', text:'跑去哪里了？外面很冷，不要一个人待在外边好不好。' },
     { at: 11, type:'notify', from:'MuAMuA', text:'我看到你已读了。回我一句，就一句。' },
-    // 穆老爹 14秒
-    { at: 14, type:'notify', from:'穆老爹', text:'回消息。' },
-    { at: 17, type:'notify', from:'穆老爹', text:'外面不安全。不管发生什么，先回家。' },
+    // 丞哥 14秒
+    { at: 14, type:'notify', from:'丞哥', text:'？' },
+    { at: 17, type:'notify', from:'丞哥', text:'这样不乖哦。' },
     // 丞哥 20秒
     { at: 20, type:'notify', from:'丞哥', text:'人呢？玩失踪？别让我到处找你。' },
     { at: 23, type:'notify', from:'丞哥', text:'快点回来，有我在，不用逞强。' },
@@ -228,7 +207,7 @@ var INCOMING = [];
 
     // 中间穿插后续动作
     { at: 75, type:'call', from:'穆祉丞' },
-    { at: 110, type:'notify', from:'穆老爹', text:'先回家。' },
+    { at: 110, type:'notify', from:'丞哥', text:'先回家。' },
     { at: 140, type:'choice' },
     { at: 170, type:'notify', from:'MuAMuA', text:'慢慢来，妈妈在这里。' },
     { at: 200, type:'notify', from:'丞哥', text:'有我在，不用逞强。' },
@@ -249,15 +228,13 @@ var INCOMING = [];
     default: "算了。",
     穆小恩: "行吧，你先忙。我等你回我。",
     MuAMuA: "妈妈不催你了，记得吃饭。",
-    穆老爹: "……早点回。",
+    丞丞: "快回去啊，别让人等。",
     丞哥: "爱回不回。",
     穆祉丞: "那我自己吹蜡烛了。",
     穆瑞恩: "没关系，我再等一会儿。",
     恩仔: "我不吵你了……",
     Mu: "我记住了。",
     恩恩: "哦。",
-    小队长: "行，你忙你的。",
-    蓝胖胖: "那我先打两把。",
     pig: "那我把蛋糕吃了啊",
     cat: "……喵都不喵了",
     rabbit: "我先睡啦",
@@ -266,23 +243,20 @@ var INCOMING = [];
 
   // 每个人的微信号（资料页展示）
   S.wxids = {
-    穆小恩: "muxiaoen_99",
-    MuAMuA: "muamua_1116",
-    穆老爹: "laomu_1109",
-    丞哥: "cheng_ge",
-    穆祉丞: "mzc_1108",
-    穆瑞恩: "muruien_0913",
+    穆祉丞: "nanpengyou",
+    穆瑞恩: "xiaobaobei",
+    穆小恩: "haoguimi",
+    恩恩: "laopo_jiao",
     恩仔: "enzai_0412",
-    Mu: "mu_csgo",
-    小队长: "xiaoduizhang_7",
-    蓝胖胖: "lanpangpang_2",
-    pig: "xiaozhu_chi",
-    cat: "heimao_0721",
+    丞哥: "cgcgdsg",
+    MuAMuA: "mama",
+    Mu: "CSGOD",
+    丞丞: "chengcheng",
+    pig: "xiaopangpang",
+    cat: "laopo_zuo",
     rabbit: "tuzi_guai",
     tiger: "laohu_henmeng",
-    恩恩: "enen_1116",
   };
-
   S.notes = [
     [
       "旧备忘录 · 迟到",

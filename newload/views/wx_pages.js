@@ -399,7 +399,7 @@ VIEWS.wx_me = () => {
           ${CFG.myAvatar ? `<img src="${CFG.myAvatar}" style="width:100%;height:100%;border-radius:8px;object-fit:cover;">` : `<div style="width:100%;height:100%;border-radius:8px;background:#eee;display:grid;place-items:center;">${G.sil}</div>`}
         </div>
         <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap: 6px; padding-top: 4px;">
-          <div style="font-size: 20px; font-weight: 500; color: #111; display:flex; align-items:center; gap:6px;">🐱</div>
+          <div style="font-size: 20px; font-weight: 500; color: #111; display:flex; align-items:center; gap:6px;">我</div>
           <div style="font-size: 14px; color: #888;">微信号：cgcgdsg</div>
           
           <div style="display:flex; gap: 8px; margin-top: 4px;">
@@ -510,7 +510,7 @@ VIEWS.wx_contacts_sub = () => {
     const reqs = [
       { name: "穆小恩", note: "来自搜索手机号" },
       { name: "恩仔", note: "来自群聊「4组」" },
-      { name: "蓝胖胖", note: "来自附近的人" },
+      { name: "pig", note: "来自附近的人" },
     ];
     body = `<div style="background:#fff;">${reqs
       .map(
@@ -533,9 +533,9 @@ VIEWS.wx_contacts_sub = () => {
       : wxEmpty("暂无群聊");
   } else if (t === "tags") {
     const tags = [
-      { name: "家人", members: ["穆小恩", "MuAMuA", "穆老爹", "恩恩"] },
+      { name: "家人", members: ["穆小恩", "MuAMuA", "恩恩", "穆瑞恩"] },
       { name: "朋友", members: ["丞哥", "穆祉丞", "穆瑞恩", "恩仔"] },
-      { name: "同事", members: ["小队长", "蓝胖胖"] },
+      { name: "同事", members: ["丞丞", "pig"] },
       { name: "不想说话", members: ["Mu", "pig", "cat"] },
     ];
     body = `<div style="background:#fff;">${tags
