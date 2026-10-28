@@ -176,18 +176,7 @@
           </div>
         </div>
 
-        <svg class="tonearm" viewBox="0 0 100 100">
-          <circle cx="93" cy="7" r="4" fill="#777" />
-          <circle cx="93" cy="7" r="2.2" fill="#ddd" />
-          <circle cx="93" cy="7" r="1" fill="#333" />
-          <path d="M 93 7 L 93 70 L 73 91" fill="none" stroke="#555" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-          <path d="M 93 7 L 93 70 L 73 91" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
-          <g transform="translate(72, 90) rotate(42)">
-             <rect x="-1.75" y="0" width="3.5" height="7" rx="1" fill="#fff" />
-             <rect x="-1.25" y="0" width="2.5" height="1.8" fill="#ccc" />
-             <circle cx="0" cy="5.2" r="0.6" fill="#ff3b30" />
-          </g>
-        </svg>
+        ${G.vinylTonearm}
       </button>
     `;
   }

@@ -594,7 +594,7 @@ VIEWS.sms = () => ({
       title: "信息",
       back: "主页",
       backFn: "closeApp()",
-      right: `<span onclick="smsComposeMenu()" style="color:#007aff; display:flex;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>`,
+      right: `<span onclick="smsComposeMenu()" style="color:#007aff; display:flex;">${G.smsCompose}</span>`,
     }) +
     `<div class="scroll" style="background:#f2f2f7;"><div class="srch" style="margin-top:10px;" onclick="toastDev()">${G.search}搜索</div><div style="background:#fff; margin:0 16px; border-radius:12px; overflow:hidden;">${smsData.map((m) => `<div onclick="openSmsDetail(${m.id})" style="display:flex; align-items:flex-start; padding:12px 16px; border-bottom:0.5px solid #e5e5ea; cursor:pointer;"><div style="width:48px; height:48px; border-radius:50%; background:${m.iconColor}22; display:flex; align-items:center; justify-content:center; margin-right:12px; flex:none; border:1px solid ${m.iconColor}44;"><span style="color:${m.iconColor}; font-weight:800; font-size:16px;">${m.iconText}</span></div><div style="flex:1; min-width:0; padding-top:2px;"><div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;"><span style="font-size:16px; font-weight:500; color:#111; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(m.name)}</span><div style="display:flex; align-items:center; gap:6px; flex:none; margin-left:8px;"><span style="font-size:13px; color:#8e8e93;">${m.time}</span><span style="color:#c4c4c7;">${G.chevR}</span></div></div><div style="font-size:14px; line-height:1.35; color:#8e8e93; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;"><span style="display:inline-block; background:#e5e5ea; color:#666; font-size:10px; padding:1px 4px; border-radius:4px; margin-right:4px; transform:translateY(-1px);">${m.tag}</span>${esc(m.text)}</div></div>${m.unread ? `<div style="width:10px; height:10px; border-radius:50%; background:#007aff; margin-left:10px; align-self:center; flex:none;"></div>` : ""}</div>`).join("")}</div></div>`,
 });
@@ -738,7 +738,7 @@ VIEWS.weather = () => {
       <div class="snowflake" style="left: 75%; animation-duration: 6s; animation-delay: 0.5s;">❆</div>
       <div class="snowflake" style="left: 90%; animation-duration: 4.5s; animation-delay: 1.5s;">❅</div>
       
-      <div style="position:absolute; top:50px; left:16px; z-index:10; display:flex; align-items:center; gap:4px; font-size:15px; font-weight:500; cursor:pointer;" onclick="closeApp()"><svg viewBox="0 0 12 20" width="10" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 2 10l8 8"/></svg> 主屏幕</div>
+      <div style="position:absolute; top:50px; left:16px; z-index:10; display:flex; align-items:center; gap:4px; font-size:15px; font-weight:500; cursor:pointer;" onclick="closeApp()">${G.backThin} 主屏幕</div>
       
       <div class="scroll" style="flex:1; padding-top:85px; padding-bottom:100px; overflow-y:auto; scrollbar-width:none; z-index:2; position:relative;">
         <div style="text-align:center; margin-bottom:20px;">
@@ -758,7 +758,7 @@ VIEWS.weather = () => {
         
         <div style="background:rgba(255,255,255,0.15); border-radius:16px; margin:0 16px 16px; padding:14px 16px; backdrop-filter:blur(10px);">
           <div style="font-size:13px; font-weight:600; opacity:0.7; display:flex; align-items:center; gap:6px; padding-bottom:10px; border-bottom:0.5px solid rgba(255,255,255,0.2); margin-bottom:6px;">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> 10 天天气预报
+            ${G.calSmall} 10 天天气预报
           </div>
           ${daily
             .map(
@@ -779,7 +779,7 @@ VIEWS.weather = () => {
         </div>
       </div>
       
-      <div style="position:absolute; bottom:0; left:0; right:0; height:84px; background:rgba(255,255,255,0.1); backdrop-filter:blur(20px); display:flex; justify-content:space-between; align-items:center; padding:0 24px; z-index:10;"><svg onclick="toastDev()" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M9 20l-5.5 2.5V6L9 3.5M9 20l6-2.5M9 20V3.5M15 17.5l5.5 2.5V8L15 5.5M15 17.5V5.5"/></svg><div style="display:flex; gap:8px;"><div style="width:8px; height:8px; border-radius:50%; background:#fff;"></div><div style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.4);"></div></div><svg onclick="toastDev()" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+      <div style="position:absolute; bottom:0; left:0; right:0; height:84px; background:rgba(255,255,255,0.1); backdrop-filter:blur(20px); display:flex; justify-content:space-between; align-items:center; padding:0 24px; z-index:10;"><span onclick="toastDev()" style="display:flex">${G.mapRoad}</span><div style="display:flex; gap:8px;"><div style="width:8px; height:8px; border-radius:50%; background:#fff;"></div><div style="width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.4);"></div></div><span onclick="toastDev()" style="display:flex">${G.listWhite}</span></div>
     </div>`,
   };
 };
