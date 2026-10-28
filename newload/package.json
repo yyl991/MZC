@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "compress": "node compress.js",
-    "build": "node obfuscate.js"
+    "build": "node obfuscate.js",
+    "test": "node tests/run.js"
   },
   "devDependencies": {
     "glob": "^13.0.6",

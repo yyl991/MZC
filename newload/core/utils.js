@@ -74,3 +74,31 @@ function tabbar(items, on, cls = "") {
   return `<div class="tabbar ${cls}">${items.map(([ic, l, fn], i) => `<button class="${i === on ? "on" : ""}"${fn ? ` onclick="${fn}"` : ""}>${G[ic] || ic}<span>${l}</span></button>`).join("")}</div>`;
 }
 const sw = (on, fn) => `<button class="sw ${on ? "on" : ""}" onclick="this.classList.toggle('on');vib(8);${fn || ""}"></button>`;
+
+// "下午 10:11" / "10:11 PM" / "23:09" → 当天分钟数
+function timeToMin(s) {
+  if (!s) return 0;
+  const str = String(s);
+  let m = str.match(/(上午|下午)\s*(\d+):(\d+)/);
+  if (m) {
+    let h = parseInt(m[2]);
+    if (m[1] === "下午" && h < 12) h += 12;
+    if (m[1] === "上午" && h === 12) h = 0;
+    return h * 60 + parseInt(m[3]);
+  }
+  m = str.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+  if (m) {
+    let h = parseInt(m[1]);
+    const ap = (m[3] || "").toUpperCase();
+    if (ap === "PM" && h < 12) h += 12;
+    if (ap === "AM" && h === 12) h = 0;
+    return h * 60 + parseInt(m[2]);
+  }
+  return 0;
+}
+// 聊天列表右上角的时间文案（上午/下午 H:MM）
+function wxTimeLabel(s) {
+  const min = timeToMin(s);
+  const h = Math.floor(min / 60) % 24;
+  return `${h >= 12 ? "下午" : "上午"} ${h % 12 || 12}:${pad(min % 60)}`;
+}

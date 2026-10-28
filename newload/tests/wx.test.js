@@ -1,0 +1,37 @@
+const fs=require("fs"),vm=require("vm");
+const P=require("path").resolve(__dirname, "..");
+const sb={console};sb.window=sb;sb.globalThis=sb;
+sb.VIEWS={};sb.CFG={roles:{},chats:{},myAvatar:""};sb.SS={};
+sb.show=()=>{};sb.push=()=>{};sb.back=()=>{};sb.vib=()=>{};sb.toastDev=(m)=>{sb._toast=m};
+sb.localStorage={_d:{},getItem(k){return this._d[k]??null},setItem(k,v){this._d[k]=String(v)},removeItem(k){delete this._d[k]}};
+sb.chatData={};sb.chatNames=[];sb.chatId="";sb.view="wechat";sb.unread={};sb.wxNotifyOn=true;
+const mk=(id)=>({id,style:{},dataset:{},classList:{add(){},remove(){},toggle(){},contains:()=>false},setAttribute(){},appendChild(){},animate(){},querySelectorAll:()=>[],querySelector:()=>null,addEventListener(){},remove(){},innerHTML:"",textContent:"",value:""});
+sb.document={createElement:()=>mk("t"),getElementById:(i)=>mk(i),querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){},body:mk("b")};
+sb.Audio=function(){return{play:()=>Promise.reject(),pause(){},dataset:{}}};
+vm.createContext(sb);
+const load=f=>vm.runInContext(fs.readFileSync(P+"/"+f,"utf8"),sb,{filename:f});
+load("core/utils.js");load("core/icons.js");load("views/wx_chat.js");load("views/wx_pages.js");load("views/wx_moments.js");
+let fails=0;const ok=(n,c,e)=>{if(!c){fails++;console.log("FAIL "+n+(e?" :: "+e:""))}else console.log("OK   "+n)};
+let r=sb.VIEWS.wx_discover();
+["朋友圈","视频号","直播","扫一扫","搜一搜","看一看","听一听","附近的人","游戏","小程序"].forEach(t=>ok("discover:"+t,r.html.includes(t)));
+ok("discover placeholders use toastDev",(r.html.match(/toastDev\(\)/g)||[]).length>=7);
+r=sb.VIEWS.wx_me();
+["服务","收藏","朋友圈","我的作品","小店与卡包","表情","设置"].forEach(t=>ok("me:"+t,r.html.includes(t)));
+const panel=sb.wxPlusPanelHTML();
+ok("plus has 拍摄",panel.includes("拍摄"));
+ok("plus has 相册",panel.includes("相册"));
+console.log(fails===0?"ALL PASS":fails+" FAILS");
+
+// ===== 本轮 UI 改版校验 =====
+let r3=sb.VIEWS.wechat();
+ok("chat head shows 微信(count)",/微信(\(\d+\))?</.test(r3.html));
+ok("pc login bar",r3.html.includes("已登录Windows电脑"));
+ok("pc bar uses icon",r3.html.includes("<svg"));
+const panel2=sb.wxPlusPanelHTML();
+["相册","拍摄","视频通话","位置","红包","礼物","转账","收藏"].forEach(t=>ok("plus:"+t,panel2.includes(t)));
+ok("plus dots",panel2.includes("wx-plus-dots"));
+ok("plus icons are svg",(panel2.match(/<svg/g)||[]).length===8);
+const sv=sb.VIEWS.wx_services();
+["收付款","钱包","金融理财","信用卡还款","理财通","保险服务","生活服务","手机充值","生活缴费","Q币充值","城市服务","腾讯公益","医疗健康","交通出行","出行服务","火车票机票","滴滴出行","酒店民宿","购物消费"].forEach(t=>ok("svc:"+t,sv.html.includes(t)));
+ok("svc green card",sv.html.includes("#07c160"));
+ok("svc icons svg",(sv.html.match(/<svg/g)||[]).length>=20);
