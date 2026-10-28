@@ -121,7 +121,12 @@ document.addEventListener("click", (e) => {
     fakeBtn.closest("#music-scroll") ||
     fakeBtn.classList.contains("key") ||
     fakeBtn.closest(".kbd") ||
-    fakeBtn.closest(".mapwrap")
+    fakeBtn.closest(".mapwrap") ||
+    fakeBtn.closest("#pinL") ||
+    fakeBtn.closest(".pkeys") ||
+    fakeBtn.classList.contains("pk") ||
+    fakeBtn.closest("#privateAlbum") ||
+    fakeBtn.closest(".phone-album-picker")
   )
     return;
   window.toastDev();
