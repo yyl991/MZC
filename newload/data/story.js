@@ -191,7 +191,7 @@ var INCOMING = [];
     { at: 13, type:'notify', from:'pig', text:'馋死了' },
     { at: 17, type:'notify', from:'pig', text:'你什么时候回来吃蛋糕' },
     { at: 20, type:'notify', from:'穆小恩', text:'你有病吧 别吓我' },
-    { at: 23, type:'notify', from:'MuAMuA', text:'宝宝，外面很冷，不要一个人待在外边好不好。' },
+    { at: 23, type:'notify', from:'MuAMuA', text:'宝宝，今天下雪了外面很冷，不要一个人待在外边好不好。' },
     { at: 27, type:'notify', from:'穆祉丞', text:'今天我很想你。' },
     { at: 30, type:'notify', from:'cat', text:'你死哪去了' },
     { at: 34, type:'notify', from:'cat', text:'？' },
