@@ -12,4 +12,7 @@ trash/
 Thumbs.db
 desktop.ini
 
+dist/
+
+# Claude Code 本地配置（不上传）
 .claude/

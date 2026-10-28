@@ -10,7 +10,7 @@ const ROOT = __dirname;
 const DIST = path.join(ROOT, "dist");
 
 // 这些目录/文件不进 dist
-const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "waste", "tests"]);
+const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "waste", "trash", "tests"]);
 const SKIP_FILES = new Set([
   "obfuscate.js",
   "compress.js",
@@ -69,15 +69,15 @@ for (const src of files) {
   try {
     const obfuscated = JavaScriptObfuscator.obfuscate(code, {
       compact: true,
-      controlFlowFlattening: true,
-      deadCodeInjection: true,
+      // 关掉这两个：体积会翻两三倍、运行时也明显变慢，手机上首屏吃不消
+      controlFlowFlattening: false,
+      deadCodeInjection: false,
       identifierNamesGenerator: "hexadecimal",
       stringArray: true,
       stringArrayEncoding: ["base64"],
 
       // 调试保护 / 禁用控制台
       debugProtection: true,
-      debugProtectionInterval: 2000,
       disableConsoleOutput: true,
 
       // 域名白名单已关闭（任何域名 / file:// 都能打开）
