@@ -133,7 +133,7 @@ VIEWS.wx_moments_detail = () => {
         </div>
 
         <!-- 灰框（点赞评论）：跳出右侧容器，直接占满下方，左边缘与上方大头像对齐 -->
-        <div id="wxActBox" data-has="${((post.likes && post.likes.length) || (post.comments && post.comments.length)) ? "1" : "0"}" style="background:#f7f7f7; border-radius:6px; margin-top: 10px; padding: 12px 12px 12px 0; display: ${actOpen ? "flex" : "none"}; flex-direction: column; gap: 10px;">
+        <div id="wxActBox" style="background:#f7f7f7; border-radius:6px; margin-top: 10px; padding: 12px 12px 12px 0; display: ${((post.likes && post.likes.length) || (post.comments && post.comments.length)) ? "flex" : "none"}; flex-direction: column; gap: 10px;">
           
           <!-- 点赞区 -->
           ${post.likes && post.likes.length > 0 ? `
@@ -239,9 +239,6 @@ window.wxToggleRowSocial = function (i) {
   row.dataset.open = open ? "0" : "1";
   const pill = row.querySelector(".wx-like-pill");
   if (pill) pill.style.display = open ? "none" : "inline-flex";
-  row.querySelectorAll(".wx-social-box").forEach((el) => {
-    el.style.display = !open && el.dataset.has === "1" ? "block" : "none";
-  });
   if (typeof vib === "function") vib(6);
 };
 window.wxLikeFromFeed = function (i) {
@@ -275,12 +272,9 @@ window.wxMomentLikeCurrent = function () {
 // 点“...”才展开赞 / 评论
 window.wxToggleDetailActions = function () {
   const pill = document.getElementById("wxActPill");
-  const box = document.getElementById("wxActBox");
   const open = pill && pill.style.display !== "none";
   window._mDetailOpen = !open;
   if (pill) pill.style.display = open ? "none" : "inline-flex";
-  if (box)
-    box.style.display = open || box.dataset.has !== "1" ? "none" : "flex";
   if (typeof vib === "function") vib(6);
 };
 window.wxMomentActionsCurrent = function () {
@@ -481,7 +475,7 @@ VIEWS.moments = () => {
 
   const renderSocial = (likes, comments) => {
     if ((!likes || likes.length === 0) && (!comments || comments.length === 0)) return '';
-    let html = `<div class="wx-social-box" data-has="1" style="display:none; background: #f7f7f7; border-radius: 4px; padding: 8px 10px; margin-top: 8px; font-size: 14px; line-height: 1.5;">`;
+    let html = `<div class="wx-social-box" style="background: #f7f7f7; border-radius: 4px; padding: 8px 10px; margin-top: 8px; font-size: 14px; line-height: 1.5;">`;
     
     if (likes && likes.length > 0) {
       const namesHTML = likes.map((n, i) => {
