@@ -177,7 +177,7 @@ function ampm(minutes) {
   const h = Math.floor(minutes / 60) % 24;
   const m = Math.floor(minutes % 60);
   const ap = h >= 12 ? "下午" : "上午";
-  const h12 = h % 12 || 12;
+  const h12 = h === 12 ? 12 : h % 12; // 0 点显示 0，中午 12 点显示 12
   return `${ap} ${h12}:${pad(m)}`;
 }
 function gameMin() {
@@ -192,7 +192,7 @@ function clock12(showAmpm = true) {
   const h = Math.floor(m / 60) % 24;
   const min = Math.floor(m % 60);
   const ampmStr = h >= 12 ? "下午" : "上午";
-  const h12 = h % 12 || 12;
+  const h12 = h === 12 ? 12 : h % 12; // 0 点显示 0:xx，不是 12:xx
   return showAmpm ? `${ampmStr}${h12}:${pad(min)}` : `${h12}:${pad(min)}`;
 }
 function gameTime24() {
