@@ -1,0 +1,12 @@
+node_modules/
+
+# 可执行文件一律不提交（体积大，且 .exe 容易被 GitHub 拒收）
+*.exe
+*.dll
+*.so
+*.dylib
+
+# 系统垃圾文件
+.DS_Store
+Thumbs.db
+desktop.ini
