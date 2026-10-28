@@ -497,6 +497,21 @@ const PARENT = {
   wx_profile: "chat",            // 资料页返回聊天
   wx_moments_user: "wx_profile", // 个人朋友圈返回资料页
   wx_moments_detail: "wx_moments_user", // 详情页返回朋友圈
+  wx_search: "wechat",           // 搜索（实际返回来源页由 _wxSearchFrom 决定）
+  wx_scan: "wx_me",              // 扫一扫（实际返回来源页由 _wxScanFrom 决定）
+  wx_chat_info: "chat",          // 聊天信息返回聊天
+  wx_moment_compose: "moments",  // 发表朋友圈返回朋友圈
+  wx_moments_self: "wx_me",      // 我的朋友圈返回“我”
+  wx_contacts_sub: "wx_contacts",// 通讯录二级页
+  wx_services: "wx_me",          // 服务
+  wx_favorites: "wx_me",         // 收藏
+  wx_settings: "wx_me",          // 设置
+  settings_about: "settings",    // 关于本机
+  settings_display: "settings",  // 显示与亮度
+  settings_wallpaper: "settings",// 墙纸
+  settings_notifications: "settings", // 通知
+  note_edit: "notes",            // 编辑备忘录
+  mail_compose: "mail",          // 写邮件
   maild: "mail",
   reel: "instagram",
   screentime: "settings",
@@ -732,6 +747,23 @@ function push(id) {
   show(id, "push");
 }
 function back() {
+  // 搜索页：返回打开搜索前的页面
+  if (view === "wx_search") {
+    const from = window._wxSearchFrom || "wechat";
+    window._wxSearchScope = "";
+    return show(from, "pop");
+  }
+  // 扫一扫：返回打开前的页面
+  if (view === "wx_scan") {
+    const from = window._wxScanFrom || "wx_me";
+    return show(from, "pop");
+  }
+  // 从搜索 / 资料页进入的聊天，返回来源页
+  if (view === "chat" && window._chatBackTo) {
+    const from = window._chatBackTo;
+    window._chatBackTo = null;
+    return show(from, "pop");
+  }
   // 朋友圈详情：按来源返回
   if (view === "wx_moments_detail") {
     const from = window._momentDetailFrom || "moments";
@@ -748,6 +780,11 @@ function back() {
   if (view === "wx_profile") {
     const from = window._profileFrom || "chat";
     window._profileFrom = "chat";
+    return show(from, "pop");
+  }
+  // 发表朋友圈：回到进入前的页面
+  if (view === "wx_moment_compose") {
+    const from = window._wxComposeFrom || "moments";
     return show(from, "pop");
   }
   // 其它页面走原 PARENT
@@ -912,7 +949,7 @@ function incomingMailFrom(beat) {
   }
   // 👇 同样加锁拦截
   if (view === "home" && !window.isVinylBusy) renderHome();
-  if (window.isDnd) return;
+  if (window.isDnd || window._mailNotifyOn === false) return;
   sfx("msg");
   vib([30, 60, 30]);
   OV.querySelectorAll(".banner").forEach((b) => b.remove());

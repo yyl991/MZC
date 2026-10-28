@@ -208,7 +208,7 @@
     evHTML += evsTomorrow.map(x => `<div class="we" style="border-left-color:#FDAFAB">${esc(x)}<small>明天</small></div>`).join("");
 
     const musicHTML = getMusicWidgetHTML(isPlaying);
-    const dockApps = ["wechat", "phone", "sms", "recorder"];
+    const dockApps = ["wechat", "phone", "sms", "recorder", "settings"];
 
     HOME.innerHTML = `
       <div class="hgrid">

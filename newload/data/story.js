@@ -404,6 +404,7 @@ var INCOMING = [];
   emails.splice(0, emails.length, ...S.emails);
   calls.splice(0, calls.length, ...S.calls);
   searches.splice(0, searches.length, ...S.searches);
+  S.photoSections = S.photoSections || [];
   photoSections.splice(0, photoSections.length, ...S.photoSections);
   MAP_PLACES.splice(0, MAP_PLACES.length, ...S.mapPlaces);
   MAP_RECENTS.splice(0, MAP_RECENTS.length, ...S.mapRecents);
@@ -445,6 +446,7 @@ var INCOMING = [];
 })();
 
 
+const S = (window.STORY = window.STORY || {});
 S.roles = S.roles || {};
 S.chats = S.chats || {};
 S.timeline = S.timeline || [];

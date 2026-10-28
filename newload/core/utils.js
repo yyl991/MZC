@@ -71,6 +71,6 @@ function navHTML(o) {
   return `<div class="nav ${o.solid ? "solid" : ""}">${o.back !== undefined ? `<button class="nb-back" onclick="${o.backFn || "back()"}">${G.chevL}</button>` : o.left || "<span></span>"}<div class="nb-title">${o.title || ""}</div><div class="nb-right">${o.right || ""}</div></div>`;
 }
 function tabbar(items, on, cls = "") {
-  return `<div class="tabbar ${cls}">${items.map(([ic, l], i) => `<button class="${i === on ? "on" : ""}">${G[ic] || ic}<span>${l}</span></button>`).join("")}</div>`;
+  return `<div class="tabbar ${cls}">${items.map(([ic, l, fn], i) => `<button class="${i === on ? "on" : ""}"${fn ? ` onclick="${fn}"` : ""}>${G[ic] || ic}<span>${l}</span></button>`).join("")}</div>`;
 }
 const sw = (on, fn) => `<button class="sw ${on ? "on" : ""}" onclick="this.classList.toggle('on');vib(8);${fn || ""}"></button>`;

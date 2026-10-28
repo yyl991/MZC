@@ -30,21 +30,206 @@ window.callWhen = function (s) {
 };
 window.callNameDisp = (n) => n;
 
+/* ---- 电话 App：分页 / 联系人 / 拨号盘 ---- */
+let phoneTab = "recent";
+let phoneEditMode = false;
+let dialBuf = "";
+const PHONE_FAV = ["穆祉丞", "MuAMuA", "穆小恩"];
+const PHONE_VM = [
+  { from: "穆祉丞", time: "今天 23:02", dur: "0:14" },
+  { from: "MuAMuA", time: "今天 23:05", dur: "0:09" },
+];
+
+function phoneContacts() {
+  const out = [];
+  const add = (n) => {
+    if (!n) return;
+    const name = String(n).replace(/ \(\d+\)$/, "");
+    if (name && !out.includes(name)) out.push(name);
+  };
+  (typeof chatNames !== "undefined" ? chatNames : []).forEach(add);
+  (typeof calls !== "undefined" ? calls : []).forEach((c) => add(c[0]));
+  typeof extraCalls !== "undefined" && extraCalls.forEach((c) => add(c[0]));
+  return out;
+}
+function phoneAvatar(n, size) {
+  const s = size || 44;
+  const r = window.CFG && CFG.roles && CFG.roles[n];
+  const box = `width:${s}px;height:${s}px;border-radius:50%;overflow:hidden;flex:none;display:inline-grid;place-items:center;`;
+  if (r && r.avatar)
+    return `<span style="${box}background:#d8dbe0"><img src="${r.avatar}" style="width:100%;height:100%;object-fit:cover"></span>`;
+  const ch = (r && r.initial) || dn(n).slice(0, 1) || "?";
+  return `<span style="${box}background:#b9bec7;color:#fff;font-weight:600;font-size:${Math.round(s * 0.38)}px">${esc(ch)}</span>`;
+}
+function phoneRow(n, sub, right, onclick, extra) {
+  return `<div class="prow" data-name="${esc(n)}" style="cursor:pointer;${extra || ""}" onclick="${onclick}">${phoneAvatar(n, 40)}<div class="pn"><b>${esc(dn(n))}</b><small>${sub}</small></div>${right || ""}</div>`;
+}
+
+window.setPhoneTab = function (t) {
+  phoneTab = t;
+  phoneEditMode = false;
+  vib(6);
+  show("phone");
+};
+window.phoneToggleEdit = function () {
+  phoneEditMode = !phoneEditMode;
+  vib(6);
+  show("phone");
+};
+window.phoneFilter = function (q) {
+  const k = (q || "").trim();
+  document.querySelectorAll("#appL .prow[data-name]").forEach((row) => {
+    const n = row.dataset.name || "";
+    row.style.display = !k || n.includes(k) ? "" : "none";
+  });
+};
+window.phoneDelCall = function (name, time) {
+  [extraCalls, calls].forEach((arr) => {
+    const i = arr.findIndex(
+      (c) => String(c[0]) === String(name) && String(c[1]) === String(time),
+    );
+    if (i >= 0) arr.splice(i, 1);
+  });
+  vib([10, 40, 10]);
+  show("phone");
+};
+window.phoneContactMenu = function (name) {
+  if (typeof wxActionSheet !== "function") return dial(name);
+  wxActionSheet(dn(name), [
+    { label: "呼叫", onClick: () => dial(name) },
+    { label: "发信息", onClick: () => composeSms(name) },
+    { label: "微信", onClick: () => openWxChatFromPhone(name) },
+  ]);
+};
+window.openWxChatFromPhone = function (name) {
+  if (typeof openChat === "function" && chatData && chatData[name]) {
+    openChat(name);
+  } else toastDev("微信里没有这个联系人");
+};
+window.phoneDialKey = function (k) {
+  if (k === "call") {
+    const n = dialBuf.trim();
+    if (!n) return;
+    dialBuf = "";
+    const el = document.getElementById("phoneDialNum");
+    if (el) el.textContent = "";
+    checkDialBtn();
+    return dial(n);
+  }
+  if (k === "del") dialBuf = dialBuf.slice(0, -1);
+  else if (dialBuf.length < 16) dialBuf += k;
+  const el = document.getElementById("phoneDialNum");
+  if (el) el.textContent = dialBuf;
+  vib(5);
+  checkDialBtn();
+};
+function checkDialBtn() {
+  const b = document.getElementById("phoneCallBtn");
+  if (b) b.style.opacity = dialBuf ? "1" : ".35";
+}
+window.phonePlayVm = function (el, i) {
+  const vm = PHONE_VM[i];
+  if (!vm) return;
+  window._vm = window._vm || new Audio();
+  const a = window._vm;
+  if (!a.paused && a.dataset.on === String(i)) {
+    a.pause();
+    el.textContent = "▶";
+    return;
+  }
+  a.dataset.on = String(i);
+  a.src = "./data/album/boli.mp3";
+  a.currentTime = 0;
+  a.play().catch(() => {});
+  el.textContent = "❚❚";
+  a.onended = () => {
+    el.textContent = "▶";
+  };
+};
+
 VIEWS.phone = () => {
   const all = [...extraCalls, ...calls].filter(
     (c) => !missOnly || c[2] === "未接来电",
   );
+  const tabs = [
+    ["star", "收藏", "setPhoneTab('fav')"],
+    ["clock", "最近通话", "setPhoneTab('recent')"],
+    ["contacts", "通讯录", "setPhoneTab('contacts')"],
+    ["keypad", "拨号键盘", "setPhoneTab('keypad')"],
+    ["voicemail", "语音留言", "setPhoneTab('vm')"],
+  ];
+  const tabIdx = { fav: 0, recent: 1, contacts: 2, keypad: 3, vm: 4 }[phoneTab];
+  let head = "";
+  let body = "";
+
+  if (phoneTab === "recent") {
+    head = `<div class="nav"><button onclick="phoneToggleEdit()" style="color:var(--blue);font-size:17px;justify-self:start;padding-left:8px">${phoneEditMode ? "完成" : "编辑"}</button>${
+      phoneEditMode
+        ? '<span></span>'
+        : `<div class="seg"><button class="${missOnly ? "" : "on"}" onclick="missOnly=false;show('phone')">全部</button><button class="${missOnly ? "on" : ""}" onclick="missOnly=true;show('phone')">未接来电</button></div>`
+    }<span></span></div>`;
+    body = `<h1 class="lt">最近通话</h1><div class="srch">${G.search}<input placeholder="搜索" style="border:0;background:transparent;outline:none;font-size:16px;flex:1;margin-left:6px" oninput="phoneFilter(this.value)"></div>${all
+      .map((c) => {
+        const nm = String(c[0]).replace(/ \(\d+\)$/, "");
+        if (phoneEditMode)
+          return phoneRow(
+            nm,
+            "手机",
+            `<button style="width:64px;height:62px;color:#ff3b30;font-size:16px;background:none" onclick="event.stopPropagation();phoneDelCall('${esc(nm)}','${esc(c[1])}')">删除</button>`,
+            "",
+          );
+        return `<div class="prow ${c[2] === "未接来电" ? "miss" : ""}" data-name="${esc(nm)}" style="cursor:pointer" onclick="dial('${esc(nm)}')"><span class="pi">${c[2] === "呼出" ? G.handset : ""}</span><div class="pn"><b>${esc(callNameDisp(nm))}</b><small>${c[2]}</small></div><span class="pd">${callWhen(c[1])}</span><span class="inf">${G.info}</span></div>`;
+      })
+      .join("")}`;
+  } else if (phoneTab === "contacts") {
+    const list = phoneContacts();
+    head = `<div class="nav"><span></span><div class="nb-title">通讯录</div><button onclick="phoneToggleEdit()" style="color:var(--blue);font-size:17px;justify-self:end;padding-right:12px">${list.length}</button></div>`;
+    body = `<h1 class="lt">所有联系人</h1><div class="srch">${G.search}<input placeholder="搜索" style="border:0;background:transparent;outline:none;font-size:16px;flex:1;margin-left:6px" oninput="phoneFilter(this.value)"></div>${list
+      .map((n) =>
+        phoneRow(n, "手机", "", "phoneContactMenu(this.dataset.name)"),
+      )
+      .join("")}`;
+  } else if (phoneTab === "fav") {
+    head = `<div class="nav"><span></span><div class="nb-title">个人收藏</div><span></span></div>`;
+    body = `<h1 class="lt">收藏</h1>${PHONE_FAV.map((n) =>
+      phoneRow(n, "手机", "", "phoneContactMenu(this.dataset.name)"),
+    ).join("")}`;
+  } else if (phoneTab === "vm") {
+    head = `<div class="nav"><span></span><div class="nb-title">语音留言</div><span></span></div>`;
+    body = `<h1 class="lt">语音留言</h1>${PHONE_VM.map(
+      (v, i) => `<div class="prow"><button style="width:40px;height:40px;border-radius:50%;background:#eef0f3;color:#007aff;font-size:14px;flex:none" onclick="phonePlayVm(this,${i})">▶</button><div class="pn"><b>${esc(v.from)}</b><small>${v.dur}</small></div><span class="pd">${v.time}</span></div>`,
+    ).join("")}`;
+  } else {
+    head = `<div class="nav"><span></span><div class="nb-title">拨号键盘</div><span></span></div>`;
+    const keys = [
+      ["1", ""],
+      ["2", "ABC"],
+      ["3", "DEF"],
+      ["4", "GHI"],
+      ["5", "JKL"],
+      ["6", "MNO"],
+      ["7", "PQRS"],
+      ["8", "TUV"],
+      ["9", "WXYZ"],
+      ["*", ""],
+      ["0", "+"],
+      ["#", ""],
+    ];
+    body = `<div id="phoneDialNum" style="min-height:62px;font-size:34px;letter-spacing:2px;text-align:center;padding-top:26px;color:#111;word-break:break-all"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,74px);gap:12px 24px;justify-content:center;margin-top:14px">${keys
+        .map(
+          ([k, sub]) =>
+            `<button onclick="phoneDialKey('${k}')" style="width:74px;height:74px;border-radius:50%;background:#f2f2f5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px"><span style="font-size:30px;font-weight:400;line-height:1">${k}</span><span style="font-size:9px;letter-spacing:1.5px;color:#8e8e93;height:10px">${sub}</span></button>`,
+        )
+        .join("")}</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:34px;margin-top:16px">
+        <span style="width:74px"></span>
+        <button id="phoneCallBtn" onclick="phoneDialKey('call')" style="width:74px;height:74px;border-radius:50%;background:#34c759;color:#fff;display:grid;place-items:center;opacity:.35">${G.handset}</button>
+        <button onclick="phoneDialKey('del')" style="width:74px;height:74px;background:none;color:#333;font-size:22px;display:grid;place-items:center">⌫</button>
+      </div>`;
+  }
   return {
-    html: `<div class="nav"><button onclick="toastDev()" style="color:var(--blue);font-size:17px;justify-self:start;padding-left:8px">编辑</button><div class="seg"><button class="${missOnly ? "" : "on"}" onclick="missOnly=false;show('phone')">全部</button><button class="${missOnly ? "on" : ""}" onclick="missOnly=true;show('phone')">未接来电</button></div><span></span></div><div class="scroll"><h1 class="lt">最近通话</h1><div class="srch" onclick="toastDev()">${G.search}搜索</div>${all.map((c) => `<div class="prow ${c[2] === "未接来电" ? "miss" : ""}" style="cursor:pointer" onclick="dial('${esc(c[0].replace(/ \(\d+\)$/, ""))}')"><span class="pi">${c[2] === "呼出" ? G.handset : ""}</span><div class="pn"><b>${esc(callNameDisp(c[0]))}</b><small>手机</small></div><span class="pd">${callWhen(c[1])}</span><span class="inf">${G.info}</span></div>`).join("")}</div>${tabbar(
-      [
-        ["star", "收藏"],
-        ["clock", "最近通话"],
-        ["contacts", "通讯录"],
-        ["keypad", "拨号键盘"],
-        ["voicemail", "语音留言"],
-      ],
-      1,
-    )}`,
+    html: `${head}<div class="scroll" style="padding-bottom:110px">${body}</div>${tabbar(tabs, tabIdx || 0)}`,
   };
 };
 window.dial = function (name) {
@@ -405,7 +590,12 @@ function openSmsDetail(id) {
 
 VIEWS.sms = () => ({
   html:
-    navHTML({ title: "信息", back: "主页", backFn: "closeApp()" }) +
+    navHTML({
+      title: "信息",
+      back: "主页",
+      backFn: "closeApp()",
+      right: `<span onclick="smsComposeMenu()" style="color:#007aff; display:flex;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>`,
+    }) +
     `<div class="scroll" style="background:#f2f2f7;"><div class="srch" style="margin-top:10px;" onclick="toastDev()">${G.search}搜索</div><div style="background:#fff; margin:0 16px; border-radius:12px; overflow:hidden;">${smsData.map((m) => `<div onclick="openSmsDetail(${m.id})" style="display:flex; align-items:flex-start; padding:12px 16px; border-bottom:0.5px solid #e5e5ea; cursor:pointer;"><div style="width:48px; height:48px; border-radius:50%; background:${m.iconColor}22; display:flex; align-items:center; justify-content:center; margin-right:12px; flex:none; border:1px solid ${m.iconColor}44;"><span style="color:${m.iconColor}; font-weight:800; font-size:16px;">${m.iconText}</span></div><div style="flex:1; min-width:0; padding-top:2px;"><div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;"><span style="font-size:16px; font-weight:500; color:#111; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(m.name)}</span><div style="display:flex; align-items:center; gap:6px; flex:none; margin-left:8px;"><span style="font-size:13px; color:#8e8e93;">${m.time}</span><span style="color:#c4c4c7;">${G.chevR}</span></div></div><div style="font-size:14px; line-height:1.35; color:#8e8e93; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;"><span style="display:inline-block; background:#e5e5ea; color:#666; font-size:10px; padding:1px 4px; border-radius:4px; margin-right:4px; transform:translateY(-1px);">${m.tag}</span>${esc(m.text)}</div></div>${m.unread ? `<div style="width:10px; height:10px; border-radius:50%; background:#007aff; margin-left:10px; align-self:center; flex:none;"></div>` : ""}</div>`).join("")}</div></div>`,
 });
 VIEWS.sms_detail = () => {
@@ -417,7 +607,7 @@ VIEWS.sms_detail = () => {
         title: data.name,
         back: "信息",
         backFn: "back()",
-        right: `<span onclick="toastDev()" style="color:#007aff; display:flex;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>`,
+        right: `<span onclick="dial('${esc(data.name)}')" style="color:#007aff; display:flex;">${G.handset}</span>`,
       }) +
       `<div class="scroll" style="background:#f2f2f7; padding-top:88px; padding-bottom:100px; display:flex; flex-direction:column; gap:8px;">${data.msgs
         .map((msg) => {
@@ -429,8 +619,61 @@ VIEWS.sms_detail = () => {
         })
         .join(
           "",
-        )}</div><div style="position:absolute; bottom:34px; left:16px; right:16px; display:flex; align-items:flex-end; gap:12px;"><div onclick="toastDev()" style="width:36px; height:36px; background:#fff; border-radius:50%; display:grid; place-items:center; color:#333; font-size:24px; font-weight:300; margin-bottom:2px; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,0.08);">+</div><div onclick="toastDev()" style="flex:1; background:#fff; height:38px; border-radius:19px; display:flex; align-items:center; justify-content:space-between; padding:0 14px; color:#8e8e93; box-shadow:0 1px 4px rgba(0,0,0,0.05);"><span style="font-size:15px;">信息 · RCS</span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg></div></div>`,
+        )}</div><div style="position:absolute; bottom:34px; left:16px; right:16px; display:flex; align-items:flex-end; gap:12px;"><div onclick="smsComposeMenu()" style="width:36px; height:36px; background:#fff; border-radius:50%; display:grid; place-items:center; color:#333; font-size:24px; font-weight:300; margin-bottom:2px; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,0.08);">+</div><div style="flex:1; background:#fff; height:38px; border-radius:19px; display:flex; align-items:center; gap:8px; padding:0 6px 0 14px; box-shadow:0 1px 4px rgba(0,0,0,0.05);"><input id="smsInput" placeholder="信息 · RCS" onkeydown="if(event.key==='Enter')sendSms()" style="flex:1; border:0; outline:none; background:transparent; font-size:15px; min-width:0"><button onclick="sendSms()" style="width:26px; height:26px; border-radius:50%; background:#007aff; color:#fff; display:grid; place-items:center; font-size:15px; flex:none">↑</button></div></div>`,
   };
+};
+
+/* ---- 短信：新建会话 / 发送 / 选联系人 ---- */
+window.composeSms = function (name) {
+  let data = smsData.find((d) => d.name === name);
+  if (!data) {
+    data = {
+      id: Date.now(),
+      name: name,
+      tag: "短信",
+      text: "",
+      time: "刚刚",
+      iconText: dn(name).slice(0, 1),
+      iconColor: "#34C759",
+      unread: false,
+      msgs: [],
+    };
+    smsData.unshift(data);
+  }
+  data.unread = false;
+  currentSmsDetailId = data.id;
+  push("sms_detail");
+};
+window.smsComposeMenu = function () {
+  if (typeof wxActionSheet !== "function") return toastDev("暂不支持新建信息");
+  const list = (typeof phoneContacts === "function" ? phoneContacts() : []).slice(
+    0,
+    6,
+  );
+  wxActionSheet(
+    "新信息",
+    list.map((n) => ({ label: dn(n), onClick: () => composeSms(n) })),
+  );
+};
+window.sendSms = function () {
+  const el = document.getElementById("smsInput");
+  if (!el) return;
+  const t = el.value.trim();
+  if (!t) return;
+  const data = smsData.find((d) => d.id === currentSmsDetailId);
+  if (!data) return;
+  const time =
+    typeof nowAmpm === "function" ? nowAmpm() : "刚刚";
+  data.msgs.push({ me: true, time: time, text: t, type: "text" });
+  data.text = t;
+  data.time = "刚刚";
+  data.tag = data.tag || "短信";
+  el.value = "";
+  show("sms_detail");
+  const sc = document.querySelector("#appL .scroll");
+  if (sc) sc.scrollTop = sc.scrollHeight;
+  if (typeof sfx === "function") sfx("send");
+  if (typeof vib === "function") vib(8);
 };
 
 VIEWS.weather = () => {
@@ -826,7 +1069,7 @@ let noteId = 0;
   }
   const renderRow = (n, i) => {
     if (!n || n.length < 4) return "";
-    return `<button class="row tap" onclick="noteId=${i};push('note')"><b>${esc(n[0])}</b><small><em>${parseNoteDate(n[3])}</em>${esc(n[1])}</small></button>`;
+    return `<button class="row tap note-row" data-note-search="${esc((n[0] + " " + n[1] + " " + n[2]).toLowerCase())}" onclick="noteId=${i};push('note')"><b>${esc(n[0])}</b><small><em>${parseNoteDate(n[3])}</em>${esc(n[1])}</small></button>`;
   };
   VIEWS.notes = () => {
     const safeNotes =
@@ -835,7 +1078,7 @@ let noteId = 0;
       cls: "grouped notes-pg",
       html:
         navHTML({ title: "备忘录", back: "文件夹", right: G.dots }) +
-        `<div class="scroll"><h1 class="lt">备忘录</h1><div class="srch">${G.search}搜索</div><div class="gh" style="margin-top:8px">📌 置顶</div><div class="group note-l">${safeNotes
+        `<div class="scroll"><h1 class="lt">备忘录</h1><div class="srch" style="margin:0 16px 14px;">${G.search}<input id="note-search" placeholder="搜索" oninput="filterNotes(this.value)" style="flex:1;min-width:0;border:none;background:transparent;outline:none;font-size:17px;color:inherit;font-family:inherit;"></div><div class="gh" style="margin-top:8px">📌 置顶</div><div class="group note-l">${safeNotes
           .slice(0, 3)
           .map((n, i) => renderRow(n, i))
           .join(
@@ -845,7 +1088,7 @@ let noteId = 0;
           .map((n, i) => renderRow(n, i + 3))
           .join(
             "",
-          )}</div></div><div class="toolbar"><span style="width:24px"></span><span style="color:#000;align-self:center;font-size:11px">${safeNotes.length}个备忘录</span>${G.compose}</div>`,
+          )}</div></div><div class="toolbar"><span style="width:24px"></span><span style="color:#000;align-self:center;font-size:11px">${safeNotes.length}个备忘录</span><span onclick="openNoteEditor(-1)" style="cursor:pointer;">${G.compose}</span></div>`,
     };
   };
   VIEWS.note = () => {
@@ -868,10 +1111,72 @@ let noteId = 0;
           right: G.share + G.dots,
           solid: false,
         }) +
-        `<div class="scroll"><div class="note-v"><div class="nd">${parseNoteDate(n[3], true)}</div><h2>${esc(n[0])}</h2>${esc(n[2])}</div></div><div class="toolbar">${G.check}${G.camera}${G.pen}${G.compose}</div>`,
+        `<div class="scroll"><div class="note-v"><div class="nd">${parseNoteDate(n[3], true)}</div><h2>${esc(n[0])}</h2>${esc(n[2])}</div></div><div class="toolbar"><span onclick="deleteNote(${noteId})" style="color:#ff3b30;cursor:pointer;">${G.trash}</span><span style="color:#000;align-self:center;font-size:11px;">${parseNoteDate(n[3])}</span><span onclick="openNoteEditor(${noteId})" style="cursor:pointer;">${G.pen}</span></div>`,
     };
   };
 })();
+
+window._noteEditIndex = -1;
+window.openNoteEditor = function (idx) {
+  window._noteEditIndex = typeof idx === "number" ? idx : -1;
+  push("note_edit");
+};
+window.saveNote = function () {
+  const titleEl = document.getElementById("note-edit-title");
+  const bodyEl = document.getElementById("note-edit-body");
+  const title = (titleEl ? titleEl.value.trim() : "") || "新建备忘录";
+  const body = bodyEl ? bodyEl.value.trim() : "";
+  const preview = (body.split("\n")[0] || "暂无内容").slice(0, 26);
+  const idx = window._noteEditIndex;
+  if (idx >= 0 && notes[idx]) {
+    notes[idx] = [title, preview, body, notes[idx][3] || "2026-11-15"];
+  } else {
+    notes.unshift([title, preview, body, "2026-11-15"]);
+  }
+  show("notes", "pop");
+  toastDev("备忘录已保存");
+};
+window.deleteNote = function (idx) {
+  const doDelete = function () {
+    notes.splice(idx, 1);
+    show("notes", "pop");
+    toastDev("备忘录已删除");
+  };
+  if (typeof wxActionSheet === "function") {
+    wxActionSheet("删除这条备忘录？", [
+      { label: "删除", danger: true, onClick: doDelete },
+    ]);
+  } else if (confirm("删除这条备忘录？")) {
+    doDelete();
+  }
+};
+window.filterNotes = function (q) {
+  const query = String(q || "").trim().toLowerCase();
+  document.querySelectorAll(".note-row").forEach((r) => {
+    const hit =
+      !query ||
+      (r.getAttribute("data-note-search") || "").toLowerCase().includes(query);
+    r.style.display = hit ? "" : "none";
+  });
+};
+VIEWS.note_edit = () => {
+  const idx = window._noteEditIndex;
+  const n = idx >= 0 && notes[idx] ? notes[idx] : ["", "", "", "2026-11-15"];
+  return {
+    cls: "notes-pg",
+    html:
+      navHTML({
+        title: idx >= 0 ? "编辑备忘录" : "新建备忘录",
+        back: "备忘录",
+        right: `<span style="color:#007aff;font-size:16px;cursor:pointer;" onclick="saveNote()">保存</span>`,
+        solid: true,
+      }) +
+      `<div class="scroll" style="padding-top:110px;padding-bottom:120px;background:#fff;">
+        <input id="note-edit-title" value="${esc(n[0])}" placeholder="标题" style="width:100%;box-sizing:border-box;border:none;outline:none;font-size:24px;font-weight:700;padding:14px 16px 8px;background:transparent;font-family:inherit;color:#111;">
+        <textarea id="note-edit-body" placeholder="开始输入..." style="width:100%;box-sizing:border-box;min-height:50vh;border:none;outline:none;font-size:17px;line-height:1.55;padding:8px 16px 120px;background:transparent;resize:none;font-family:inherit;color:#111;">${esc(n[2])}</textarea>
+      </div>`,
+  };
+};
 
 /* ==========================================
    8. 媒体查看器 (Media Viewer)
@@ -978,5 +1283,296 @@ const placeholderView = (title) => () => ({
     navHTML({ title: title, back: "主页", backFn: "closeApp()" }) +
     `<div class="scroll" style="display:flex;align-items:center;justify-content:center;height:80vh;color:#8e8e93;font-size:15px">暂无内容</div>`,
 });
-VIEWS.settings = placeholderView("设置");
+/* ==========================================
+   10. 设置 App
+   ========================================== */
+window._phoneSettings = window._phoneSettings || {
+  wifi: true,
+  bluetooth: true,
+  cellular: true,
+  airplane: false,
+  lowPower: false,
+  brightness: 1,
+  wallpaper: "./data/app/wallpaper.jpg",
+};
+try {
+  Object.assign(
+    window._phoneSettings,
+    JSON.parse(localStorage.getItem("phone_settings") || "{}"),
+  );
+} catch (e) {}
+
+function savePhoneSettings() {
+  try {
+    localStorage.setItem("phone_settings", JSON.stringify(window._phoneSettings));
+  } catch (e) {}
+}
+
+function applyPhoneDisplaySettings() {
+  const s = window._phoneSettings;
+  if (s.brightness && s.brightness < 0.999) {
+    const ph = document.getElementById("phone");
+    if (ph) ph.style.filter = `brightness(${s.brightness})`;
+  }
+  if (s.wallpaper) {
+    const wall = document.getElementById("wall");
+    if (wall) wall.style.backgroundImage = `url('${s.wallpaper}')`;
+  }
+}
+applyPhoneDisplaySettings();
+
+function refreshSettingsView() {
+  if (
+    ["settings", "settings_display", "settings_wallpaper", "settings_notifications", "settings_about"].indexOf(
+      view,
+    ) < 0
+  )
+    return;
+  const old = APP.lastElementChild;
+  let top = 0;
+  if (old) {
+    const sc = old.querySelector(".scroll");
+    if (sc) top = sc.scrollTop;
+  }
+  show(view, "none");
+  const pg = APP.lastElementChild;
+  if (pg) {
+    const sc = pg.querySelector(".scroll");
+    if (sc) sc.scrollTop = top;
+  }
+}
+
+window.phoneToggle = function (key, el) {
+  const s = window._phoneSettings;
+  if (key === "dnd") {
+    window.isDnd = !window.isDnd;
+    if (el) el.classList.toggle("on", window.isDnd);
+    if (typeof updateDndBadge === "function") updateDndBadge();
+    vib(8);
+    return;
+  }
+  s[key] = !s[key];
+  if (key === "airplane" && s.airplane) {
+    s.wifi = false;
+    s.bluetooth = false;
+    s.cellular = false;
+  }
+  if (key === "airplane" && !s.airplane) s.cellular = true;
+  savePhoneSettings();
+  refreshSettingsView();
+};
+
+window.setPhoneBrightness = function (v) {
+  const s = window._phoneSettings;
+  s.brightness = Math.max(0.35, Math.min(1, Number(v) / 100));
+  applyPhoneDisplaySettings();
+  savePhoneSettings();
+};
+
+window.setPhoneWallpaper = function (url) {
+  window._phoneSettings.wallpaper = url;
+  applyPhoneDisplaySettings();
+  savePhoneSettings();
+  refreshSettingsView();
+};
+
+window.toggleWxNotify = function (el) {
+  window._wxNotifyOn = !(window._wxNotifyOn !== false);
+  if (el) el.classList.toggle("on", window._wxNotifyOn);
+  vib(8);
+};
+
+window.toggleMailNotify = function (el) {
+  window._mailNotifyOn = !(window._mailNotifyOn !== false);
+  if (el) el.classList.toggle("on", window._mailNotifyOn);
+  vib(8);
+};
+
+window.filterSettings = function (q) {
+  const query = String(q || "").trim().toLowerCase();
+  const rows = document.querySelectorAll("#settings-scroll [data-settings-row]");
+  rows.forEach((r) => {
+    const hit =
+      !query || (r.getAttribute("data-settings-row") || "").toLowerCase().includes(query);
+    r.style.display = hit ? "" : "none";
+  });
+  document.querySelectorAll("#settings-scroll .group").forEach((g) => {
+    const inner = [...g.querySelectorAll("[data-settings-row]")];
+    const visible = inner.some((r) => r.style.display !== "none");
+    g.style.display = visible ? "" : "none";
+  });
+};
+
+function settingsIcon(bg, emoji) {
+  return `<span style="width:28px;height:28px;border-radius:7px;background:${bg};display:grid;place-items:center;font-size:15px;color:#fff;flex:none;">${emoji}</span>`;
+}
+function settingsSwitch(on, handler) {
+  return `<button class="sw ${on ? "on" : ""}" onclick="${handler}"></button>`;
+}
+function settingsValue(t) {
+  return `<span style="font-size:15px;color:#8e8e93;">${esc(t)}</span>`;
+}
+function settingsRow(icon, label, right, onclick, search, extraStyle) {
+  return `<div class="row ${onclick ? "tap" : ""}" ${onclick ? `onclick="${onclick}"` : ""} data-settings-row="${esc(search || label)}" style="min-height:50px;${extraStyle || ""}">
+    ${icon ? `<span style="width:28px;display:flex;justify-content:center;flex:none;">${icon}</span>` : ""}
+    <span style="flex:1;font-size:16px;">${label}</span>
+    <span style="display:flex;align-items:center;gap:8px;flex:none;">${right || ""}</span>
+  </div>`;
+}
+function settingsInfoRow(label, value) {
+  return `<div class="row" data-settings-row="${esc(label)}" style="min-height:44px;">
+    <span style="flex:1;font-size:16px;">${label}</span>
+    <span style="color:#8e8e93;font-size:15px;max-width:62%;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(value)}</span>
+  </div>`;
+}
+
+VIEWS.settings = () => {
+  const s = window._phoneSettings;
+  const avatar = CFG.myAvatar
+    ? `<img src="${CFG.myAvatar}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none;">`
+    : `<div style="width:56px;height:56px;border-radius:50%;background:#e5e5ea;display:grid;place-items:center;flex:none;">${G.sil}</div>`;
+  return {
+    cls: "grouped",
+    html:
+      navHTML({ title: "设置", back: "主页", backFn: "closeApp()", solid: true }) +
+      `<div class="scroll" id="settings-scroll" style="padding-top:98px;padding-bottom:40px;background:#f2f2f7;">
+        <div style="padding:0 16px 12px;">
+          <div class="srch" style="margin:0;">${G.search}<input placeholder="搜索" oninput="filterSettings(this.value)" style="flex:1;min-width:0;border:none;background:transparent;outline:none;font-size:17px;color:inherit;font-family:inherit;"></div>
+        </div>
+
+        <div class="group" style="margin-bottom:16px;">
+          <div class="row tap" data-settings-row="Apple ID iCloud 账号 媒体与购买项目" onclick="toastDev()" style="min-height:70px;">
+            ${avatar}
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:17px;font-weight:500;color:#111;">小狗团汪汪</div>
+              <div style="font-size:12px;color:#8e8e93;margin-top:3px;">Apple ID、iCloud、媒体与购买项目</div>
+            </div>
+            ${G.chevR}
+          </div>
+        </div>
+
+        <div class="group" style="margin-bottom:16px;">
+          ${settingsRow(settingsIcon("#ff9500", "✈️"), "飞行模式", settingsSwitch(s.airplane, "phoneToggle('airplane',this)"), "", "飞行模式 airplane")}
+          ${settingsRow(settingsIcon("#007aff", "📶"), "无线局域网", `${settingsValue(s.wifi ? "CMCC-EDU" : "关闭")}${settingsSwitch(s.wifi, "phoneToggle('wifi',this)")}`, "", "无线局域网 wifi")}
+          ${settingsRow(settingsIcon("#007aff", "ᛒ"), "蓝牙", `${settingsValue(s.bluetooth ? "已开启" : "关闭")}${settingsSwitch(s.bluetooth, "phoneToggle('bluetooth',this)")}`, "", "蓝牙 bluetooth")}
+          ${settingsRow(settingsIcon("#34c759", "📱"), "蜂窝网络", `${settingsValue(s.cellular ? "中国移动" : "关闭")}${settingsSwitch(s.cellular, "phoneToggle('cellular',this)")}`, "", "蜂窝网络 移动 cellular")}
+        </div>
+
+        <div class="group" style="margin-bottom:16px;">
+          ${settingsRow(settingsIcon("#fa5151", "🔔"), "通知", `${settingsValue(window._wxNotifyOn === false ? "关闭" : "开启")}${G.chevR}`, "push('settings_notifications')", "通知 notifications")}
+          ${settingsRow(settingsIcon("#8e8e93", "🌙"), "专注模式", settingsSwitch(window.isDnd, "phoneToggle('dnd',this)"), "", "专注模式 免打扰 dnd")}
+          ${settingsRow(settingsIcon("#5e5ce6", "⏱"), "屏幕使用时间", `${settingsValue("2小时13分")}${G.chevR}`, "", "屏幕使用时间 screen time")}
+        </div>
+
+        <div class="group" style="margin-bottom:16px;">
+          ${settingsRow(settingsIcon("#5856d6", "☀️"), "显示与亮度", G.chevR, "push('settings_display')", "显示与亮度 屏幕 brightness display")}
+          ${settingsRow(settingsIcon("#5ac8fa", "🖼"), "墙纸", G.chevR, "push('settings_wallpaper')", "墙纸 壁纸 wallpaper")}
+          ${settingsRow(settingsIcon("#34c759", "🔋"), "电池", `${settingsValue("87%")}${G.chevR}`, "", "电池 battery")}
+        </div>
+
+        <div class="group" style="margin-bottom:8px;">
+          ${settingsRow(settingsIcon("#8e8e93", "⚙️"), "通用", G.chevR, "push('settings_about')", "通用 关于本机 about general")}
+        </div>
+      </div>`,
+  };
+};
+
+VIEWS.settings_display = () => {
+  const s = window._phoneSettings;
+  return {
+    cls: "grouped",
+    html:
+      navHTML({ title: "显示与亮度", back: "设置", solid: true }) +
+      `<div class="scroll" style="padding-top:98px;padding-bottom:40px;background:#f2f2f7;">
+        <div class="group" style="margin-bottom:16px;">
+          <div class="row" style="min-height:64px;flex-direction:column;align-items:stretch;gap:10px;padding-top:12px;padding-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:18px;">🔅</span>
+              <span style="flex:1;font-size:16px;">亮度</span>
+              <span style="font-size:13px;color:#8e8e93;">${Math.round((s.brightness || 1) * 100)}%</span>
+            </div>
+            <input type="range" min="35" max="100" value="${Math.round((s.brightness || 1) * 100)}" oninput="setPhoneBrightness(this.value)" style="width:100%;accent-color:#007aff;">
+          </div>
+          ${settingsRow("", "自动亮度", settingsSwitch(true, "this.classList.toggle('on');vib(8)"), "", "自动亮度 auto brightness")}
+        </div>
+        <div class="group" style="margin-bottom:16px;">
+          ${settingsInfoRow("外观", "浅色")}
+          ${settingsInfoRow("文字大小", "默认")}
+        </div>
+      </div>`,
+  };
+};
+
+VIEWS.settings_wallpaper = () => {
+  const s = window._phoneSettings;
+  const walls = [
+    { src: "./data/app/wallpaper.jpg", label: "默认" },
+    { src: "./data/album/mzc.jpg", label: "橙粉色" },
+    { src: "./data/album/cat.jpg", label: "猫" },
+    { src: "./data/album/1leader.jpg", label: "舞台" },
+  ];
+  return {
+    cls: "grouped",
+    html:
+      navHTML({ title: "墙纸", back: "设置", solid: true }) +
+      `<div class="scroll" style="padding-top:98px;padding-bottom:40px;background:#f2f2f7;">
+        <div class="group" style="margin-bottom:16px;padding:14px;">
+          <div style="font-size:13px;color:#8e8e93;margin-bottom:10px;">选取一张墙纸，锁屏和主屏幕会一起更换。</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+            ${walls
+              .map(
+                (w) => `<div onclick="setPhoneWallpaper('${w.src}')" style="position:relative;aspect-ratio:9/16;border-radius:10px;overflow:hidden;background:url('${w.src}') center/cover;border:2px solid ${s.wallpaper === w.src ? "#007aff" : "transparent"};cursor:pointer;">
+                  <span style="position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.45);color:#fff;font-size:12px;padding:3px 8px;border-radius:10px;">${w.label}</span>
+                  ${s.wallpaper === w.src ? `<span style="position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:#007aff;color:#fff;display:grid;place-items:center;font-size:12px;border:2px solid #fff;">✓</span>` : ""}
+                </div>`,
+              )
+              .join("")}
+          </div>
+        </div>
+      </div>`,
+  };
+};
+
+VIEWS.settings_notifications = () => {
+  return {
+    cls: "grouped",
+    html:
+      navHTML({ title: "通知", back: "设置", solid: true }) +
+      `<div class="scroll" style="padding-top:98px;padding-bottom:40px;background:#f2f2f7;">
+        <div class="group" style="margin-bottom:16px;">
+          ${settingsRow(settingsIcon("#07c160", "💬"), "微信", settingsSwitch(window._wxNotifyOn !== false, "toggleWxNotify(this)"), "", "微信 wechat 通知")}
+          ${settingsRow(settingsIcon("#007aff", "✉️"), "邮件", settingsSwitch(window._mailNotifyOn !== false, "toggleMailNotify(this)"), "", "邮件 mail 通知")}
+          ${settingsRow(settingsIcon("#8e8e93", "🌙"), "专注模式", settingsSwitch(window.isDnd, "phoneToggle('dnd',this)"), "", "专注模式 免打扰 dnd")}
+        </div>
+        <div class="group">
+          ${settingsInfoRow("横幅风格", "临时")}
+          ${settingsInfoRow("声音", "开启")}
+        </div>
+      </div>`,
+  };
+};
+
+VIEWS.settings_about = () => {
+  return {
+    cls: "grouped",
+    html:
+      navHTML({ title: "关于本机", back: "设置", solid: true }) +
+      `<div class="scroll" style="padding-top:98px;padding-bottom:40px;background:#f2f2f7;">
+        <div class="group" style="margin-bottom:16px;">
+          ${settingsInfoRow("名称", "小狗团汪汪的 iPhone")}
+          ${settingsInfoRow("型号名称", "iPhone 15 Pro")}
+          ${settingsInfoRow("系统版本", "iOS 18.1")}
+          ${settingsInfoRow("序列号", "F2LX9K3Q7H2J")}
+        </div>
+        <div class="group" style="margin-bottom:16px;">
+          <div style="padding:14px 16px 4px;font-size:13px;color:#8e8e93;">捡到这部手机</div>
+          ${settingsInfoRow("捡到地点", "街角")}
+          ${settingsInfoRow("捡到时间", "11月15日 23:09")}
+          ${settingsInfoRow("锁屏留言", "快回家")}
+        </div>
+        <div style="padding:0 16px;font-size:12px;color:#8e8e93;line-height:1.5;">如果这是你的手机，请尽快联系失主。</div>
+      </div>`,
+  };
+};
+
 VIEWS.instagram = placeholderView("Instagram");

@@ -100,6 +100,104 @@ window._momentDetailFrom = "moments";
 window._profileFrom = "chat";
 window._momentsUserFrom = "wx_profile";
 
+// ============ 微信运行状态 ============
+window._wxMyPosts = window._wxMyPosts || [];
+window._wxChatSettings = window._wxChatSettings || {};
+window._wxDiscoverNew = true;
+window._wxNotifyOn = true;
+window._wxComposeImages = [];
+window._wxSearchQuery = "";
+window._wxSearchFrom = "wechat";
+window._wxSearchScope = "";
+window._wxPanelType = "";
+window._wxHoldFired = false;
+window._wxScanFrom = "wx_me";
+
+function wxTabDot() {
+  return window._wxDiscoverNew
+    ? `<span style="position:absolute;top:4px;right:22px;width:8px;height:8px;background:#fa5151;border-radius:50%;"></span>`
+    : "";
+}
+function wxChatTabBadge() {
+  const total = Object.values(unread || {}).reduce((a, b) => a + b, 0);
+  if (!total) return "";
+  return `<span class="wx-tab-badge">${total > 99 ? "99+" : total}</span>`;
+}
+
+// ============ 通用底部操作菜单 ============
+window.wxCloseSheet = function () {
+  document.querySelectorAll(".wx-sheet-wrap").forEach((w) => w.remove());
+  window._wxSheetItems = null;
+  window._wxPromptCb = null;
+};
+window.wxActionSheet = function (title, items) {
+  wxCloseSheet();
+  window._wxSheetItems = items || [];
+  const wrap = document.createElement("div");
+  wrap.className = "wx-sheet-wrap";
+  wrap.innerHTML = `
+    <div class="wx-sheet-mask" onclick="wxCloseSheet()"></div>
+    <div class="wx-sheet">
+      ${title ? `<div class="wx-sheet-title">${esc(title)}</div>` : ""}
+      ${window._wxSheetItems
+        .map(
+          (it, i) =>
+            `<button class="wx-sheet-item ${it.danger ? "danger" : ""}" onclick="wxRunSheetItem(${i})">${esc(it.label)}</button>`,
+        )
+        .join("")}
+      <button class="wx-sheet-item" onclick="wxCloseSheet()">取消</button>
+    </div>`;
+  document.getElementById("screen").appendChild(wrap);
+};
+window.wxRunSheetItem = function (i) {
+  const it = (window._wxSheetItems || [])[i];
+  wxCloseSheet();
+  if (it && it.onClick) setTimeout(it.onClick, 0);
+};
+
+// ============ 通用输入弹窗 ============
+window.wxPrompt = function (title, placeholder, cb) {
+  wxCloseSheet();
+  window._wxPromptCb = cb;
+  const wrap = document.createElement("div");
+  wrap.className = "wx-sheet-wrap";
+  wrap.innerHTML = `
+    <div class="wx-sheet-mask" onclick="wxCloseSheet()"></div>
+    <div class="wx-prompt">
+      <div class="wx-prompt-title">${esc(title)}</div>
+      <input class="wx-prompt-input" id="wx-prompt-input" placeholder="${esc(placeholder || "")}" />
+      <div class="wx-prompt-btns">
+        <button onclick="wxCloseSheet()">取消</button>
+        <button class="primary" onclick="wxSubmitPrompt()">确定</button>
+      </div>
+    </div>`;
+  document.getElementById("screen").appendChild(wrap);
+  setTimeout(() => {
+    const i = document.getElementById("wx-prompt-input");
+    if (i) i.focus();
+  }, 60);
+};
+window.wxSubmitPrompt = function () {
+  const i = document.getElementById("wx-prompt-input");
+  const v = i ? i.value.trim() : "";
+  const cb = window._wxPromptCb;
+  wxCloseSheet();
+  if (v && cb) cb(v);
+};
+
+// 长按后拦截紧随其后的 click
+document.addEventListener(
+  "click",
+  (e) => {
+    if (window._wxHoldFired) {
+      window._wxHoldFired = false;
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  },
+  true,
+);
+
 window.openWxProfileByName = function (name, from) {
   if (!name || name === "小狗团汪汪" || name === "我" || name === "系统") return toastDev();
   chatId = name;
@@ -113,8 +211,9 @@ window.openMomentDetailFromFeed = function (index) {
   window._momentDetailFrom = "moments";
   window._currentMomentDetail = {
     author: post.author,
+    authorId: post.author,
     avatar: post.avatar,
-    post: JSON.parse(JSON.stringify(post)),
+    post: post,
   };
   push("wx_moments_detail");
 };
@@ -122,13 +221,14 @@ window.openMomentDetailFromFeed = function (index) {
 window.openMomentDetailFromUserFeed = function (index) {
   const post = window._wxMomentUserFeed && window._wxMomentUserFeed[index];
   if (!post) return toastDev();
-  const name = (typeof dn === "function") ? dn(chatId) : chatId;
+  const name = wxName(chatId);
   const av = (CFG.roles && CFG.roles[chatId] && CFG.roles[chatId].avatar) || G.sil;
   window._momentDetailFrom = "wx_moments_user";
   window._currentMomentDetail = {
     author: name,
+    authorId: chatId,
     avatar: av,
-    post: JSON.parse(JSON.stringify(post)),
+    post: post,
   };
   push("wx_moments_detail");
 };
@@ -141,8 +241,8 @@ window.openWxProfileFromFeed = function (index, from) {
 
 window.openWxProfileFromDetail = function () {
   const d = window._currentMomentDetail;
-  if (!d || !d.author) return toastDev();
-  window.openWxProfileByName(d.author, "wx_moments_detail");
+  if (!d || !(d.authorId || d.author)) return toastDev();
+  window.openWxProfileByName(d.authorId || d.author, "wx_moments_detail");
 };
 
 function getWxTimeString(dateLabel, timeStr) {
@@ -199,7 +299,18 @@ function previewText(s, grp) {
   if (s.startsWith("[表情]")) return "[表情]";
   if (s.startsWith("[语音]")) return "[语音]";
   if (s.startsWith("[视频]")) return "[视频]";
+  if (s.startsWith("[位置]")) return "[位置]";
+  if (s.startsWith("[红包]")) return "[红包]";
+  if (s.startsWith("[转账]")) return "[转账]";
   return s;
+}
+window._wxRemarks = window._wxRemarks || {};
+function wxName(n) {
+  return (
+    (window._wxRemarks && window._wxRemarks[n]) ||
+    (typeof DISPLAY !== "undefined" && DISPLAY[n]) ||
+    n
+  );
 }
 function avatarFor(name, group, isMe) {
   if (isMe) {
@@ -216,14 +327,20 @@ function avatarFor(name, group, isMe) {
 }
 
 VIEWS.wechat = () => {
-  const list = chatNames.filter((n) => {
-    const arr = chatData[n] || [];
-    return arr.some((x) => x[1] !== "date");
-  });
+  const list = chatNames
+    .filter((n) => {
+      const arr = chatData[n] || [];
+      return arr.some((x) => x[1] !== "date");
+    })
+    .sort((a, b) => {
+      const ta = window._wxChatSettings?.[a]?.top ? 1 : 0;
+      const tb = window._wxChatSettings?.[b]?.top ? 1 : 0;
+      return tb - ta;
+    });
   return {
     cls: "wx-list",
     html: `
-    <div class="wx-head"><div class="wx-head-left"></div><h1>微信</h1><div class="wx-actions" onclick="toastDev()">${G.wxSearch}${G.wxPlus}</div></div>
+    <div class="wx-head"><div class="wx-head-left"></div><h1>微信</h1><div class="wx-actions"><span style="display:flex;cursor:pointer;" onclick="openWxSearch('wechat')">${G.wxSearch}</span><span style="display:flex;cursor:pointer;" onclick="wxOpenAddMenu()">${G.wxPlus}</span></div></div>
     <div class="wx-scroll">${list
       .map((n) => {
         const arr = chatData[n] || [];
@@ -257,13 +374,13 @@ VIEWS.wechat = () => {
         const badge = cnt
           ? `<span class="wx-badge">${cnt > 99 ? "99+" : cnt}</span>`
           : "";
-        return `<button class="wx-item" onclick="chatId=&quot;${n}&quot;;push('chat')"><div class="wx-av" onclick="event.stopPropagation(); openWxProfileByName('${n}', 'wechat')">${avatarFor(n, isGroup(n))}${badge}</div><div class="wx-info"><div class="wx-name">${esc(dn(n))}</div><div class="wx-msg">${last ? esc(previewText(last[0], isGroup(n))) : ""}</div></div><div class="wx-meta"><span class="wx-time">${time}</span></div></button>`;
+        return `<button class="wx-item" onclick="window._chatBackTo=null;chatId=&quot;${n}&quot;;push('chat')"><div class="wx-av" onclick="event.stopPropagation(); openWxProfileByName('${n}', 'wechat')">${avatarFor(n, isGroup(n))}${badge}</div><div class="wx-info"><div class="wx-name">${esc(wxName(n))}</div><div class="wx-msg">${last ? esc(previewText(last[0], isGroup(n))) : ""}</div></div><div class="wx-meta"><span class="wx-time">${time}</span></div></button>`;
       })
       .join("")}</div>
     <div class="wx-tabbar">
-      <button class="on"><span>${G.wxTabChat}</span><small>微信</small></button>
+      <button class="on" style="position:relative;"><span>${G.wxTabChat}</span>${wxChatTabBadge()}<small>微信</small></button>
       <button onclick="show('wx_contacts')"><span>${G.wxTabContacts}</span><small>通讯录</small></button>
-      <button onclick="show('wx_discover')"><span>${G.wxTabDiscover}</span><small>发现</small></button>
+      <button onclick="show('wx_discover')" style="position:relative;"><span>${G.wxTabDiscover}</span>${wxTabDot()}<small>发现</small></button>
       <button onclick="show('wx_me')"><span>${G.wxTabMe}</span><small>我</small></button>
     </div>`,
   };
@@ -367,12 +484,28 @@ function chatMsgs(id) {
       innerContent = `${coverHTML}<div class="wx-video-play">▶</div><div class="wx-video-time">${timeStr}</div>`;
       bubbleClass = "wx-bb video-bb";
       onclickAttr = `onclick="event.stopPropagation();openMediaViewer(['${videoUrl}'], 0)"`;
+    } else if (x.text.startsWith("[位置]")) {
+      const raw = x.text.replace("[位置]", "").trim();
+      const [locName, locAddr] = raw.split("|");
+      innerContent = `<div class="wx-card wx-loc-card"><div class="wx-card-body"><div class="wx-card-title">${esc(locName || "位置")}</div><div class="wx-card-sub">${esc(locAddr || "")}</div></div><div class="wx-card-emoji">📍</div></div>`;
+      bubbleClass = "wx-bb card-bb";
+      onclickAttr = `onclick="event.stopPropagation();toastDev('地图功能还没接入这个宇宙~')"`;
+    } else if (x.text.startsWith("[红包]")) {
+      const raw = x.text.replace("[红包]", "").trim();
+      const [rpText, rpAmount] = raw.split("|");
+      innerContent = `<div class="wx-card wx-red-card"><div class="wx-card-emoji">🧧</div><div class="wx-card-body"><div class="wx-card-title">${esc(rpText || "恭喜发财，大吉大利")}</div><div class="wx-card-sub">${rpAmount ? "￥" + esc(rpAmount) + " · " : ""}微信红包</div></div></div>`;
+      bubbleClass = "wx-bb card-bb";
+      onclickAttr = `onclick="event.stopPropagation();toastDev('红包已存入零钱~')"`;
+    } else if (x.text.startsWith("[转账]")) {
+      const raw = x.text.replace("[转账]", "").trim();
+      const [trAmount, trNote] = raw.split("|");
+      innerContent = `<div class="wx-card wx-transfer-card"><div class="wx-card-body"><div class="wx-card-title">￥${esc(trAmount || "0.00")}</div><div class="wx-card-sub">${esc(trNote || "转账")}</div></div><div class="wx-card-emoji">💸</div></div>`;
+      bubbleClass = "wx-bb card-bb";
+      onclickAttr = `onclick="event.stopPropagation();toastDev('转账已收款~')"`;
     } else {
       innerContent = esc(x.text);
     }
-    const holdEvent = me
-      ? `onpointerdown="startHoldMsg(event, ${x.rawIdx})" onpointerup="cancelHoldMsg()" onpointerleave="cancelHoldMsg()"`
-      : "";
+    const holdEvent = `onpointerdown="startHoldMsg(event, ${x.rawIdx})" onpointerup="cancelHoldMsg()" onpointerleave="cancelHoldMsg()"`;
     let dotHtml = "",
       btnHtml = "",
       textHtml = "";
@@ -393,19 +526,97 @@ function chatMsgs(id) {
 let holdTimer = null;
 function startHoldMsg(e, rawIdx) {
   if (SS.typing) return;
+  cancelHoldMsg();
   holdTimer = setTimeout(() => {
+    holdTimer = null;
+    window._wxHoldFired = true;
+    setTimeout(() => {
+      window._wxHoldFired = false;
+    }, 900);
     vib(20);
-    if (confirm("你要撤回这条消息吗？")) {
-      const arr = chatData[chatId];
-      const time = arr[rawIdx][2];
-      arr[rawIdx] = ["你撤回了一条消息", "sys", time];
-      saveChat();
-      refreshChat();
-    }
+    openMsgActions(rawIdx);
   }, 600);
 }
 function cancelHoldMsg() {
-  if (holdTimer) clearTimeout(holdTimer);
+  if (holdTimer) {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+  }
+}
+function wxCopyText(text) {
+  const done = () => toastDev("已复制");
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, done);
+      return;
+    }
+  } catch (e) {}
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand("copy");
+  } catch (e) {}
+  ta.remove();
+  done();
+}
+function wxForwardMsg(rawIdx) {
+  const arr = chatData[chatId];
+  const msg = arr && arr[rawIdx];
+  if (!msg) return;
+  const others = chatNames.filter((n) => n !== chatId);
+  if (!others.length) return toastDev("没有可以转发的聊天~");
+  wxActionSheet(
+    "转发给",
+    others.map((n) => ({
+      label: wxName(n),
+      onClick: () => {
+        if (!chatData[n]) chatData[n] = [];
+        chatData[n].push([msg[0], "me", nowAmpm()]);
+        saveChat();
+        toastDev("已转发给 " + wxName(n));
+      },
+    })),
+  );
+}
+function openMsgActions(rawIdx) {
+  const arr = chatData[chatId];
+  const msg = arr && arr[rawIdx];
+  if (!msg || msg[1] === "sys") return;
+  const me = msg[1] === "me";
+  const text = String(msg[0] || "");
+  const plain = !/^\[(图片|表情|语音|视频|位置|红包|转账)\]/.test(text);
+  const items = [];
+  if (plain) items.push({ label: "复制", onClick: () => wxCopyText(text) });
+  items.push({ label: "转发", onClick: () => wxForwardMsg(rawIdx) });
+  if (me)
+    items.push({
+      label: "撤回",
+      onClick: () => {
+        const cur = chatData[chatId][rawIdx];
+        if (!cur) return;
+        chatData[chatId][rawIdx] = [
+          "你撤回了一条消息",
+          "sys",
+          cur[2] || nowAmpm(),
+        ];
+        saveChat();
+        refreshChat();
+      },
+    });
+  items.push({
+    label: "删除",
+    danger: true,
+    onClick: () => {
+      const cur = chatData[chatId];
+      if (!cur || !cur[rawIdx]) return;
+      cur.splice(rawIdx, 1);
+      saveChat();
+      refreshChat();
+    },
+  });
+  wxActionSheet("", items);
 }
 function toggleVoiceText(btn) {
   const container =
@@ -485,7 +696,7 @@ function doPat(isSelf) {
   } else {
     const targetRole = CFG.roles && CFG.roles[chatId];
     const targetSuffix = targetRole && targetRole.pat ? targetRole.pat : "";
-    const targetName = dn(chatId);
+    const targetName = wxName(chatId);
     msg = `"你" 拍了拍 "${targetName}"${targetSuffix ? " " + targetSuffix : ""}`;
   }
   chatData[chatId].push([msg, "sys", time]);
@@ -493,6 +704,7 @@ function doPat(isSelf) {
   refreshChat(true);
 }
 function toggleVoiceInput() {
+  closeKbd();
   const field = $("#fld"),
     btn = $("#voice-btn"),
     icon = $("#voice-icon");
@@ -535,12 +747,13 @@ VIEWS.chat = () => ({
   html: `
   <div class="wx-chat-h">
     <button class="bk" onclick="back()">${G.chevL}</button>
-    <div class="nm" id="chatTitle" onclick="window.openWxProfileByName(chatId, 'chat')" style="cursor:pointer;">${esc(dn(chatId))}</div>
-    <div class="rt" onclick="toastDev()">${G.dotsH}</div>
+    <div class="nm" id="chatTitle" onclick="window.openWxProfileByName(chatId, 'chat')" style="cursor:pointer;">${esc(wxName(chatId))}</div>
+    <div class="rt" onclick="openWxChatInfo()" style="cursor:pointer;">${G.dotsH}</div>
   </div>
   <div class="msgs" id="msgs" onclick="closeKbd()">${chatMsgs(chatId)}</div>
-  <div class="wx-cin safe" id="cin"><button class="ic" id="voice-icon" onclick="vib(10);toggleVoiceInput()">${G.mic}</button><div class="wx-fld ph" id="fld" onclick="event.stopPropagation();tapInput()">输入消息</div><button class="wx-voice-btn" id="voice-btn" onpointerdown="startRecord(event)" onpointerup="endRecord(event)" onpointerleave="endRecord(event)">按住 说话</button><button class="ic" onclick="toastDev()">${G.smile}</button><button class="ic" onclick="toastDev()">${G.plusSq}</button><button class="wx-snd" id="snd" onclick="sendLine()">发送</button></div>
-  <div class="kbd" id="kbd">${kbdHTML()}</div>`,
+  <div class="wx-cin safe" id="cin"><button class="ic" id="voice-icon" onclick="vib(10);toggleVoiceInput()">${G.mic}</button><div class="wx-fld ph" id="fld" onclick="event.stopPropagation();tapInput()">输入消息</div><button class="wx-voice-btn" id="voice-btn" onpointerdown="startRecord(event)" onpointerup="endRecord(event)" onpointerleave="endRecord(event)">按住 说话</button><button class="ic" onclick="event.stopPropagation();toggleWxPanel('emoji')">${G.smile}</button><button class="ic" onclick="event.stopPropagation();toggleWxPanel('plus')">${G.plusSq}</button><button class="wx-snd" id="snd" onclick="sendLine()">发送</button></div>
+  <div class="kbd" id="kbd">${kbdHTML()}</div>
+  <div class="wx-panel" id="wx-panel"></div>`,
   init: () => {
     if (chatId) unread[chatId] = 0;
     SS.typing = false; SS.pendingText = ""; scrollChat();
@@ -573,6 +786,7 @@ function kbdHTML() {
   return `<div class="kin" onclick="event.stopPropagation();kbdTap(event)"><div class="kr">${R[0].map(k).join("")}</div><div class="kr" style="padding:0 3px">${R[1].map(k).join("")}</div><div class="kr"><div class="key sp" data-k="⇧">${G.shift}</div><span style="width:6px"></span>${R[2].map(k).join("")}<span style="width:6px"></span><div class="key sp" data-k="⌫">${G.bksp}</div></div><div class="kr"><div class="key sp" data-k="123" style="font-size:16px">123</div><div class="key sp" data-k="emo" style="font-size:20px">🙂</div><div class="key wide" data-k="space">空格</div><div class="key ret" data-k="ret">换行</div></div><div class="kbot">${G.globe}${G.mic}</div></div>`;
 }
 function openKbd() {
+  closeWxPanel();
   const k = $("#kbd");
   if (!k || k.classList.contains("open")) return;
   k.classList.add("open");
@@ -583,12 +797,157 @@ function openKbd() {
     if (performance.now() - t0 < 420) requestAnimationFrame(f);
   })();
 }
-function closeKbd() {
-  const k = $("#kbd");
-  if (!k || !k.classList.contains("open")) return;
-  k.classList.remove("open");
+function closeWxPanel() {
+  const p = $("#wx-panel");
+  if (!p || !p.classList.contains("open")) return;
+  p.classList.remove("open");
+  window._wxPanelType = "";
   $("#cin").classList.add("safe");
 }
+function closeKbd() {
+  const k = $("#kbd");
+  if (k && k.classList.contains("open")) k.classList.remove("open");
+  closeWxPanel();
+  const c = $("#cin");
+  if (c) c.classList.add("safe");
+}
+
+// ============ 表情 / 更多面板 ============
+const WX_EMOJIS = [
+  "😀", "😁", "😂", "🤣", "😊", "😍", "😘", "😜",
+  "😎", "🤔", "😅", "😭", "😡", "👍", "👏", "🙏",
+  "💪", "🎉", "❤️", "💔", "🌹", "🍻", "🐶", "🐱",
+  "🐼", "🐷", "🌈", "☀️", "🌙", "⭐", "🔥", "💯",
+  "🍰", "🎂", "🎁", "🧧", "😴", "🤗", "😏", "🥰",
+  "😇", "🤩", "😱", "🥺", "😤", "🙄", "😬", "🤝",
+];
+function wxEmojiPanelHTML() {
+  return `<div class="wx-panel-in">
+    <div class="wx-emoji-grid">${WX_EMOJIS.map(
+      (e) => `<button onclick="wxSendEmoji('${e}')">${e}</button>`,
+    ).join("")}</div>
+    <div class="wx-panel-tip">点击表情直接发送</div>
+  </div>`;
+}
+function wxPlusPanelHTML() {
+  const items = [
+    ["🖼️", "相册", "album"],
+    ["📹", "视频通话", "video"],
+    ["📍", "位置", "location"],
+    ["🧧", "红包", "redpacket"],
+    ["💸", "转账", "transfer"],
+    ["🎤", "语音输入", "voice"],
+  ];
+  return `<div class="wx-panel-in"><div class="wx-plus-grid">${items
+    .map(
+      ([ic, label, key]) =>
+        `<button onclick="wxPlusAction('${key}')"><span class="wx-plus-ic">${ic}</span><span>${label}</span></button>`,
+    )
+    .join("")}</div></div>`;
+}
+function toggleWxPanel(type) {
+  const p = $("#wx-panel");
+  if (!p) return;
+  if (window._wxPanelType === type) {
+    closeKbd();
+    return;
+  }
+  const k = $("#kbd");
+  if (k && k.classList.contains("open")) k.classList.remove("open");
+  window._wxPanelType = type;
+  p.innerHTML = type === "emoji" ? wxEmojiPanelHTML() : wxPlusPanelHTML();
+  p.classList.add("open");
+  $("#cin").classList.remove("safe");
+  scrollChat();
+  setTimeout(() => scrollChat(), 320);
+}
+window.wxPlusAction = function (key) {
+  closeKbd();
+  setTimeout(() => {
+    if (key === "album") return wxPickChatPhoto();
+    if (key === "video") return wxStartVideoCall();
+    if (key === "location") return wxSendLocation();
+    if (key === "redpacket") return wxSendRedPacket();
+    if (key === "transfer") return wxSendTransfer();
+    if (key === "voice") return wxSwitchToVoice();
+  }, 60);
+};
+window.wxSendEmoji = function (ch) {
+  if (!chatData[chatId]) return;
+  chatData[chatId].push([ch, "me", nowAmpm()]);
+  saveChat();
+  refreshChat(true);
+  sfx("send");
+  vib(8);
+};
+window.wxPickChatPhoto = function () {
+  if (typeof openPhoneAlbumPicker !== "function")
+    return toastDev("相册还没准备好~");
+  openPhoneAlbumPicker({
+    multiple: true,
+    max: 9,
+    onDone: function (urls) {
+      if (!chatData[chatId]) return;
+      urls.forEach(function (u) {
+        const isVideo = /\.(mp4|webm|mov)$/i.test(u);
+        chatData[chatId].push([
+          isVideo ? `[视频] ${u}||0:15` : `[图片] ${u}`,
+          "me",
+          nowAmpm(),
+        ]);
+      });
+      saveChat();
+      refreshChat(true);
+      sfx("send");
+      vib(10);
+    },
+  });
+};
+window.wxStartVideoCall = function () {
+  if (typeof callState !== "undefined" && callState) return;
+  if (typeof dial === "function") {
+    dial(chatId);
+    return;
+  }
+  toastDev("视频通话暂时无法接通~");
+};
+window.wxSendLocation = function () {
+  if (!chatData[chatId]) return;
+  chatData[chatId].push([
+    "[位置] 重庆市·解放碑|重庆市渝中区民族路177号",
+    "me",
+    nowAmpm(),
+  ]);
+  saveChat();
+  refreshChat(true);
+  sfx("send");
+};
+window.wxSendRedPacket = function () {
+  wxPrompt("红包金额", "0.00", function (v) {
+    if (!chatData[chatId]) return;
+    chatData[chatId].push([
+      `[红包] 恭喜发财，大吉大利|${v}`,
+      "me",
+      nowAmpm(),
+    ]);
+    saveChat();
+    refreshChat(true);
+    sfx("send");
+  });
+};
+window.wxSendTransfer = function () {
+  wxPrompt("转账金额", "0.00", function (v) {
+    if (!chatData[chatId]) return;
+    chatData[chatId].push([`[转账] ${v}|请你喝奶茶`, "me", nowAmpm()]);
+    saveChat();
+    refreshChat(true);
+    sfx("send");
+  });
+};
+window.wxSwitchToVoice = function () {
+  const field = $("#fld");
+  if (field && field.style.display !== "none") toggleVoiceInput();
+};
 function pressKey(k) {
   const el = document.querySelector(`#kbd [data-k="${k}"]`);
   if (!el) return;
@@ -748,7 +1107,7 @@ function showTypingFrom(from) {
 }
 function hideTyping() {
   const title = $("#chatTitle");
-  if (title && view === "chat") title.textContent = dn(chatId);
+  if (title && view === "chat") title.textContent = wxName(chatId);
 }
 function deliverFrom(from, text) {
   if (!chatData[from]) chatData[from] = [];
@@ -782,18 +1141,19 @@ function incomingMsgFrom(from, text) {
   } else deliverFrom(from, text);
 }
 function notifyFrom(from, body) {
-  if (window.isDnd) return;
+  if (window.isDnd || window._wxNotifyOn === false) return;
+  if (window._wxChatSettings?.[from]?.mute) return;
   sfx("msg");
   vib([30, 60, 30]);
   if (view === "lock" || view === "pin") {
-    lockNotes.unshift({ title: dn(from), body, app: "wechat", time: t("now") });
+    lockNotes.unshift({ title: wxName(from), body, app: "wechat", time: t("now") });
     renderLock();
     return;
   }
   OV.querySelectorAll(".banner").forEach((b) => b.remove());
   const b = document.createElement("div");
   b.className = "banner";
-  b.innerHTML = `<div class="ncard">${ncardHTML({ title: dn(from), body, app: "wechat", time: t("now") })}</div>`;
+  b.innerHTML = `<div class="ncard">${ncardHTML({ title: wxName(from), body, app: "wechat", time: t("now") })}</div>`;
   OV.appendChild(b);
   b.animate(
     [{ transform: "translateY(-140%) scale(.96)" }, { transform: "none" }],
@@ -864,6 +1224,7 @@ function notifyFrom(from, body) {
 }
 function openChatFrom(from) {
   if (callState) return;
+  window._chatBackTo = null;
   chatId = from;
   if (view === "home")
     openApp("chat", HOME.querySelector('.app[data-app="wechat"] .icon'));
@@ -904,9 +1265,223 @@ function saveStory() {
 }
 function saveChat() {}
 
+/* ================= 聊天信息页 ================= */
+window.openWxChatInfo = function () {
+  if (!chatId) return toastDev();
+  push("wx_chat_info");
+};
+window.wxToggleChatSetting = function (key, el) {
+  const s = (window._wxChatSettings[chatId] =
+    window._wxChatSettings[chatId] || {});
+  s[key] = !s[key];
+  if (el) el.classList.toggle("on", s[key]);
+  vib(8);
+};
+window.wxSetRemark = function () {
+  const cur = window._wxRemarks[chatId] || "";
+  wxPrompt("设置备注", cur || "输入备注名", function (v) {
+    window._wxRemarks[chatId] = v;
+    show("wx_chat_info", "none");
+    toastDev("备注已保存");
+  });
+};
+window.wxClearChat = function () {
+  wxActionSheet("清空聊天记录", [
+    {
+      label: "清空",
+      danger: true,
+      onClick: () => {
+        chatData[chatId] = [["11月15日", "date"]];
+        saveChat();
+        show("wx_chat_info", "none");
+        toastDev("聊天记录已清空");
+      },
+    },
+  ]);
+};
+function wxCell(label, right, onclick, last) {
+  return `<div class="wx-cell" ${onclick ? `onclick="${onclick}"` : ""} style="${last ? "" : "border-bottom:.5px solid #f0f0f0;"}">
+    <div class="wx-cell-label">${label}</div>
+    <div class="wx-cell-right">${right}</div>
+  </div>`;
+}
+VIEWS.wx_chat_info = () => {
+  const s = window._wxChatSettings[chatId] || {};
+  const msgCount = (chatData[chatId] || []).filter((x) => x[1] !== "date").length;
+  return {
+    cls: "wx-list",
+    html: `
+    <div class="nav solid" style="background:#ededed;border-bottom:.5px solid #dcdcdc;">
+      <button class="nb-back" onclick="back()" style="border:none;background:none;color:#111;cursor:pointer;">${G.chevL}</button>
+      <div class="nb-title" style="opacity:1;">聊天信息</div>
+      <div class="nb-right"></div>
+    </div>
+    <div class="wx-scroll" style="padding-top:98px;background:#ededed;padding-bottom:30px;">
+      <div style="background:#fff;padding:16px;">
+        <div class="wx-member-grid">
+          <div class="wx-member">
+            <div class="wx-member-av">${avatarFor(chatId, false)}</div>
+            <div class="wx-member-name">${esc(wxName(chatId))}</div>
+          </div>
+          <div class="wx-member" onclick="toastDev()">
+            <div class="wx-member-av add">＋</div>
+            <div class="wx-member-name"></div>
+          </div>
+        </div>
+      </div>
+      <div style="background:#fff;margin-top:8px;">
+        ${wxCell("查找聊天记录", `<span style="color:#999;font-size:13px;">${msgCount} 条</span><span class="wx-cell-chev">${G.chevR}</span>`, "openWxSearch('wx_chat_info', chatId)")}
+        ${wxCell("消息免打扰", `<button class="sw ${s.mute ? "on" : ""}" onclick="wxToggleChatSetting('mute',this)"></button>`)}
+        ${wxCell("置顶聊天", `<button class="sw ${s.top ? "on" : ""}" onclick="wxToggleChatSetting('top',this)"></button>`)}
+      </div>
+      <div style="background:#fff;margin-top:8px;">
+        ${wxCell("设置备注和标签", `<span class="wx-cell-chev">${G.chevR}</span>`, "wxSetRemark()")}
+        ${wxCell("清空聊天记录", `<span class="wx-cell-chev">${G.chevR}</span>`, "wxClearChat()", true)}
+      </div>
+      <div style="background:#fff;margin-top:8px;">
+        ${wxCell("投诉", `<span class="wx-cell-chev">${G.chevR}</span>`, "toastDev()", true)}
+      </div>
+    </div>`,
+  };
+};
+
+/* ================= 全局搜索 ================= */
+window._wxSearchHits = [];
+window.openWxSearch = function (from, scope) {
+  window._wxSearchFrom = from || view || "wechat";
+  window._wxSearchScope = scope || "";
+  window._wxSearchQuery = "";
+  push("wx_search");
+};
+window.wxSearchInput = function (v) {
+  window._wxSearchQuery = v;
+  wxRenderSearch(v);
+};
+window.openSearchHit = function (i) {
+  const h = (window._wxSearchHits || [])[i];
+  if (!h) return;
+  if (h.kind === "profile") {
+    chatId = h.chat;
+    window._profileFrom = "wx_search";
+    push("wx_profile");
+  } else if (h.kind === "chat") {
+    chatId = h.chat;
+    window._chatBackTo = "wx_search";
+    push("chat");
+  } else if (h.kind === "moment") {
+    window._momentDetailFrom = "wx_search";
+    window._currentMomentDetail = {
+      author: h.author,
+      authorId: h.authorId || h.author,
+      avatar: h.avatar,
+      post: h.post,
+    };
+    push("wx_moments_detail");
+  }
+};
+window.wxRenderSearch = function (q) {
+  const box = document.getElementById("wx-search-results");
+  if (!box) return;
+  const query = String(q || "").trim().toLowerCase();
+  const scope = window._wxSearchScope || "";
+  if (!query) {
+    box.innerHTML = `<div class="wx-search-empty">搜索聊天记录、联系人和朋友圈</div>`;
+    window._wxSearchHits = [];
+    return;
+  }
+  const hits = [];
+  const chats = [];
+  chatNames.forEach((n) => {
+    if (scope && n !== scope) return;
+    const arr = chatData[n] || [];
+    const shown = wxName(n);
+    if (!scope && shown.toLowerCase().includes(query)) {
+      chats.push({ kind: "profile", chat: n, label: shown, sub: "联系人" });
+      return;
+    }
+    const msgs = arr.filter((x) => x[1] !== "date");
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      if (String(msgs[i][0]).toLowerCase().includes(query)) {
+        chats.push({
+          kind: "chat",
+          chat: n,
+          label: scope ? shown : "聊天记录 · " + shown,
+          sub: msgs[i][0],
+          time: msgs[i][2] || "",
+        });
+        break;
+      }
+    }
+  });
+  const momentHits = [];
+  if (!scope) {
+    const all = [];
+    for (const user in MOCK_MOMENTS_DATA) {
+      const u = MOCK_MOMENTS_DATA[user];
+      const av = (CFG.roles && CFG.roles[user] && CFG.roles[user].avatar) || u.avatar || G.sil;
+      (u.posts || []).forEach((p) => all.push({ author: user, avatar: av, post: p }));
+    }
+    (window._wxMyPosts || []).forEach((p) =>
+      all.push({ author: "我", avatar: CFG.myAvatar || G.sil, post: p }),
+    );
+    all.forEach((h) => {
+      if (String(h.post.text || "").toLowerCase().includes(query))
+        momentHits.push({ kind: "moment", label: h.author, sub: h.post.text, author: h.author, avatar: h.avatar, post: h.post });
+    });
+  }
+  let html = "";
+  if (chats.length) {
+    html += `<div class="wx-search-sec">${scope ? "聊天记录" : "聊天"}</div>`;
+    chats.slice(0, 30).forEach((h) => {
+      const i = hits.push(h) - 1;
+      html += `<div class="wx-search-row" onclick="openSearchHit(${i})">
+        <div class="wx-search-av">${avatarFor(h.chat, false)}</div>
+        <div class="wx-search-info"><div class="wx-search-name">${esc(h.label)}</div><div class="wx-search-sub">${esc(h.sub)}</div></div>
+        ${h.time ? `<div class="wx-search-time">${esc(h.time)}</div>` : ""}
+      </div>`;
+    });
+  }
+  if (momentHits.length) {
+    html += `<div class="wx-search-sec">朋友圈</div>`;
+    momentHits.slice(0, 30).forEach((h) => {
+      const i = hits.push(h) - 1;
+      html += `<div class="wx-search-row" onclick="openSearchHit(${i})">
+        <div class="wx-search-av"><img src="${h.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" /></div>
+        <div class="wx-search-info"><div class="wx-search-name">${esc(h.author)}</div><div class="wx-search-sub">${esc(h.sub)}</div></div>
+      </div>`;
+    });
+  }
+  window._wxSearchHits = hits;
+  box.innerHTML = html || `<div class="wx-search-empty">没有找到相关内容</div>`;
+};
+VIEWS.wx_search = () => {
+  const q = window._wxSearchQuery || "";
+  const scopeName = window._wxSearchScope ? wxName(window._wxSearchScope) : "";
+  return {
+    cls: "wx-list",
+    html: `
+    <div class="wx-search-head">
+      <div class="wx-search-box">${G.wxSearch}<input id="wx-search-input" value="${esc(q)}" placeholder="${scopeName ? "搜索 " + esc(scopeName) + " 的聊天记录" : "搜索"}" oninput="wxSearchInput(this.value)" /></div>
+      <button class="wx-search-cancel" onclick="back()">取消</button>
+    </div>
+    <div class="wx-scroll" id="wx-search-results" style="background:#fff;"></div>`,
+    init: () => {
+      wxRenderSearch(window._wxSearchQuery || "");
+      setTimeout(() => {
+        const i = document.getElementById("wx-search-input");
+        if (i) i.focus();
+      }, 100);
+    },
+  };
+};
+
+window.openMoments = function () {
+  window._wxDiscoverNew = false;
+  push("moments");
+};
 VIEWS.wx_discover = () => {
-  const row = (icon, text, isLast = false) => `
-    <div class="row tap" onclick="toastDev()" style="min-height:56px; padding:0 16px; position:relative; display:flex; align-items:center; background:#fff; width:100%; text-align:left; border:none;">
+  const row = (icon, text, onclick = "toastDev()", isLast = false) => `
+    <div class="row tap" onclick="${onclick}" style="min-height:56px; padding:0 16px; position:relative; display:flex; align-items:center; background:#fff; width:100%; text-align:left; border:none;">
       <div style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; margin-right:16px; flex:none;">${icon}</div>
       <div style="flex:1; font-size:16px; color:#111;">${text}</div>
       <div style="width:16px; display:flex; justify-content:flex-end;">${G.chevR}</div>
@@ -919,31 +1494,22 @@ VIEWS.wx_discover = () => {
     <div class="wx-head" style="background:#ededed;">
       <div class="wx-head-left"></div>
       <h1>发现</h1>
-      <div class="wx-actions" onclick="toastDev()">${G.wxSearch}${G.wxPlus}</div>
+      <div class="wx-actions"><span style="display:flex;cursor:pointer;" onclick="openWxSearch('wx_discover')">${G.wxSearch}</span></div>
     </div>
-    
+
     <div class="wx-scroll" style="flex:1; overflow-y:auto; background:#ededed; padding-bottom: 80px;">
       <div style="background:#fff; margin-top:8px;">
-<div class="row tap" onclick="push('moments')" style="min-height:56px; padding:0 16px; position:relative; display:flex; align-items:center; background:#fff; width:100%; text-align:left; border:none;">
-  <div style="width:24px; height:24px; display:flex; justify-content:center; align-items:center; margin-right:16px; flex:none;">${G.wxPengyouquan}</div>
-  <div style="flex:1; font-size:16px; color:#111;">朋友圈</div>
-  <div style="width:16px; display:flex; justify-content:flex-end;">${G.chevR}</div>
-</div>
+${row(G.wxPengyouquan, "朋友圈", "openMoments()", true)}
       </div>
-      <div style="background:#fff; margin-top:8px;">${row(G.wxShipinhao, "视频号")}${row(G.wxZhibo, "直播", true)}</div>
-      <div style="background:#fff; margin-top:8px;">${row(G.wxSaoyisao, "扫一扫")}${row(G.wxTingyiting, "听一听", true)}</div>
-      <div style="background:#fff; margin-top:8px;">${row(G.wxKanyikan, "看一看")}${row(G.wxSouyisou, "搜一搜", true)}</div>
-      <div style="background:#fff; margin-top:8px;">${row(G.wxFujin, "附近的人", true)}</div>
-      <div style="background:#fff; margin-top:8px;">${row(G.wxYouxi, "游戏", true)}</div>
-      <div style="background:#fff; margin-top:8px; margin-bottom:20px;">${row(G.wxXiaochengxu, "小程序", true)}</div>
+      <div style="background:#fff; margin-top:8px;">${row(G.wxSaoyisao, "扫一扫", "openWxScan()")}${row(G.wxSouyisou, "搜一搜", "openWxSearch('wx_discover')", true)}</div>
     </div>
-    
+
     <div class="wx-tabbar">
-      <button onclick="show('wechat')"><span>${G.wxTabChat}</span><small>微信</small></button>
+      <button onclick="show('wechat')" style="position:relative;"><span>${G.wxTabChat}</span>${wxChatTabBadge()}<small>微信</small></button>
       <button onclick="show('wx_contacts')"><span>${G.wxTabContacts}</span><small>通讯录</small></button>
       <button class="on" style="position:relative;">
         <span>${G.wxTabDiscover}</span>
-        <span style="position:absolute;top:4px;right:22px;width:8px;height:8px;background:#fa5151;border-radius:50%;"></span>
+        ${wxTabDot()}
         <small>发现</small>
       </button>
       <button onclick="show('wx_me')" style="position:relative;">
@@ -955,29 +1521,6 @@ VIEWS.wx_discover = () => {
   };
 };
 
-function getPinyinInitial(str) {
-  const map = {
-    穆: "M",
-    丞: "C",
-    恩: "E",
-    小: "X",
-    蓝: "L",
-    瑞: "R",
-    闺: "G",
-    爹: "D",
-    哥: "G",
-    仔: "Z",
-    胖: "P",
-    M: "M",
-    p: "P",
-    c: "C",
-    r: "R",
-    t: "T",
-  };
-  const c = str.charAt(0);
-  if (/[a-zA-Z]/.test(c)) return c.toUpperCase();
-  return map[c] || "#";
-}
 function getPinyinInitial(str) {
   const map = {
     穆: "M",
@@ -1021,9 +1564,9 @@ VIEWS.wx_contacts = () => {
     listHTML += `<div id="group-${initial}" style="padding:4px 16px; font-size:13px; color:#888; background:#ededed; font-weight:500;">${initial}</div>`;
     groups[initial].forEach((name) => {
       listHTML += `
-        <div class="wx-item" style="padding-left:16px; background:#fff;" onclick="chatId='${name}'; push('chat')">
+        <div class="wx-item" style="padding-left:16px; background:#fff;" onclick="window._chatBackTo=null; chatId='${name}'; push('chat')">
           <div class="wx-av" onclick="event.stopPropagation(); openWxProfileByName('${name}', 'wx_contacts')">${avatarFor(name)}</div>
-          <div class="wx-info"><div class="wx-name">${esc(dn(name))}</div></div>
+          <div class="wx-info"><div class="wx-name">${esc(wxName(name))}</div></div>
         </div>
       `;
     });
@@ -1038,32 +1581,32 @@ VIEWS.wx_contacts = () => {
     <div class="wx-head" style="background:#ededed; position:relative;">
       <div class="wx-head-left"></div>
       <h1>通讯录</h1>
-      <div class="wx-actions" onclick="toastDev()">${G.wxSearch}${G.wxPlus}</div>
-    </div>  
+      <div class="wx-actions"><span style="display:flex;cursor:pointer;" onclick="openWxSearch('wx_contacts')">${G.wxSearch}</span><span style="display:flex;cursor:pointer;" onclick="wxOpenAddMenu()">${G.wxPlus}</span></div>
+    </div>
     <div class="wx-scroll" style="flex:1; overflow-y:auto; padding-top: 0; background:#ededed;">
       
       <div style="background:#fff; margin-bottom:8px;">
-        <div class="wx-item" style="padding-left:16px; background:#fff; border-bottom: 0.5px solid #ededed;" onclick="toastDev()">
+        <div class="wx-item" style="padding-left:16px; background:#fff; border-bottom: 0.5px solid #ededed;" onclick="openWxContactsSub('new_friends')">
           ${topIcon("#fca130", G.wxNewFriend)}
           <div class="wx-info"><div class="wx-name">新的朋友</div></div>
         </div>
-        <div class="wx-item" style="padding-left:16px; background:#fff; border-bottom: 0.5px solid #ededed;" onclick="toastDev()">
+        <div class="wx-item" style="padding-left:16px; background:#fff; border-bottom: 0.5px solid #ededed;" onclick="openWxContactsSub('chat_only')">
           ${topIcon("#fca130", G.wxChatOnly)}
           <div class="wx-info"><div class="wx-name">仅聊天的朋友</div></div>
         </div>
-        <div class="wx-item" style="padding-left:16px; background:#fff; border-bottom: 0.5px solid #ededed;" onclick="toastDev()">
+        <div class="wx-item" style="padding-left:16px; background:#fff; border-bottom: 0.5px solid #ededed;" onclick="openWxContactsSub('groups')">
           ${topIcon("#07c160", G.wxGroup)}
           <div class="wx-info"><div class="wx-name">群聊</div></div>
         </div>
-        <div class="wx-item" style="padding-left:16px; background:#fff; border-bottom: 0.5px solid #ededed;" onclick="toastDev()">
+        <div class="wx-item" style="padding-left:16px; background:#fff; border-bottom: 0.5px solid #ededed;" onclick="openWxContactsSub('tags')">
           ${topIcon("#2782d7", G.wxTag)}
           <div class="wx-info"><div class="wx-name">标签</div></div>
         </div>
-        <div class="wx-item" style="padding-left:16px; background:#fff; border-bottom: 0.5px solid #ededed;" onclick="toastDev()">
+        <div class="wx-item" style="padding-left:16px; background:#fff; border-bottom: 0.5px solid #ededed;" onclick="openWxContactsSub('official')">
           ${topIcon("#2782d7", G.wxOfficial)}
           <div class="wx-info"><div class="wx-name">公众号</div></div>
         </div>
-        <div class="wx-item" style="padding-left:16px; background:#fff;" onclick="toastDev()">
+        <div class="wx-item" style="padding-left:16px; background:#fff;" onclick="openWxContactsSub('service')">
           ${topIcon("#2782d7", G.wxService)}
           <div class="wx-info"><div class="wx-name">服务号</div></div>
         </div>
@@ -1071,7 +1614,7 @@ VIEWS.wx_contacts = () => {
 
       <div style="padding:6px 16px; font-size:13px; color:#888; background:#ededed;">我的企业及企业联系人</div>
       <div style="background:#fff; margin-bottom:8px;">
-        <div class="wx-item" style="padding-left:16px; background:#fff;" onclick="toastDev()">
+        <div class="wx-item" style="padding-left:16px; background:#fff;" onclick="openWxContactsSub('enterprise')">
           ${topIcon("#2782d7", G.wxEnterprise)}
           <div class="wx-info"><div class="wx-name">企业微信联系人</div></div>
         </div>
@@ -1091,17 +1634,17 @@ VIEWS.wx_contacts = () => {
     </div>
 
     <div class="wx-tabbar">
-      <button onclick="show('wechat')"><span>${G.wxTabChat}</span><small>微信</small></button>
+      <button onclick="show('wechat')" style="position:relative;"><span>${G.wxTabChat}</span>${wxChatTabBadge()}<small>微信</small></button>
       <button class="on"><span>${G.wxTabContacts}</span><small>通讯录</small></button>
-      <button onclick="show('wx_discover')" style="position:relative;"><span>${G.wxTabDiscover}</span><span style="position:absolute;top:4px;right:22px;width:8px;height:8px;background:#fa5151;border-radius:50%;"></span><small>发现</small></button>
+      <button onclick="show('wx_discover')" style="position:relative;"><span>${G.wxTabDiscover}</span>${wxTabDot()}<small>发现</small></button>
       <button onclick="show('wx_me')" style="position:relative;"><span>${G.wxTabMe}</span><span style="position:absolute;top:4px;right:22px;width:8px;height:8px;background:#fa5151;border-radius:50%;"></span><small>我</small></button>
     </div>`,
   };
 };
 
 VIEWS.wx_me = () => {
-  const row = (icon, title, extra = "") => `
-    <div class="wx-item" style="background:#fff; padding: 12px 16px; display:flex; align-items:center; border-bottom:0.5px solid #f0f0f0;" onclick="toastDev()">
+  const row = (icon, title, extra = "", onclick = "toastDev()") => `
+    <div class="wx-item" style="background:#fff; padding: 12px 16px; display:flex; align-items:center; border-bottom:0.5px solid #f0f0f0;" onclick="${onclick}">
       <div style="width:22px; height:22px; margin-right:14px; display:flex; align-items:center; justify-content:center;">${icon}</div>
       <div style="flex:1; font-size:16px; color:#111;">${title}</div>
       ${extra ? `<div style="font-size:14px; color:#888; margin-right:8px;">${extra}</div>` : ""}
@@ -1128,35 +1671,292 @@ VIEWS.wx_me = () => {
             </div>
           </div>
         </div>
-        <div style="color:#111; margin-top:4px;" onclick="toastDev()">${G.wxMeScan}</div>
+        <div style="color:#111; margin-top:4px;cursor:pointer;" onclick="openWxScan()">${G.wxMeScan}</div>
       </div>
 
       <div style="background:#fff; margin-bottom: 8px;">
-        ${row(G.wxMeService, '服务')}
+        ${row(G.wxMeService, '服务', '', "push('wx_services')")}
       </div>
 
       <div style="background:#fff; margin-bottom: 8px;">
-        ${row(G.wxMeFav, '收藏')}
-        ${row(G.photo, '朋友圈')}
-        ${row(G.wxMeWorks, '作品')}
-        ${row(G.wxMeShop, '小店与卡包')}
-        ${row(G.wxMeEmoji, '表情')}
+        ${row(G.wxMeFav, '收藏', '', "push('wx_favorites')")}
+        ${row(G.photo, '朋友圈', '', "push('wx_moments_self')")}
       </div>
 
       <div style="background:#fff; margin-bottom: 8px;">
-        ${row(G.wxMeSettings, '设置', '<span style="width:8px;height:8px;background:#fa5151;border-radius:50%;"></span>')}
+        ${row(G.wxMeSettings, '设置', '<span style="width:8px;height:8px;background:#fa5151;border-radius:50%;"></span>', "push('wx_settings')")}
       </div>
 
     </div>
-    
+
     <div class="wx-tabbar">
-      <button onclick="show('wechat')"><span>${G.wxTabChat}</span><small>微信</small></button>
+      <button onclick="show('wechat')" style="position:relative;"><span>${G.wxTabChat}</span>${wxChatTabBadge()}<small>微信</small></button>
       <button onclick="show('wx_contacts')"><span>${G.wxTabContacts}</span><small>通讯录</small></button>
-      <button onclick="show('wx_discover')" style="position:relative;"><span>${G.wxTabDiscover}</span><span style="position:absolute;top:4px;right:22px;width:8px;height:8px;background:#fa5151;border-radius:50%;"></span><small>发现</small></button>
+      <button onclick="show('wx_discover')" style="position:relative;"><span>${G.wxTabDiscover}</span>${wxTabDot()}<small>发现</small></button>
       <button class="on" style="position:relative;"><span>${G.wxTabMe}</span><span style="position:absolute;top:4px;right:22px;width:8px;height:8px;background:#fa5151;border-radius:50%;"></span><small>我</small></button>
     </div>`,
   };
 };
+/* ================= 加号菜单 / 扫一扫 ================= */
+window.wxOpenAddMenu = function () {
+  wxActionSheet("", [
+    { label: "发起群聊", onClick: () => toastDev("建群功能还在路上~") },
+    {
+      label: "添加朋友",
+      onClick: () => openWxContactsSub("new_friends", view),
+    },
+    { label: "扫一扫", onClick: () => openWxScan() },
+    { label: "收付款", onClick: () => toastDev("收付款还没接进来~") },
+  ]);
+};
+window.openWxScan = function () {
+  window._wxScanFrom = view === "wx_scan" ? "wx_me" : view || "wx_me";
+  push("wx_scan");
+};
+VIEWS.wx_scan = () => ({
+  cls: "dark",
+  html: `
+  <div class="wx-scan-page">
+    <div class="wx-scan-head">
+      <button onclick="back()">${G.chevL}</button>
+      <div>扫一扫</div>
+      <span style="width:22px;"></span>
+    </div>
+    <div class="wx-scan-body">
+      <div class="wx-scan-box">
+        <span class="wx-scan-corner tl"></span><span class="wx-scan-corner tr"></span>
+        <span class="wx-scan-corner bl"></span><span class="wx-scan-corner br"></span>
+        <span class="wx-scan-line"></span>
+      </div>
+      <div class="wx-scan-tip">将二维码放入框内，即可自动扫描</div>
+      <button class="wx-scan-btn" onclick="toastDev('相册里没有二维码~')">从相册选取</button>
+    </div>
+  </div>`,
+});
+
+/* ================= 通讯录二级页 ================= */
+window._wxSubType = "new_friends";
+window._wxSubFrom = "wx_contacts";
+window.openWxContactsSub = function (type, from) {
+  window._wxSubType = type;
+  window._wxSubFrom = from || "wx_contacts";
+  push("wx_contacts_sub");
+};
+window.wxSubBack = function () {
+  show(window._wxSubFrom || "wx_contacts", "pop");
+};
+function wxEmpty(text) {
+  return `<div style="padding:80px 20px;text-align:center;color:#999;font-size:15px;">${esc(text)}</div>`;
+}
+VIEWS.wx_contacts_sub = () => {
+  const t = window._wxSubType;
+  const titles = {
+    new_friends: "新的朋友",
+    chat_only: "仅聊天的朋友",
+    groups: "群聊",
+    tags: "标签",
+    official: "公众号",
+    service: "服务号",
+    enterprise: "企业微信联系人",
+  };
+  const av = (n) => `<div class="wx-av">${avatarFor(n, false)}</div>`;
+  let body = "";
+
+  if (t === "new_friends") {
+    const reqs = [
+      { name: "穆小恩", note: "来自搜索手机号" },
+      { name: "恩仔", note: "来自群聊「4组」" },
+      { name: "蓝胖胖", note: "来自附近的人" },
+    ];
+    body = `<div style="background:#fff;">${reqs
+      .map(
+        (r) => `<div class="wx-item" style="background:#fff;padding-left:16px;">
+        ${av(r.name)}
+        <div class="wx-info"><div class="wx-name">${esc(wxName(r.name))}</div><div class="wx-msg">${esc(r.note)}</div></div>
+        <button class="wx-mini-btn" onclick="event.stopPropagation();this.textContent='已添加';this.disabled=true;this.classList.add('done')">接受</button>
+      </div>`,
+      )
+      .join("")}</div>`;
+  } else if (t === "groups") {
+    const gs = chatNames.filter(isGroup);
+    body = gs.length
+      ? `<div style="background:#fff;">${gs
+          .map(
+            (n) =>
+              `<div class="wx-item" style="background:#fff;padding-left:16px;" onclick="chatId='${n}';push('chat')">${av(n)}<div class="wx-info"><div class="wx-name">${esc(wxName(n))}</div></div></div>`,
+          )
+          .join("")}</div>`
+      : wxEmpty("暂无群聊");
+  } else if (t === "tags") {
+    const tags = [
+      { name: "家人", members: ["穆小恩", "MuAMuA", "穆老爹", "恩恩"] },
+      { name: "朋友", members: ["丞哥", "穆祉丞", "穆瑞恩", "恩仔"] },
+      { name: "同事", members: ["小队长", "蓝胖胖"] },
+      { name: "不想说话", members: ["Mu", "pig", "cat"] },
+    ];
+    body = `<div style="background:#fff;">${tags
+      .map(
+        (g) => `<div class="wx-item" style="background:#fff;padding-left:16px;" onclick="toastDev()">
+        <div class="wx-av" style="background:#2782d7;display:grid;place-items:center;font-size:18px;">🏷️</div>
+        <div class="wx-info"><div class="wx-name">${esc(g.name)}</div><div class="wx-msg">${g.members.map((m) => esc(wxName(m))).join("、")}</div></div>
+      </div>`,
+      )
+      .join("")}</div>`;
+  } else if (t === "official" || t === "service" || t === "enterprise") {
+    const list =
+      t === "official"
+        ? ["TF家族", "时代峰峻", "穆祉丞工作室", "橙粉色研究所"]
+        : t === "service"
+          ? ["微信支付", "城市服务", "手机充值", "信用卡还款"]
+          : ["企业微信", "腾讯文档", "腾讯会议"];
+    body = `<div style="background:#fff;">${list
+      .map(
+        (n, i) =>
+          `<div class="wx-item" style="background:#fff;padding-left:16px;" onclick="toastDev()">
+        <div class="wx-av" style="background:${t === "service" ? "#07c160" : t === "enterprise" ? "#2782d7" : "#fca130"};display:grid;place-items:center;color:#fff;font-size:20px;">${esc(n.charAt(0))}</div>
+        <div class="wx-info"><div class="wx-name">${esc(n)}</div><div class="wx-msg">${t === "official" ? "公众号" : t === "service" ? "服务号" : "企业微信"}</div></div>
+      </div>`,
+      )
+      .join("")}</div>`;
+  } else {
+    body = wxEmpty("这里暂时还没有内容");
+  }
+
+  return {
+    cls: "wx-list",
+    html: `
+    <div class="nav solid" style="background:#ededed;border-bottom:.5px solid #dcdcdc;">
+      <button class="nb-back" onclick="wxSubBack()" style="border:none;background:none;color:#111;cursor:pointer;">${G.chevL}</button>
+      <div class="nb-title" style="opacity:1;">${titles[t] || "通讯录"}</div>
+      <div class="nb-right"></div>
+    </div>
+    <div class="wx-scroll" style="padding-top:98px;background:#ededed;padding-bottom:30px;">${body}</div>`,
+  };
+};
+
+/* ================= 我的：服务 / 收藏 / 设置 ================= */
+VIEWS.wx_services = () => {
+  const grid = [
+    ["💳", "收付款", "#07c160"],
+    ["👛", "钱包", "#f5a623"],
+    ["📱", "手机充值", "#4a90e2"],
+    ["💡", "生活缴费", "#f5c84c"],
+    ["🧾", "信用卡还款", "#fa5151"],
+    ["💰", "微粒贷", "#8c65e3"],
+    ["📈", "理财通", "#fa9d3b"],
+    ["❤️", "公益", "#ff6b81"],
+  ];
+  const rows = ["城市服务", "医疗健康", "出行服务", "车主服务", "生活服务"];
+  return {
+    cls: "wx-list",
+    html: `
+    <div class="nav solid" style="background:#ededed;border-bottom:.5px solid #dcdcdc;">
+      <button class="nb-back" onclick="back()" style="border:none;background:none;color:#111;cursor:pointer;">${G.chevL}</button>
+      <div class="nb-title" style="opacity:1;">服务</div>
+      <div class="nb-right"></div>
+    </div>
+    <div class="wx-scroll" style="padding-top:98px;background:#ededed;padding-bottom:30px;">
+      <div class="wx-service-grid">${grid
+        .map(
+          ([ic, label, color]) =>
+            `<button onclick="toastDev()"><span style="background:${color}1a;color:${color};">${ic}</span><small>${label}</small></button>`,
+        )
+        .join("")}</div>
+      <div style="background:#fff;margin-top:8px;">
+        ${rows
+          .map(
+            (r, i) =>
+              `<div class="wx-cell" onclick="toastDev()" style="${i === rows.length - 1 ? "" : "border-bottom:.5px solid #f0f0f0;"}"><div class="wx-cell-label">${r}</div><div class="wx-cell-right"><span class="wx-cell-chev">${G.chevR}</span></div></div>`,
+          )
+          .join("")}
+      </div>
+    </div>`,
+  };
+};
+
+VIEWS.wx_favorites = () => {
+  const items = [
+    ["🔗", "穆祉丞工作室的微博", "链接 · 11月14日"],
+    ["🖼️", "演唱会现场的晚霞", "图片 · 11月13日"],
+    ["📝", "给穆祉丞的生日小作文", "笔记 · 11月12日"],
+    ["💬", "和穆小恩的聊天记录", "聊天记录 · 11月11日"],
+    ["🎵", "循环了一整晚的歌", "音乐 · 11月10日"],
+  ];
+  return {
+    cls: "wx-list",
+    html: `
+    <div class="nav solid" style="background:#ededed;border-bottom:.5px solid #dcdcdc;">
+      <button class="nb-back" onclick="back()" style="border:none;background:none;color:#111;cursor:pointer;">${G.chevL}</button>
+      <div class="nb-title" style="opacity:1;">收藏</div>
+      <div class="nb-right"></div>
+    </div>
+    <div class="wx-scroll" style="padding-top:98px;background:#ededed;padding-bottom:30px;">
+      <div style="background:#fff;margin-top:8px;">
+        ${items
+          .map(
+            ([ic, title, sub], i) =>
+              `<div class="wx-cell" onclick="toastDev()" style="${i === items.length - 1 ? "" : "border-bottom:.5px solid #f0f0f0;"}">
+                <div class="wx-fav-icon">${ic}</div>
+                <div style="flex:1;min-width:0;"><div class="wx-cell-label" style="font-size:16px;">${title}</div><div class="wx-cell-sub">${sub}</div></div>
+              </div>`,
+          )
+          .join("")}
+      </div>
+    </div>`,
+  };
+};
+
+window.wxToggleNotify = function (el) {
+  window._wxNotifyOn = !window._wxNotifyOn;
+  if (el) el.classList.toggle("on", window._wxNotifyOn);
+  vib(8);
+};
+window.wxToggleDnd = function (el) {
+  window.isDnd = !window.isDnd;
+  if (el) el.classList.toggle("on", window.isDnd);
+  if (typeof updateDndBadge === "function") updateDndBadge();
+  vib(8);
+};
+VIEWS.wx_settings = () => {
+  const notifyOn = window._wxNotifyOn !== false;
+  const rows = ["账号与安全", "隐私", "通用", "帮助与反馈", "关于微信"];
+  return {
+    cls: "wx-list",
+    html: `
+    <div class="nav solid" style="background:#ededed;border-bottom:.5px solid #dcdcdc;">
+      <button class="nb-back" onclick="back()" style="border:none;background:none;color:#111;cursor:pointer;">${G.chevL}</button>
+      <div class="nb-title" style="opacity:1;">设置</div>
+      <div class="nb-right"></div>
+    </div>
+    <div class="wx-scroll" style="padding-top:98px;background:#ededed;padding-bottom:30px;">
+      <div style="background:#fff;margin-top:8px;">
+        ${wxCell("新消息通知", `<button class="sw ${notifyOn ? "on" : ""}" onclick="wxToggleNotify(this)"></button>`)}
+        ${wxCell("免打扰", `<button class="sw ${window.isDnd ? "on" : ""}" onclick="wxToggleDnd(this)"></button>`, "", true)}
+      </div>
+      <div style="background:#fff;margin-top:8px;">
+        ${rows
+          .map(
+            (r, i) =>
+              `<div class="wx-cell" onclick="toastDev()" style="${i === rows.length - 1 ? "" : "border-bottom:.5px solid #f0f0f0;"}"><div class="wx-cell-label">${r}</div><div class="wx-cell-right"><span class="wx-cell-chev">${G.chevR}</span></div></div>`,
+          )
+          .join("")}
+      </div>
+      <div style="background:#fff;margin-top:8px;">
+        ${wxCell("清空缓存", `<span style="color:#999;font-size:13px;">0 KB</span><span class="wx-cell-chev">${G.chevR}</span>`, "toastDev('缓存已经空啦~')", true)}
+      </div>
+    </div>`,
+  };
+};
+
+window.wxProfileMenu = function () {
+  wxActionSheet("", [
+    { label: "设置备注和标签", onClick: () => toastDev("备注信息已记下~") },
+    { label: "朋友权限", onClick: () => toastDev("朋友权限暂时不用设置~") },
+    { label: "加入黑名单", danger: true, onClick: () => toastDev("才不舍得拉黑呢~") },
+    { label: "投诉", onClick: () => toastDev() },
+  ]);
+};
+
 VIEWS.wx_profile = () => {
   const role = CFG.roles?.[chatId] || { initial: chatId.charAt(0) };
   const avatar = role.avatar || G.sil;
@@ -1170,7 +1970,7 @@ VIEWS.wx_profile = () => {
       <!-- 👇 左侧留空，全局会自动注入返回键 -->
       <div class="wx-head-left"></div>
       <h1 style="opacity:0;">资料</h1>
-      <div class="wx-actions" onclick="toastDev()">${G.dotsH}</div>
+      <div class="wx-actions"><span style="display:flex;cursor:pointer;" onclick="wxProfileMenu()">${G.dotsH}</span></div>
     </div>
 
     <div class="wx-scroll" style="background:#f7f7f7; padding-top: 88px; padding-bottom:20px;">
@@ -1181,7 +1981,7 @@ VIEWS.wx_profile = () => {
         </div>
         <div style="flex:1;">
           <div style="font-size:22px; font-weight:600; color:#111; display:flex; align-items:center; gap:6px;">
-            ${esc(dn(chatId))}
+            ${esc(wxName(chatId))}
             <span style="font-size:14px; color:#5ac8fa; font-weight:normal;">♂</span>
           </div>
           <div style="font-size:14px; color:#666; margin-top:6px;">微信号：${data.wxid}</div>
@@ -1206,10 +2006,10 @@ VIEWS.wx_profile = () => {
       </div>
 
       <div style="background:#fff; border-top:0.5px solid #e5e5ea; border-bottom:0.5px solid #e5e5ea;">
-        <div onclick="push('chat')" style="padding: 16px; display:flex; align-items:center; justify-content:center; gap:8px; color:#576b95; font-size:17px; border-bottom:0.5px solid #e5e5ea; cursor:pointer;" onpointerdown="this.style.background='#f0f0f0'" onpointerup="this.style.background='#fff'">
+        <div onclick="window._chatBackTo=null; push('chat')" style="padding: 16px; display:flex; align-items:center; justify-content:center; gap:8px; color:#576b95; font-size:17px; border-bottom:0.5px solid #e5e5ea; cursor:pointer;" onpointerdown="this.style.background='#f0f0f0'" onpointerup="this.style.background='#fff'">
           ${G.chat.replace('<svg', '<svg width="22" height="22"')} 发消息
         </div>
-        <div onclick="toastDev()" style="padding: 16px; display:flex; align-items:center; justify-content:center; gap:8px; color:#576b95; font-size:17px; cursor:pointer;" onpointerdown="this.style.background='#f0f0f0'" onpointerup="this.style.background='#fff'">
+        <div onclick="if(typeof dial==='function'){dial(chatId)}else{toastDev()}" style="padding: 16px; display:flex; align-items:center; justify-content:center; gap:8px; color:#576b95; font-size:17px; cursor:pointer;" onpointerdown="this.style.background='#f0f0f0'" onpointerup="this.style.background='#fff'">
           ${G.handset.replace('<svg', '<svg width="22" height="22"')} 音视频通话
         </div>
       </div>
@@ -1234,7 +2034,7 @@ VIEWS.wx_moments_user = () => {
       
       <div style="position:relative; height:320px; background:url('${data.cover}') center/cover;">
         <div style="position:absolute; right:16px; bottom:-20px; display:flex; align-items:flex-end; gap:12px;">
-          <span style="color:#fff; font-size:16px; font-weight:500; text-shadow:0 1px 3px rgba(0,0,0,0.5); padding-bottom:24px;">${esc(dn(chatId))}</span>
+          <span style="color:#fff; font-size:16px; font-weight:500; text-shadow:0 1px 3px rgba(0,0,0,0.5); padding-bottom:24px;">${esc(wxName(chatId))}</span>
           <img src="${avatar}" onclick="event.stopPropagation(); window._profileFrom='wx_moments_user'; push('wx_profile')" style="width:72px; height:72px; border-radius:8px; border:2px solid #fff; object-fit:cover; cursor:pointer;">
         </div>
       </div>
@@ -1255,7 +2055,7 @@ VIEWS.wx_moments_user = () => {
                <img src="${avatar}" style="width:100%; height:100%; border-radius:6px; object-fit:cover;">
             </div>
             <div style="flex:1; min-width:0;">
-              <div style="color: #576b95; font-size: 16px; font-weight: 600; margin-bottom: 4px;">${esc(dn(chatId))}</div>
+              <div style="color: #576b95; font-size: 16px; font-weight: 600; margin-bottom: 4px;">${esc(wxName(chatId))}</div>
               <div style="font-size:15px; color:#111; line-height:1.45; margin-bottom:8px; white-space:pre-wrap;">${esc(post.text)}</div>
               ${post.images && post.images.length > 0 ? `
                 <div style="display:grid; grid-template-columns:repeat(${post.images.length === 1 ? 1 : 3}, 1fr); gap:4px; margin-bottom: 6px; max-width:${post.images.length === 1 ? '180px' : '100%'};">
@@ -1287,7 +2087,7 @@ VIEWS.wx_moments_detail = () => {
   } else {
     const role = CFG.roles?.[chatId] || { initial: chatId.charAt(0) };
     avatar = role.avatar || G.sil;
-    authorName = dn(chatId);
+    authorName = wxName(chatId);
     const data = MOCK_MOMENTS_DATA[chatId] || { posts: [] };
     const postId = window._currentMomentId || 1;
     post = data.posts.find(p => p.id === postId) || data.posts[0];
@@ -1296,6 +2096,7 @@ VIEWS.wx_moments_detail = () => {
   if (!post) return { html: "动态不存在" };
 
   const getLikeAvatar = (user) => {
+    if (user === "我") return CFG.myAvatar || G.sil;
     return (CFG.roles && CFG.roles[user] && CFG.roles[user].avatar) ? CFG.roles[user].avatar : G.sil;
   };
 
@@ -1333,13 +2134,13 @@ VIEWS.wx_moments_detail = () => {
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
               <div style="font-size:13px; color:#999;">${post.time || '刚刚'}</div>
-              <div style="background:#f7f7f7; padding:4px 12px; border-radius:4px; color:#576b95; font-weight:600; letter-spacing:2px; cursor:pointer;" onclick="toastDev()">··</div>
+              <div style="background:#f7f7f7; padding:4px 12px; border-radius:4px; color:#576b95; font-weight:600; letter-spacing:2px; cursor:pointer;" onclick="wxMomentActionsCurrent()">··</div>
             </div>
           </div>
         </div>
 
         <!-- 灰框（点赞评论）：跳出右侧容器，直接占满下方，左边缘与上方大头像对齐 -->
-        <div style="background:#f7f7f7; border-radius:6px; margin-top: 10px; padding: 12px 12px 12px 0; display: flex; flex-direction: column; gap: 10px;">
+        <div style="background:#f7f7f7; border-radius:6px; margin-top: 10px; padding: 12px 12px 12px 0; display: ${((post.likes && post.likes.length) || (post.comments && post.comments.length)) ? "flex" : "none"}; flex-direction: column; gap: 10px;">
           
           <!-- 点赞区 -->
           ${post.likes && post.likes.length > 0 ? `
@@ -1381,11 +2182,213 @@ VIEWS.wx_moments_detail = () => {
     </div>
 
     <div style="position:absolute; bottom:0; left:0; right:0; height:50px; background:#f7f7f7; border-top:0.5px solid #e5e5ea; display:flex; align-items:center; padding:0 12px; gap:12px;">
-      <div style="flex:1; background:#fff; height:34px; border-radius:4px; display:flex; align-items:center; padding:0 10px; color:#999; font-size:14px;">发表评论：</div>
-      <span style="font-size:20px;">${G.smile}</span>
-      <span style="font-size:20px;">${G.photo}</span>
+      <div onclick="wxMomentCommentCurrent()" style="flex:1; background:#fff; height:34px; border-radius:4px; display:flex; align-items:center; padding:0 10px; color:#999; font-size:14px; cursor:text;">发表评论：</div>
+      <span style="font-size:20px;cursor:pointer;" onclick="wxMomentCommentCurrent()">${G.smile}</span>
+      <span style="font-size:20px;cursor:pointer;" onclick="toastDev('朋友圈图片功能还没做~')">${G.photo}</span>
     </div>`,
     init: () => {}
+  };
+};
+
+/* ================= 朋友圈交互 / 发表 ================= */
+window.wxRefreshWxView = function () {
+  if (["moments", "wx_moments_detail", "wx_moments_user", "wx_moments_self"].indexOf(view) < 0) return;
+  const old = APP.lastElementChild;
+  let top = 0;
+  if (old) {
+    const sc = old.querySelector(".wx-scroll, .scroll");
+    if (sc) top = sc.scrollTop;
+  }
+  show(view, "none");
+  const pg = APP.lastElementChild;
+  if (pg) {
+    const sc = pg.querySelector(".wx-scroll, .scroll");
+    if (sc) sc.scrollTop = top;
+  }
+};
+window.wxMomentComment = function (post) {
+  if (!post) return;
+  wxPrompt("评论", "说点什么...", function (txt) {
+    post.comments = post.comments || [];
+    post.comments.push({ user: "我", text: txt, replyTo: "" });
+    wxRefreshWxView();
+    toastDev("评论成功");
+  });
+};
+window.wxMomentActions = function (post) {
+  if (!post) return;
+  const likes = (post.likes = post.likes || []);
+  const liked = likes.indexOf("我") >= 0;
+  wxActionSheet("", [
+    {
+      label: liked ? "取消赞" : "赞",
+      onClick: () => {
+        if (liked) {
+          const i = likes.indexOf("我");
+          if (i >= 0) likes.splice(i, 1);
+        } else likes.push("我");
+        wxRefreshWxView();
+      },
+    },
+    { label: "评论", onClick: () => wxMomentComment(post) },
+  ]);
+};
+window.wxMomentActionsFromFeed = function (i) {
+  wxMomentActions((window._wxMomentFeed || [])[i]);
+};
+window.wxMomentActionsCurrent = function () {
+  wxMomentActions(window._currentMomentDetail && window._currentMomentDetail.post);
+};
+window.wxMomentCommentCurrent = function () {
+  wxMomentComment(window._currentMomentDetail && window._currentMomentDetail.post);
+};
+window.openMomentDetailFromSelf = function (i) {
+  const p = (window._wxMyPosts || [])[i];
+  if (!p) return;
+  window._momentDetailFrom = "wx_moments_self";
+  window._currentMomentDetail = {
+    author: "小狗团汪汪",
+    authorId: "我",
+    avatar: CFG.myAvatar || G.sil,
+    post: p,
+  };
+  push("wx_moments_detail");
+};
+
+window._wxComposeFrom = "moments";
+window.openMomentCompose = function () {
+  window._wxComposeFrom = view || "moments";
+  window._wxComposeImages = [];
+  push("wx_moment_compose");
+};
+window.wxComposeBack = function () {
+  show(window._wxComposeFrom || "moments", "pop");
+};
+window.wxComposePick = function () {
+  if (typeof openPhoneAlbumPicker !== "function")
+    return toastDev("相册还没准备好~");
+  openPhoneAlbumPicker({
+    multiple: true,
+    max: 9,
+    imagesOnly: true,
+    onDone: function (urls) {
+      urls.forEach(function (u) {
+        if (window._wxComposeImages.length < 9)
+          window._wxComposeImages.push(u);
+      });
+      wxRenderComposeImages();
+    },
+  });
+};
+window.wxComposeRemove = function (i) {
+  window._wxComposeImages.splice(i, 1);
+  wxRenderComposeImages();
+};
+window.wxRenderComposeImages = function () {
+  const box = document.getElementById("wx-compose-imgs");
+  if (!box) return;
+  box.innerHTML =
+    window._wxComposeImages
+      .map(
+        (u, i) =>
+          `<div class="wx-compose-img"><img src="${u}"><button onclick="event.stopPropagation();wxComposeRemove(${i})">×</button></div>`,
+      )
+      .join("") +
+    (window._wxComposeImages.length < 9
+      ? `<div class="wx-compose-add" onclick="wxComposePick()">＋</div>`
+      : "");
+};
+window.wxPublishMoment = function () {
+  const ta = document.getElementById("wx-compose-text");
+  const text = ta ? ta.value.trim() : "";
+  const imgs = (window._wxComposeImages || []).slice();
+  if (!text && !imgs.length) return toastDev("写点什么再发表吧~");
+  window._wxMyPosts.unshift({
+    id: Date.now(),
+    date: { day: "今天", month: "" },
+    text,
+    images: imgs,
+    location: "",
+    time: "刚刚",
+    likes: [],
+    comments: [],
+  });
+  window._wxComposeImages = [];
+  show(window._wxComposeFrom || "moments", "pop");
+  setTimeout(() => toastDev("发表成功"), 260);
+};
+VIEWS.wx_moment_compose = () => ({
+  cls: "wx-list",
+  html: `
+  <div class="nav solid" style="background:#fff;border-bottom:.5px solid #e5e5ea;">
+    <button onclick="wxComposeBack()" style="justify-self:start;border:none;background:none;color:#111;font-size:16px;cursor:pointer;">取消</button>
+    <div class="nb-title" style="opacity:1;">发表</div>
+    <button onclick="wxPublishMoment()" style="justify-self:end;border:none;background:none;color:#07c160;font-size:16px;font-weight:600;cursor:pointer;">发表</button>
+  </div>
+  <div class="wx-scroll" style="padding-top:98px;background:#fff;padding-bottom:30px;">
+    <div style="padding:16px;">
+      <textarea id="wx-compose-text" class="wx-compose-text" placeholder="这一刻的想法..."></textarea>
+      <div id="wx-compose-imgs" class="wx-compose-imgs"></div>
+      <div class="wx-compose-row" onclick="toastDev()"><span>📍 所在位置</span><span class="wx-compose-hint">所在位置</span></div>
+      <div class="wx-compose-row" onclick="toastDev()"><span>👥 谁可以看</span><span class="wx-compose-hint">公开</span></div>
+    </div>
+  </div>`,
+  init: () => {
+    wxRenderComposeImages();
+    setTimeout(() => {
+      const t = document.getElementById("wx-compose-text");
+      if (t) t.focus();
+    }, 100);
+  },
+});
+VIEWS.wx_moments_self = () => {
+  const posts = window._wxMyPosts || [];
+  const cover = MOCK_MOMENTS_DATA["穆祉丞"]?.cover || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800";
+  const myAvatar = CFG.myAvatar || "./data/avatar/miantuan.jpg";
+  return {
+    cls: "wx-list",
+    html: `
+    <div class="wx-scroll" style="background:#fff;padding-bottom:20px;">
+      <div style="position:relative;height:320px;background:url('${cover}') center/cover;">
+        <div style="position:absolute;inset:0;background:linear-gradient(transparent 60%,rgba(0,0,0,.35));"></div>
+        <button class="nb-back" onclick="back()" style="position:absolute;top:45px;left:10px;z-index:20;width:36px;height:36px;border-radius:50%;border:none;background:rgba(0,0,0,.25);color:#fff;display:grid;place-items:center;cursor:pointer;">${G.chevL}</button>
+        <button onclick="openMomentCompose()" style="position:absolute;top:45px;right:14px;z-index:20;border:none;background:rgba(0,0,0,.25);color:#fff;border-radius:18px;padding:7px 12px;font-size:13px;cursor:pointer;">发表</button>
+        <div style="position:absolute;right:16px;bottom:-20px;display:flex;align-items:flex-end;gap:12px;">
+          <span style="color:#fff;font-size:16px;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.5);padding-bottom:24px;">小狗团汪汪</span>
+          <img src="${myAvatar}" style="width:72px;height:72px;border-radius:8px;border:2px solid #fff;object-fit:cover;">
+        </div>
+      </div>
+      <div style="margin-top:30px;">
+        ${
+          posts.length === 0
+            ? `<div class="wx-moments-empty"><div class="wx-moments-empty-line"></div><div class="wx-moments-empty-dot"></div><div class="wx-moments-empty-line"></div></div>
+               <div style="text-align:center;color:#999;font-size:14px;margin-top:16px;">还没有发过朋友圈</div>
+               <div style="text-align:center;margin-top:16px;"><button class="wx-mini-btn" style="padding:7px 18px;" onclick="openMomentCompose()">发表第一条</button></div>`
+            : posts
+                .map(
+                  (post, index) => `<div onclick="openMomentDetailFromSelf(${index})" style="display:flex;gap:16px;padding:16px;border-bottom:.5px solid #f0f0f0;cursor:pointer;">
+              <div style="width:44px;height:44px;flex-shrink:0;"><img src="${myAvatar}" style="width:100%;height:100%;border-radius:6px;object-fit:cover;"></div>
+              <div style="flex:1;min-width:0;">
+                <div style="color:#576b95;font-size:16px;font-weight:600;margin-bottom:4px;">小狗团汪汪</div>
+                <div style="font-size:15px;color:#111;line-height:1.45;margin-bottom:8px;white-space:pre-wrap;">${esc(post.text)}</div>
+                ${
+                  post.images && post.images.length
+                    ? `<div style="display:grid;grid-template-columns:repeat(${post.images.length === 1 ? 1 : 3},1fr);gap:4px;margin-bottom:6px;max-width:${post.images.length === 1 ? "180px" : "100%"};">${post.images
+                        .map(
+                          (img) =>
+                            `<div style="${post.images.length === 1 ? "aspect-ratio:4/3" : "aspect-ratio:1"};background:#eee;border-radius:2px;overflow:hidden;"><img src="${img}" style="width:100%;height:100%;object-fit:cover;"></div>`,
+                        )
+                        .join("")}</div>`
+                    : ""
+                }
+                <div style="font-size:13px;color:#999;margin-top:8px;">${esc(post.time || "刚刚")}</div>
+              </div>
+            </div>`,
+                )
+                .join("")
+        }
+      </div>
+    </div>`,
   };
 };
 
@@ -1403,6 +2406,13 @@ VIEWS.moments = () => {
       });
     });
   }
+  (window._wxMyPosts || []).forEach((post) => {
+    allPosts.push({
+      ...post,
+      author: "小狗团汪汪",
+      avatar: CFG.myAvatar || G.sil,
+    });
+  });
   allPosts.sort((a, b) => b.id - a.id);
 
   window._wxMomentFeed = allPosts;
@@ -1461,7 +2471,7 @@ VIEWS.moments = () => {
       <button class="nb-back" onclick="back()" style="pointer-events:auto; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">${G.chevL}</button>
       <div id="moments-nav-title" style="position: absolute; left: 50%; transform: translateX(-50%); font-size: 17px; font-weight: 600; opacity: 0; transition: opacity 0.3s;">朋友圈</div>
       <div style="pointer-events:auto; display: flex; gap: 18px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));">
-        <span onclick="toastDev()">${G.camera}</span>
+        <span onclick="openMomentCompose()" style="cursor:pointer;">${G.camera}</span>
       </div>
     </div>
 
@@ -1492,7 +2502,7 @@ VIEWS.moments = () => {
               
               <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
                 <span style="font-size: 12px; color: #999;">${esc(m.time)}</span>
-                <div style="background: #f7f7f7; padding: 2px 8px; border-radius: 4px; color: #576b95; font-size: 13px; font-weight: 500; cursor: pointer;" onclick="event.stopPropagation(); toastDev()">•••</div>
+                <div style="background: #f7f7f7; padding: 2px 8px; border-radius: 4px; color: #576b95; font-size: 13px; font-weight: 500; cursor: pointer;" onclick="event.stopPropagation(); wxMomentActionsFromFeed(${index})">•••</div>
               </div>
 
               ${renderSocial(m.likes, m.comments)}

@@ -4470,3 +4470,570 @@ svg {
   background: #ededed;
   font-weight: 400;
 }
+/* =========================================
+   微信补充功能样式（表情/更多面板、搜索、操作菜单、朋友圈发表、扫一扫等）
+   ========================================= */
+
+/* ---- 输入框下方的表情 / 更多面板 ---- */
+.wx-panel {
+    flex: none;
+    height: 0;
+    overflow: hidden;
+    background: #f7f7f7;
+    border-top: .5px solid #dcdcdc;
+    transition: height .3s cubic-bezier(.2, .9, .25, 1);
+}
+.wx-panel.open { height: 260px; }
+.wx-panel-in {
+    height: 260px;
+    box-sizing: border-box;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+.wx-panel-in::-webkit-scrollbar { display: none; }
+.wx-emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 2px;
+}
+.wx-emoji-grid button {
+    height: 40px;
+    font-size: 24px;
+    line-height: 1;
+    background: transparent;
+    border: none;
+    border-radius: 7px;
+}
+.wx-emoji-grid button:active { background: #e2e2e7; }
+.wx-panel-tip {
+    text-align: center;
+    color: #999;
+    font-size: 12px;
+    padding-top: 14px;
+}
+.wx-plus-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px 8px;
+    padding: 10px 4px;
+}
+.wx-plus-grid button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    background: transparent;
+    border: none;
+    font-size: 12px;
+    color: #555;
+}
+.wx-plus-ic {
+    width: 54px;
+    height: 54px;
+    border-radius: 13px;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 26px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+.wx-plus-grid button:active .wx-plus-ic { background: #ececf0; }
+
+/* ---- 聊天里的位置 / 红包 / 转账卡片 ---- */
+.wx-bb.card-bb { background: transparent !important; padding: 0; }
+.wx-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 13px 14px;
+    min-width: 185px;
+    max-width: 240px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+}
+.wx-card-body { flex: 1; min-width: 0; }
+.wx-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.35;
+    word-break: break-word;
+}
+.wx-card-sub {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+    word-break: break-word;
+}
+.wx-card-emoji { font-size: 27px; flex: none; }
+.wx-red-card { background: #fa9d3b; color: #fff; }
+.wx-transfer-card { background: #f5a623; color: #fff; }
+.wx-red-card .wx-card-sub,
+.wx-transfer-card .wx-card-sub { color: rgba(255, 255, 255, .82); }
+
+/* ---- 通用底部操作菜单 ---- */
+.wx-sheet-wrap {
+    position: absolute;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+.wx-sheet-mask {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .35);
+    animation: wxFadeIn .2s ease;
+}
+.wx-sheet {
+    position: relative;
+    width: 100%;
+    max-height: 72%;
+    overflow-y: auto;
+    background: #f7f7f7;
+    border-radius: 14px 14px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: wxSheetUp .26s cubic-bezier(.2, .9, .25, 1);
+}
+.wx-sheet-title {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+    padding: 14px;
+}
+.wx-sheet-item {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    color: #111;
+    background: #fff;
+    border: none;
+    border-top: .5px solid #e5e5ea;
+    font-family: inherit;
+}
+.wx-sheet-item:active { background: #f2f2f7; }
+.wx-sheet-item.danger { color: #fa5151; }
+@keyframes wxSheetUp { from { transform: translateY(100%); } }
+@keyframes wxFadeIn { from { opacity: 0; } }
+
+/* ---- 输入弹窗 ---- */
+.wx-prompt {
+    position: relative;
+    width: 320px;
+    max-width: calc(100% - 40px);
+    margin-bottom: 34vh;
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    box-sizing: border-box;
+    animation: wxSheetUp .24s cubic-bezier(.2, .9, .25, 1);
+}
+.wx-prompt-title {
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    color: #111;
+}
+.wx-prompt-input {
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #f2f2f7;
+    border: none;
+    font-size: 15px;
+    color: #111;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+.wx-prompt-btns { display: flex; gap: 10px; margin-top: 16px; }
+.wx-prompt-btns button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+    background: #f2f2f7;
+    color: #111;
+    font-family: inherit;
+}
+.wx-prompt-btns button.primary { background: #07c160; color: #fff; font-weight: 600; }
+
+/* ---- 图片选择器 ---- */
+.wx-picker {
+    position: relative;
+    width: 100%;
+    background: #fff;
+    border-radius: 14px 14px 0 0;
+    padding: 14px 16px calc(22px + env(safe-area-inset-bottom));
+    box-sizing: border-box;
+    animation: wxSheetUp .26s cubic-bezier(.2, .9, .25, 1);
+}
+.wx-picker-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #111;
+}
+.wx-picker-head button {
+    border: none;
+    background: none;
+    color: #576b95;
+    font-size: 15px;
+    font-family: inherit;
+}
+.wx-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    max-height: 46vh;
+    overflow-y: auto;
+}
+.wx-picker-cell {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #eee;
+}
+.wx-picker-cell img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ---- 全局搜索 ---- */
+.wx-search-head {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 54px 12px 10px;
+    background: #ededed;
+}
+.wx-search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff;
+    border-radius: 8px;
+    height: 36px;
+    padding: 0 10px;
+}
+.wx-search-box > svg {
+    width: 16px;
+    height: 16px;
+    stroke: #999;
+    fill: none;
+    flex: none;
+}
+.wx-search-box input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 15px;
+    color: #111;
+    font-family: inherit;
+}
+.wx-search-cancel {
+    border: none;
+    background: none;
+    color: #07c160;
+    font-size: 15px;
+    padding: 0 2px;
+    font-family: inherit;
+}
+.wx-search-sec {
+    padding: 10px 16px 6px;
+    font-size: 13px;
+    color: #888;
+    background: #f7f7f7;
+}
+.wx-search-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: .5px solid #f0f0f0;
+    background: #fff;
+}
+.wx-search-av {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex: none;
+    background: #eee;
+}
+.wx-search-info { flex: 1; min-width: 0; }
+.wx-search-name { font-size: 15px; color: #111; }
+.wx-search-sub {
+    font-size: 12px;
+    color: #999;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.wx-search-time { font-size: 11px; color: #b2b2b2; flex: none; align-self: flex-start; margin-top: 2px; }
+.wx-search-empty { padding: 60px 20px; text-align: center; color: #999; font-size: 14px; }
+
+/* ---- 通用列表行 / 聊天信息 ---- */
+.wx-cell {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    background: #fff;
+    min-height: 56px;
+    box-sizing: border-box;
+}
+.wx-cell-label { flex: 1; font-size: 16px; color: #111; }
+.wx-cell-right { display: flex; align-items: center; gap: 6px; }
+.wx-cell-sub { font-size: 12px; color: #999; margin-top: 3px; }
+.wx-cell-chev { display: flex; }
+.wx-cell-chev svg { width: 14px; height: 20px; stroke: #c7c7cc; fill: none; }
+.wx-member-grid { display: flex; flex-wrap: wrap; gap: 16px; }
+.wx-member { width: 56px; text-align: center; }
+.wx-member-av {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #eee;
+    display: grid;
+    place-items: center;
+    font-size: 26px;
+    color: #999;
+}
+.wx-member-av img,
+.wx-member-av .app-icon-fallback,
+.wx-member-av svg {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.wx-member-av.add { border: 1px dashed #ccc; background: #fafafa; }
+.wx-member-name {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ---- 通讯录二级页 / 服务 / 收藏 ---- */
+.wx-mini-btn {
+    border: none;
+    background: #07c160;
+    color: #fff;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    flex: none;
+    font-family: inherit;
+}
+.wx-mini-btn.done { background: #f2f2f2; color: #999; }
+.wx-service-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px 4px;
+    background: #fff;
+    padding: 20px 8px;
+}
+.wx-service-grid button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: #333;
+    font-family: inherit;
+}
+.wx-service-grid button > span {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+}
+.wx-fav-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: #f2f2f7;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    margin-right: 12px;
+    flex: none;
+}
+
+/* ---- 扫一扫 ---- */
+.wx-scan-page {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+.wx-scan-head {
+    flex: none;
+    height: 100px;
+    padding: 54px 16px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 17px;
+    font-weight: 500;
+}
+.wx-scan-head button { border: none; background: none; color: #fff; padding: 0; display: flex; }
+.wx-scan-head svg { width: 14px; height: 24px; stroke: #fff; fill: none; stroke-width: 2.2; }
+.wx-scan-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    padding-bottom: 80px;
+}
+.wx-scan-box {
+    position: relative;
+    width: 230px;
+    height: 230px;
+    background: rgba(255, 255, 255, .03);
+}
+.wx-scan-corner { position: absolute; width: 26px; height: 26px; border: 3px solid #07c160; }
+.wx-scan-corner.tl { top: 0; left: 0; border-right: none; border-bottom: none; }
+.wx-scan-corner.tr { top: 0; right: 0; border-left: none; border-bottom: none; }
+.wx-scan-corner.bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+.wx-scan-corner.br { bottom: 0; right: 0; border-left: none; border-top: none; }
+.wx-scan-line {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: 8px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #07c160, transparent);
+    box-shadow: 0 0 12px #07c160;
+    animation: wxScan 2.2s ease-in-out infinite;
+}
+@keyframes wxScan {
+    0%, 100% { top: 8px; }
+    50% { top: 218px; }
+}
+.wx-scan-tip { color: #aaa; font-size: 14px; }
+.wx-scan-btn {
+    border: 1px solid rgba(255, 255, 255, .3);
+    background: rgba(255, 255, 255, .08);
+    color: #fff;
+    border-radius: 20px;
+    padding: 9px 22px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+/* ---- 朋友圈发表 ---- */
+.wx-compose-text {
+    width: 100%;
+    min-height: 140px;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #111;
+    background: transparent;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+.wx-compose-imgs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 12px;
+}
+.wx-compose-img {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #eee;
+}
+.wx-compose-img img { width: 100%; height: 100%; object-fit: cover; }
+.wx-compose-img button {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, .55);
+    color: #fff;
+    font-size: 15px;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    padding: 0;
+}
+.wx-compose-add {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    border: 1px dashed #ccc;
+    display: grid;
+    place-items: center;
+    font-size: 30px;
+    color: #bbb;
+    background: #fafafa;
+}
+.wx-compose-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-top: .5px solid #f0f0f0;
+    font-size: 15px;
+    color: #111;
+    margin-top: 10px;
+}
+.wx-compose-hint { color: #999; font-size: 14px; }
+
+/* ---- 我的朋友圈空状态 ---- */
+.wx-moments-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 80px;
+}
+.wx-moments-empty-line { width: 80px; height: 1px; background: #dcdcdc; }
+.wx-moments-empty-dot { width: 4px; height: 4px; border-radius: 50%; background: #dcdcdc; }
+
+/* ---- 底部 Tab 未读角标 ---- */
+.wx-tab-badge {
+    position: absolute;
+    top: 0;
+    right: calc(50% - 28px);
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: #fa5151;
+    color: #fff;
+    font-size: 10px;
+    line-height: 16px;
+    text-align: center;
+    box-sizing: border-box;
+}

@@ -4,76 +4,172 @@
 
 window.currentMediaList = [];
 
-// 模拟一些高质量占位图和视频
+// 相册里是这部手机真正拍过的照片（本地素材，不依赖外网）
 const MOCK_PHOTOS = [
   // 分组 1：今天
   { type: 'section', title: '今天', date: '2026年11月15日' },
-  { src: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop" },
-  { src: "./data/chat/1.mp4", isVideo: true, time: "0:15" },
-  { src: "p1" }, // 渐变色兜底
-  { src: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop" },
-  
+  { src: "./data/album/mzc.jpg" },
+  { src: "./data/album/me.jpg" },
+  { src: "./data/album/cat.jpg" },
+  { src: "./data/album/1.mp4", isVideo: true, time: "0:15" },
+
   // 分组 2：昨天
   { type: 'section', title: '昨天', date: '2026年11月14日' },
-  { src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop" },
-  { src: "p2" },
-  { src: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=400&auto=format&fit=crop" },
-  { src: "./data/chat/1.mp4", isVideo: true, time: "1:20" },
-  { src: "p3" },
-  { src: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=400&auto=format&fit=crop" },
-  { src: "p4" },
-  { src: "p5" },
-  
+  { src: "./data/album/enzai.jpg" },
+  { src: "./data/album/leader.jpg" },
+  { src: "./data/album/rabbit.jpg" },
+  { src: "./data/album/1tiger.jpg" },
+  { src: "./data/album/mama.jpg" },
+
   // 分组 3：2026年10月
   { type: 'section', title: '2026年10月', date: '' },
-  { src: "p6" },
-  { src: "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=400&auto=format&fit=crop" },
-  { src: "p7" },
-  { src: "p8" },
-  { src: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=400&auto=format&fit=crop" },
-  { src: "p9" }
+  { src: "./data/album/enen.jpg" },
+  { src: "./data/album/mu.jpg" },
+  { src: "./data/album/lpp.jpg" },
+  { src: "./data/album/pigcry.jpg" },
+  { src: "./data/album/le.jpg" },
+  { src: "./data/album/2mama.jpg" }
 ];
 
-VIEWS.photos = () => {
-  // 如果 CFG 里配置了真实的相册，就用配置的，否则使用丰富的 Mock 数据
+function getPhoneDisplayList() {
   let displayList = [];
-  
-  if (typeof photoSections !== 'undefined' && photoSections.length > 0 && photoSections[0][1].length > 1) {
-    // 把配置的数据加上时间分组
-    photoSections.forEach(sec => {
-      displayList.push({ type: 'section', title: sec[2] || sec[0], date: sec[0] });
-      sec[1].forEach(src => {
+  if (
+    typeof photoSections !== "undefined" &&
+    photoSections.length > 0 &&
+    photoSections[0][1].length > 1
+  ) {
+    photoSections.forEach((sec) => {
+      displayList.push({ type: "section", title: sec[2] || sec[0], date: sec[0] });
+      sec[1].forEach((src) => {
         displayList.push({ src });
       });
     });
   } else {
-    // 默认兜底数据（保留之前的 Mock 数据）
-    displayList = [
-      { type: 'section', title: '今天', date: '2026年11月15日' },
-      { src: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop" },
-      { src: "./data/chat/1.mp4", isVideo: true, time: "0:15" },
-      { src: "p1" },
-      { src: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop" },
-      
-      { type: 'section', title: '昨天', date: '2026年11月14日' },
-      { src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop" },
-      { src: "p2" },
-      { src: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=400&auto=format&fit=crop" },
-      { src: "./data/chat/1.mp4", isVideo: true, time: "1:20" },
-      { src: "p3" },
-      { src: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=400&auto=format&fit=crop" },
-      { src: "p4" },
-      { src: "p5" },
-      
-      { type: 'section', title: '2026年10月', date: '' },
-      { src: "p6" },
-      { src: "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=400&auto=format&fit=crop" },
-      { src: "p7" },
-      { src: "p8" },
-      { src: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=400&auto=format&fit=crop" },
-      { src: "p9" }
-    ];
+    displayList = MOCK_PHOTOS.map((item) => ({ ...item }));
   }
+  return displayList;
+}
+
+// 给微信/其他 App 用的真实相册数据
+window.getPhoneDisplayList = getPhoneDisplayList;
+window.getPhoneMedia = function () {
+  return getPhoneDisplayList().filter(
+    (item) =>
+      !item.type &&
+      item.src &&
+      (item.src.startsWith("http") ||
+        item.src.startsWith("./") ||
+        item.src.startsWith("/")),
+  );
+};
+
+// iOS 风格相册选择器（微信发图 / 朋友圈配图共用）
+window.openPhoneAlbumPicker = function (opts) {
+  opts = opts || {};
+  const display = getPhoneDisplayList();
+  const multiple = !!opts.multiple;
+  const max = multiple ? opts.max || 9 : 1;
+  const imagesOnly = !!opts.imagesOnly;
+  const selected = [];
+  const root = document.createElement("div");
+  root.className = "phone-album-picker";
+  root.style.cssText =
+    "position:absolute;inset:0;z-index:999999;background:#fff;display:flex;flex-direction:column;color:#111;";
+
+  const close = () => {
+    root.remove();
+    window._phoneAlbumState = null;
+  };
+  const finish = () => {
+    if (!selected.length) return;
+    const out = selected.slice();
+    close();
+    if (opts.onDone) opts.onDone(out);
+  };
+  const render = () => {
+    const header = `<div style="flex:none;height:88px;padding:44px 16px 0;display:flex;align-items:flex-end;justify-content:space-between;background:#fff;border-bottom:.5px solid #e5e5ea;">
+      <button onclick="window.phoneAlbumClose()" style="border:none;background:none;color:#111;font-size:16px;padding:0 0 10px;cursor:pointer;">取消</button>
+      <div style="font-size:17px;font-weight:600;padding-bottom:10px;">照片</div>
+      <button onclick="window.phoneAlbumDone()" style="border:none;background:none;color:${selected.length ? "#007aff" : "#c7c7cc"};font-size:16px;font-weight:600;padding:0 0 10px;cursor:pointer;">${multiple ? "完成" + (selected.length ? "(" + selected.length + ")" : "") : "选择"}</button>
+    </div>`;
+    let body = "";
+    display.forEach((item, i) => {
+      if (item.type === "section") {
+        body += `<div style="grid-column:1/-1;padding:14px 16px 8px;font-size:15px;font-weight:600;color:#111;">${esc(item.title)}${item.date ? `<span style="font-size:12px;color:#8e8e93;font-weight:400;margin-left:6px;">${esc(item.date)}</span>` : ""}</div>`;
+        return;
+      }
+      const isVideo = item.isVideo || /\.(mp4|webm|mov)$/i.test(item.src || "");
+      if (imagesOnly && isVideo) return;
+      if (!item.src || item.src.length <= 5) return;
+      const idx = selected.indexOf(item.src);
+      body += `<div style="position:relative;aspect-ratio:1;background:#eee;overflow:hidden;cursor:pointer;" onclick="window.phoneAlbumTap(${i})">
+        ${
+          isVideo
+            ? `<video src="${item.src}" muted preload="metadata" style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+               <div style="position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:22px;text-shadow:0 1px 3px #000;">▶</div>
+               <div style="position:absolute;left:6px;bottom:4px;color:#fff;font-size:10px;text-shadow:0 1px 2px #000;">${esc(item.time || "0:00")}</div>`
+            : `<img src="${item.src}" style="width:100%;height:100%;object-fit:cover;">`
+        }
+        ${
+          idx >= 0
+            ? `<div style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:#007aff;color:#fff;font-size:12px;display:grid;place-items:center;border:2px solid #fff;">${multiple ? idx + 1 : "✓"}</div>`
+            : ""
+        }
+      </div>`;
+    });
+    root.innerHTML =
+      header +
+      `<div style="flex:1;overflow-y:auto;padding:0 4px 30px;"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;">${body || `<div style="grid-column:1/-1;padding:80px 0;text-align:center;color:#999;">相册里没有照片</div>`}</div></div>`;
+    window._phoneAlbumState = {
+      display,
+      selected,
+      multiple,
+      max,
+      imagesOnly,
+      root,
+      finish,
+      close,
+      render,
+    };
+  };
+  window.phoneAlbumTap = function (i) {
+    const s = window._phoneAlbumState;
+    if (!s) return;
+    const item = s.display[i];
+    if (!item || item.type) return;
+    if (
+      s.imagesOnly &&
+      (item.isVideo || /\.(mp4|webm|mov)$/i.test(item.src || ""))
+    )
+      return;
+    if (s.max === 1) {
+      s.selected.length = 0;
+      s.selected.push(item.src);
+      return s.finish();
+    }
+    const pos = s.selected.indexOf(item.src);
+    if (pos >= 0) s.selected.splice(pos, 1);
+    else if (s.selected.length >= s.max) {
+      if (typeof toastDev === "function")
+        toastDev("最多只能选 " + s.max + " 张");
+      return;
+    } else s.selected.push(item.src);
+    s.render();
+  };
+  window.phoneAlbumDone = function () {
+    const s = window._phoneAlbumState;
+    if (s) s.finish();
+  };
+  window.phoneAlbumClose = function () {
+    const s = window._phoneAlbumState;
+    if (s) s.close();
+  };
+  render();
+  document.getElementById("screen").appendChild(root);
+};
+
+VIEWS.photos = () => {
+  const displayList = getPhoneDisplayList();
 
   // 记录所有纯媒体路径，给全屏查看器使用
   window.currentMediaList = displayList.filter(item => !item.type).map(item => item.src);
@@ -85,7 +181,6 @@ VIEWS.photos = () => {
       <!-- 顶部标题 -->
       <div style="display:flex; justify-content:space-between; align-items:center; margin: 10px 16px 4px;">
          <h1 class="lt" style="margin:0; font-size:32px; font-weight:700;">最近项目</h1>
-         <span onclick="toastDev()" style="color:#007aff; font-size:16px; cursor:pointer;">选择</span>
       </div>
       
       <!-- 👇 核心修改：换用 Grid 布局，完美 3 列 -->
