@@ -142,7 +142,9 @@ var INCOMING = [];
     'rabbit': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['给你吃胡萝卜。'], them:['吧唧吧唧。'] }
+        { mine:['我快到家了。'], them:['好呀。','那我去把饭热一下。'] },
+        { mine:['你先吃吧。'], them:['我先吃了。','但是我留的是你爱吃的那个。','我不太爱吃那个。'] },
+        { mine:['对不起，我回来晚了。'], them:['没关系呀。','我等你不算晚。'] }
       ],
       fragment: null
     },
@@ -237,7 +239,7 @@ var INCOMING = [];
     恩恩: "哦。",
     pig: "那我把蛋糕吃了啊",
     cat: "……喵都不喵了",
-    rabbit: "我先睡啦",
+    rabbit: "我不催你的，真的。",
     tiger: "哼",
   };
 
@@ -254,7 +256,7 @@ var INCOMING = [];
     丞丞: "chengcheng",
     pig: "xiaopangpang",
     cat: "laopo_zuo",
-    rabbit: "tuzi_guai",
+    rabbit: "laopo_guai",
     tiger: "laohu_henmeng",
   };
   S.notes = [
