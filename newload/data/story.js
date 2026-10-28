@@ -184,7 +184,7 @@ var INCOMING = [];
 
   /* 完整时间线：所有人都会按秒数弹出来 */
   S.timeline = [
-    { at: 0, type:'notify', from:'穆小恩', text:'姐们儿 你人呢？手机怎么在街上？' },
+    { at: 0, type:'notify', from:'穆小恩', text:'不是 你人呢？手机怎么在街上？' },
     { at: 7, type:'notify', from:'穆小恩', text:'刚刚还跟我说话，一转眼人没了。' },
     { at: 10, type:'notify', from:'穆祉丞', text:'你去哪里了？马上快要到我的生日零点了，蛋糕已经摆好了，就差你。' },
     { at: 13, type:'notify', from:'pig', text:'馋死了' },

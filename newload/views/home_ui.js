@@ -297,7 +297,7 @@
         };
       }
       switchVinylImage(true);
-      bgm.volume = 0.3; 
+      bgm.volume = 0.9; 
       bgm.play().catch(e => console.log("播放被拦截:", e));
     } else {
       if (discWrap) {
