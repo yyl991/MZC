@@ -107,15 +107,26 @@ VIEWS.wx_moments_detail = () => {
             <div style="color:#576b95; font-size:16px; font-weight:600; margin-bottom: 6px;">${esc(authorName)}</div>
             <div style="font-size:15px; color:#111; line-height:1.45; margin-bottom:8px; white-space:pre-wrap;">${esc(post.text)}</div>
             
-            ${post.images && post.images.length > 0 ? `
-              <div style="display:flex; flex-direction: column; margin-bottom: 8px;">
-                ${post.images.map(img => `<img src="${img}" style="max-width: 220px; width: 100%; aspect-ratio: ${post.images.length === 1 ? '4/3' : '1'}; object-fit: cover; border-radius: 4px;" onclick="openMediaViewer(['${img}'], 0)">`).join('')}
-              </div>
-            ` : ''}
+            ${(() => {
+              const imgs = post.images || [];
+              if (!imgs.length) return "";
+              const cols = imgs.length === 1 ? 1 : imgs.length <= 4 ? 2 : 3;
+              const box = imgs.length === 1 ? "width:72%;aspect-ratio:4/3;" : "width:100%;aspect-ratio:1;";
+              return `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:4px;max-width:${cols === 1 ? "72%" : "100%"};margin-bottom:10px;">${imgs
+                .map((img) => `<img src="${img}" style="${box}object-fit:cover;border-radius:3px;display:block;cursor:pointer;" onclick="event.stopPropagation();openMediaViewer(['${img}'], 0)">`)
+                .join("")}</div>`;
+            })()}
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
               <div style="font-size:13px; color:#999;">${post.time || '刚刚'}</div>
-              <div style="background:#f7f7f7; padding:4px 12px; border-radius:4px; color:#576b95; font-weight:600; letter-spacing:2px; cursor:pointer;" onclick="wxMomentActionsCurrent()">··</div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="display:inline-flex; align-items:center; background:#4c4c4c; border-radius:6px; overflow:hidden;">
+                  <button onclick="event.stopPropagation();wxMomentLikeCurrent()" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:14px;padding:8px 14px;font-family:inherit;">${G.heart.replace('<svg', '<svg width="16" height="16" style="color:#fff;"')} 赞</button>
+                  <span style="width:.5px;height:20px;background:#666;"></span>
+                  <button onclick="event.stopPropagation();wxMomentCommentCurrent()" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:14px;padding:8px 14px;font-family:inherit;">${G.comment.replace('<svg', '<svg width="16" height="16" style="color:#fff;"')} 评论</button>
+                </div>
+                <div style="width:30px;height:26px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);border-radius:6px;display:grid;place-items:center;color:#333;cursor:pointer;" onclick="event.stopPropagation();wxMomentActionsCurrent()">${G.dotsH}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -166,6 +177,7 @@ VIEWS.wx_moments_detail = () => {
       <div onclick="wxMomentCommentCurrent()" style="flex:1; background:#fff; height:34px; border-radius:4px; display:flex; align-items:center; padding:0 10px; color:#999; font-size:14px; cursor:text;">发表评论：</div>
       <span style="font-size:20px;cursor:pointer;" onclick="wxMomentCommentCurrent()">${G.smile}</span>
       <span style="font-size:20px;cursor:pointer;" onclick="toastDev('朋友圈图片功能还没做~')">${G.photo}</span>
+      <button onclick="wxMomentCommentCurrent()" style="height:30px;padding:0 14px;border-radius:5px;background:#07c160;color:#fff;border:none;font-size:14px;font-family:inherit;opacity:.55;">发送</button>
     </div>`,
     init: () => {}
   };
@@ -217,6 +229,18 @@ window.wxMomentActions = function (post) {
 window.wxMomentActionsFromFeed = function (i) {
   wxMomentActions((window._wxMomentFeed || [])[i]);
 };
+window.wxMomentLikeCurrent = function () {
+  const p = window._currentMomentDetail && window._currentMomentDetail.post;
+  if (!p) return;
+  p.likes = p.likes || [];
+  const i = p.likes.indexOf("我");
+  if (i >= 0) p.likes.splice(i, 1);
+  else p.likes.push("我");
+  if (typeof vib === "function") vib(8);
+  if (i < 0 && typeof sfx === "function") sfx("send");
+  show("wx_moments_detail", "none");
+};
+
 window.wxMomentActionsCurrent = function () {
   wxMomentActions(window._currentMomentDetail && window._currentMomentDetail.post);
 };
