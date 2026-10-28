@@ -392,8 +392,11 @@ VIEWS.wechat = () => {
   return {
     cls: "wx-list",
     html: `
-    <div class="wx-head"><div class="wx-head-left"></div><h1>微信</h1><div class="wx-actions"><span style="display:flex;cursor:pointer;" onclick="openWxSearch('wechat')">${G.wxSearch}</span><span style="display:flex;cursor:pointer;" onclick="wxOpenAddMenu()">${G.wxPlus}</span></div></div>
-    <div class="wx-scroll">${list
+    <div class="wx-head"><div class="wx-head-left"></div><h1>微信${(() => {
+      const t = Object.values(unread || {}).reduce((a, b) => a + b, 0);
+      return t > 0 ? `(${t > 99 ? "99+" : t})` : "";
+    })()}</h1><div class="wx-actions"><span style="display:flex;cursor:pointer;" onclick="openWxSearch('wechat')">${G.wxSearch}</span><span style="display:flex;cursor:pointer;" onclick="wxOpenAddMenu()">${G.wxPlus}</span></div></div>
+    <div class="wx-scroll"><div class="wx-pc-bar" onclick="toastDev()"><span class="wx-pc-ic">${G.wxPcLogin}</span><span>已登录Windows电脑</span></div>${list
       .map((n) => {
         const arr = chatData[n] || [];
         let last = arr.filter((x) => x[1] !== "date").slice(-1)[0];
@@ -903,20 +906,23 @@ function wxEmojiPanelHTML() {
 }
 function wxPlusPanelHTML() {
   const items = [
-    ["🖼️", "相册", "album"],
-    ["📷", "拍摄", "camera"],
-    ["📹", "视频通话", "video"],
-    ["📍", "位置", "location"],
-    ["🧧", "红包", "redpacket"],
-    ["💸", "转账", "transfer"],
-    ["🎤", "语音输入", "voice"],
+    [G.wxAbAlbum, "相册", "album"],
+    [G.wxAbCamera, "拍摄", "camera"],
+    [G.wxAbVideo, "视频通话", "video"],
+    [G.wxAbLocation, "位置", "location"],
+    [G.wxAbRedPacket, "红包", "redpacket"],
+    [G.wxAbGift, "礼物", "gift"],
+    [G.wxAbTransfer, "转账", "transfer"],
+    [G.wxAbFav, "收藏", "fav"],
   ];
   return `<div class="wx-panel-in"><div class="wx-plus-grid">${items
     .map(
       ([ic, label, key]) =>
         `<button onclick="wxPlusAction('${key}')"><span class="wx-plus-ic">${ic}</span><span>${label}</span></button>`,
     )
-    .join("")}</div></div>`;
+    .join(
+      "",
+    )}</div><div class="wx-plus-dots"><i class="on"></i><i></i></div></div>`;
 }
 function toggleWxPanel(type) {
   const p = $("#wx-panel");
@@ -939,6 +945,8 @@ window.wxPlusAction = function (key) {
   setTimeout(() => {
     if (key === "album") return wxPickChatPhoto();
     if (key === "camera") return toastDev();
+    if (key === "gift") return toastDev();
+    if (key === "fav") return toastDev();
     if (key === "video") return wxStartVideoCall();
     if (key === "location") return wxSendLocation();
     if (key === "redpacket") return wxSendRedPacket();
@@ -1919,40 +1927,60 @@ VIEWS.wx_contacts_sub = () => {
 
 /* ================= 我的：服务 / 收藏 / 设置 ================= */
 VIEWS.wx_services = () => {
-  const grid = [
-    ["💳", "收付款", "#07c160"],
-    ["👛", "钱包", "#f5a623"],
-    ["📱", "手机充值", "#4a90e2"],
-    ["💡", "生活缴费", "#f5c84c"],
-    ["🧾", "信用卡还款", "#fa5151"],
-    ["💰", "微粒贷", "#8c65e3"],
-    ["📈", "理财通", "#fa9d3b"],
-    ["❤️", "公益", "#ff6b81"],
-  ];
-  const rows = ["城市服务", "医疗健康", "出行服务", "车主服务", "生活服务"];
+  const svcBtn = (icon, label) =>
+    `<button onclick="toastDev()" style="display:flex;flex-direction:column;align-items:center;gap:9px;background:none;border:none;padding:0 0 12px;font-family:inherit;"><span style="height:30px;display:grid;place-items:center;">${icon}</span><span style="font-size:13px;color:#111;">${label}</span></button>`;
+  const sec = (title, items, last) => `
+    <div style="background:#fff;border-radius:10px;margin:0 12px 10px;padding:16px 6px 4px;">
+      <div style="font-size:13px;color:#94949a;padding:0 8px 14px;">${title}</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px 2px;">${items
+        .map(([ic, label]) => svcBtn(ic, label))
+        .join("")}</div>
+    </div>`;
   return {
     cls: "wx-list",
     html: `
     <div class="nav solid" style="background:#ededed;border-bottom:.5px solid #dcdcdc;">
       <button class="nb-back" onclick="back()" style="border:none;background:none;color:#111;cursor:pointer;">${G.chevL}</button>
       <div class="nb-title" style="opacity:1;">服务</div>
-      <div class="nb-right"></div>
+      <div class="nb-right">${G.dots}</div>
     </div>
     <div class="wx-scroll" style="padding-top:98px;background:#ededed;padding-bottom:30px;">
-      <div class="wx-service-grid">${grid
-        .map(
-          ([ic, label, color]) =>
-            `<button onclick="toastDev()"><span style="background:${color}1a;color:${color};">${ic}</span><small>${label}</small></button>`,
-        )
-        .join("")}</div>
-      <div style="background:#fff;margin-top:8px;">
-        ${rows
-          .map(
-            (r, i) =>
-              `<div class="wx-cell" onclick="toastDev()" style="${i === rows.length - 1 ? "" : "border-bottom:.5px solid #f0f0f0;"}"><div class="wx-cell-label">${r}</div><div class="wx-cell-right"><span class="wx-cell-chev">${G.chevR}</span></div></div>`,
-          )
-          .join("")}
+      <div style="background:#07c160;border-radius:10px;margin:10px 12px 12px;padding:24px 0 26px;display:flex;">
+        <button onclick="toastDev()" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:12px;background:none;border:none;font-family:inherit;">
+          <span style="height:32px;display:grid;place-items:center;">${G.wxSvcScan}</span>
+          <span style="font-size:16px;color:#fff;">收付款</span>
+        </button>
+        <button onclick="toastDev()" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:12px;background:none;border:none;font-family:inherit;">
+          <span style="height:32px;display:grid;place-items:center;">${G.wxSvcWallet}</span>
+          <span style="font-size:16px;color:#fff;line-height:1.1;">钱包</span>
+          <span style="font-size:13px;color:rgba(255,255,255,.85);margin-top:-4px;">¥0.00</span>
+        </button>
       </div>
+      ${sec("金融理财", [
+        [G.wxSvcCredit, "信用卡还款"],
+        [G.wxSvcLicaicai, "理财通"],
+        [G.wxSvcInsurance, "保险服务"],
+      ])}
+      ${sec("生活服务", [
+        [G.wxSvcPhoneTop, "手机充值"],
+        [G.wxSvcUtility, "生活缴费"],
+        [G.wxSvcQcoin, "Q币充值"],
+        [G.wxSvcCity, "城市服务"],
+        [G.wxSvcGongyi, "腾讯公益"],
+        [G.wxSvcMedical, "医疗健康"],
+      ])}
+      ${sec("交通出行", [
+        [G.wxSvcTravel, "出行服务"],
+        [G.wxSvcTrain, "火车票机票"],
+        [G.wxSvcDidi, "滴滴出行"],
+        [G.wxSvcHotel, "酒店民宿"],
+      ])}
+      ${sec("购物消费", [
+        [G.wxSvcShop, "京东购物"],
+        [G.wxSvcGift, "拼多多"],
+        [G.wxSvcUtility, "电影演出"],
+        [G.wxSvcMore, "更多"],
+      ])}
     </div>`,
   };
 };

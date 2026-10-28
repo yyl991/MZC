@@ -3728,6 +3728,26 @@ svg {
     justify-self: end; /* 靠右对齐 */
 }
 
+/* 已登录电脑提示条 */
+.wx-pc-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 16px;
+    background: #f7f7f7;
+    border-bottom: .5px solid #e2e2e5;
+    font-size: 15px;
+    color: #7d7d82;
+    cursor: pointer;
+}
+.wx-pc-ic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    flex: none;
+}
+
 .wx-actions svg {
     width: 24px;
     height: 24px;
@@ -4552,6 +4572,22 @@ svg {
     box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
 }
 .wx-plus-grid button:active .wx-plus-ic { background: #ececf0; }
+.wx-plus-ic svg { width: 26px; height: 26px; display: block; }
+.wx-plus-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    padding: 2px 0 12px;
+}
+.wx-plus-dots i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #d8d8dc;
+    display: block;
+}
+.wx-plus-dots i.on { background: #9a9a9f; }
 
 /* ---- 聊天里的位置 / 红包 / 转账卡片 ---- */
 .wx-bb.card-bb { background: transparent !important; padding: 0; }
