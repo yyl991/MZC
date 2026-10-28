@@ -313,16 +313,6 @@ const MOCK_MOMENTS_DATA = {
         time: "2020年3月12日 22:40",
         likes: [],
         comments: []
-      },
-      {
-        id: 1104,
-        date: { day: "16", month: "11月" },
-        text: "今天我十二岁。",
-        images: [],
-        location: "",
-        time: "2019年11月16日 21:00",
-        likes: [],
-        comments: []
       }
     ]
   },
