@@ -1091,6 +1091,79 @@ let noteId = 0;
           )}</div></div><div class="toolbar"><span style="width:24px"></span><span style="color:#000;align-self:center;font-size:11px">${safeNotes.length}个备忘录</span><span onclick="openNoteEditor(-1)" style="cursor:pointer;">${G.compose}</span></div>`,
     };
   };
+  /* ---- 加密备忘录（彩蛋：0913） ---- */
+  window._notePinBuf = "";
+  window._noteUnlocked = window._noteUnlocked || {};
+  const noteDotsHTML = () =>
+    [0, 1, 2, 3]
+      .map(
+        (i) =>
+          `<i style="width:13px;height:13px;border-radius:50%;border:1.4px solid #c7c7cc;background:${i < window._notePinBuf.length ? "#111" : "transparent"}"></i>`,
+      )
+      .join("");
+  window.renderNoteDots = function () {
+    const el = document.getElementById("note-pdots");
+    if (el) el.innerHTML = noteDotsHTML();
+  };
+  window.pressNotePin = function (num, el) {
+    if (window._notePinBuf.length >= 4) return;
+    if (el) {
+      el.classList.add("dn");
+      setTimeout(() => el.classList.remove("dn"), 90);
+    }
+    if (typeof sfx === "function") sfx("key");
+    if (typeof vib === "function") vib(8);
+    window._notePinBuf += num;
+    window.renderNoteDots();
+    if (window._notePinBuf.length < 4) return;
+    const pin =
+      (CFG.start && (CFG.start.memoPin || CFG.start.notePin)) || "0913";
+    if (window._notePinBuf === pin) {
+      setTimeout(() => {
+        window._noteUnlocked[noteId] = true;
+        window._notePinBuf = "";
+        show("note", "pop");
+      }, 140);
+    } else {
+      setTimeout(() => {
+        if (typeof vib === "function") vib([60, 40, 60]);
+        window._notePinBuf = "";
+        window.renderNoteDots();
+        toastDev("密码不对哦，再想想");
+      }, 160);
+    }
+  };
+  window.delNotePin = function () {
+    if (window._notePinBuf.length) {
+      window._notePinBuf = window._notePinBuf.slice(0, -1);
+      window.renderNoteDots();
+      if (typeof sfx === "function") sfx("key");
+    } else back();
+  };
+  const noteLockHTML = () => {
+    const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    const kb = keys
+      .map(
+        (k) =>
+          `<button onclick="pressNotePin('${k}',this)" style="width:72px;height:72px;border-radius:50%;background:#fff;font-size:28px;color:#111;box-shadow:0 1px 3px rgba(0,0,0,.06)">${k}</button>`,
+      )
+      .join("");
+    return `
+    <div style="height:100%;display:flex;flex-direction:column;align-items:center;padding-top:10vh;background:#f2f2f7;">
+      <div style="width:58px;height:58px;border-radius:15px;background:#fff;display:grid;place-items:center;font-size:26px;box-shadow:0 4px 14px rgba(0,0,0,.08);">🔒</div>
+      <div style="margin:16px 0 6px;font-size:17px;font-weight:600;color:#111;">加密备忘录</div>
+      <div style="font-size:13px;color:#8e8e93;margin-bottom:26px;">输入密码以查看这条笔记</div>
+      <div id="note-pdots" style="display:flex;gap:22px;margin-bottom:34px;">${noteDotsHTML()}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,72px);gap:16px 22px;justify-items:center;">
+        ${kb}
+        <span></span>
+        <button onclick="pressNotePin('0',this)" style="width:72px;height:72px;border-radius:50%;background:#fff;font-size:28px;color:#111;box-shadow:0 1px 3px rgba(0,0,0,.06)">0</button>
+        <button onclick="delNotePin()" style="width:72px;height:72px;background:none;font-size:22px;color:#111;">⌫</button>
+      </div>
+      <button onclick="back()" style="margin-top:24px;background:none;border:none;color:#007aff;font-size:16px;padding:8px;">取消</button>
+    </div>`;
+  };
+
   VIEWS.note = () => {
     const safeNotes =
       typeof notes !== "undefined" && Array.isArray(notes) ? notes : [];
@@ -1102,6 +1175,10 @@ let noteId = 0;
           navHTML({ title: "备忘录", back: "备忘录" }) +
           `<div class="scroll" style="text-align:center; padding-top:100px; color:#999;">备忘录不存在</div>`,
       };
+    if (String(n[0]).indexOf("🔒") === 0 && !window._noteUnlocked[noteId]) {
+      window._notePinBuf = "";
+      return { cls: "notes-pg", html: noteLockHTML() };
+    }
     return {
       cls: "notes-pg",
       html:
