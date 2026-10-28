@@ -1532,6 +1532,14 @@ function incomingMsgFrom(from, text) {
 function notifyFrom(from, body) {
   if (window.isDnd || window._wxNotifyOn === false) return;
   if (window._wxChatSettings?.[from]?.mute) return;
+  // 媒体消息的通知只显示类型，别把文件路径甩到锁屏上
+  const raw = String(body || "");
+  for (const k of ["[图片]", "[视频]", "[语音]", "[表情]"]) {
+    if (raw.startsWith(k)) {
+      body = k;
+      break;
+    }
+  }
   sfx("msg");
   vib([30, 60, 30]);
   if (view === "lock" || view === "pin") {
