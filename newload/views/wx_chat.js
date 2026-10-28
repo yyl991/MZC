@@ -929,6 +929,7 @@ window.wxPlusAction = function (key) {
 };
 window.wxSendEmoji = function (ch) {
   if (!chatData[chatId]) return;
+  window.clearPatience(chatId);
   chatData[chatId].push([ch, "me", nowAmpm()]);
   saveChat();
   refreshChat(true);
@@ -945,6 +946,7 @@ window.wxPickChatPhoto = function () {
       if (!chatData[chatId]) return;
       urls.forEach(function (u) {
         const isVideo = /\.(mp4|webm|mov)$/i.test(u);
+        window.clearPatience(chatId);
         chatData[chatId].push([
           isVideo ? `[视频] ${u}||0:15` : `[图片] ${u}`,
           "me",
@@ -1111,6 +1113,7 @@ function sendLine() {
     li = SS.lineIdx[chatId] || 0,
     line = SS.pendingText;
   chatData[chatId].push([line, "me", nowAmpm(), "rd"]);
+  window.clearPatience(chatId);
   SS.pendingText = "";
   sfx("send");
   vib(10);
@@ -1164,6 +1167,39 @@ function hideTyping() {
   const title = $("#chatTitle");
   if (title && view === "chat") title.textContent = wxName(chatId);
 }
+/* ---------- 耐心值：回得慢就错过这段对话 ---------- */
+window._patience = window._patience || {};
+function armPatience(name) {
+  if (!name) return;
+  if (typeof SS.missed === "undefined") SS.missed = new Set();
+  if (SS.missed.has(name)) return;
+  clearTimeout(window._patience[name]);
+  const sec = (CFG.patienceSec || 100) * 1000;
+  window._patience[name] = setTimeout(() => {
+    if (typeof lastMsgFromMe === "function" && lastMsgFromMe(name)) return;
+    SS.missed.add(name);
+    if (typeof saveStory === "function") saveStory();
+    const line =
+      (CFG.missLines && CFG.missLines[name]) ||
+      (CFG.missLines && CFG.missLines.default) ||
+      "算了。";
+    const arr = chatData[name] || (chatData[name] = []);
+    const last = arr[arr.length - 1];
+    if (last && last[0] === line && last[1] === "them") return;
+    arr.push([line, "them", nowAmpm()]);
+    saveChat();
+    if (view === "chat" && chatId === name) refreshChat(true);
+    else {
+      unread[name] = (unread[name] || 0) + 1;
+      if (typeof notifyFrom === "function") notifyFrom(name, line);
+    }
+  }, sec);
+}
+window.clearPatience = function (name) {
+  if (window._patience[name]) clearTimeout(window._patience[name]);
+  window._patience[name] = null;
+};
+
 function deliverFrom(from, text) {
   if (!chatData[from]) chatData[from] = [];
   const arr = chatData[from];
@@ -1173,6 +1209,7 @@ function deliverFrom(from, text) {
   }
   chatData[from].push([text, "them", nowAmpm()]);
   saveChat();
+  armPatience(from);
   if (view === "chat" && chatId === from) {
     refreshChat(true);
     tone(1318, 0, 0.12, 0.05);
@@ -1305,6 +1342,8 @@ function saveStory() {
     localStorage.setItem(
       "wb_story",
       JSON.stringify({
+        sig: window.DATA_SIG || "",
+        missed: [...(SS.missed || [])],
         stage: SS.stage,
         lineIdx: SS.lineIdx,
         fragments: [...SS.fragments],
@@ -1333,7 +1372,7 @@ function wxChatSig(obj) {
     return "0";
   }
 }
-const WX_CHAT_KEY = "wx_chat_" + wxChatSig(chatData);
+const WX_CHAT_KEY = "wx_chat_" + (window.DATA_SIG || wxChatSig(chatData));
 function saveChat() {
   try {
     localStorage.setItem(WX_CHAT_KEY, JSON.stringify(chatData));

@@ -1114,11 +1114,17 @@ function storyTick(e) {
         }
       }
       SS.fired.add(key);
+      window._storyDirty = true;
       if (beat.type === "notify") incomingMsgFrom(beat.from, beat.text);
       if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");
       if (beat.type === "mail") incomingMailFrom(beat);
     }
   });
+  // 时间线有推进就落盘，避免刷新后重复推送
+  if (window._storyDirty && typeof saveStory === "function") {
+    window._storyDirty = false;
+    saveStory();
+  }
 }
 
 let lastTickSec = -1;

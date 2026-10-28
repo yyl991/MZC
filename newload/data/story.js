@@ -237,6 +237,28 @@ var INCOMING = [];
     { at: 300, type:'ending' }
   ];
 
+  // 耐心值：对方发来催促后多少秒内没回，就算错过这段对话
+  S.patienceSec = 100;
+  // 错过时对方留下的最后一句
+  S.missLines = {
+    default: "算了。",
+    穆小恩: "行吧，你先忙。我等你回我。",
+    MuAMuA: "妈妈不催你了，记得吃饭。",
+    穆老爹: "……早点回。",
+    丞哥: "爱回不回。",
+    穆祉丞: "那我自己吹蜡烛了。",
+    穆瑞恩: "没关系，我再等一会儿。",
+    恩仔: "我不吵你了……",
+    Mu: "我记住了。",
+    恩恩: "哦。",
+    小队长: "行，你忙你的。",
+    蓝胖胖: "那我先打两把。",
+    pig: "那我把蛋糕吃了啊",
+    cat: "……喵都不喵了",
+    rabbit: "我先睡啦",
+    tiger: "哼",
+  };
+
   // 每个人的微信号（资料页展示）
   S.wxids = {
     穆小恩: "muxiaoen_99",
@@ -432,6 +454,18 @@ var INCOMING = [];
   for (const k in DISPLAY) delete DISPLAY[k];
   Object.assign(DISPLAY, S.display);
 
+  // 数据指纹：改过 chat_history / story 后，旧存档自动作废
+  window.DATA_SIG = (function () {
+    try {
+      const s = JSON.stringify(chatData) + "|" + (S.timeline || []).length;
+      let h = 5381;
+      for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+      return (h >>> 0).toString(36);
+    } catch (e) {
+      return "0";
+    }
+  })();
+
   window.STORY_STATE = {
     stage: {},
     lineIdx: {},
@@ -441,28 +475,34 @@ var INCOMING = [];
     arriveHome: false,
     completed: new Set(),
     fired: new Set(),
+    missed: new Set(),
     privateUnlocked: false,
     memoUnlocked: false,
     pendingText: "",
     typing: false,
     replyBusy: false,
   };
-  /*
-    // 👈 新增：读取本地存档，防止刷新后剧情重复触发
+  // 读取本地剧情存档：避免刷新后时间线重新推送、聊天记录重复
+  // 只有数据指纹一致才认（改了 chat_history 就自动作废）
   try {
     const savedStory = localStorage.getItem("wb_story");
     if (savedStory) {
       const parsed = JSON.parse(savedStory);
-      window.STORY_STATE.stage = parsed.stage || {};
-      window.STORY_STATE.lineIdx = parsed.lineIdx || {};
-      window.STORY_STATE.choice = parsed.choice || null;
-      window.STORY_STATE.arriveHome = parsed.arriveHome || false;
-      window.STORY_STATE.fired = new Set(parsed.fired || []);
-      window.STORY_STATE.completed = new Set(parsed.completed || []);
-      window.STORY_STATE.fragments = new Set(parsed.fragments || []);
+      if (!parsed.sig || parsed.sig === window.DATA_SIG) {
+        window.STORY_STATE.stage = parsed.stage || {};
+        window.STORY_STATE.lineIdx = parsed.lineIdx || {};
+        window.STORY_STATE.choice = parsed.choice || null;
+        window.STORY_STATE.arriveHome = parsed.arriveHome || false;
+        window.STORY_STATE.goingHome = parsed.goingHome || 0;
+        window.STORY_STATE.privateUnlocked = !!parsed.privateUnlocked;
+        window.STORY_STATE.memoUnlocked = !!parsed.memoUnlocked;
+        window.STORY_STATE.fired = new Set(parsed.fired || []);
+        window.STORY_STATE.completed = new Set(parsed.completed || []);
+        window.STORY_STATE.fragments = new Set(parsed.fragments || []);
+        window.STORY_STATE.missed = new Set(parsed.missed || []);
+      }
     }
-  } catch(e) {}
-*/
+  } catch (e) {}
   
 })();
 
