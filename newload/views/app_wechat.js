@@ -832,6 +832,7 @@ function wxEmojiPanelHTML() {
 function wxPlusPanelHTML() {
   const items = [
     ["🖼️", "相册", "album"],
+    ["📷", "拍摄", "camera"],
     ["📹", "视频通话", "video"],
     ["📍", "位置", "location"],
     ["🧧", "红包", "redpacket"],
@@ -865,6 +866,7 @@ window.wxPlusAction = function (key) {
   closeKbd();
   setTimeout(() => {
     if (key === "album") return wxPickChatPhoto();
+    if (key === "camera") return toastDev();
     if (key === "video") return wxStartVideoCall();
     if (key === "location") return wxSendLocation();
     if (key === "redpacket") return wxSendRedPacket();
@@ -1501,7 +1503,10 @@ VIEWS.wx_discover = () => {
       <div style="background:#fff; margin-top:8px;">
 ${row(G.wxPengyouquan, "朋友圈", "openMoments()", true)}
       </div>
+      <div style="background:#fff; margin-top:8px;">${row(G.wxShipinhao, "视频号", "toastDev()")}${row(G.wxZhibo, "直播", "toastDev()", true)}</div>
       <div style="background:#fff; margin-top:8px;">${row(G.wxSaoyisao, "扫一扫", "openWxScan()")}${row(G.wxSouyisou, "搜一搜", "openWxSearch('wx_discover')", true)}</div>
+      <div style="background:#fff; margin-top:8px;">${row(G.wxKanyikan, "看一看", "toastDev()")}${row(G.wxTingyiting, "听一听", "toastDev()", true)}</div>
+      <div style="background:#fff; margin-top:8px;">${row(G.wxFujin, "附近的人", "toastDev()")}${row(G.wxYouxi, "游戏", "toastDev()")}${row(G.wxXiaochengxu, "小程序", "toastDev()", true)}</div>
     </div>
 
     <div class="wx-tabbar">
@@ -1681,6 +1686,12 @@ VIEWS.wx_me = () => {
       <div style="background:#fff; margin-bottom: 8px;">
         ${row(G.wxMeFav, '收藏', '', "push('wx_favorites')")}
         ${row(G.photo, '朋友圈', '', "push('wx_moments_self')")}
+      </div>
+
+      <div style="background:#fff; margin-bottom: 8px;">
+        ${row(G.wxMeWorks, '我的作品', '', "toastDev()")}
+        ${row(G.wxMeShop, '小店与卡包', '', "toastDev()")}
+        ${row(G.wxMeEmoji, '表情', '', "toastDev()")}
       </div>
 
       <div style="background:#fff; margin-bottom: 8px;">
