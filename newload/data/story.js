@@ -227,6 +227,7 @@ var INCOMING = [];
     { at: 159, type:'notify', from:'丞哥', text:'定位在解放碑。你一个人？' },
     { at: 162, type:'notify', from:'恩恩', text:'二。' },
     { at: 166, type:'notify', from:'穆瑞恩', text:'今天压腿很痛，我不敢跟别人说。你什么时候才会来呀？' },
+    { at: 168, type:'notify', from:'cat', text:'你给老子等到起' },
     { at: 172, type:'notify', from:'rabbit', text:'那我再等一会儿' },
     { at: 176, type:'notify', from:'恩仔', text:'曾经很多次，我躲起来哭的时候，都在幻想会不会有一个人看见我。' },
     { at: 179, type:'notify', from:'Mu', text:'？' },
