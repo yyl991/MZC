@@ -255,7 +255,7 @@ const MOCK_MOMENTS_DATA = {
         likes: ["恩恩", "穆小恩"],
         comments: [
           { user: "穆小恩", text: "阿姨我可以去喝吗。", replyTo: "" },
-          { user: "MuAMuA", text: "来吧，宝贝。", replyTo: "穆小恩" }
+          { user: "MuAMuA", text: "来吧，宝宝。", replyTo: "穆小恩" }
         ]
       }
     ]
