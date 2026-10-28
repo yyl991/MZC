@@ -76,14 +76,14 @@
     </div>
     <audio id="player" preload="auto"></audio>
     <!-- 👇 新增：背景音乐 -->
-    <audio id="bgm" src="./data/app/bgm.mp3" loop></audio>
+    <audio id="bgm" src="./data/app/bgm.mp3" loop preload="auto"></audio>
     
         <script>
         window.LANG = 'zh';
         
         // 统一的加载函数
         // ⚠️ 改完代码要发版时把这个版本号 +1，浏览器才会重新拉取脚本
-        const ASSET_V = '20261028b';
+        const ASSET_V = '20261028c';
 
         function load(src) {
             return new Promise((res, rej) => {

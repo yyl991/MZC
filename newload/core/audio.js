@@ -7,7 +7,7 @@ function ac() {
 }
 function tone(f, t0, dur, vol = 0.12, type = "sine") {
   const a = ac(); if (!a) return;
-  vol = Math.min(0.7, vol * 3.4); // 整体调响
+  vol = Math.min(0.95, vol * 4.5); // 整体调响
   const t = a.currentTime + t0, o = a.createOscillator(), gn = a.createGain();
   o.type = type; o.frequency.value = f;
   gn.gain.setValueAtTime(0, t); gn.gain.linearRampToValueAtTime(vol, t + 0.008); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
@@ -51,8 +51,16 @@ document.addEventListener("play", (e) => {
 document.addEventListener("pause", (e) => {
   if (e.target.tagName === "VIDEO" || (e.target.tagName === "AUDIO" && e.target.id !== "bgm")) setTimeout(() => window.AudioHub.resumeBGM(), 100);
 }, true);
-document.addEventListener("pointerdown", () => {
-  ac();
+// 进页面后任何一次手势都试着把 BGM 放起来，直到成功为止
+// （原来是 { once: true }，第一次点击被拦或资源没就绪就永远不放音乐了）
+window._bgmStarted = false;
+window.tryStartBGM = function () {
   const BGM = document.getElementById("bgm");
-  if (BGM && BGM.paused && !window.bgmPausedByOther) { BGM.volume = 0.7; BGM.play().catch((e) => console.log("BGM播放被拦截", e)); }
-}, { once: true });
+  if (!BGM || window._bgmStarted) return;
+  if (window.bgmPausedByOther) return;
+  BGM.volume = 1;
+  BGM.play().then(() => { window._bgmStarted = true; }).catch(() => {});
+};
+["pointerdown", "touchstart", "click", "keydown"].forEach((ev) => {
+  document.addEventListener(ev, () => { ac(); window.tryStartBGM(); }, { passive: true });
+});

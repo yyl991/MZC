@@ -455,6 +455,8 @@ function pinCancel() {
 }
 function unlock() {
   sfx("unlock");
+  // 解锁是明确的用户手势，顺便把背景音乐带起来
+  if (typeof window.tryStartBGM === "function") window.tryStartBGM();
   view = "home";
   $("#wall").classList.remove("dim");
   LOCK.animate([{ opacity: 1 }, { opacity: 0 }], {
@@ -1267,7 +1269,7 @@ function initApp() {
   try {
     const bgmEl = document.getElementById("bgm");
     if (bgmEl && !bgmEl.dataset.vol) {
-      bgmEl.volume = 0.7;
+      bgmEl.volume = 1;
       bgmEl.dataset.vol = "1";
     }
   } catch (e) {}
