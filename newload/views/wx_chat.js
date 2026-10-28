@@ -268,6 +268,7 @@ window.openMomentDetailFromFeed = function (index) {
     avatar: post.avatar,
     post: post,
   };
+  window._mDetailOpen = false;
   push("wx_moments_detail");
 };
 
@@ -283,6 +284,7 @@ window.openMomentDetailFromUserFeed = function (index) {
     avatar: av,
     post: post,
   };
+  window._mDetailOpen = false;
   push("wx_moments_detail");
 };
 

@@ -43,7 +43,7 @@ var INCOMING = [];
   };*/
 
   S.roles = {
-    穆小恩: { initial: "闺", color: "#8e8e93", avatar: "./data/avatar/guimi.jpg", pat: "的脑壳说醒醒" },
+    穆小恩: { initial: "恩", color: "#8e8e93", avatar: "./data/avatar/guimi.jpg", pat: "的脑壳说醒醒" },
     MuAMuA: { initial: "妈", color: "#f6b6c8", avatar: "./data/avatar/mama.jpg", pat: ":不是说学了吗‎•᷄ࡇ•᷅" },
     恩恩: { initial: "婆", color: "#f6b6c8", avatar: "./data/avatar/enen.jpg", pat: "的小屁股" },
     穆老爹: { initial: "爸", color: "#7d8ea8", avatar: "./data/avatar/baba.jpg", pat: "的保温杯" },
@@ -238,9 +238,9 @@ var INCOMING = [];
   ];
 
   // 节奏：开场多久开始催、压缩强度（数字越大越早结束）
-  S.pace = { offset: 40, amp: 110, soft: 30 };
+  S.pace = { offset: 70, amp: 165, soft: 34 };
   // 多少秒之后开始"时间线跑完还在催"的追加压力
-  S.nagFrom = 150;
+  S.nagFrom = 470;
 
   // 耐心值：对方发来催促后多少秒内没回，就算错过这段对话
   S.patienceSec = 100;

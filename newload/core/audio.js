@@ -7,7 +7,7 @@ function ac() {
 }
 function tone(f, t0, dur, vol = 0.12, type = "sine") {
   const a = ac(); if (!a) return;
-  vol = Math.min(0.5, vol * 2.6); // 整体调响
+  vol = Math.min(0.7, vol * 3.4); // 整体调响
   const t = a.currentTime + t0, o = a.createOscillator(), gn = a.createGain();
   o.type = type; o.frequency.value = f;
   gn.gain.setValueAtTime(0, t); gn.gain.linearRampToValueAtTime(vol, t + 0.008); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur);
@@ -54,5 +54,5 @@ document.addEventListener("pause", (e) => {
 document.addEventListener("pointerdown", () => {
   ac();
   const BGM = document.getElementById("bgm");
-  if (BGM && BGM.paused && !window.bgmPausedByOther) { BGM.volume = 0.1116; BGM.play().catch((e) => console.log("BGM播放被拦截", e)); }
+  if (BGM && BGM.paused && !window.bgmPausedByOther) { BGM.volume = 0.7; BGM.play().catch((e) => console.log("BGM播放被拦截", e)); }
 }, { once: true });

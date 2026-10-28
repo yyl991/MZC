@@ -434,12 +434,12 @@ svg {
 
 .lk-time {
     position: absolute;
-    top: 104px;
+    top: 138px;
     width: 100%;
     text-align: center;
-    font-size: 104px;
+    font-size: 72px;
     font-weight: 600;
-    letter-spacing: -3px;
+    letter-spacing: -1px;
     line-height: 1.1;
     text-shadow: 0 2px 20px rgba(0, 0, 0, .2);
     font-feature-settings: "tnum"
@@ -4390,7 +4390,8 @@ svg {
   }
   /* 锁屏时钟稍微缩小 */
   .lk-time {
-    font-size: 88px;
+    top: 126px;
+    font-size: 62px;
   }
 }
 

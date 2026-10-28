@@ -47,6 +47,19 @@ for (const src of files) {
   fs.mkdirSync(path.dirname(dest), { recursive: true });
 
   if (!src.endsWith(".js")) {
+    // index.html：每次打包自动换一个资源版本号，让浏览器缓存失效（只有重新 build 才会更新）
+    if (rel === "index.html") {
+      const stamp = Date.now().toString(36);
+      let html = fs.readFileSync(src, "utf8");
+      html = html.replace(
+        /const ASSET_V = '[^']*';/,
+        `const ASSET_V = '${stamp}';`,
+      );
+      fs.writeFileSync(dest, html);
+      console.log(`✅ ${rel}（资源版本号 ${stamp}）`);
+      ok++;
+      continue;
+    }
     fs.copyFileSync(src, dest);
     ok++;
     continue;

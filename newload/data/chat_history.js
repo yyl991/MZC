@@ -37,7 +37,7 @@ window.CHAT_HISTORY = {
     
     // 撤回和视频
     ['"穆小恩"撤回了一条消息', 'sys', '下午 2:39'],
-    ['[视频] ./data/chat/1.mp4|./data/chat/mama.jpg|0:01', 'them', '下午 8:20'],
+    ['[视频] ./data/chat/1.mp4|./data/album/mama.jpg|0:01', 'them', '下午 8:20'],
     
     // 11月15日，只留下下午的对话，晚上的留给时间线去弹
     ['11月15日', 'date'],

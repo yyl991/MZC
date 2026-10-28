@@ -27,15 +27,17 @@
 <!-- Twitter Card (备用) -->
 <meta name="twitter:card" content="summary_large_image">
 
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+    <!-- 字体异步加载，避免国内访问 CDN 时整页白屏 -->
+    <link rel="preload" as="style"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        onload="this.onload=null;this.rel='stylesheet'">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div id="phone">
         <div id="screen">
-            <div id="boot"><span>请稍后…</span></div>
+            <div id="boot"><span>等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿</span></div>
             <div id="wall"></div>
             <div id="homeL" class="layer"></div>
             <div id="lockL" class="layer">
@@ -80,12 +82,15 @@
         window.LANG = 'zh';
         
         // 统一的加载函数
+        // ⚠️ 改完代码要发版时把这个版本号 +1，浏览器才会重新拉取脚本
+        const ASSET_V = '20261028a';
+
         function load(src) {
             return new Promise((res, rej) => {
                 const s = document.createElement('script');
-                s.src = src + '?v=' + new Date().getTime(); // 强力防缓存
-                s.onload = res; 
-                s.onerror = () => rej(new Error("找不到文件: " + src)); 
+                s.src = src + '?v=' + ASSET_V; // 固定版本号，允许浏览器缓存
+                s.onload = res;
+                s.onerror = () => rej(new Error("找不到文件: " + src));
                 document.body.appendChild(s);
             });
         }
@@ -123,6 +128,13 @@
                     './views/app_bilibili.js',
                     './views/app_xhs.js'
                 ];
+
+                // 先并行预热下载，再按顺序执行，避免一个个串行等待
+                await Promise.all(
+                    scripts.map((src) =>
+                        fetch(src + '?v=' + ASSET_V).catch(() => {})
+                    )
+                );
 
                 // 循环按顺序加载
                 for (const src of scripts) {

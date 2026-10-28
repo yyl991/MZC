@@ -687,7 +687,8 @@ VIEWS.weibo_my_posts = () => ({
   html:
     navHTML({
       title: "微博",
-      back: "",
+      back: "主页",
+      backFn: "closeApp()",
       solid: true,
       right: `<span onclick="toastDev()" style="cursor:pointer">${G.gear}</span>`,
     }) +

@@ -6,9 +6,14 @@ const SCREEN = $("#screen"),
   LOCK = $("#lockL"),
   OV = $("#ov"),
   PLAYER = $("#player");
-const base = window.GAME_BASE || Date.now();
-window.GAME_BASE = base;
-const elapsed = () => (Date.now() - base) / 1000;
+// 计时起点：不是脚本加载完，而是锁屏/桌面真正显示出来的那一刻（见 startClock）
+let base = 0;
+const elapsed = () => (base ? (Date.now() - base) / 1000 : 0);
+function startClock() {
+  if (base) return;
+  base = Date.now();
+  window.GAME_BASE = base;
+}
 
 // 本地调试（localhost / 127.0.0.1 / ?dev=1）直接进桌面，其它域名从锁屏开始
 const IS_DEV_HOST = (() => {
@@ -142,7 +147,7 @@ if (!SS.stage) SS.stage = {};
 if (!SS.lineIdx) SS.lineIdx = {};
 
 const GAME_START_MIN = 23 * 60 + 9,
-  GAME_END_AT = 300;
+  GAME_END_AT = 460;
 let view = "lock",
   curDark = true,
   SC = 1,
@@ -159,7 +164,7 @@ let unread = {};
 let callName = "穆祉丞";
 let lockNotes = [
   {
-    title: "闺蜜",
+    title: "穆小恩",
     body: "你跑哪去了？手机怎么在街上？",
     app: "wechat",
     time: "23:09",
@@ -176,8 +181,11 @@ function ampm(minutes) {
   return `${ap} ${h12}:${pad(m)}`;
 }
 function gameMin() {
-  const p = Math.min(1, elapsed() / GAME_END_AT);
-  return GAME_START_MIN + Math.floor(p * 51);
+  const e = elapsed();
+  // 前 460 秒按剧情节奏走（23:09 → 00:00）；之后按真实时间 1:1 继续，不再卡在 12 点
+  if (e <= GAME_END_AT)
+    return GAME_START_MIN + Math.floor((e / GAME_END_AT) * 51);
+  return GAME_START_MIN + 51 + Math.floor((e - GAME_END_AT) / 60);
 }
 function clock12(showAmpm = true) {
   const m = gameMin();
@@ -185,7 +193,7 @@ function clock12(showAmpm = true) {
   const min = Math.floor(m % 60);
   const ampmStr = h >= 12 ? "下午" : "上午";
   const h12 = h % 12 || 12;
-  return showAmpm ? `${ampmStr} ${h12}:${pad(min)}` : `${h12}:${pad(min)}`;
+  return showAmpm ? `${ampmStr}${h12}:${pad(min)}` : `${h12}:${pad(min)}`;
 }
 function gameTime24() {
   const m = gameMin();
@@ -270,7 +278,7 @@ function renderLock() {
   const rest = lockNotes.length - shown.length;
   $("#lkc").innerHTML =
     `<div class="lk-date">${CFG.start?.date || "11月15日"} ${CFG.start?.weekday || "星期日"}</div>` +
-    `<div class="lk-time" id="lkt">${clock12(false)}</div>` +
+    `<div class="lk-time" id="lkt">${clock12()}</div>` +
     `<div class="lk-notes">${shown
       .map(
         (n, i) =>
@@ -710,7 +718,7 @@ function openApp(id, el) {
     !VIEWS[id]
   )
     return;
-  if (id === "weibo") id = "weibo_profile";
+  if (id === "weibo") id = "weibo_my_posts";
   lastRect = el ? relRect(el) : null;
   APP.innerHTML = "";
   try {
@@ -1067,7 +1075,7 @@ function pacedAt(at) {
 const NAG_LINES = ["在吗", "回我一下", "？", "你在哪", "看到消息了吗", "别不回我"];
 function pressureTick() {
   if (SS.arriveHome || SS.midnightBoom) return;
-  const from = CFG.nagFrom != null ? CFG.nagFrom : 150;
+  const from = CFG.nagFrom != null ? CFG.nagFrom : 470;
   if (elapsed() < from) return;
   const now = Date.now();
   if (!window._nextNag) window._nextNag = now + 6000;
@@ -1084,7 +1092,7 @@ function pressureTick() {
     return;
   }
   window._nagCount = n + 1;
-  const wait = Math.max(2600, 9000 * Math.pow(0.86, n));
+  const wait = Math.max(4500, 13000 * Math.pow(0.9, n));
   window._nextNag = now + wait;
   const line = NAG_LINES[Math.min(n, NAG_LINES.length - 1)];
   if (typeof incomingMsgFrom === "function") incomingMsgFrom(who, line);
@@ -1145,7 +1153,7 @@ function tick() {
   const sbtEl = $("#sbt");
   if (sbtEl) sbtEl.textContent = clock12();
   const lk = $("#lkt");
-  if (lk) lk.textContent = clock12(false);
+  if (lk) lk.textContent = clock12();
 
   // 2. 剧情时间线检查 (每秒检查一次足够了)
   storyTick(elapsed());
@@ -1264,6 +1272,7 @@ function initApp() {
     }
   } catch (e) {}
   setStatus(true);
+  startClock();
   setInterval(tick, 1000);
   tick();
   hideBoot();

@@ -75,6 +75,7 @@ VIEWS.wx_moments_detail = () => {
   }
 
   if (!post) return { html: "动态不存在" };
+  const actOpen = !!window._mDetailOpen;
 
   const getLikeAvatar = (user) => {
     if (user === "我") return CFG.myAvatar || G.sil;
@@ -120,19 +121,19 @@ VIEWS.wx_moments_detail = () => {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
               <div style="font-size:13px; color:#999;">${post.time || '刚刚'}</div>
               <div style="display:flex; align-items:center; gap:8px;">
-                <div style="display:inline-flex; align-items:center; background:#4c4c4c; border-radius:6px; overflow:hidden;">
+                <div id="wxActPill" style="display:${actOpen ? "inline-flex" : "none"}; align-items:center; background:#4c4c4c; border-radius:6px; overflow:hidden;">
                   <button onclick="event.stopPropagation();wxMomentLikeCurrent()" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:14px;padding:8px 14px;font-family:inherit;">${G.heart.replace('<svg', '<svg width="16" height="16" style="color:#fff;"')} 赞</button>
                   <span style="width:.5px;height:20px;background:#666;"></span>
                   <button onclick="event.stopPropagation();wxMomentCommentCurrent()" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:14px;padding:8px 14px;font-family:inherit;">${G.comment.replace('<svg', '<svg width="16" height="16" style="color:#fff;"')} 评论</button>
                 </div>
-                <div style="width:30px;height:26px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);border-radius:6px;display:grid;place-items:center;color:#333;cursor:pointer;" onclick="event.stopPropagation();wxMomentActionsCurrent()">${G.dotsH}</div>
+                <div style="width:30px;height:26px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);border-radius:6px;display:grid;place-items:center;color:#333;cursor:pointer;" onclick="event.stopPropagation();wxToggleDetailActions()">${G.dotsH}</div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- 灰框（点赞评论）：跳出右侧容器，直接占满下方，左边缘与上方大头像对齐 -->
-        <div style="background:#f7f7f7; border-radius:6px; margin-top: 10px; padding: 12px 12px 12px 0; display: ${((post.likes && post.likes.length) || (post.comments && post.comments.length)) ? "flex" : "none"}; flex-direction: column; gap: 10px;">
+        <div id="wxActBox" data-has="${((post.likes && post.likes.length) || (post.comments && post.comments.length)) ? "1" : "0"}" style="background:#f7f7f7; border-radius:6px; margin-top: 10px; padding: 12px 12px 12px 0; display: ${actOpen ? "flex" : "none"}; flex-direction: column; gap: 10px;">
           
           <!-- 点赞区 -->
           ${post.likes && post.likes.length > 0 ? `
@@ -229,6 +230,36 @@ window.wxMomentActions = function (post) {
 window.wxMomentActionsFromFeed = function (i) {
   wxMomentActions((window._wxMomentFeed || [])[i]);
 };
+
+// 列表里点“...”才展开旁边那排赞 / 评论
+window.wxToggleRowSocial = function (i) {
+  const row = document.querySelector(`[data-mrow="${i}"]`);
+  if (!row) return;
+  const open = row.dataset.open === "1";
+  row.dataset.open = open ? "0" : "1";
+  const pill = row.querySelector(".wx-like-pill");
+  if (pill) pill.style.display = open ? "none" : "inline-flex";
+  row.querySelectorAll(".wx-social-box").forEach((el) => {
+    el.style.display = !open && el.dataset.has === "1" ? "block" : "none";
+  });
+  if (typeof vib === "function") vib(6);
+};
+window.wxLikeFromFeed = function (i) {
+  const p = (window._wxMomentFeed || [])[i];
+  if (!p) return;
+  p.likes = p.likes || [];
+  const k = p.likes.indexOf("我");
+  if (k >= 0) p.likes.splice(k, 1);
+  else p.likes.push("我");
+  if (typeof vib === "function") vib(8);
+  if (k < 0 && typeof sfx === "function") sfx("send");
+  window._wxOpenSocial = i;
+  wxRefreshWxView();
+};
+window.wxCommentFromFeed = function (i) {
+  window._wxOpenSocial = i;
+  wxMomentComment((window._wxMomentFeed || [])[i]);
+};
 window.wxMomentLikeCurrent = function () {
   const p = window._currentMomentDetail && window._currentMomentDetail.post;
   if (!p) return;
@@ -241,6 +272,17 @@ window.wxMomentLikeCurrent = function () {
   show("wx_moments_detail", "none");
 };
 
+// 点“...”才展开赞 / 评论
+window.wxToggleDetailActions = function () {
+  const pill = document.getElementById("wxActPill");
+  const box = document.getElementById("wxActBox");
+  const open = pill && pill.style.display !== "none";
+  window._mDetailOpen = !open;
+  if (pill) pill.style.display = open ? "none" : "inline-flex";
+  if (box)
+    box.style.display = open || box.dataset.has !== "1" ? "none" : "flex";
+  if (typeof vib === "function") vib(6);
+};
 window.wxMomentActionsCurrent = function () {
   wxMomentActions(window._currentMomentDetail && window._currentMomentDetail.post);
 };
@@ -257,6 +299,7 @@ window.openMomentDetailFromSelf = function (i) {
     avatar: CFG.myAvatar || G.sil,
     post: p,
   };
+  window._mDetailOpen = false;
   push("wx_moments_detail");
 };
 
@@ -438,7 +481,7 @@ VIEWS.moments = () => {
 
   const renderSocial = (likes, comments) => {
     if ((!likes || likes.length === 0) && (!comments || comments.length === 0)) return '';
-    let html = `<div style="background: #f7f7f7; border-radius: 4px; padding: 8px 10px; margin-top: 8px; font-size: 14px; line-height: 1.5;">`;
+    let html = `<div class="wx-social-box" data-has="1" style="display:none; background: #f7f7f7; border-radius: 4px; padding: 8px 10px; margin-top: 8px; font-size: 14px; line-height: 1.5;">`;
     
     if (likes && likes.length > 0) {
       const namesHTML = likes.map((n, i) => {
@@ -495,7 +538,7 @@ VIEWS.moments = () => {
 
       <div style="padding-bottom: 20px;">
         ${allPosts.map((m, index) => `
-          <div onclick="openMomentDetailFromFeed(${index})" style="display: flex; gap: 12px; padding: 20px 16px; border-bottom: 0.5px solid #f0f0f0; cursor: pointer;">
+          <div data-mrow="${index}" onclick="openMomentDetailFromFeed(${index})" style="display: flex; gap: 12px; padding: 20px 16px; border-bottom: 0.5px solid #f0f0f0; cursor: pointer;">
             
             <img src="${m.avatar}" onclick="event.stopPropagation(); openWxProfileFromFeed(${index}, 'moments')" style="width: 44px; height: 44px; border-radius: 6px; object-fit: cover; flex-shrink: 0; cursor: pointer;">
             
@@ -505,9 +548,16 @@ VIEWS.moments = () => {
               
               ${renderImages(m.images)}
               
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 8px;">
                 <span style="font-size: 12px; color: #999;">${esc(m.time)}</span>
-                <div style="background: #f7f7f7; padding: 2px 8px; border-radius: 4px; color: #576b95; font-size: 13px; font-weight: 500; cursor: pointer;" onclick="event.stopPropagation(); wxMomentActionsFromFeed(${index})">•••</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div class="wx-like-pill" style="display:none; align-items:center; background:#4c4c4c; border-radius:6px; overflow:hidden;">
+                    <button onclick="event.stopPropagation(); wxLikeFromFeed(${index})" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:13px;padding:6px 12px;font-family:inherit;">${G.heart.replace('<svg', '<svg width="15" height="15" style="color:#fff;"')} 赞</button>
+                    <span style="width:.5px;height:18px;background:#666;"></span>
+                    <button onclick="event.stopPropagation(); wxCommentFromFeed(${index})" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:13px;padding:6px 12px;font-family:inherit;">${G.comment.replace('<svg', '<svg width="15" height="15" style="color:#fff;"')} 评论</button>
+                  </div>
+                  <div style="background: #f7f7f7; padding: 2px 8px; border-radius: 4px; color: #576b95; font-size: 13px; font-weight: 500; cursor: pointer;" onclick="event.stopPropagation(); wxToggleRowSocial(${index})">•••</div>
+                </div>
               </div>
 
               ${renderSocial(m.likes, m.comments)}
@@ -518,6 +568,12 @@ VIEWS.moments = () => {
     </div>`,
     
     init: (pg) => {
+      // 点赞 / 评论后刷新页面时，保持刚才展开的那条
+      if (window._wxOpenSocial != null) {
+        const keep = window._wxOpenSocial;
+        window._wxOpenSocial = null;
+        setTimeout(() => window.wxToggleRowSocial(keep), 0);
+      }
       const nav = pg.querySelector('#moments-nav');
       const title = pg.querySelector('#moments-nav-title');
       const scroll = pg.querySelector('#moments-scroll');

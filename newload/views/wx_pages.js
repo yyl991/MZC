@@ -110,6 +110,7 @@ window.openSearchHit = function (i) {
       avatar: h.avatar,
       post: h.post,
     };
+    window._mDetailOpen = false;
     push("wx_moments_detail");
   }
 };

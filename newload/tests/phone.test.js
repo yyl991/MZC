@@ -56,10 +56,9 @@ ok("phone tabbar clickable", r.html.includes("onclick=\"setPhoneTab('contacts')\
 sb.setPhoneTab("contacts");
 r = sb.VIEWS.phone();
 ok("phone contacts renders", r.html.includes("穆祉丞") && r.html.includes("通讯录"));
-// 收藏
-sb.setPhoneTab("fav");
+// 收藏页已删除，不该再出现入口
 r = sb.VIEWS.phone();
-ok("phone fav renders", r.html.includes("个人收藏"));
+ok("phone fav removed", !r.html.includes("个人收藏") && !r.html.includes("setPhoneTab('fav')"));
 // 语音留言
 sb.setPhoneTab("vm");
 r = sb.VIEWS.phone();

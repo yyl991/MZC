@@ -18,6 +18,7 @@ let ringIv = null,
   rbIv = null;
 let missOnly = false;
 let dialVal = "";
+let callIsNumber = false; // 拨号键盘直接拨的号码：对方不会回拨
 
 window.callWhen = function (s) {
   if (s.startsWith("今天 ")) {
@@ -35,7 +36,6 @@ window.callNameDisp = (n) => n;
 let phoneTab = "recent";
 let phoneEditMode = false;
 let dialBuf = "";
-const PHONE_FAV = ["穆祉丞", "MuAMuA", "穆小恩"];
 const PHONE_VM = [
   { from: "穆祉丞", time: "今天 23:02", dur: "0:14" },
   { from: "MuAMuA", time: "今天 23:05", dur: "0:09" },
@@ -115,7 +115,7 @@ window.phoneDialKey = function (k) {
     const el = document.getElementById("phoneDialNum");
     if (el) el.textContent = "";
     checkDialBtn();
-    return dial(n);
+    return dial(n, true);
   }
   if (k === "del") dialBuf = dialBuf.slice(0, -1);
   else if (dialBuf.length < 16) dialBuf += k;
@@ -153,13 +153,12 @@ VIEWS.phone = () => {
     (c) => !missOnly || c[2] === "未接来电",
   );
   const tabs = [
-    ["star", "收藏", "setPhoneTab('fav')"],
     ["clock", "最近通话", "setPhoneTab('recent')"],
     ["contacts", "通讯录", "setPhoneTab('contacts')"],
     ["keypad", "拨号键盘", "setPhoneTab('keypad')"],
     ["voicemail", "语音留言", "setPhoneTab('vm')"],
   ];
-  const tabIdx = { fav: 0, recent: 1, contacts: 2, keypad: 3, vm: 4 }[phoneTab];
+  const tabIdx = { recent: 0, contacts: 1, keypad: 2, vm: 3 }[phoneTab];
   let head = "";
   let body = "";
 
@@ -190,11 +189,6 @@ VIEWS.phone = () => {
         phoneRow(n, "手机", "", "phoneContactMenu(this.dataset.name)"),
       )
       .join("")}`;
-  } else if (phoneTab === "fav") {
-    head = `<div class="nav"><span></span><div class="nb-title">个人收藏</div><span></span></div>`;
-    body = `<h1 class="lt">收藏</h1>${PHONE_FAV.map((n) =>
-      phoneRow(n, "手机", "", "phoneContactMenu(this.dataset.name)"),
-    ).join("")}`;
   } else if (phoneTab === "vm") {
     head = `<div class="nav"><span></span><div class="nb-title">语音留言</div><span></span></div>`;
     body = `<h1 class="lt">语音留言</h1>${PHONE_VM.map(
@@ -216,7 +210,7 @@ VIEWS.phone = () => {
       ["0", "+"],
       ["#", ""],
     ];
-    body = `<div id="phoneDialNum" style="min-height:62px;font-size:34px;letter-spacing:2px;text-align:center;padding-top:26px;color:#111;word-break:break-all"></div>
+    body = `<div id="phoneDialNum" style="min-height:62px;font-size:34px;letter-spacing:2px;text-align:center;padding-top:72px;color:#111;word-break:break-all"></div>
       <div style="display:grid;grid-template-columns:repeat(3,74px);gap:12px 24px;justify-content:center;margin-top:14px">${keys
         .map(
           ([k, sub]) =>
@@ -233,11 +227,12 @@ VIEWS.phone = () => {
     html: `${head}<div class="scroll" style="padding-bottom:110px">${body}</div>${tabbar(tabs, tabIdx || 0)}`,
   };
 };
-window.dial = function (name) {
+window.dial = function (name, isNumber) {
   pauseBGM();
   if (callState) return;
   callName = name;
   callDir = "out";
+  callIsNumber = !!isNumber;
   callPrev = view;
   callState = "dialing";
   if (nowSong >= 0 || PLAYER.dataset.voice) PLAYER.pause();
@@ -507,7 +502,7 @@ window.endCall = function () {
     extraCalls.unshift([callName, "今天 " + gameTime24(), "呼出"]);
     closeCallUI();
     if (view === "phone") show("phone");
-    if (wasOut) window.scheduleCallBack(outName);
+    if (wasOut && !callIsNumber) window.scheduleCallBack(outName);
     return;
   }
   if (callState !== "active") return;
@@ -530,8 +525,8 @@ window.endCall = function () {
     closeCallUI();
     if (view === "phone") show("phone");
   }, 1100);
-  if (wasOut) window.scheduleCallBack(outName);
-  else if (secs < 8) window.scheduleCallAgain(inName, "hangup");
+  if (wasOut && !callIsNumber) window.scheduleCallBack(outName);
+  else if (!wasOut && secs < 8) window.scheduleCallAgain(inName, "hangup");
 };
 window.closeCallUI = function () {
   const c = OV.querySelector(".call");
@@ -707,7 +702,8 @@ VIEWS.sms_detail = () => {
         backFn: "back()",
         right: `<span onclick="dial('${esc(data.name)}')" style="color:#007aff; display:flex;">${G.handset}</span>`,
       }) +
-      `<div class="scroll" style="background:#f2f2f7; padding-top:88px; padding-bottom:100px; display:flex; flex-direction:column; gap:8px;">${data.msgs
+      `<div style="position:absolute;top:98px;left:0;right:0;z-index:6;background:#f2f2f7;padding:6px 16px;font-size:13px;color:#8e8e93;border-bottom:0.5px solid #e5e5ea;">收件人：<b style="color:#111;">${esc(data.name)}</b></div>` +
+      `<div class="scroll" style="background:#f2f2f7; padding-top:130px; padding-bottom:100px; display:flex; flex-direction:column; gap:8px;">${data.msgs
         .map((msg) => {
           if (msg.type === "card") {
             return `<div style="text-align:center; font-size:12px; color:#8e8e93; margin: 10px 0;">${msg.time}</div><div style="padding:0 16px; display:flex; flex-direction:column; align-items:flex-start;"><div style="max-width:85%; background:#e9e9eb; border-radius:16px; padding:12px 16px; color:#111;"><div style="font-size:15px; font-weight:600; margin-bottom:4px;">${esc(msg.title)}</div><div style="font-size:14px; line-height:1.4; color:#333;">${esc(msg.desc)}</div></div></div><div style="padding:0 16px; display:flex; flex-direction:column; align-items:flex-start; margin-top:-4px;"><div style="max-width:85%; background:#e9e9eb; border-radius:16px; overflow:hidden;">${msg.buttons.map((btn, i) => `<div onclick="toastDev()" style="font-size:15px; color:#007aff; padding:11px 16px; cursor:pointer; ${i > 0 ? "border-top:0.5px solid #d1d1d6;" : ""}">${esc(btn)}</div>`).join("")}</div></div>`;
