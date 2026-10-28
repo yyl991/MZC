@@ -1343,6 +1343,7 @@ function saveStory() {
       "wb_story",
       JSON.stringify({
         sig: window.DATA_SIG || "",
+        base: window.GAME_BASE || Date.now(),
         missed: [...(SS.missed || [])],
         stage: SS.stage,
         lineIdx: SS.lineIdx,

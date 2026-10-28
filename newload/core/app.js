@@ -6,7 +6,8 @@ const SCREEN = $("#screen"),
   LOCK = $("#lockL"),
   OV = $("#ov"),
   PLAYER = $("#player");
-const base = Date.now();
+const base = window.GAME_BASE || Date.now();
+window.GAME_BASE = base;
 const elapsed = () => (Date.now() - base) / 1000;
 
 // 本地调试（localhost / 127.0.0.1 / ?dev=1）直接进桌面，其它域名从锁屏开始

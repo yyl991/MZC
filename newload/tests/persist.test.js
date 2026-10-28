@@ -129,9 +129,27 @@ vm.runInContext("storyTick(4000)", b);
 const countC = vm.runInContext("chatData['穆祉丞'].length", b);
 ok("不会重复推送", countC === countB, countB + " -> " + countC);
 
-// 数据指纹变化后旧存档作废
+// 数据指纹
 const sig = a.DATA_SIG;
 ok("有数据指纹", typeof sig === "string" && sig.length > 0);
+
+// 刷新后游戏时钟要接着走，不能回到 23:09
+const saved1 = JSON.parse(shared["wb_story"]);
+ok("存档记录时钟起点", typeof saved1.base === "number");
+saved1.base = Date.now() - 120000; // 假装已经玩了 2 分钟
+shared["wb_story"] = JSON.stringify(saved1);
+const c = boot();
+const elapsedC = vm.runInContext("elapsed()", c);
+ok("刷新后时钟接着走", elapsedC > 110, elapsedC.toFixed(1) + "s");
+ok("刷新后聊天仍一致", vm.runInContext("chatData['穆祉丞'].length", c) === countA);
+
+// 超过 6 小时的存档整体作废（剧情 + 聊天一起清）
+const saved2 = JSON.parse(shared["wb_story"]);
+saved2.base = Date.now() - 7 * 3600 * 1000;
+shared["wb_story"] = JSON.stringify(saved2);
+boot();
+ok("过期存档清掉剧情", !shared["wb_story"]);
+ok("过期存档清掉聊天", !Object.keys(shared).some((k) => k.startsWith("wx_chat_")));
 
 console.log(fails === 0 ? "ALL PASS" : fails + " FAILS");
 process.exit(fails ? 1 : 0);

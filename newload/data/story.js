@@ -493,7 +493,18 @@ var INCOMING = [];
     const savedStory = localStorage.getItem("wb_story");
     if (savedStory) {
       const parsed = JSON.parse(savedStory);
-      if (!parsed.sig || parsed.sig === window.DATA_SIG) {
+      const age = Date.now() - (parsed.base || 0);
+      const stale = age > 6 * 3600 * 1000;
+      if (parsed.sig && parsed.sig !== window.DATA_SIG) {
+        localStorage.removeItem("wb_story");
+        localStorage.removeItem("wx_chat_" + window.DATA_SIG);
+      } else if (stale) {
+        // 超过 6 小时的存档直接作废，连同聊天记录一起清掉，避免时间对不上
+        localStorage.removeItem("wb_story");
+        localStorage.removeItem("wx_chat_" + window.DATA_SIG);
+      } else if (!parsed.sig || parsed.sig === window.DATA_SIG) {
+        // 恢复游戏时钟起点，刷新后时间继续走
+        if (parsed.base) window.GAME_BASE = parsed.base;
         window.STORY_STATE.stage = parsed.stage || {};
         window.STORY_STATE.lineIdx = parsed.lineIdx || {};
         window.STORY_STATE.choice = parsed.choice || null;
