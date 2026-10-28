@@ -9,6 +9,19 @@ const SCREEN = $("#screen"),
 const base = Date.now();
 const elapsed = () => (Date.now() - base) / 1000;
 
+// 本地调试（localhost / 127.0.0.1 / ?dev=1）直接进桌面，其它域名从锁屏开始
+const IS_DEV_HOST = (() => {
+  try {
+    if (/[?&]dev=1\b/.test(location.search)) return true;
+    if (/[?&]dev=0\b/.test(location.search)) return false;
+    return /^(localhost|127\.0\.0\.1|0\.0\.0\.0|::1|\[::1\])$/.test(
+      location.hostname,
+    );
+  } catch (e) {
+    return false;
+  }
+})();
+
 window.preloadAssets = function () {
   const assets = new Set();
   if (window.STORY && window.STORY.roles)
@@ -247,7 +260,7 @@ function ncardHTML(n) {
 function renderLock() {
   const showNotes = lockNotes.slice(0, 7);
   $("#lkc").innerHTML =
-    `<div class="lk-date">${CFG.start?.date || "11月15日"} ${CFG.start?.weekday || "星期日"}</div><div class="lk-time" id="lkt">${clock12(false)}</div><div class="lk-dnd-wrap"><button class="lk-dnd ${window.isDnd ? "on" : ""}" onclick="toggleDnd(event)"><span style="filter:${window.isDnd ? "none" : "grayscale(100%)"}; margin-right:4px;">🌙</span>${window.isDnd ? "免打扰已开启" : "开启免打扰"}</button></div><div class="lk-notes">${showNotes.map((n, i) => `<button class="ncard" onclick="lockNoteTap(${i},event)">${ncardHTML(n)}</button>`).join("")}</div><div class="lk-hint">向上轻扫以打开</div>`;
+    `<div class="lk-date">${CFG.start?.date || "11月15日"} ${CFG.start?.weekday || "星期日"}</div><div class="lk-time" id="lkt">${clock12(false)}</div><div class="lk-dnd-wrap"><button class="lk-dnd ${window.isDnd ? "on" : ""}" onclick="toggleDnd(event)"><span style="filter:${window.isDnd ? "none" : "grayscale(100%)"}; margin-right:4px;">🌙</span>${window.isDnd ? "免打扰已开启" : "开启免打扰"}</button></div><div class="lk-reset-wrap"><button class="lk-dnd" onclick="askResetProgress(event)">♻️ 重置进度</button></div><div class="lk-notes">${showNotes.map((n, i) => `<button class="ncard" onclick="lockNoteTap(${i},event)">${ncardHTML(n)}</button>`).join("")}</div><div class="lk-hint">向上轻扫以打开</div>`;
 }
 function toggleDnd(e) {
   if (e) e.stopPropagation();
@@ -256,6 +269,28 @@ function toggleDnd(e) {
   renderLock();
   updateDndBadge();
 }
+
+// 清空聊天存档 + 剧情进度 + 微博签到，然后重启
+window.resetAllProgress = function () {
+  try {
+    Object.keys(localStorage)
+      .filter(
+        (k) =>
+          k.indexOf("wx_chat_") === 0 || k === "wb_story" || k === "wb_sign",
+      )
+      .forEach((k) => localStorage.removeItem(k));
+  } catch (e) {}
+  location.reload();
+};
+window.askResetProgress = function (e) {
+  if (e) e.stopPropagation();
+  const run = () => window.resetAllProgress();
+  if (typeof wxActionSheet === "function") {
+    wxActionSheet("重置所有进度？", [
+      { label: "清空聊天记录与剧情进度", danger: true, onClick: run },
+    ]);
+  } else if (confirm("重置所有进度？")) run();
+};
 function updateDndBadge() {
   let badge = document.getElementById("dnd-badge");
   if (!badge) {
@@ -1100,10 +1135,20 @@ function initApp() {
   addEventListener("resize", fit);
   fit();
   window.preloadAssets();
-  view = "home";
-  LOCK.style.display = "none";
-  renderHome();
-  HOME.style.visibility = "visible";
+  if (IS_DEV_HOST) {
+    // 本地调试：跳过锁屏，直接进桌面
+    view = "home";
+    LOCK.style.display = "none";
+    renderHome();
+    HOME.style.visibility = "visible";
+  } else {
+    // 正式链接：从锁屏开始，上滑 + PIN 1116 才进桌面
+    view = "lock";
+    HOME.style.visibility = "hidden";
+    LOCK.style.display = "block";
+    LOCK.style.visibility = "visible";
+    renderLock();
+  }
   setStatus(true);
   setInterval(tick, 1000);
   tick();

@@ -21,7 +21,7 @@ const mkEl = (id) => ({
   removeChild() {},
   remove() {},
   animate() {},
-  querySelector: (sel) => mkEl(sel),
+  querySelector: (sel) => (_els["q:" + sel] = _els["q:" + sel] || mkEl(sel)),
   querySelectorAll: () => [],
   addEventListener() {},
   innerHTML: "",
@@ -36,10 +36,11 @@ const mkEl = (id) => ({
 const sb = { console };
 sb.window = sb;
 sb.globalThis = sb;
+const _els = {};
 sb.document = {
   createElement: (t) => mkEl(t),
-  getElementById: (id) => mkEl(id),
-  querySelector: (sel) => mkEl(sel),
+  getElementById: (id) => (_els[id] = _els[id] || mkEl(id)),
+  querySelector: (sel) => (_els["q:" + sel] = _els["q:" + sel] || mkEl(sel)),
   querySelectorAll: () => [],
   addEventListener() {},
   body: mkEl("body"),
@@ -142,6 +143,18 @@ ok("关键视图齐全", missing.length === 0, missing.join(","));
 ok("路由函数存在", typeof sb.show === "function" && typeof sb.back === "function");
 ok("聊天存档函数存在", typeof sb.saveChat === "function");
 ok("数据已装载", sb.chatNames.length > 5, sb.chatNames.length);
+ok("本地调试判定存在", typeof vm.runInContext("IS_DEV_HOST", sb) === "boolean");
+ok("重置进度函数存在", typeof sb.askResetProgress === "function" && typeof sb.resetAllProgress === "function");
+let lockErr = null;
+try {
+  vm.runInContext("renderLock()", sb);
+} catch (e) {
+  lockErr = e.message;
+}
+ok("锁屏可渲染", !lockErr, lockErr);
+const lockHTML = vm.runInContext('document.querySelector("#lkc").innerHTML', sb);
+ok("锁屏有免打扰按钮", String(lockHTML).includes("免打扰"), lockHTML.slice(0, 60));
+ok("锁屏有重置进度按钮", String(lockHTML).includes("重置进度"));
 
 console.log(fails === 0 ? "ALL PASS" : fails + " FAILS");
 process.exit(fails ? 1 : 0);

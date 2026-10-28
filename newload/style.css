@@ -4281,6 +4281,14 @@ svg {
     justify-content: center;
 }
 
+.lk-reset-wrap {
+    position: absolute;
+    top: 790px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 .lk-dnd {
     display: flex;
     align-items: center;
