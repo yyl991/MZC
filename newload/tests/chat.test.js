@@ -70,6 +70,10 @@ ok("列表昨天", sb.wxListTime("11月14日", "下午 3:00") === "昨天", sb.w
 ok("列表周x", sb.wxListTime("11月10日", "下午 3:00") === "周二", sb.wxListTime("11月10日", "下午 3:00"));
 ok("列表今年", sb.wxListTime("3月2日", "下午 3:00") === "3月2日", sb.wxListTime("3月2日", "下午 3:00"));
 ok("列表跨年", sb.wxListTime("2025年3月2日", "下午 3:00") === "2025年3月2日", sb.wxListTime("2025年3月2日", "下午 3:00"));
+// 数据末尾常挂着一条空的 date 行（留给今晚的消息），不能算成「最后一条消息的日期」
+sb.chatData["穆祉丞"] = [["2025年11月16日", "date"], ["😼🎂", "them", "上午 12:00"], ["11月15日", "date"]];
+ok("末尾空 date 行不算今天", sb.chatLastDate("穆祉丞") === "2025年11月16日", sb.chatLastDate("穆祉丞"));
+ok("列表取最后一条消息的日期", sb.wxListTime(sb.chatLastDate("穆祉丞"), "上午 12:00") === "2025年11月16日", sb.wxListTime(sb.chatLastDate("穆祉丞"), "上午 12:00"));
 // 微信里所有时间小时补零
 ok("时间补零", sb.padHm("下午 6:16") === "下午 06:16" && sb.padHm("昨天 下午 6:16") === "昨天 下午 06:16", sb.padHm("昨天 下午 6:16"));
 console.log(fails===0?"ALL PASS":fails+" FAILS");

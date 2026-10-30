@@ -662,10 +662,15 @@ function wxListTime(dateLabel, timeStr) {
 
 // 会话最后一条消息落在哪个日期段（没有 date 行就按今天算）
 function chatLastDate(name) {
+  // 取「最后一条消息」所属的日期段；数据末尾常挂着一条空的 date 行（留给今晚的消息），不能算
   const arr = chatData[name] || [];
-  let cur = "";
-  for (const m of arr) if (m[1] === "date") cur = m[0];
-  return cur || gameTodayLabel();
+  let cur = "",
+    lastSeen = "";
+  for (const m of arr) {
+    if (m[1] === "date") cur = m[0];
+    else lastSeen = cur;
+  }
+  return lastSeen || gameTodayLabel();
 }
 
 // 往某个会话 push 新消息前，保证它最后一条 date 分隔就是今天
