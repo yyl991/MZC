@@ -30,18 +30,6 @@ var INCOMING = [];
     memoPin: "0913",
   };
 
-  /*
-  S.roles = {
-    穆小恩: { initial: "闺", color: "#8e8e93" },
-    MuAMuA: { initial: "妈", color: "#f6b6c8" },
-    穆老爹: { initial: "爸", color: "#7d8ea8" },
-    丞哥: { initial: "哥", color: "#c9a227" },
-    穆祉丞: { initial: "丞", color: "#ff8a3d" },
-    穆瑞恩: { initial: "瑞", color: "#9ad0ec" },
-    恩仔: { initial: "恩", color: "#d9a7c7" },
-    Mu: { initial: "M", color: "#3a3a3c" },
-  };*/
-
   S.roles = {
     MuAMuA: { initial: "妈", color: "#f6b6c8", avatar: "./data/avatar/mama.jpg", pat: ":不是说学了吗‎•᷄ࡇ•᷅" },
     恩恩: { initial: "婆", color: "#f6b6c8", avatar: "./data/avatar/enen.jpg", pat: "，哼" },
