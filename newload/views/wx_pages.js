@@ -11,6 +11,13 @@ window.wxToggleChatSetting = function (key, el) {
   if (el) el.classList.toggle("on", s[key]);
   vib(8);
 };
+// 黑名单：和「消息免打扰」「置顶聊天」一样的左右开关
+window.wxToggleBlock = function (el) {
+  const on = !!(window._wxBlocked && window._wxBlocked[chatId]);
+  if (el) el.classList.toggle("on", !on);
+  if (on) wxUnblockChat(chatId);
+  else wxBlockChat(chatId);
+};
 window.wxSetRemark = function () {
   const cur = window._wxRemarks[chatId] || "";
   wxPrompt("设置备注", cur || "输入备注名", function (v) {
@@ -84,7 +91,7 @@ VIEWS.wx_chat_info = () => {
       </div>
       <div style="background:#fff;margin-top:8px;">
         ${wxCell("设置备注和标签", `<span class="wx-cell-chev">${G.chevR}</span>`, "wxSetRemark()")}
-        ${wxCell(`<span style="color:#fa5151">${window._wxBlocked && window._wxBlocked[chatId] ? "移出黑名单" : "加入黑名单"}</span>`, `<span class="wx-cell-chev">${G.chevR}</span>`, window._wxBlocked && window._wxBlocked[chatId] ? "wxUnblockChat(chatId)" : "wxBlockChat(chatId)")}
+        ${wxCell("加入黑名单", `<button class="sw ${window._wxBlocked && window._wxBlocked[chatId] ? "on" : ""}" onclick="wxToggleBlock(this)"></button>`)}
         ${wxCell("清空聊天记录", `<span class="wx-cell-chev">${G.chevR}</span>`, "wxClearChat()", true)}
       </div>
       <div style="background:#fff;margin-top:8px;">

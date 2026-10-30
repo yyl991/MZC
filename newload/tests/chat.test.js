@@ -44,7 +44,7 @@ let hp2 = sb.VIEWS.chat().html;
 ok("拍一拍补小尾巴", hp2.includes('拍了拍 &quot;穆祉丞&quot;') && hp2.includes("叫哥哥") && !hp2.includes("[系统]"), "pat=" + hp2.includes("叫哥哥"));
 // 拉黑后我发的消息要有红色叹号（没有验证提示）
 sb._wxBlocked["穆祉丞"] = true;
-sb._wxBlockedSince["穆祉丞"] = sb.chatData["穆祉丞"].length - 1;
+sb._wxBlockedSince["穆祉丞"] = sb.chatData["穆祉丞"].slice(-1)[0];
 sb.chatData["穆祉丞"].push(["拉黑后发的", "me", "下午 11:41"]);
 let hb = sb.VIEWS.chat().html;
 ok("拉黑红色叹号", hb.includes("wx-reject-ic"), "no icon");

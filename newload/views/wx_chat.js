@@ -827,8 +827,13 @@ function chatMsgs(id) {
       }
     }
     // 被拒收（对方删了我）与拉黑：都要红色叹号；拒收才带下面那行验证提示
-    const blockedSince = window._wxBlocked && window._wxBlocked[id] ? window._wxBlockedSince?.[id] : undefined;
-    const isBlockedSend = me && !x.rejected && blockedSince != null && x.rawIdx >= blockedSince;
+    let isBlockedSend = false;
+    if (me && !x.rejected && window._wxBlocked && window._wxBlocked[id]) {
+      // 锚点 = 拉黑那一刻的最后一条消息；按行对象定位，删消息/清空都不会算错
+      const anchor = window._wxBlockedSince && window._wxBlockedSince[id];
+      const ai = anchor ? (chatData[id] || []).indexOf(anchor) : -1;
+      isBlockedSend = !anchor || ai < 0 || x.rawIdx > ai;
+    }
     const rejHtml =
       me && (x.rejected || isBlockedSend)
         ? `<span class="wx-reject-ic" onclick="event.stopPropagation();toastDev('消息已发出，但被对方拒收了。')">!</span>`
@@ -991,8 +996,8 @@ window.wxBlockChat = function (name) {
   name = name || chatId;
   if (!name) return;
   window._wxBlocked[name] = true;
-  // 记住拉黑时聊到第几条：之后我发的消息都显示红色叹号
-  window._wxBlockedSince[name] = (chatData[name] || []).length;
+  // 记住拉黑时聊到哪一条（存行对象）：之后我发的消息都显示红色叹号
+  window._wxBlockedSince[name] = (chatData[name] || []).slice(-1)[0] || null;
   if (typeof window.clearPatience === "function") window.clearPatience(name);
   vib(20);
   toastDev("已加入黑名单，对方无法再给你发消息");

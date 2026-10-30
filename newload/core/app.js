@@ -162,15 +162,21 @@ let pincode = "",
   mailId = 0;
 let unread = {};
 let callName = "穆祉丞";
-let lockNotes = [
-  {
+// 锁屏第一条通知：直接取聊天里最后一条对方消息，点进去能对上，不凭空造一条
+let lockNotes = [(() => {
+  const arr = (typeof chatData !== "undefined" && chatData["穆祉丞"]) || [];
+  const last = arr.filter((m) => m[1] === "them").slice(-1)[0];
+  const body = last
+    ? String(last[0]).replace(/^\[(图片|视频|语音|表情)\]/, "$1")
+    : "你去哪了？手机怎么在街上？";
+  return {
     title: "穆祉丞",
     from: "穆祉丞",
-    body: "你去哪了？手机怎么在街上？",
+    body,
     app: "wechat",
-    time: "23:09",
-  },
-];
+    time: (last && last[2]) || "23:09",
+  };
+})()];
 let nowSong = -1;
 window.isDnd = false;
 
@@ -1232,8 +1238,8 @@ function tick() {
   const lk = $("#lkt");
   if (lk) lk.textContent = clock12();
 
-  // 锁屏上适时提醒：穆祉丞太吵，建议开免打扰
-  if (!window._dndHintShown && view === "lock" && elapsed() > 22) {
+  // 锁屏上适时提醒：穆祉丞真的刷屏了才建议开免打扰（刷新页面不会再立刻弹）
+  if (!window._dndHintShown && view === "lock" && elapsed() > 60 && (window._mzcNoise || 0) >= 3) {
     window._dndHintShown = true;
     lockNotes.unshift({
       title: "免打扰建议",
