@@ -39,9 +39,9 @@ hp=sb.VIEWS.chat().html;
 ok("超过 10 分钟显示时间", (hp.match(/wx-dpill/g)||[]).length===2, "count="+(hp.match(/wx-dpill/g)||[]).length);
 // 手写的 [系统] 你拍了拍xxx 要换成带小尾巴的拍一拍
 sb.CFG.roles["穆祉丞"] = { pat: "叫哥哥" };
-sb.chatData["穆祉丞"].push(["[系统] 你拍了拍他", "sys", "下午 11:40"]);
+sb.chatData["穆祉丞"].push(["[系统] 我拍了拍他", "sys", "下午 11:40"]);
 let hp2 = sb.VIEWS.chat().html;
-ok("拍一拍补小尾巴", hp2.includes('拍了拍 &quot;穆祉丞&quot;') && hp2.includes("叫哥哥") && !hp2.includes("[系统]"), "pat=" + hp2.includes("叫哥哥"));
+ok("拍一拍补小尾巴", hp2.includes('我拍了拍&quot;穆祉丞&quot;') && hp2.includes("叫哥哥") && !hp2.includes("[系统]"), "pat=" + hp2.includes("叫哥哥"));
 // 拉黑后我发的消息要有红色叹号（没有验证提示）
 sb._wxBlocked["穆祉丞"] = true;
 sb._wxBlockedSince["穆祉丞"] = sb.chatData["穆祉丞"].slice(-1)[0];
@@ -58,4 +58,10 @@ ok("rejected icon", hc.includes("wx-reject-ic"), "none");
 ok("rejected tip", hc.includes("开启了朋友验证"), "none");
 ok("rejected tip exists", (hc.match(/wx-reject-tip/g)||[]).length >= 1, "count="+(hc.match(/wx-reject-tip/g)||[]).length);
 ok("rejected count", (hc.match(/wx-reject-ic/g)||[]).length >= 1, "count="+(hc.match(/wx-reject-ic/g)||[]).length);
+// 会话列表时间：今天→时间，昨天→昨天，一周内→周x，今年→x月x日，跨年→年月日
+ok("列表今天", sb.wxListTime("11月15日", "下午 3:00") === "下午 03:00", sb.wxListTime("11月15日", "下午 3:00"));
+ok("列表昨天", sb.wxListTime("11月14日", "下午 3:00") === "昨天", sb.wxListTime("11月14日", "下午 3:00"));
+ok("列表周x", sb.wxListTime("11月10日", "下午 3:00") === "周二", sb.wxListTime("11月10日", "下午 3:00"));
+ok("列表今年", sb.wxListTime("3月2日", "下午 3:00") === "3月2日", sb.wxListTime("3月2日", "下午 3:00"));
+ok("列表跨年", sb.wxListTime("2025年3月2日", "下午 3:00") === "2025年3月2日", sb.wxListTime("2025年3月2日", "下午 3:00"));
 console.log(fails===0?"ALL PASS":fails+" FAILS");

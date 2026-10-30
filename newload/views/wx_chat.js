@@ -559,7 +559,8 @@ function getWxTimeString(dateLabel, timeStr) {
     const d = parseInt(dm[3]);
     msgDate = new Date(y, mo, d);
   }
-  const today = new Date(2026, 10, 15);
+  const tp = parseChatDate(gameTodayLabel()) || { y: 2026, m: 11, d: 15 };
+  const today = new Date(tp.y, tp.m - 1, tp.d);
   const diffDays = Math.floor((today - msgDate) / (1000 * 60 * 60 * 24));
   if (diffDays === 0) return timeOnly;
   if (diffDays === 1) return `昨天 ${timeOnly}`;
@@ -637,6 +638,36 @@ function chatLastStamp(name) {
   return Date.UTC(p.y, p.m - 1, p.d) / 60000 + timeToMin(last.time);
 }
 
+// 游戏里的「今天」：23:09–23:59 算 11月15日，零点后算 11月16日
+function gameTodayLabel() {
+  const mins = (typeof gameMin === "function") ? gameMin() : (23 * 60 + 9);
+  return mins >= 24 * 60 ? "11月16日" : ((CFG.start && CFG.start.date) || "11月15日");
+}
+
+// 会话列表右侧时间：今天显示时间，昨天→昨天，一周内→周x，今年→x月x日，跨年→yyyy年x月x日
+function wxListTime(dateLabel, timeStr) {
+  const t = wxTimeLabel(timeStr);
+  const p = parseChatDate(dateLabel);
+  const td = parseChatDate(gameTodayLabel());
+  if (!p || !td) return t;
+  const ms = Date.UTC(p.y, p.m - 1, p.d);
+  const now = Date.UTC(td.y, td.m - 1, td.d);
+  const diff = Math.round((now - ms) / 86400000);
+  if (diff <= 0) return t;
+  if (diff === 1) return "昨天";
+  if (diff < 7) return ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][new Date(ms).getUTCDay()];
+  if (p.y === td.y) return `${p.m}月${p.d}日`;
+  return `${p.y}年${p.m}月${p.d}日`;
+}
+
+// 会话最后一条消息落在哪个日期段（没有 date 行就按今天算）
+function chatLastDate(name) {
+  const arr = chatData[name] || [];
+  let cur = "";
+  for (const m of arr) if (m[1] === "date") cur = m[0];
+  return cur || gameTodayLabel();
+}
+
 // 往某个会话 push 新消息前，保证它最后一条 date 分隔就是今天
 // 否则新消息会落在历史日期段里，chatLastStamp 会算出旧时间
 function ensureChatToday(from) {
@@ -679,7 +710,7 @@ VIEWS.wechat = () => {
       .map((n) => {
         const arr = chatData[n] || [];
         let last = arr.filter((x) => x[1] !== "date").slice(-1)[0];
-        const time = last ? wxTimeLabel(last[2]) : "";
+        const time = last ? wxListTime(chatLastDate(n), last[2]) : "";
         let cnt = unread[n] || 0;
         const badge = cnt
           ? `<span class="wx-badge">${cnt > 99 ? "99+" : cnt}</span>`
@@ -701,11 +732,11 @@ function normalizePatSys(text, id) {
   let s = String(text || "").replace(/^[\[【]\s*系统\s*[\]】]\s*/, "").trim();
   if (!/拍了/.test(s)) return s;
   // 双击头像生成的已经是带小尾巴的格式，原样返回
-  if (/^["“]你["”]\s*拍了拍/.test(s)) return s;
-  if (!/^你\s*拍了拍/.test(s)) return s;
+  if (/^["]我["]\s*拍了拍/.test(s)) return s;
+  if (!/^我\s*拍了拍/.test(s)) return s;
   const role = CFG && CFG.roles && CFG.roles[id];
   const suffix = role && role.pat ? role.pat : "";
-  return `"你" 拍了拍 "${wxName(id)}"${suffix ? " " + suffix : ""}`;
+  return `我拍了拍"${wxName(id)}"${suffix ? " " + suffix : ""}`;
 }
 
 function chatItems(id) {
@@ -1087,12 +1118,12 @@ function doPat(isSelf) {
   let msg = "";
   if (isSelf) {
     const myPat = CFG && CFG.myPat ? CFG.myPat : "";
-    msg = `"你" 拍了拍自己${myPat ? " " + myPat : ""}`;
+    msg = `我拍了拍自己${myPat ? " " + myPat : ""}`;
   } else {
     const targetRole = CFG.roles && CFG.roles[chatId];
     const targetSuffix = targetRole && targetRole.pat ? targetRole.pat : "";
     const targetName = wxName(chatId);
-    msg = `"你" 拍了拍 "${targetName}"${targetSuffix ? " " + targetSuffix : ""}`;
+    msg = `我拍了拍 "${targetName}"${targetSuffix ? " " + targetSuffix : ""}`;
   }
   chatData[chatId].push([msg, "sys", time]);
   saveChat();
