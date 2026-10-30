@@ -272,8 +272,8 @@ function ncardHTML(n) {
 }
 
 function renderLock() {
-  // iOS 风格：只展开最新 3 条，更早的折叠成一行提示
-  const MAX = 3;
+  // iOS 风格：只展开最新 4 条，更早的折叠成一行提示
+  const MAX = 4;
   const shown = lockNotes.slice(0, MAX);
   const rest = lockNotes.length - shown.length;
   $("#lkc").innerHTML =
