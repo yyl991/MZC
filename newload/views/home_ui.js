@@ -237,7 +237,17 @@
         ${musicHTML}
         ${appBtn("bilibili")}${appBtn("xhs")}
       </div>
-      <div class="dock">${dockApps.map(appBtn).join("")}</div>
+      <div class="dock">${dockApps.map(appBtn).join("")}<button class="app dock-dnd ${window.isDnd ? "on" : ""}" id="home-dnd" onclick="event.stopPropagation();toggleDnd(event)"><div class="icon dock-dnd-ic"><div class="ic">🌙</div></div><span class="lbl">免打扰</span></button></div>
+      <div class="cc" id="cc" onclick="if(event.target===this)closeCC()">
+        <div class="cc-panel">
+          <div class="cc-title">控制中心</div>
+          <button class="cc-dnd ${window.isDnd ? "on" : ""}" id="cc-dnd" onclick="event.stopPropagation();toggleDnd(event)">
+            <span class="cc-dnd-ic">🌙</span>
+            <span class="cc-dnd-main"><b>免打扰</b><small class="cc-dnd-s">${window.isDnd ? "已开启，锁屏不再弹消息" : "开启后锁屏不再弹消息"}</small></span>
+          </button>
+          <div class="cc-tip">从屏幕顶部下拉可再次打开</div>
+        </div>
+      </div>
     `;
 
     // 绑定音频结束自动切图

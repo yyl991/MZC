@@ -237,7 +237,7 @@ window.dial = function (name, isNumber) {
   callState = "dialing";
   if (nowSong >= 0 || PLAYER.dataset.voice) PLAYER.pause();
   APP.querySelectorAll("video").forEach((v) => v.pause());
-  OV.querySelectorAll(".banner").forEach((b) => b.remove());
+  OV.querySelectorAll(".banner:not(.story-choice)").forEach((b) => b.remove());
   renderCall();
   rbIv = setTimeout(() => {
     if (callState === "dialing") endCall();
@@ -261,6 +261,8 @@ window.stopRing = function () {
   } catch (e) {}
 };
 window.incomingCallFrom = function (from = "穆祉丞") {
+  if (window._wxBlocked && window._wxBlocked[from]) return;
+  if (typeof SS !== "undefined" && SS.arriveHome) return;
   pauseBGM();
   const BGM = document.getElementById("bgm");
   if (BGM) BGM.pause();
@@ -270,7 +272,7 @@ window.incomingCallFrom = function (from = "穆祉丞") {
   callState = "ring";
   if (nowSong >= 0 || PLAYER.dataset.voice) PLAYER.pause();
   APP.querySelectorAll("video").forEach((v) => v.pause());
-  OV.querySelectorAll(".banner").forEach((b) => b.remove());
+  OV.querySelectorAll(".banner:not(.story-choice)").forEach((b) => b.remove());
   renderCall();
   startRing();
   ringTo = setTimeout(missCall, 30000);
@@ -374,10 +376,23 @@ window.wireSlider = function () {
     }
   });
 };
+function genericCallScript(name) {
+  const n = typeof dn === "function" ? dn(name) : name;
+  return [
+    [n, "喂，是我。"],
+    ["你", "嗯，我在听。"],
+    [n, "你什么时候回来。"],
+    ["你", "马上。"],
+    [n, "我等你。"],
+  ];
+}
 window.answerCall = function () {
   if (callDir === "in") {
-    curScript = CFG.callScripts?.[callName] ||
-      speech || [["对方", "喂？听得到吗？"]];
+    // 没写专属通话内容的人也要有台词，不能接通一片空白
+    curScript =
+      (CFG.callScripts && CFG.callScripts[callName]) ||
+      (Array.isArray(speech) && speech.length ? speech : null) ||
+      genericCallScript(callName);
     isEnding = true;
   }
   stopRing();
@@ -429,6 +444,7 @@ function lastMsgFromMe(name) {
   return false;
 }
 function botSay(name, text) {
+  if (window._wxBlocked && window._wxBlocked[name]) return;
   if (lastMsgFromMe(name)) return;
   if (typeof chatData === "undefined" || !chatData[name]) return;
   chatData[name].push([
@@ -466,6 +482,7 @@ const CALL_ANGRY = ["行，不打了。", "随便你吧。", "……好。", "�
 /* 猪被挂电话：先扣一个问号，然后开始狂发哭脸表情包 */
 function pigCryFlood() {
   if (typeof chatData === "undefined" || !chatData["pig"]) return;
+  if (window._wxBlocked && window._wxBlocked["pig"]) return;
   const send = (text, delay) =>
     setTimeout(() => {
       chatData["pig"].push([
@@ -487,12 +504,13 @@ function pigCryFlood() {
 window._lastNag = window._lastNag || {};
 window.scheduleCallAgain = function (name, mode) {
   if (!name) return;
+  if (window._wxBlocked && window._wxBlocked[name]) return;
   // 已经回过消息就不再追命
   if (lastMsgFromMe(name)) return;
   const n = (window._callHits[name] || 0) + 1;
   window._callHits[name] = n;
   const isMzc = name === "穆祉丞";
-  const maxHit = isMzc ? 5 : 3;
+  const maxHit = 3; // 每人最多打三次，再多就没法看了
   if (n > maxHit) {
     // 挂太多次，对方生气收手
     botSay(name, CALL_ANGRY[Math.floor(Math.random() * CALL_ANGRY.length)]);
@@ -515,6 +533,7 @@ window.scheduleCallAgain = function (name, mode) {
 // 你打给谁，对方都会回拨过来
 window.scheduleCallBack = function (name) {
   if (!name) return;
+  if (window._wxBlocked && window._wxBlocked[name]) return;
   clearTimeout(window._callBackTo);
   window._callBackTo = setTimeout(() => {
     if (callState) return;

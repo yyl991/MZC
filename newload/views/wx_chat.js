@@ -13,10 +13,8 @@ const MOCK_MOMENTS_DATA = {
         images: [],
         location: "家里",
         time: "2026年11月15日 21:40",
-        likes: ["穆小恩", "恩恩", "兔子", "丞丞"],
-        comments: [
-          { user: "穆小恩", text: "人呢？电话不接。", replyTo: "" }
-        ]
+        likes: ["恩恩", "兔子", "丞丞小队长"],
+        comments: []
       },
       {
         id: 102,
@@ -25,7 +23,7 @@ const MOCK_MOMENTS_DATA = {
         images: [],
         location: "",
         time: "2026年9月13日 23:11",
-        likes: ["丞丞", "Mu"],
+        likes: ["丞丞小队长", "Mu"],
         comments: []
       }
     ]
@@ -69,39 +67,6 @@ const MOCK_MOMENTS_DATA = {
     ]
   },
 
-  "穆小恩": {
-    wxid: "haoguimi",
-    region: "北京",
-    cover: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=800",
-    posts: [
-      {
-        id: 301,
-        date: { day: "昨天", month: "" },
-        text: "等一个人。他不来我自己喝。",
-        images: [],
-        location: "楼下小馆",
-        time: "2026年11月14日 21:40",
-        likes: ["穆祉丞"],
-        comments: [
-          { user: "穆祉丞", text: "两瓶？", replyTo: "" },
-          { user: "穆小恩", text: "一瓶没开，你猜是哪瓶。", replyTo: "穆祉丞" }
-        ]
-      },
-      {
-        id: 302,
-        date: { day: "10", month: "11月" },
-        text: "第一张是待办。下面六张都是骂人的。",
-        images: [],
-        location: "工位",
-        time: "2026年11月10日 12:30",
-        likes: ["恩仔"],
-        comments: [
-          { user: "恩仔", text: "穆小恩加油！", replyTo: "" }
-        ]
-      }
-    ]
-  },
-
   "恩恩": {
     wxid: "laopo_jiao",
     region: "重庆",
@@ -114,11 +79,8 @@ const MOCK_MOMENTS_DATA = {
         images: [],
         location: "家",
         time: "2026年11月15日 20:10",
-        likes: ["兔子", "穆小恩"],
-        comments: [
-          { user: "穆小恩", text: "别等了，他手机丢了。", replyTo: "" },
-          { user: "恩恩", text: "……哦。", replyTo: "穆小恩" }
-        ]
+        likes: ["兔子"],
+        comments: []
       },
       {
         id: 402,
@@ -154,7 +116,7 @@ const MOCK_MOMENTS_DATA = {
     ]
   },
 
-  "丞丞": {
+  "丞丞小队长": {
     wxid: "chengcheng",
     region: "重庆",
     cover: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=800",
@@ -166,10 +128,10 @@ const MOCK_MOMENTS_DATA = {
         images: [],
         location: "",
         time: "2026年7月15日 18:20",
-        likes: ["穆祉丞", "穆小恩"],
+        likes: ["穆祉丞"],
         comments: [
           { user: "穆祉丞", text: "恭喜。", replyTo: "" },
-          { user: "丞丞", text: "最后一名也是名。", replyTo: "穆祉丞" }
+          { user: "丞丞小队长", text: "最后一名也是名。", replyTo: "穆祉丞" }
         ]
       },
       {
@@ -182,7 +144,7 @@ const MOCK_MOMENTS_DATA = {
         likes: ["穆祉丞"],
         comments: [
           { user: "穆祉丞", text: "耍起！", replyTo: "" },
-          { user: "丞丞", text: "等考完。真的。", replyTo: "穆祉丞" }
+          { user: "丞丞小队长", text: "等考完。真的。", replyTo: "穆祉丞" }
         ]
       }
     ]
@@ -221,7 +183,7 @@ const MOCK_MOMENTS_DATA = {
         images: [],
         location: "训练室",
         time: "2026年11月14日 23:52",
-        likes: ["丞丞"],
+        likes: ["丞丞小队长"],
         comments: []
       },
       {
@@ -233,8 +195,8 @@ const MOCK_MOMENTS_DATA = {
         time: "2026年11月12日 01:30",
         likes: [],
         comments: [
-          { user: "丞丞", text: "几点了哥。", replyTo: "" },
-          { user: "Mu", text: "1", replyTo: "丞丞" }
+          { user: "丞丞小队长", text: "几点了哥。", replyTo: "" },
+          { user: "Mu", text: "1", replyTo: "丞丞小队长" }
         ]
       }
     ]
@@ -252,11 +214,8 @@ const MOCK_MOMENTS_DATA = {
         images: [],
         location: "厨房",
         time: "2026年11月15日 18:00",
-        likes: ["恩恩", "穆小恩"],
-        comments: [
-          { user: "穆小恩", text: "阿姨我可以去喝吗。", replyTo: "" },
-          { user: "MuAMuA", text: "来吧，宝宝。", replyTo: "穆小恩" }
-        ]
+        likes: ["恩恩"],
+        comments: []
       }
     ]
   },
@@ -589,7 +548,7 @@ function getWxTimeString(dateLabel, timeStr) {
     h >= 12
       ? '<span class="ampm">下午</span>'
       : '<span class="ampm">上午</span>';
-  const h12 = h % 12 || 12;
+  const h12 = h % 12; // 凌晨 00:xx 显示「上午 0:xx」
   const timeOnly = `${ampmCN} ${h12}:${pad(m)}`;
   if (!dateLabel) return timeOnly;
   let msgDate = new Date(2026, 10, 15);
@@ -700,6 +659,7 @@ function chatItems(id) {
       time: m[2] || "",
       rd: m[3] === "rd",
       rejected: m[3] === "rejected", // 被对方删除后发出的消息
+      quote: m[4] && m[4].name ? m[4] : null, // 引用
       rawIdx: rawIdx,
     });
   });
@@ -723,7 +683,8 @@ function chatMsgs(id) {
     else {
       const currMin = getMins(x.time);
       const prevMin = getMins(prev.time);
-      if (currMin - prevMin >= 5 || currMin < prevMin) showTime = true;
+      // 连续聊天不打断，隔了 10 分钟以上才重新显示时间
+      if (currMin - prevMin >= 10 || currMin < prevMin) showTime = true;
     }
     if (showTime)
       o += `<div class="wx-dpill"><span>${getWxTimeString(currentDateLabel, x.time)}</span></div>`;
@@ -784,6 +745,10 @@ function chatMsgs(id) {
     } else {
       innerContent = esc(x.text);
     }
+    if (x.quote)
+      innerContent =
+        `<div class="wx-quote"><div class="wx-quote-name">${esc(x.quote.name)}</div><div class="wx-quote-txt">${esc(x.quote.text)}</div></div>` +
+        innerContent;
     const holdEvent = `onpointerdown="startHoldMsg(event, ${x.rawIdx})" onpointerup="cancelHoldMsg()" onpointerleave="cancelHoldMsg()"`;
     let dotHtml = "",
       btnHtml = "",
@@ -887,6 +852,7 @@ function openMsgActions(rawIdx) {
   const plain = !/^\[(图片|表情|语音|视频|位置|红包|转账)\]/.test(text);
   const items = [];
   if (plain) items.push({ label: "复制", onClick: () => wxCopyText(text) });
+  items.push({ label: "引用", onClick: () => wxSetQuote(rawIdx) });
   items.push({ label: "转发", onClick: () => wxForwardMsg(rawIdx) });
   if (me)
     items.push({
@@ -914,8 +880,66 @@ function openMsgActions(rawIdx) {
       refreshChat();
     },
   });
+  items.push({
+    label: window._wxBlocked && window._wxBlocked[chatId] ? "移出黑名单" : "加入黑名单",
+    danger: !(window._wxBlocked && window._wxBlocked[chatId]),
+    onClick: () =>
+      window._wxBlocked && window._wxBlocked[chatId]
+        ? wxUnblockChat(chatId)
+        : wxBlockChat(chatId),
+  });
   wxActionSheet("", items);
 }
+// ============ 引用 ============
+window._wxQuote = null;
+window.wxSetQuote = function (rawIdx) {
+  const msg = (chatData[chatId] || [])[rawIdx];
+  if (!msg) return;
+  const me = msg[1] === "me";
+  window._wxQuote = {
+    name: me ? "我" : wxName(chatId),
+    text: previewText(String(msg[0] || "")),
+  };
+  vib(8);
+  renderQuoteBar();
+  openKbd();
+};
+window.wxClearQuote = function () {
+  window._wxQuote = null;
+  renderQuoteBar();
+};
+function renderQuoteBar() {
+  const bar = document.getElementById("wx-quote-bar");
+  if (!bar) return;
+  const q = window._wxQuote;
+  if (!q) {
+    bar.classList.remove("open");
+    bar.innerHTML = "";
+    return;
+  }
+  bar.innerHTML = `<div class="wx-quote-bar-in"><div class="wx-quote-bar-name">${esc(q.name)}</div><div class="wx-quote-bar-txt">${esc(q.text)}</div></div><button class="wx-quote-bar-x" onclick="event.stopPropagation();wxClearQuote()">×</button>`;
+  bar.classList.add("open");
+}
+// ============ 拉黑 ============
+window._wxBlocked = window._wxBlocked || {};
+window.wxBlockChat = function (name) {
+  name = name || chatId;
+  if (!name) return;
+  window._wxBlocked[name] = true;
+  if (typeof window.clearPatience === "function") window.clearPatience(name);
+  vib(20);
+  toastDev("已加入黑名单，对方无法再给你发消息");
+  if (view === "chat") refreshChat(true);
+  else if (view === "wx_chat_info" || view === "wx_profile") show(view, "none");
+};
+window.wxUnblockChat = function (name) {
+  name = name || chatId;
+  delete window._wxBlocked[name];
+  vib(10);
+  toastDev("已移出黑名单");
+  if (view === "chat") refreshChat(true);
+  else if (view === "wx_chat_info" || view === "wx_profile") show(view, "none");
+};
 function toggleVoiceText(btn) {
   const container =
     btn.closest(".wx-ln").querySelector(".wx-wrap") || btn.closest(".wx-ln");
@@ -1086,12 +1110,15 @@ VIEWS.chat = () => ({
     <div class="rt" onclick="openWxChatInfo()" style="cursor:pointer;">${G.dotsH}</div>
   </div>
   <div class="msgs" id="msgs" onclick="closeKbd()">${chatMsgs(chatId)}</div>
-  <div class="wx-cin safe" id="cin"><button class="ic" id="voice-icon" onclick="vib(10);toggleVoiceInput()">${G.mic}</button><div class="wx-fld ph" id="fld" onclick="event.stopPropagation();tapInput()">输入消息</div><button class="wx-voice-btn" id="voice-btn" onpointerdown="startRecord(event)" onpointerup="endRecord(event)" onpointerleave="endRecord(event)">按住 说话</button><button class="ic" onclick="event.stopPropagation();toggleWxPanel('emoji')">${G.smile}</button><button class="ic" onclick="event.stopPropagation();toggleWxPanel('plus')">${G.plusSq}</button><button class="wx-snd" id="snd" onclick="sendLine()">发送</button></div>
+  <div class="wx-cin safe" id="cin"><div class="wx-quote-bar" id="wx-quote-bar"></div><button class="ic" id="voice-icon" onclick="vib(10);toggleVoiceInput()">${G.mic}</button><div class="wx-fld ph" id="fld" onclick="event.stopPropagation();tapInput()">输入消息</div><button class="wx-voice-btn" id="voice-btn" onpointerdown="startRecord(event)" onpointerup="endRecord(event)" onpointerleave="endRecord(event)">按住 说话</button><button class="ic" onclick="event.stopPropagation();toggleWxPanel('emoji')">${G.smile}</button><button class="ic" onclick="event.stopPropagation();toggleWxPanel('plus')">${G.plusSq}</button><button class="wx-snd" id="snd" onclick="sendLine()">发送</button></div>
   <div class="kbd" id="kbd">${kbdHTML()}</div>
   <div class="wx-panel" id="wx-panel"></div>`,
   init: () => {
     if (chatId) unread[chatId] = 0;
-    SS.typing = false; SS.pendingText = ""; scrollChat();
+    SS.typing = false; SS.pendingText = "";
+    window._wxQuote = null;
+    renderQuoteBar();
+    scrollChat();
   },
 });
 function scrollChat(smooth) {
@@ -1399,7 +1426,11 @@ function sendLine() {
   const st = SS.stage[chatId] || 0,
     li = SS.lineIdx[chatId] || 0,
     line = SS.pendingText;
-  chatData[chatId].push([line, "me", nowAmpm(), "rd"]);
+  const row = [line, "me", nowAmpm(), "rd"];
+  if (window._wxQuote) row[4] = { name: window._wxQuote.name, text: window._wxQuote.text };
+  chatData[chatId].push(row);
+  window._wxQuote = null;
+  renderQuoteBar();
   window.clearPatience(chatId);
   SS.pendingText = "";
   sfx("send");
@@ -1488,6 +1519,7 @@ window.clearPatience = function (name) {
 };
 
 function deliverFrom(from, text) {
+  if (window._wxBlocked && window._wxBlocked[from]) return;
   if (!chatData[from]) chatData[from] = [];
   const arr = chatData[from];
   if (arr.length > 0) {
@@ -1520,6 +1552,7 @@ function incomingMsgFrom(from, text) {
   } else deliverFrom(from, text);
 }
 function notifyFrom(from, body) {
+  if (window._wxBlocked && window._wxBlocked[from]) return;
   if (window.isDnd || window._wxNotifyOn === false) return;
   if (window._wxChatSettings?.[from]?.mute) return;
   // 媒体消息的通知只显示类型，别把文件路径甩到锁屏上
@@ -1532,16 +1565,32 @@ function notifyFrom(from, body) {
   }
   sfx("msg");
   vib([30, 60, 30]);
+  const stamp =
+    typeof gameTime24 === "function" ? gameTime24() : t("now");
   if (view === "lock" || view === "pin") {
-    lockNotes.unshift({ title: wxName(from), body, app: "wechat", time: t("now") });
+    // 记住 from，点通知才能直接进对的人的聊天
+    lockNotes.unshift({ title: wxName(from), from, body, app: "wechat", time: stamp });
+    // 穆祉丞太吵的时候，在锁屏给一条免打扰建议
+    if (from === "穆祉丞") {
+      window._mzcNoise = (window._mzcNoise || 0) + 1;
+      if (window._mzcNoise >= 6 && !window._dndHintShown) {
+        window._dndHintShown = true;
+        lockNotes.unshift({
+          title: "提示",
+          body: "穆祉丞今天一直很吵，建议开启锁屏免打扰",
+          app: "dnd",
+          time: stamp,
+        });
+      }
+    }
     if (lockNotes.length > 30) lockNotes.length = 30;
     renderLock();
     return;
   }
-  OV.querySelectorAll(".banner").forEach((b) => b.remove());
+  OV.querySelectorAll(".banner:not(.story-choice)").forEach((b) => b.remove());
   const b = document.createElement("div");
   b.className = "banner";
-  b.innerHTML = `<div class="ncard">${ncardHTML({ title: wxName(from), body, app: "wechat", time: t("now") })}</div>`;
+  b.innerHTML = `<div class="ncard">${ncardHTML({ title: wxName(from), from, body, app: "wechat", time: stamp })}</div>`;
   OV.appendChild(b);
   b.animate(
     [{ transform: "translateY(-140%) scale(.96)" }, { transform: "none" }],

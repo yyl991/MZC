@@ -5150,3 +5150,80 @@ svg {
     text-align: center;
     box-sizing: border-box;
 }
+
+/* ---- 引用：聊天输入条上方的引用预览 ---- */
+.wx-cin { position: relative; }
+.wx-quote-bar {
+    display: none;
+    position: absolute;
+    left: 0; right: 0; bottom: 100%;
+    padding: 8px 14px;
+    background: #f7f7f7;
+    border-top: .5px solid #dcdcdc;
+    align-items: center;
+    gap: 10px;
+}
+.wx-quote-bar.open { display: flex; }
+.wx-quote-bar-in { flex: 1; min-width: 0; border-left: 3px solid #07c160; padding-left: 8px; }
+.wx-quote-bar-name { font-size: 12px; color: #07c160; font-weight: 600; }
+.wx-quote-bar-txt { font-size: 13px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wx-quote-bar-x { border: none; background: none; font-size: 20px; color: #999; line-height: 1; padding: 0 4px; }
+
+/* ---- 引用：气泡里的引用块 ---- */
+.wx-bb .wx-quote {
+    background: rgba(0, 0, 0, .05);
+    border-left: 3px solid #07c160;
+    border-radius: 3px;
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    line-height: 1.35;
+    color: #666;
+}
+.wx-bb .wx-quote-name { color: #576b95; font-size: 12px; margin-bottom: 2px; }
+.wx-bb .wx-quote-txt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+.wx-bb.img-bb .wx-quote { margin: 6px 6px 0; background: #fff; }
+
+/* ---- 主屏幕免打扰快捷按钮（Dock 第五个） ---- */
+.dock-dnd .dock-dnd-ic .ic { display: grid; place-items: center; font-size: 30px; }
+.dock-dnd .dock-dnd-ic { background: linear-gradient(180deg, #5c6670, #3a4149); }
+.dock-dnd.on .dock-dnd-ic { background: linear-gradient(180deg, #c084fc, #7c3aed); }
+
+/* ---- 主屏幕下拉控制中心 ---- */
+.cc {
+    position: absolute; inset: 0; z-index: 9998;
+    background: rgba(0, 0, 0, 0);
+    pointer-events: none;
+    transition: background .25s;
+}
+.cc.open {
+    background: rgba(0, 0, 0, .3);
+    pointer-events: auto;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+.cc-panel {
+    position: absolute; top: 0; left: 0; right: 0;
+    padding: 64px 16px 22px;
+    background: rgba(30, 30, 34, .88);
+    -webkit-backdrop-filter: blur(28px) saturate(1.4);
+    backdrop-filter: blur(28px) saturate(1.4);
+    border-radius: 0 0 28px 28px;
+    transform: translateY(-110%);
+    transition: transform .3s cubic-bezier(.2, .9, .25, 1);
+    color: #fff;
+}
+.cc.open .cc-panel { transform: none; }
+.cc-title { font-size: 13px; letter-spacing: 1px; color: rgba(255, 255, 255, .55); padding: 0 6px 12px; text-align: left; }
+.cc-dnd {
+    display: flex; align-items: center; gap: 14px;
+    width: 100%; padding: 16px; border: none; border-radius: 20px;
+    background: rgba(255, 255, 255, .14); color: #fff;
+    text-align: left; font-family: inherit;
+}
+.cc-dnd.on { background: rgba(175, 82, 222, .85); }
+.cc-dnd-ic { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-size: 24px; background: rgba(255, 255, 255, .16); flex: none; }
+.cc-dnd-main { display: flex; flex-direction: column; gap: 3px; }
+.cc-dnd-main b { font-size: 16px; font-weight: 600; }
+.cc-dnd-main small { font-size: 12px; color: rgba(255, 255, 255, .75); }
+.cc-tip { text-align: center; font-size: 12px; color: rgba(255, 255, 255, .5); margin-top: 16px; }

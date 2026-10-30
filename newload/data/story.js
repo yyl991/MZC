@@ -43,7 +43,6 @@ var INCOMING = [];
   };*/
 
   S.roles = {
-    穆小恩: { initial: "恩", color: "#8e8e93", avatar: "./data/avatar/guimi.jpg", pat: "的工牌说加油穆小恩！" },
     MuAMuA: { initial: "妈", color: "#f6b6c8", avatar: "./data/avatar/mama.jpg", pat: ":不是说学了吗‎•᷄ࡇ•᷅" },
     恩恩: { initial: "婆", color: "#f6b6c8", avatar: "./data/avatar/enen.jpg", pat: "，哼" },
     丞哥: { initial: "哥", color: "#c9a227", avatar: "./data/avatar/gege.jpg", pat: "说丞哥丞哥大帅哥" },
@@ -69,14 +68,6 @@ var INCOMING = [];
   S.myPat = "的聪明小脑瓜"; 
 
     S.chats = {
-    '穆小恩': {
-      init: [['11月15日','date']],
-      replies: [
-        { mine:['我好像……捡到了自己的手机。'], them:['啊？你先找个亮的地方站着。','手机的事我们回头说。'] },
-        { mine:['我没事，我马上回去。'], them:['好，别乱跑。','我在楼下等你。','穆小恩，说到做到！'] }
-      ],
-      fragment: null
-    },
     'MuAMuA': {
       init: [['11月15日','date']],
       replies: [
@@ -184,8 +175,8 @@ var INCOMING = [];
 
   /* 完整时间线：所有人都会按秒数弹出来 */
   S.timeline = [
-    { at: 0, type:'notify', from:'穆小恩', text:'不是 你人呢？手机怎么在街上？' },
-    { at: 7, type:'notify', from:'穆小恩', text:'刚刚还跟我说话，一转眼人没了。' },
+    { at: 0, type:'notify', from:'穆祉丞', text:'不是 你人呢？手机怎么在街上？' },
+    { at: 7, type:'notify', from:'穆祉丞', text:'刚刚还跟我说话，一转眼人没了。' },
     { at: 10, type:'notify', from:'穆祉丞', text:'你去哪里了？马上快要到我的生日零点了，蛋糕已经摆好了，就差你。' },
     { at: 13, type:'notify', from:'pig', text:'馋死了' },
     { at: 17, type:'notify', from:'pig', text:'你什么时候回来吃蛋糕' },
@@ -236,7 +227,6 @@ var INCOMING = [];
     { at: 189, type:'notify', from:'穆祉丞', text:'外面下雪了，你到底在哪。' },
     { at: 193, type:'notify', from:'Mu', text:'你不回去？' },
     { at: 196, type:'notify', from:'rabbit', text:'我不催你的，真的' },
-    { at: 199, type:'notify', from:'穆小恩', text:'说真的，这手机明明是你的，为什么里面全是他？' },
     { at: 203, type:'notify', from:'MuAMuA', text:'我不问你去了哪。' },
     { at: 206, type:'notify', from:'cat', text:'今天什么日子 你要爪子嘛' },
     { at: 209, type:'notify', from:'恩仔', text:'后来真的有一个人看见了。' },
@@ -262,7 +252,6 @@ var INCOMING = [];
     { at: 282, type:'notify', from:'恩仔', text:'我今天练完了，一个人在练习室。' },
     { at: 286, type:'notify', from:'rabbit', text:'你慢慢来，我不着急' },
     { at: 289, type:'notify', from:'丞丞小队长', text:'快回去啊，别让人等' },
-    { at: 292, type:'notify', from:'穆小恩', text:'不管了，先去你家门口等你。' },
     { at: 296, type:'notify', from:'穆祉丞', text:'穆祉丞。' },
     { at: 299, type:'notify', from:'Mu', text:'1' },
     { at: 303, type:'notify', from:'MuAMuA', text:'雪这么大，长寿面煮好了，汤还温着。' },
@@ -286,7 +275,6 @@ var INCOMING = [];
   // 错过时对方留下的最后一句
   S.missLines = {
     default: "算了。",
-    穆小恩: "行吧，你先忙。我等你回我。",
     MuAMuA: "不催你了，记得吃饭。",
     丞丞小队长: "快回去啊，别让人等。",
     丞哥: "爱回不回。",
@@ -305,7 +293,6 @@ var INCOMING = [];
   S.wxids = {
     穆祉丞: "nanpengyou",
     穆瑞恩: "xiaobaobei",
-    穆小恩: "haoguimi",
     恩恩: "laopo_jiao",
     恩仔: "xiaolianxisheng",
     丞哥: "cgcgdsg",
@@ -361,8 +348,6 @@ var INCOMING = [];
     ["大麦", "演出提醒", "你关注的演出即将开票。", "11/15"],
   ];
   S.calls = [
-    ["穆小恩", "今天 23:08", "呼出"],
-    ["穆小恩", "今天 23:04", "未接来电"],
     ["MuAMuA", "今天 23:05", "未接来电"],
     ["穆祉丞", "今天 23:00", "未接来电"],    
     ["穆祉丞", "今天 20:07", "未接来电"],
@@ -448,6 +433,7 @@ var INCOMING = [];
       body: "你依旧到家赶上零点。\n\n备忘录多出一段：\n“不必沉溺于没能参与的旧岁月。九岁在练习室等待的穆瑞恩，受过伤害的 Mu，爱逞强的丞哥，脆弱的恩仔，全部的我，都很高兴，终于等到你。\n\n我们不纠结错过，我们只看向以后。”",
     },
   };
+  // 每个人都要有能接通的通话内容，不能打空的
   S.callScripts = {
     穆祉丞: [
       ["穆祉丞", "你终于接电话了。"],
@@ -457,10 +443,79 @@ var INCOMING = [];
       ["穆祉丞", "不晚。今天还没过。"],
       ["穆祉丞", "蛋糕给你留着。"],
     ],
+    穆瑞恩: [
+      ["穆瑞恩", "姐姐，你什么时候来呀。"],
+      ["你", "马上就到。"],
+      ["穆瑞恩", "我在门口等你，我不进去。"],
+      ["穆瑞恩", "今天也没有人接我，除了你。"],
+    ],
+    恩仔: [
+      ["恩仔", "喂，是我。"],
+      ["你", "嗯，我在。"],
+      ["恩仔", "我练完了，练习室就剩我一个。"],
+      ["你", "我过去接你。"],
+      ["恩仔", "好，那我等你。"],
+    ],
+    恩恩: [
+      ["恩恩", "你接电话了。"],
+      ["你", "嗯，对不起，让你等了。"],
+      ["恩恩", "我没有生气，我就是想听听你的声音。"],
+      ["恩恩", "菜我热着呢，你回来就能吃。"],
+    ],
+    丞哥: [
+      ["丞哥", "喂。"],
+      ["你", "哥。"],
+      ["丞哥", "门给你留着，上来。"],
+      ["你", "我马上到。"],
+      ["丞哥", "别让我等太久。"],
+    ],
     Mu: [
       ["Mu", "不要消失。"],
       ["你", "我不会。"],
       ["Mu", "那就回来。"],
+      ["你", "已经在路上了。"],
+    ],
+    MuAMuA: [
+      ["MuAMuA", "宝宝，冷不冷。"],
+      ["你", "不冷。"],
+      ["MuAMuA", "雪这么大，慢慢走。"],
+      ["MuAMuA", "汤还温着，你回来就能喝。"],
+    ],
+    pig: [
+      ["pig", "你什么时候回来呀。"],
+      ["你", "快了。"],
+      ["pig", "蛋糕要化了。"],
+      ["pig", "我先尝一口边缘，就一口。"],
+      ["你", "别啊。"],
+      ["pig", "已经吃了。"],
+    ],
+    cat: [
+      ["cat", "接电话。"],
+      ["你", "在。"],
+      ["cat", "你晓不晓得今天啥子日子。"],
+      ["你", "晓得。"],
+      ["cat", "晓得就快点回来。"],
+      ["cat", "面团都在门口坐到起了。"],
+    ],
+    rabbit: [
+      ["rabbit", "喂，你那边冷不冷呀。"],
+      ["你", "还好。"],
+      ["rabbit", "我把饭热好了。"],
+      ["rabbit", "你慢慢来，我不催你。"],
+      ["rabbit", "真的。"],
+    ],
+    tiger: [
+      ["tiger", "嗷呜。"],
+      ["你", "你在干嘛。"],
+      ["tiger", "等你。"],
+      ["tiger", "快点回来，不然我要生气了。"],
+    ],
+    丞丞小队长: [
+      ["丞丞小队长", "喂，是我。"],
+      ["你", "嗯。"],
+      ["丞丞小队长", "我路过你家楼下了，灯是暗的。"],
+      ["你", "我在外面，马上回。"],
+      ["丞丞小队长", "那我陪你走到门口。"],
     ],
   };
 
@@ -470,10 +525,13 @@ var INCOMING = [];
     chatData[id] = S.chats[id].init.slice();
   });
 */
+  // 聊天记录里用显示名存的角色（黑猫），按聊天键名 cat 取
+  const HISTORY_ALIAS = { cat: "黑猫" };
   for (const k in chatData) delete chatData[k];
   Object.keys(S.chats).forEach((id) => {
     // 获取独立文件里的历史记录，如果没有就设为空数组
-    const history = window.CHAT_HISTORY && window.CHAT_HISTORY[id] ? window.CHAT_HISTORY[id] : [];
+    const H = window.CHAT_HISTORY;
+    const history = (H && (H[id] || H[HISTORY_ALIAS[id]])) || [];
     // 把【历史记录】和原来的【初始初始化内容】拼在一起
     chatData[id] = [...history, ...S.chats[id].init];
   });

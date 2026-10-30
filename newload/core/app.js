@@ -164,8 +164,9 @@ let unread = {};
 let callName = "穆祉丞";
 let lockNotes = [
   {
-    title: "穆小恩",
-    body: "你跑哪去了？手机怎么在街上？",
+    title: "穆祉丞",
+    from: "穆祉丞",
+    body: "你去哪了？手机怎么在街上？",
     app: "wechat",
     time: "23:09",
   },
@@ -177,22 +178,22 @@ function ampm(minutes) {
   const h = Math.floor(minutes / 60) % 24;
   const m = Math.floor(minutes % 60);
   const ap = h >= 12 ? "下午" : "上午";
-  const h12 = h % 12 || 12; // 0 点 → 12（凌晨 00:09 显示「上午 12:09」），中午 12 点 → 12
+  const h12 = h % 12; // 凌晨 00:09 显示「上午 0:09」，不是 12
   return `${ap} ${h12}:${pad(m)}`;
 }
 function gameMin() {
   const e = elapsed();
-  // 前 GAME_END_AT 秒按剧情节奏走（23:09 → 00:00）；之后按真实时间 1:1 继续，不再卡在 12 点
+  // 前 GAME_END_AT 秒按剧情节奏走（23:09 → 00:00），之后卡在零点，不让生日过去
   if (e <= GAME_END_AT)
     return GAME_START_MIN + Math.floor((e / GAME_END_AT) * 51);
-  return GAME_START_MIN + 51 + Math.floor((e - GAME_END_AT) / 60);
+  return GAME_START_MIN + 51; // 00:00 停住
 }
 function clock12(showAmpm = true) {
   const m = gameMin();
   const h = Math.floor(m / 60) % 24;
   const min = Math.floor(m % 60);
   const ampmStr = h >= 12 ? "下午" : "上午";
-  const h12 = h % 12 || 12; // 0 点 → 12（凌晨 00:09 显示「上午 12:09」）
+  const h12 = h % 12; // 凌晨 00:09 显示「上午 0:09」
   return showAmpm ? `${ampmStr}${h12}:${pad(min)}` : `${h12}:${pad(min)}`;
 }
 function gameTime24() {
@@ -259,15 +260,29 @@ function updateIsland() {
   const il = $("#island");
   if (il) il.classList.toggle("act", on);
 }
+// 通知里可能存的是显示名（cat → 🐈‍⬛）或角色键，统一找回角色
+function roleOfName(name) {
+  const roles = CFG.roles || {};
+  if (!name) return null;
+  if (roles[name]) return roles[name];
+  for (const k in roles) {
+    if (typeof DISPLAY !== "undefined" && DISPLAY[k] === name) return roles[k];
+  }
+  return null;
+}
 function ncardHTML(n) {
-  const r = CFG.roles && CFG.roles[n.title];
   let av = "";
-  if (r) {
-    if (r.avatar)
-      av = `<div class="ni"><img src="${r.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:9px" /></div>`;
-    else
-      av = `<div class="ni"><div class="app-icon-fallback" style="background:${r.color};font-size:18px">${r.initial}</div></div>`;
-  } else av = `<div class="ni">${appIcon("wechat")}</div>`;
+  if (n.app === "dnd") {
+    av = `<div class="ni"><div class="app-icon-fallback" style="background:#af52de;font-size:18px">🌙</div></div>`;
+  } else {
+    const r = roleOfName(n.from) || roleOfName(n.title);
+    if (r) {
+      if (r.avatar)
+        av = `<div class="ni"><img src="${r.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:9px" /></div>`;
+      else
+        av = `<div class="ni"><div class="app-icon-fallback" style="background:${r.color};font-size:18px">${r.initial}</div></div>`;
+    } else av = `<div class="ni">${appIcon("wechat")}</div>`;
+  }
   return `${av}<div class="nt"><div class="nh"><span>${esc(n.title)}</span><small>${n.time}</small></div><div class="nb">${esc(n.body)}</div></div>`;
 }
 
@@ -294,12 +309,28 @@ function renderLock() {
     `</div>` +
     `<div class="lk-hint">向上轻扫以打开</div>`;
 }
+function syncDndUI() {
+  const on = !!window.isDnd;
+  const lockBtn = document.querySelector(".lk-dnd");
+  if (lockBtn) {
+    lockBtn.classList.toggle("on", on);
+    lockBtn.innerHTML = `<span style="filter:${on ? "none" : "grayscale(100%)"};margin-right:4px;">🌙</span>${on ? "免打扰已开启" : "开启免打扰"}`;
+  }
+  const ccBtn = document.getElementById("cc-dnd");
+  if (ccBtn) ccBtn.classList.toggle("on", on);
+  const homeBtn = document.getElementById("home-dnd");
+  if (homeBtn) homeBtn.classList.toggle("on", on);
+  const ccTxt = document.querySelector(".cc-dnd-s");
+  if (ccTxt)
+    ccTxt.textContent = on ? "已开启，锁屏不再弹消息" : "开启后锁屏不再弹消息";
+  updateDndBadge();
+}
 function toggleDnd(e) {
   if (e) e.stopPropagation();
   window.isDnd = !window.isDnd;
   vib(10);
-  renderLock();
-  updateDndBadge();
+  if (view === "lock") renderLock();
+  syncDndUI();
 }
 
 function updateDndBadge() {
@@ -313,9 +344,46 @@ function updateDndBadge() {
   }
   badge.style.display = window.isDnd ? "flex" : "none";
 }
+// ---------- 主屏幕下拉控制中心（免打扰） ----------
+window.openCC = function () {
+  if (view !== "home" || (typeof callState !== "undefined" && callState)) return;
+  const cc = document.getElementById("cc");
+  if (!cc) return;
+  cc.classList.add("open");
+  vib(8);
+  syncDndUI();
+};
+window.closeCC = function () {
+  const cc = document.getElementById("cc");
+  if (cc) cc.classList.remove("open");
+};
+(function ccGesture() {
+  let y0 = null;
+  SCREEN.addEventListener("pointerdown", (e) => {
+    if (view !== "home") return;
+    if (typeof callState !== "undefined" && callState) return;
+    if (e.target.closest("#cc")) return;
+    const r = SCREEN.getBoundingClientRect();
+    const y = (e.clientY - r.top) / SC;
+    if (y > 90) return;
+    y0 = e.clientY;
+  });
+  SCREEN.addEventListener("pointerup", (e) => {
+    if (y0 === null) return;
+    const dy = (e.clientY - y0) / SC;
+    y0 = null;
+    if (dy > 55) openCC();
+  });
+  SCREEN.addEventListener("pointercancel", () => {
+    y0 = null;
+  });
+})();
 function lockNoteTap(i, e) {
   e.stopPropagation();
-  if (lockNotes[i].app === "wechat") pendingOpen = "chat";
+  const n = lockNotes[i] || {};
+  if (n.app === "dnd") return toggleDnd(e);
+  // 记住这条通知是谁发的，解锁后直接进对应的聊天
+  pendingOpen = n.from || "穆祉丞";
   goPin();
 }
 
@@ -495,13 +563,14 @@ function unlock() {
   );
   setStatus(true);
   if (pendingOpen) {
+    const target = pendingOpen;
     pendingOpen = null;
     setTimeout(() => {
-      chatId = "穆祉丞";
+      chatId = target;
       openApp("chat", HOME.querySelector('.app[data-app="wechat"] .icon'));
     }, 520);
   }
-  updateDndBadge();
+  syncDndUI();
 }
 
 function badgeOf(id) {
@@ -1001,7 +1070,7 @@ function incomingMailFrom(beat) {
   if (window.isDnd || window._mailNotifyOn === false) return;
   sfx("msg");
   vib([30, 60, 30]);
-  OV.querySelectorAll(".banner").forEach((b) => b.remove());
+  OV.querySelectorAll(".banner:not(.story-choice)").forEach((b) => b.remove());
   const b = document.createElement("div");
   b.className = "banner";
   b.style.cursor = "pointer";
@@ -1035,7 +1104,7 @@ function incomingMailFrom(beat) {
 function showStoryChoice() {
   if (SS.choice) return;
   const d = document.createElement("div");
-  d.className = "banner";
+  d.className = "banner story-choice";
   d.style.cssText =
     "top:80px;left:16px;right:16px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 10px 40px rgba(0,0,0,.2)";
   d.innerHTML = `<b style="font-size:17px">你要怎么面对这些年？</b><button style="display:block;width:100%;margin-top:12px;padding:12px;border-radius:12px;background:#f2f2f7" onclick="chooseStory('A',this)">A. 我好愧疚，我错过了你那么多年</button><button style="display:block;width:100%;margin-top:8px;padding:12px;border-radius:12px;background:#ffe8d6" onclick="chooseStory('B',this)">B. 过去无法重来，我会抓住现在的你</button>`;
@@ -1135,10 +1204,15 @@ function storyTick(e) {
           return;
         }
       }
+      // 正在通话时先不弹结局，等这通电话结束
+      if (beat.type === "ending" && typeof callState !== "undefined" && callState)
+        return;
       SS.fired.add(key);
       if (beat.type === "notify") incomingMsgFrom(beat.from, beat.text);
       if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");
       if (beat.type === "mail") incomingMailFrom(beat);
+      if (beat.type === "choice" && !SS.arriveHome) showStoryChoice();
+      if (beat.type === "ending" && !SS.arriveHome) showEnding(SS.choice || "B");
     }
   });
 }
@@ -1156,6 +1230,18 @@ function tick() {
   if (sbtEl) sbtEl.textContent = clock12();
   const lk = $("#lkt");
   if (lk) lk.textContent = clock12();
+
+  // 锁屏上适时提醒：穆祉丞太吵，建议开免打扰
+  if (!window._dndHintShown && view === "lock" && elapsed() > 22) {
+    window._dndHintShown = true;
+    lockNotes.unshift({
+      title: "免打扰建议",
+      body: "穆祉丞今晚消息很多，可以点这里开启锁屏免打扰",
+      app: "dnd",
+      time: gameTime24(),
+    });
+    renderLock();
+  }
 
   // 2. 剧情时间线检查 (每秒检查一次足够了)
   storyTick(elapsed());

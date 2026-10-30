@@ -101,6 +101,10 @@ const chats = vm.runInContext("Object.keys(window.STORY.chats)", sb);
 const noId = chats.filter((c) => !wxids[c]);
 ok("每个联系人都有微信号", noId.length === 0, noId.join(","));
 ok("微信号不重复", new Set(Object.values(wxids)).size === Object.keys(wxids).length);
+ok("穆小恩已全部删除", !chats.includes("穆小恩") && !wxids["穆小恩"]);
+const callScripts = vm.runInContext("window.STORY.callScripts", sb);
+const noCall = chats.filter((c) => !callScripts[c] || !callScripts[c].length);
+ok("每个人接通电话都有内容", noCall.length === 0, noCall.join(","));
 
 // 资料页能显示
 vm.runInContext('chatId = "MuAMuA"', sb);
@@ -116,8 +120,8 @@ for (let i = 0; i < 6; i++)
   );
 vm.runInContext("renderLock()", sb);
 const lockHTML = String(vm.runInContext('document.querySelector("#lkc").innerHTML', sb));
-ok("锁屏只展开 3 条", (lockHTML.match(/class="ncard"/g) || []).length === 3);
-ok("锁屏显示折叠提示", lockHTML.includes("还有 3 条更早的通知"), lockHTML.slice(-200));
+ok("锁屏只展开 4 条", (lockHTML.match(/class="ncard"/g) || []).length === 4);
+ok("锁屏显示折叠提示", lockHTML.includes("还有 2 条更早的通知"), lockHTML.slice(-200));
 ok("锁屏有免打扰", lockHTML.includes("免打扰"));
 ok("锁屏不再有重置按钮", !lockHTML.includes("重置进度"));
 

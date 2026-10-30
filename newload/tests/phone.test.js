@@ -11,7 +11,7 @@ sb.CFG = { roles: {} };
 sb.SS = {};
 sb.chatNames = ["穆祉丞", "MuAMuA", "恩仔"];
 sb.calls = [
-  ["穆小恩", "今天 23:08", "呼出"],
+  ["恩恩", "今天 23:08", "呼出"],
   ["MuAMuA", "今天 23:05", "未接来电"],
 ];
 sb.smsData = undefined;
@@ -50,7 +50,7 @@ const ok = (name, cond, extra) => {
 // 电话 - 最近通话
 sb.phoneTab = "recent";
 let r = sb.VIEWS.phone();
-ok("phone recent renders", r.html.includes("最近通话") && r.html.includes("穆小恩"));
+ok("phone recent renders", r.html.includes("最近通话") && r.html.includes("恩恩"));
 ok("phone tabbar clickable", r.html.includes("onclick=\"setPhoneTab('contacts')\""));
 // 通讯录
 sb.setPhoneTab("contacts");

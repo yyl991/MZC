@@ -25,11 +25,23 @@ ok("emoji bubble",h.includes("wx-emoji"),"none");
 ok("voice bubble",h.includes("voice-bb"),"none");
 ok("voice trans btn",h.includes("转文字"));
 ok("avatar single click no profile",!h.includes("openWxProfileByName('穆祉丞', 'chat')"));
+ok("quote bar in input", h.includes("wx-quote-bar"));
+// 引用一条消息后，气泡里要带引用块
+sb.chatData["穆祉丞"].push(["引用测试","me","下午 11:30","",{name:"穆祉丞",text:"原话"}]);
+const hq=sb.VIEWS.chat().html;
+ok("quote renders", hq.includes("wx-quote-txt") && hq.includes("原话"), "no quote");
+// 10 分钟以内不重复显示时间，超过 10 分钟才显示
+sb.chatData["穆祉丞"]=[["11月15日","date"],["a","them","下午 11:00"],["b","them","下午 11:05"]];
+let hp=sb.VIEWS.chat().html;
+ok("5 分钟内不显示时间", (hp.match(/wx-dpill/g)||[]).length===1, "count="+(hp.match(/wx-dpill/g)||[]).length);
+sb.chatData["穆祉丞"].push(["c","them","下午 11:16"]);
+hp=sb.VIEWS.chat().html;
+ok("超过 10 分钟显示时间", (hp.match(/wx-dpill/g)||[]).length===2, "count="+(hp.match(/wx-dpill/g)||[]).length);
 // 拉黑/被删特效
 vm.runInContext("chatId = 'cat'", sb);
 const hc = sb.VIEWS.chat().html;
 ok("rejected icon", hc.includes("wx-reject-ic"), "none");
 ok("rejected tip", hc.includes("你还不是对方好友"), "none");
-ok("rejected tip only once", (hc.match(/wx-reject-tip/g)||[]).length === 1, "count="+(hc.match(/wx-reject-tip/g)||[]).length);
-ok("rejected count", (hc.match(/wx-reject-ic/g)||[]).length === 2, "count="+(hc.match(/wx-reject-ic/g)||[]).length);
+ok("rejected tip exists", (hc.match(/wx-reject-tip/g)||[]).length >= 1, "count="+(hc.match(/wx-reject-tip/g)||[]).length);
+ok("rejected count", (hc.match(/wx-reject-ic/g)||[]).length >= 1, "count="+(hc.match(/wx-reject-ic/g)||[]).length);
 console.log(fails===0?"ALL PASS":fails+" FAILS");

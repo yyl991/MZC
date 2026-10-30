@@ -19,6 +19,19 @@ window.wxSetRemark = function () {
     toastDev("备注已保存");
   });
 };
+window.openWxPatHistory = function () {
+  const arr = (chatData[chatId] || []).filter(
+    (m) => m[1] === "sys" && String(m[0]).includes("拍了拍"),
+  );
+  if (!arr.length) return toastDev("还没有拍过");
+  wxActionSheet(
+    "拍一拍记录",
+    arr
+      .slice(-10)
+      .reverse()
+      .map((m) => ({ label: `${m[2] || ""}　${m[0]}`, onClick: () => {} })),
+  );
+};
 window.wxClearChat = function () {
   wxActionSheet("清空聊天记录", [
     {
@@ -65,11 +78,13 @@ VIEWS.wx_chat_info = () => {
       </div>
       <div style="background:#fff;margin-top:8px;">
         ${wxCell("查找聊天记录", `<span style="color:#999;font-size:13px;">${msgCount} 条</span><span class="wx-cell-chev">${G.chevR}</span>`, "openWxSearch('wx_chat_info', chatId)")}
+        ${wxCell("拍一拍记录", `<span class="wx-cell-chev">${G.chevR}</span>`, "openWxPatHistory()")}
         ${wxCell("消息免打扰", `<button class="sw ${s.mute ? "on" : ""}" onclick="wxToggleChatSetting('mute',this)"></button>`)}
         ${wxCell("置顶聊天", `<button class="sw ${s.top ? "on" : ""}" onclick="wxToggleChatSetting('top',this)"></button>`)}
       </div>
       <div style="background:#fff;margin-top:8px;">
         ${wxCell("设置备注和标签", `<span class="wx-cell-chev">${G.chevR}</span>`, "wxSetRemark()")}
+        ${wxCell(`<span style="color:#fa5151">${window._wxBlocked && window._wxBlocked[chatId] ? "移出黑名单" : "加入黑名单"}</span>`, `<span class="wx-cell-chev">${G.chevR}</span>`, window._wxBlocked && window._wxBlocked[chatId] ? "wxUnblockChat(chatId)" : "wxBlockChat(chatId)")}
         ${wxCell("清空聊天记录", `<span class="wx-cell-chev">${G.chevR}</span>`, "wxClearChat()", true)}
       </div>
       <div style="background:#fff;margin-top:8px;">
@@ -302,7 +317,7 @@ VIEWS.wx_contacts = () => {
     listHTML += `<div id="group-${initial}" style="padding:4px 16px; font-size:13px; color:#888; background:#ededed; font-weight:500;">${initial}</div>`;
     groups[initial].forEach((name) => {
       listHTML += `
-        <div class="wx-item" style="padding-left:16px; background:#fff;" onclick="window._chatBackTo=null; chatId='${name}'; push('chat')">
+        <div class="wx-item" style="padding-left:16px; background:#fff;" onclick="window._profileFrom='wx_contacts'; chatId='${name}'; push('wx_profile')">
           <div class="wx-av" onclick="event.stopPropagation(); openWxProfileByName('${name}', 'wx_contacts')">${avatarFor(name)}</div>
           <div class="wx-info"><div class="wx-name">${esc(wxName(name))}</div></div>
         </div>
@@ -508,7 +523,6 @@ VIEWS.wx_contacts_sub = () => {
 
   if (t === "new_friends") {
     const reqs = [
-      { name: "穆小恩", note: "来自搜索手机号" },
       { name: "恩仔", note: "来自群聊「4组」" },
       { name: "pig", note: "来自附近的人" },
     ];
@@ -533,9 +547,9 @@ VIEWS.wx_contacts_sub = () => {
       : wxEmpty("暂无群聊");
   } else if (t === "tags") {
     const tags = [
-      { name: "家人", members: ["穆小恩", "MuAMuA", "恩恩", "穆瑞恩"] },
+      { name: "家人", members: ["MuAMuA", "恩恩", "穆瑞恩"] },
       { name: "朋友", members: ["丞哥", "穆祉丞", "穆瑞恩", "恩仔"] },
-      { name: "同事", members: ["丞丞", "pig"] },
+      { name: "同事", members: ["丞丞小队长", "pig"] },
       { name: "不想说话", members: ["Mu", "pig", "cat"] },
     ];
     body = `<div style="background:#fff;">${tags
@@ -643,7 +657,7 @@ VIEWS.wx_favorites = () => {
     ["🔗", "穆祉丞工作室的微博", "链接 · 11月14日"],
     ["🖼️", "演唱会现场的晚霞", "图片 · 11月13日"],
     ["📝", "给穆祉丞的生日小作文", "笔记 · 11月12日"],
-    ["💬", "和穆小恩的聊天记录", "聊天记录 · 11月11日"],
+    ["💬", "和恩恩的聊天记录", "聊天记录 · 11月11日"],
     ["🎵", "循环了一整晚的歌", "音乐 · 11月10日"],
   ];
   return {
@@ -714,10 +728,15 @@ VIEWS.wx_settings = () => {
 
 
 window.wxProfileMenu = function () {
+  const blocked = window._wxBlocked && window._wxBlocked[chatId];
   wxActionSheet("", [
     { label: "设置备注和标签", onClick: () => toastDev("备注信息已记下~") },
     { label: "朋友权限", onClick: () => toastDev("朋友权限暂时不用设置~") },
-    { label: "加入黑名单", danger: true, onClick: () => toastDev("才不舍得拉黑呢~") },
+    {
+      label: blocked ? "移出黑名单" : "加入黑名单",
+      danger: !blocked,
+      onClick: () => (blocked ? wxUnblockChat(chatId) : wxBlockChat(chatId)),
+    },
     { label: "投诉", onClick: () => toastDev() },
   ]);
 };

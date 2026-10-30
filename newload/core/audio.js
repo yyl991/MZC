@@ -39,7 +39,8 @@ window.AudioHub = {
     if (typeof PLAYER !== "undefined" && !PLAYER.paused && typeof nowSong !== "undefined" && nowSong >= 0) return true;
     return false;
   },
-  pauseBGM() { const b = this.bgm(); if (b) { b.pause(); window.bgmPausedByOther = true; } },
+  // 只有 BGM 本来在播时才记“被别的音频打断”，否则挂电话后会莫名其妙开始放歌
+  pauseBGM() { const b = this.bgm(); if (!b) return; if (!b.paused) { b.pause(); window.bgmPausedByOther = true; } },
   resumeBGM() { const b = this.bgm(); if (!b || !window.bgmPausedByOther) return; if (this.isBusy()) return; b.play().catch(() => {}); window.bgmPausedByOther = false; },
 };
 window.pauseBGM = () => window.AudioHub.pauseBGM();
