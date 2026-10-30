@@ -162,8 +162,16 @@ let pincode = "",
   mailId = 0;
 let unread = {};
 let callName = "穆祉丞";
-// 锁屏初始不放固定通知：只等穆祉丞刷屏后弹免打扰建议（见 tick / wx_chat 的 incomingMsg）
-let lockNotes = [];
+// 锁屏一打开就只有这一条：免打扰建议（点一下直接开免打扰）
+let lockNotes = [
+  {
+    title: "免打扰建议",
+    body: "穆祉丞一直很吵闹，可以点击这里开启免打扰",
+    app: "dnd",
+    time: (typeof CFG !== "undefined" && CFG.start && CFG.start.time) || "23:09",
+  },
+];
+window._dndHintShown = true; // 初始已有一条，刷屏时不再重复插入
 let nowSong = -1;
 window.isDnd = false;
 
