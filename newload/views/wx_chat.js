@@ -754,6 +754,7 @@ function chatItems(id) {
       time: m[2] || "",
       rd: m[3] === "rd",
       rejected: m[3] === "rejected", // 被对方删除后发出的消息
+      blocked: m[3] === "blocked", // 自己拉黑对方后发出的消息（数据里手写的标记）
       quote: m[4] && m[4].name ? m[4] : null, // 引用
       rawIdx: rawIdx,
     });
@@ -859,7 +860,7 @@ function chatMsgs(id) {
     }
     // 被拒收（对方删了我）与拉黑：都要红色叹号；拒收才带下面那行验证提示
     let isBlockedSend = false;
-    if (me && !x.rejected && window._wxBlocked && window._wxBlocked[id]) {
+    if (me && !x.rejected && !x.blocked && window._wxBlocked && window._wxBlocked[id]) {
       // 锚点 = 拉黑那一刻的最后一条消息；按行对象定位，删消息/清空都不会算错
       const anchor = window._wxBlockedSince && window._wxBlockedSince[id];
       const ai = anchor ? (chatData[id] || []).indexOf(anchor) : -1;
@@ -870,7 +871,7 @@ function chatMsgs(id) {
       ? "消息已发出，但被对方拒收了。"
       : "对方已被你加入黑名单，这条消息没有送达。";
     const rejHtml =
-      me && (x.rejected || isBlockedSend)
+      me && (x.rejected || x.blocked || isBlockedSend)
         ? `<span class="wx-reject-ic" onclick="event.stopPropagation();toastDev('${rejTap}')">!</span>`
         : "";
     const rejTip = me && x.rejected

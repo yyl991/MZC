@@ -52,6 +52,11 @@ ok("拉黑叹号提示是黑名单文案", hb.includes("加入黑名单，这条
 ok("拉黑不带验证提示", !hb.includes("开启了朋友验证"), "has tip");
 delete sb._wxBlocked["穆祉丞"];
 delete sb._wxBlockedSince["穆祉丞"];
+// 数据里手写的 'blocked' 标记（自己拉黑对方后发的消息）也要红叹号，且不带验证提示
+sb.chatData["穆祉丞"] = [["11月15日", "date"], ["老婆我也爱你", "me", "上午 3:14", "blocked"], ["?", "me", "上午 3:15", "blocked"]];
+let hbk = sb.VIEWS.chat().html;
+ok("blocked 标记出叹号", (hbk.match(/wx-reject-ic/g) || []).length === 2, "count=" + (hbk.match(/wx-reject-ic/g) || []).length);
+ok("blocked 不出验证提示", !hbk.includes("开启了朋友验证"), "has tip");
 // 拉黑/被删特效
 vm.runInContext("chatId = 'cat'", sb);
 const hc = sb.VIEWS.chat().html;
