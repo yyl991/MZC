@@ -1,7 +1,7 @@
 # HANDOVER ·「橙粉色捡起来」捡手机网页
 
-> 更新时间：2026-10-30
-> 分支：`feature/update-ui` · 最新提交：`4988a73` · 远端：`origin`（= `mzc:yyl991/MZC.git`）
+> 更新时间：2026-10-31
+> 分支：`feature/update-ui` · 功能基线提交：`4988a73` · 远端：`origin`（= `mzc:yyl991/MZC.git`）
 
 写给接手的新 AI。读完这份 + 同目录的 `角色聊天记录总表.md` 就能接着干。
 
@@ -180,6 +180,8 @@ newload/
 
 > **加新模块时**：在 `index.html` 的 `scripts` 数组里按依赖顺序插一行（`data/` → `core/` → `views/`），漏加就是 `initApp()` 时找不到全局函数。`dist/` 不参与部署。
 
+**视图写法**：每个页面文件都是 `VIEWS.xxx = () => ({ cls, html })`（`cls` 可省），`show(id)` 直接取返回值渲染。新增页面 = 一个 `VIEWS.xxx` 赋值 + `index.html` 加一行 `<script>`，没有别的注册步骤。
+
 ### 关键机制
 
 **路由**：`VIEWS` 注册表 → `show(id, anim)` / `push(id)` / `back()`。`PARENT` 映射决定返回目标，`ROOT_VIEWS` 白名单里的页面会隐藏返回键（详见下面「全局返回键」）。
@@ -206,6 +208,18 @@ pacedAt(at) = offset + amp * ln(1 + at/soft)   // CFG.pace = {offset:90, amp:112
 
 **语音留言**：占位用 `data/album/boli.mp3`，等作者换真人录音。
 
+### 剧情锁定设定（改了会穿帮）
+
+| 项 | 值 | 落在哪 |
+|---|---|---|
+| 捡到手机 / 开场 | **2026 年 11 月 15 日 23:09** | `data/story.js` `CFG.start`、`index.html` 锁屏 `#sbt` |
+| 终点 | 11 月 16 日 **00:00** 生日；之后时钟停在零点不再走 | `GAME_END_AT = 660`（见上「游戏时钟」） |
+| 天气 | 北京夜间 **0°**，阴转小雪，最高 2° 最低 -3° | 主屏卡片 `views/home_ui.js:220`、天气 App `views/app_extra.js:892` |
+| 次日起 | 16 号大降温、下雪 | 聊天 / 朋友圈文案引用要和这个一致 |
+| 备忘录 PIN | `0913` | `views/app_extra.js` `pressNotePin` |
+
+> 天气是**硬编码散在几处**：主屏卡片 `home_ui.js` 一份，天气 App 里「当前温度区」和「逐小时」的『现在』又各一份（`app_extra.js:826` 与 `:892`）。改一处必须全改；桌面卡片右侧的超大 `🌨️` 也是写死的。
+
 ### 数据格式速查（填内容照这个写）
 
 **聊天消息**（`CHAT_HISTORY[角色]` / `S.chats[角色]`，两者拼起来就是完整聊天）：
@@ -218,6 +232,7 @@ pacedAt(at) = offset + amp * ln(1 + at/soft)   // CFG.pace = {offset:90, amp:112
 ['文本', 'me', '下午 10:05', 'rd']                 // 发送中
 ['文本', 'me', '下午 10:05', '', { name, text }]   // 带引用
 ['[系统] 我拍了拍他', 'sys', '下午 10:15']          // 系统提示（会补小尾巴）
+['"黑猫"撤回了一条消息', 'sys', '上午 3:08']         // 撤回提示：引号里写谁撤的；自己撤是「你撤回了一条消息」
 ['[图片] ./data/chat/1.jpg', 'them', '...']
 ['[表情] ./data/chat/emoji.png', 'them', '...']
 ['[语音] 5|./data/chat/boli.mp3|今天好累呀', 'them', '...']        // 秒数|音频|转写
@@ -225,7 +240,7 @@ pacedAt(at) = offset + amp * ln(1 + at/soft)   // CFG.pace = {offset:90, amp:112
 ```
 
 **时间线**：`S.timeline = [{ at: 秒, type: 'notify' | 'call' | 'mail', from, text, subject, body }]`
-**备忘录**：`S.notes = [标题, 预览, 全文, 日期]`，全文里的换行用 `\n`
+**备忘录**：`S.notes = [标题, 预览, 全文, 日期]`，全文里的换行用 `\n`。标题**以 `🔒` 开头** → 点进去要输 4 位 PIN（默认 `0913`，可被 `CFG.start.memoPin` / `notePin` 覆盖，`views/app_extra.js:1267` `pressNotePin`）；解锁状态只存在 `window._noteUnlocked`，刷新即失效（符合无存档决策）
 **日历**：`S.events = { 15: ['捡到手机'], 16: ['🎂 生日'] }`
 **朋友圈**：`MOCK_MOMENTS_DATA[角色] = { wxid, region, cover, posts: [{ id, date:{day,month}, text, images, time, likes, comments }] }`，`id` 越大越靠前；`cat` / `pig` / `tiger` / `rabbit` 用代码 key，渲染走 `dn()`。
 
@@ -343,7 +358,7 @@ EdgeOne 的静态缓存是 `Cache-Control: max-age=1200`（20 分钟），所以
 ## 九、和作者协作的方式
 
 - **全程中文**
-- **非常在意 token**，回答要短，给结论不要罗列
+- **非常在意 token**，回答要短，给结论不要罗列；他会**按需只发一个文件或一个函数**，别索要其余源码，别全量读
 - **做完主动 push**
 - 改了功能要说明改了什么，让他决定是否保留
 - 他会直接发截图说 UI 哪里不对，以截图为准确认
@@ -402,6 +417,8 @@ EdgeOne 的静态缓存是 `Cache-Control: max-age=1200`（20 分钟），所以
 | `s.src = src + '?v=' + new Date().getTime()` 强力防缓存 | 已改成固定 `ASSET_V`，**别改回去** |
 | 用 `setInterval` 做音乐进度条 | 本地 MP3 读不到 `duration`，别做 |
 | 黑胶用 CSS `animation` 转 | 必须 `requestAnimationFrame` |
+| 微信通讯录是 **7 个切片人设**：MuAMuA（妈妈）/ 穆砚辞（爸爸）/ 丞哥 / 穆祉丞（老公）/ 穆瑞恩（老婆）/ 恩仔（宝宝）/ Mu（主人） | 现在 **12 个角色**见 §五。**穆砚辞（爸爸）已删除**；新增恩恩 / 黑猫 `cat` / 兔子 `rabbit` / 丞丞 / 猪 `pig` / 老虎 `tiger` |
+| "目前进入纯数据填充阶段，等用户逐个 App 填" | 内容层已全部落地（聊天 1518 条 / 时间线 96 条 / 朋友圈 24 条），见 §二 |
 
 ### 11.2 旧文档里的 Todo，现在什么样
 
