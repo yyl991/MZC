@@ -162,21 +162,8 @@ let pincode = "",
   mailId = 0;
 let unread = {};
 let callName = "穆祉丞";
-// 锁屏第一条通知：直接取聊天里最后一条对方消息，点进去能对上，不凭空造一条
-let lockNotes = [(() => {
-  const arr = (typeof chatData !== "undefined" && chatData["穆祉丞"]) || [];
-  const last = arr.filter((m) => m[1] === "them").slice(-1)[0];
-  const body = last
-    ? String(last[0]).replace(/^\[(图片|视频|语音|表情)\]/, "$1")
-    : "你去哪了？手机怎么在街上？";
-  return {
-    title: "穆祉丞",
-    from: "穆祉丞",
-    body,
-    app: "wechat",
-    time: (last && last[2]) || "23:09",
-  };
-})()];
+// 锁屏初始不放固定通知：只等穆祉丞刷屏后弹免打扰建议（见 tick / wx_chat 的 incomingMsg）
+let lockNotes = [];
 let nowSong = -1;
 window.isDnd = false;
 
@@ -1243,7 +1230,7 @@ function tick() {
     window._dndHintShown = true;
     lockNotes.unshift({
       title: "免打扰建议",
-      body: "穆祉丞今晚消息很多，可以点这里开启锁屏免打扰",
+      body: "穆祉丞一直很吵闹，可以点击这里开启免打扰",
       app: "dnd",
       time: gameTime24(),
     });
