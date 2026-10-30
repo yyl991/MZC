@@ -604,6 +604,56 @@ function avatarFor(name, group, isMe) {
   }
   return G.sil;
 }
+// ============ 聊天列表排序用：日期解析 + 最后消息时间戳 + 补今天日期 ============
+// 解析聊天日期分隔，返回 { y, m, d }；解析不了返回 null
+function parseChatDate(l) {
+  if (!l) return null;
+  if (l === "今天") return { y: 2026, m: 11, d: 15 };
+  if (l === "昨天") return { y: 2026, m: 11, d: 14 };
+  let m = l.match(/^(\d{4})年(\d+)月(\d+)日$/);
+  if (m) return { y: +m[1], m: +m[2], d: +m[3] };
+  m = l.match(/^(\d{4})年(\d+)月$/);
+  if (m) return { y: +m[1], m: +m[2], d: 1 };
+  m = l.match(/^(\d+)月(\d+)日$/);
+  if (m) return { y: 2026, m: +m[1], d: +m[2] };
+  m = l.match(/^(\d+)月$/);
+  if (m) return { y: 2026, m: +m[1], d: 1 };
+  return null;
+}
+
+// 一个会话最后一条消息的绝对分钟戳（日期 + 时间），用于列表排序
+// 没有消息返回 -Infinity，会被排到最后
+function chatLastStamp(name) {
+  const arr = chatData[name] || [];
+  let curDate = null;
+  let last = null;
+  for (const m of arr) {
+    if (m[1] === "date") { curDate = m[0]; continue; }
+    last = { date: curDate, time: m[2] || "" };
+  }
+  if (!last) return -Infinity;
+  const p = parseChatDate(last.date);
+  if (!p) return -Infinity;
+  return Date.UTC(p.y, p.m - 1, p.d) / 60000 + timeToMin(last.time);
+}
+
+// 往某个会话 push 新消息前，保证它最后一条 date 分隔就是今天
+// 否则新消息会落在历史日期段里，chatLastStamp 会算出旧时间
+function ensureChatToday(from) {
+  const arr = chatData[from] || (chatData[from] = []);
+  // 用游戏时间判断“今天”：23:09–23:59 是 11月15日，00:00 后算 11月16日
+  const mins = (typeof gameMin === "function") ? gameMin() : (23 * 60 + 9);
+  const isAfterMidnight = mins >= 24 * 60;
+  const todayStr = isAfterMidnight ? "11月16日" : ((CFG.start && CFG.start.date) || "11月15日");
+  const today = parseChatDate(todayStr);
+  let lastDate = null;
+  for (let i = arr.length - 1; i >= 0; i--) {
+    if (arr[i][1] === "date") { lastDate = arr[i][0]; break; }
+  }
+  const p = parseChatDate(lastDate);
+  if (p && today && p.y === today.y && p.m === today.m && p.d === today.d) return;
+  arr.push([todayStr, "date"]);
+}
 
 VIEWS.wechat = () => {
   const list = chatNames
@@ -614,7 +664,9 @@ VIEWS.wechat = () => {
     .sort((a, b) => {
       const ta = window._wxChatSettings?.[a]?.top ? 1 : 0;
       const tb = window._wxChatSettings?.[b]?.top ? 1 : 0;
-      return tb - ta;
+      if (ta !== tb) return tb - ta;
+      // 都置顶 / 都不置顶：按最后一条消息的"日期 + 时间"倒序
+      return chatLastStamp(b) - chatLastStamp(a);
     });
   return {
     cls: "wx-list",
@@ -643,6 +695,18 @@ VIEWS.wechat = () => {
     </div>`,
   };
 };
+
+// 聊天记录里手写的「[系统] 你拍了拍XXX」也要有拍一拍的小尾巴
+function normalizePatSys(text, id) {
+  let s = String(text || "").replace(/^[\[【]\s*系统\s*[\]】]\s*/, "").trim();
+  if (!/拍了/.test(s)) return s;
+  // 双击头像生成的已经是带小尾巴的格式，原样返回
+  if (/^["“]你["”]\s*拍了拍/.test(s)) return s;
+  if (!/^你\s*拍了拍/.test(s)) return s;
+  const role = CFG && CFG.roles && CFG.roles[id];
+  const suffix = role && role.pat ? role.pat : "";
+  return `"你" 拍了拍 "${wxName(id)}"${suffix ? " " + suffix : ""}`;
+}
 
 function chatItems(id) {
   const arr = chatData[id] || [];
@@ -689,7 +753,7 @@ function chatMsgs(id) {
     if (showTime)
       o += `<div class="wx-dpill"><span>${getWxTimeString(currentDateLabel, x.time)}</span></div>`;
     if (x.who === "sys") {
-      o += `<div class="wx-sys-tip">${esc(x.text)}</div>`;
+      o += `<div class="wx-sys-tip">${esc(normalizePatSys(x.text, id))}</div>`;
       return;
     }
     let innerContent = "",
@@ -745,10 +809,10 @@ function chatMsgs(id) {
     } else {
       innerContent = esc(x.text);
     }
-    if (x.quote)
-      innerContent =
-        `<div class="wx-quote"><span class="wx-quote-name">${esc(x.quote.name)}：</span><span class="wx-quote-txt">${esc(x.quote.text)}</span></div>` +
-        innerContent;
+    // 引用：按微信的样子，放在气泡下面单独一块灰底（名字：内容）
+    const quoteHtml = x.quote
+      ? `<div class="wx-quote" onclick="event.stopPropagation()"><span class="wx-quote-name">${esc(x.quote.name)}：</span><span class="wx-quote-txt">${esc(x.quote.text)}</span></div>`
+      : "";
     const holdEvent = `onpointerdown="startHoldMsg(event, ${x.rawIdx})" onpointerup="cancelHoldMsg()" onpointerleave="cancelHoldMsg()"`;
     let dotHtml = "",
       btnHtml = "",
@@ -762,17 +826,17 @@ function chatMsgs(id) {
         textHtml = `<div class="voice-trans-text">${esc(transTxt)}</div>`;
       }
     }
-    const nextIt = it[i + 1];
-    const nextRej = nextIt && !nextIt.date && nextIt.rejected;
+    // 被拒收（对方删了我）与拉黑：都要红色叹号；拒收才带下面那行验证提示
+    const blockedSince = window._wxBlocked && window._wxBlocked[id] ? window._wxBlockedSince?.[id] : undefined;
+    const isBlockedSend = me && !x.rejected && blockedSince != null && x.rawIdx >= blockedSince;
     const rejHtml =
-      me && x.rejected
+      me && (x.rejected || isBlockedSend)
         ? `<span class="wx-reject-ic" onclick="event.stopPropagation();toastDev('消息已发出，但被对方拒收了。')">!</span>`
         : "";
-    const rejTip =
-      me && x.rejected && !nextRej
-        ? `<div class="wx-reject-tip">${esc(wxName(chatId))}开启了朋友验证，你还不是他（她）朋友。请先发送朋友验证请求，对方验证通过后，才能聊天。<span class="wx-reject-send" onclick="event.stopPropagation();toastDev('已发送朋友验证')">发送朋友验证</span></div>`
-        : "";
-    o += `<div class="wx-ln ${me ? "me" : "th"}"><div class="wx-sav" onclick="event.stopPropagation();wxPatTap(event,${me},'${x.sender}')">${avatarFor(x.sender, false, me)}</div><div style="display: flex; flex-direction: column; align-items: ${me ? "flex-end" : "flex-start"}; max-width: calc(100% - 60px);"><div style="display: flex; align-items: center; flex-direction: ${me ? "row-reverse" : "row"}; gap: 6px;"><div class="${bubbleClass}" data-idx="${x.rawIdx}" ${onclickAttr} ${holdEvent}>${innerContent}</div>${rejHtml}${!me ? dotHtml : ""}${!me ? btnHtml : ""}</div>${rejTip}${textHtml}</div></div>`;
+    const rejTip = me && x.rejected
+      ? `<div class="wx-reject-tip">${esc(wxName(chatId))}开启了朋友验证，你还不是他（她）朋友。请先发送朋友验证请求，对方验证通过后，才能聊天。<span class="wx-reject-send" onclick="event.stopPropagation();toastDev('已发送朋友验证')">发送朋友验证</span></div>`
+      : "";
+    o += `<div class="wx-ln ${me ? "me" : "th"}"><div class="wx-sav" onclick="event.stopPropagation();wxPatTap(event,${me},'${x.sender}')">${avatarFor(x.sender, false, me)}</div><div style="display: flex; flex-direction: column; align-items: ${me ? "flex-end" : "flex-start"}; max-width: calc(100% - 60px);"><div style="display: flex; align-items: center; flex-direction: ${me ? "row-reverse" : "row"}; gap: 6px;"><div class="${bubbleClass}" data-idx="${x.rawIdx}" ${onclickAttr} ${holdEvent}>${innerContent}</div>${rejHtml}${!me ? dotHtml : ""}${!me ? btnHtml : ""}</div>${quoteHtml}${rejTip}${textHtml}</div></div>`;
   });
   return o;
 }
@@ -922,10 +986,13 @@ function renderQuoteBar() {
 }
 // ============ 拉黑 ============
 window._wxBlocked = window._wxBlocked || {};
+window._wxBlockedSince = window._wxBlockedSince || {};
 window.wxBlockChat = function (name) {
   name = name || chatId;
   if (!name) return;
   window._wxBlocked[name] = true;
+  // 记住拉黑时聊到第几条：之后我发的消息都显示红色叹号
+  window._wxBlockedSince[name] = (chatData[name] || []).length;
   if (typeof window.clearPatience === "function") window.clearPatience(name);
   vib(20);
   toastDev("已加入黑名单，对方无法再给你发消息");
@@ -935,6 +1002,7 @@ window.wxBlockChat = function (name) {
 window.wxUnblockChat = function (name) {
   name = name || chatId;
   delete window._wxBlocked[name];
+  if (window._wxBlockedSince) delete window._wxBlockedSince[name];
   vib(10);
   toastDev("已移出黑名单");
   if (view === "chat") refreshChat(true);
@@ -1110,6 +1178,7 @@ VIEWS.chat = () => ({
     <div class="rt" onclick="openWxChatInfo()" style="cursor:pointer;">${G.dotsH}</div>
   </div>
   <div class="msgs" id="msgs" onclick="closeKbd()">${chatMsgs(chatId)}</div>
+  <button class="wx-newpill" id="wx-newpill" onclick="wxJumpNew()">${G.chevDownG}<span id="wx-newpill-n">1条新消息</span></button>
   <div class="wx-cin safe" id="cin"><div class="wx-quote-bar" id="wx-quote-bar"></div><button class="ic" id="voice-icon" onclick="vib(10);toggleVoiceInput()">${G.mic}</button><div class="wx-fld ph" id="fld" onclick="event.stopPropagation();tapInput()">输入消息</div><button class="wx-voice-btn" id="voice-btn" onpointerdown="startRecord(event)" onpointerup="endRecord(event)" onpointerleave="endRecord(event)">按住 说话</button><button class="ic" onclick="event.stopPropagation();toggleWxPanel('emoji')">${G.smile}</button><button class="ic" onclick="event.stopPropagation();toggleWxPanel('plus')">${G.plusSq}</button><button class="wx-snd" id="snd" onclick="sendLine()">发送</button></div>
   <div class="kbd" id="kbd">${kbdHTML()}</div>
   <div class="wx-panel" id="wx-panel"></div>`,
@@ -1118,7 +1187,16 @@ VIEWS.chat = () => ({
     SS.typing = false; SS.pendingText = "";
     window._wxQuote = null;
     renderQuoteBar();
+    resetNewPill();
     scrollChat();
+    // 翻到最底下时，把「x条新消息」收起来
+    const b = $("#msgs");
+    if (b && !b.dataset.npBound) {
+      b.dataset.npBound = "1";
+      b.addEventListener("scroll", () => {
+        if (chatAtBottom(b)) resetNewPill();
+      });
+    }
   },
 });
 function scrollChat(smooth) {
@@ -1127,11 +1205,35 @@ function scrollChat(smooth) {
   if (smooth) b.scrollTo({ top: b.scrollHeight, behavior: "smooth" });
   else b.scrollTop = b.scrollHeight;
 }
-function refreshChat(pop) {
+// 是否已经贴在聊天底部
+function chatAtBottom(b) {
+  if (!b) return true;
+  return b.scrollHeight - b.scrollTop - b.clientHeight < 80;
+}
+function resetNewPill() {
+  window._wxNewCount = 0;
+  const p = document.getElementById("wx-newpill");
+  if (p) p.classList.remove("open");
+}
+function bumpNewPill() {
+  window._wxNewCount = (window._wxNewCount || 0) + 1;
+  const p = document.getElementById("wx-newpill");
+  const n = document.getElementById("wx-newpill-n");
+  if (n) n.textContent = `${window._wxNewCount}条新消息`;
+  if (p) p.classList.add("open");
+}
+window.wxJumpNew = function () {
+  const b = $("#msgs");
+  if (b) b.scrollTo({ top: b.scrollHeight, behavior: "smooth" });
+  resetNewPill();
+};
+function refreshChat(pop, keepScroll) {
   const b = $("#msgs");
   if (!b || view !== "chat") return;
+  const top = b.scrollTop;
   b.innerHTML = chatMsgs(chatId);
-  scrollChat();
+  if (keepScroll) b.scrollTop = top;
+  else scrollChat();
   if (pop) {
     const l = b.lastElementChild && b.lastElementChild.querySelector(".wx-bb");
     if (l) l.classList.add("pop");
@@ -1506,8 +1608,13 @@ function armPatience(name) {
     if (last && last[0] === line && last[1] === "them") return;
     arr.push([line, "them", nowAmpm()]);
     saveChat();
-    if (view === "chat" && chatId === name) refreshChat(true);
-    else {
+    if (view === "chat" && chatId === name) {
+      const b = $("#msgs");
+      const atBottom = chatAtBottom(b);
+      refreshChat(true, !atBottom);
+      if (atBottom) resetNewPill();
+      else bumpNewPill();
+    } else {
       unread[name] = (unread[name] || 0) + 1;
       if (typeof notifyFrom === "function") notifyFrom(name, line);
     }
@@ -1526,11 +1633,17 @@ function deliverFrom(from, text) {
     const last = arr[arr.length - 1];
     if (last[0] === text && last[1] === "them") return;
   }
+  ensureChatToday(from);                                // ← 新增
   chatData[from].push([text, "them", nowAmpm()]);
   saveChat();
   armPatience(from);
   if (view === "chat" && chatId === from) {
-    refreshChat(true);
+    // 正在翻历史记录就别硬拽到底部，弹一个「x条新消息」
+    const b = $("#msgs");
+    const atBottom = chatAtBottom(b);
+    refreshChat(true, !atBottom);
+    if (atBottom) resetNewPill();
+    else bumpNewPill();
     tone(1318, 0, 0.12, 0.05);
   } else {
     unread[from] = (unread[from] || 0) + 1;
@@ -1542,6 +1655,7 @@ function deliverFrom(from, text) {
     if (view === "home" && !window.isVinylBusy) renderHome();
   }
 }
+
 function incomingMsgFrom(from, text) {
   if (view === "chat" && chatId === from) {
     showTypingFrom(from);

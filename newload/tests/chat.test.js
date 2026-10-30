@@ -37,6 +37,20 @@ ok("5 分钟内不显示时间", (hp.match(/wx-dpill/g)||[]).length===1, "count=
 sb.chatData["穆祉丞"].push(["c","them","下午 11:16"]);
 hp=sb.VIEWS.chat().html;
 ok("超过 10 分钟显示时间", (hp.match(/wx-dpill/g)||[]).length===2, "count="+(hp.match(/wx-dpill/g)||[]).length);
+// 手写的 [系统] 你拍了拍xxx 要换成带小尾巴的拍一拍
+sb.CFG.roles["穆祉丞"] = { pat: "叫哥哥" };
+sb.chatData["穆祉丞"].push(["[系统] 你拍了拍他", "sys", "下午 11:40"]);
+let hp2 = sb.VIEWS.chat().html;
+ok("拍一拍补小尾巴", hp2.includes('拍了拍 &quot;穆祉丞&quot;') && hp2.includes("叫哥哥") && !hp2.includes("[系统]"), "pat=" + hp2.includes("叫哥哥"));
+// 拉黑后我发的消息要有红色叹号（没有验证提示）
+sb._wxBlocked["穆祉丞"] = true;
+sb._wxBlockedSince["穆祉丞"] = sb.chatData["穆祉丞"].length - 1;
+sb.chatData["穆祉丞"].push(["拉黑后发的", "me", "下午 11:41"]);
+let hb = sb.VIEWS.chat().html;
+ok("拉黑红色叹号", hb.includes("wx-reject-ic"), "no icon");
+ok("拉黑不带验证提示", !hb.includes("开启了朋友验证"), "has tip");
+delete sb._wxBlocked["穆祉丞"];
+delete sb._wxBlockedSince["穆祉丞"];
 // 拉黑/被删特效
 vm.runInContext("chatId = 'cat'", sb);
 const hc = sb.VIEWS.chat().html;

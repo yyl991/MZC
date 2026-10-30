@@ -186,13 +186,14 @@
     if (bgm) bgm.loop = false; 
     const isPlaying = bgm && !bgm.paused;
 
-    // 👇 获取今天和明天的日程
-    const evsToday = events[15] || [];
-    const evsTomorrow = events[16] || ["🎂 穆祉丞生日"]; // 确保明天一定有生日
+    // 👇 获取今天和明天的日程（过了零点就变成 16 号，生日从「明天」变「今天」）
+    const todayD = typeof gameTodayDay === "function" ? gameTodayDay() : 15;
+    const evsToday = events[todayD] || (todayD === 16 ? ["🎂 穆祉丞生日"] : []);
+    const evsTomorrow = todayD === 15 ? (events[16] || ["🎂 穆祉丞生日"]) : []; // 确保明天一定有生日
 
     // 👇 删掉了没有日程时的默认提示文案，直接为空
     let evHTML = evsToday.map(x => `<div class="we">${esc(x)}<small>全天</small></div>`).join("");
-    
+
     // 👇 将明天的生日加在下面，边框颜色改成 #FDAFAB (橙色)
     evHTML += evsTomorrow.map(x => `<div class="we" style="border-left-color:#FDAFAB">${esc(x)}<small>明天</small></div>`).join("");
 
@@ -203,10 +204,10 @@
       <div class="hgrid">
         <button class="widget wcal-wide" data-app="calendar" onclick="openApp('calendar',this)">
           <div class="cal-left">
-            <div class="cal-top"><span class="cal-day">15</span><span class="cal-week">${wdLong(2026, 11, 15).replace('星期', '周')}</span></div>
+            <div class="cal-top"><span class="cal-day">${todayD}</span><span class="cal-week">${wdLong(2026, 11, todayD).replace('星期', '周')}</span></div>
             <div class="cal-events">${evHTML}</div>
           </div>
-          <div class="cal-right"><div class="cal-month-title">11月</div><div class="mini-cal">${buildMiniCalHTML(2026, 11, 15)}</div></div>
+          <div class="cal-right"><div class="cal-month-title">11月</div><div class="mini-cal">${buildMiniCalHTML(2026, 11, todayD)}</div></div>
         </button>
 
                <button class="widget wwx-dark" data-app="weather" onclick="openApp('weather',this)" style="position: relative; overflow: hidden;">
@@ -238,7 +239,7 @@
         ${appBtn("bilibili")}${appBtn("xhs")}
       </div>
       <div class="dock">${dockApps.map(appBtn).join("")}<button class="app dock-dnd ${window.isDnd ? "on" : ""}" id="home-dnd" onclick="event.stopPropagation();toggleDnd(event)"><div class="icon dock-dnd-ic"><div class="ic">🌙</div></div><span class="lbl">免打扰</span></button></div>
-      <div class="cc" id="cc" onclick="if(event.target===this)closeCC()">
+      <div class="ccwrap" id="cc" onclick="if(event.target===this)closeCC()">
         <div class="cc-panel">
           <div class="cc-title">控制中心</div>
           <button class="cc-dnd ${window.isDnd ? "on" : ""}" id="cc-dnd" onclick="event.stopPropagation();toggleDnd(event)">

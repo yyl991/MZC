@@ -13,6 +13,7 @@ window.G = {
   chevRb: g('<path d="m9 5 7 7-7 7"/>'),
   chevLb: g('<path d="m15 5-7 7 7 7"/>'),
   chevDown: '<svg viewBox="0 0 10 6" width="10" height="6" fill="#111" style="margin-top:2px;"><path d="M0 0l5 6 5-6H0z"/></svg>',
+  chevDownG: '<svg viewBox="0 0 12 8" width="12" height="8" fill="none" stroke="#07c160" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5 6 6.2l4.5-4.7"/></svg>',
   search: g('<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>'),
   plus: g('<path d="M12 5v14M5 12h14"/>'),
   plusSq: g('<rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8v8M8 12h8"/>'),

@@ -36,7 +36,15 @@ const fmtNum = (y, m, d) => _f({ year: "numeric", month: "numeric", day: "numeri
 const wdLong = (y, m, d) => _f({ weekday: "long" }).format(_d(y, m, d));
 const wdShort = (y, m, d) => _f({ weekday: "short" }).format(_d(y, m, d));
 const wdNarrow = () => [0, 1, 2, 3, 4, 5, 6].map((i) => _f({ weekday: "narrow" }).format(_d(2026, 10, 4 + i)));
-const fmtLockDate = () => _f({ month: "long", day: "numeric", weekday: "long" }).format(_d(2026, 11, 15));
+// 游戏时间过零点没有？15 号 → 16 号
+function isAfterZero() {
+  return typeof gameMin === "function" && gameMin() >= 24 * 60;
+}
+// 游戏里的“今天”是几号（15 号夜里 / 过了零点变 16 号）
+function gameTodayDay() {
+  return isAfterZero() ? 16 : 15;
+}
+const fmtLockDate = () => _f({ month: "long", day: "numeric", weekday: "long" }).format(_d(2026, 11, gameTodayDay()));
 const fmtHour = (h) => _f({ hour: "numeric" }).format(_d(2026, 10, 17, h, 0));
 
 function alarmParts(h, mi) {

@@ -292,7 +292,7 @@ function renderLock() {
   const shown = lockNotes.slice(0, MAX);
   const rest = lockNotes.length - shown.length;
   $("#lkc").innerHTML =
-    `<div class="lk-date">${CFG.start?.date || "11月15日"} ${CFG.start?.weekday || "星期日"}</div>` +
+    `<div class="lk-date">${isAfterZero() ? "11月16日 星期一" : (CFG.start?.date || "11月15日") + " " + (CFG.start?.weekday || "星期日")}</div>` +
     `<div class="lk-time" id="lkt">${clock12()}</div>` +
     `<div class="lk-notes">${shown
       .map(
@@ -1248,6 +1248,15 @@ function tick() {
   storyTick(elapsed());
   pressureTick();
   if (elapsed() >= GAME_END_AT && !SS.arriveHome) midnightBoom();
+
+  // 过零点：日期 15 号 → 16 号，桌面/日历/锁屏跟着跳
+  if (!window._dateFlipped && elapsed() >= GAME_END_AT) {
+    window._dateFlipped = true;
+    selectedDay = 16;
+    if (view === "home" && typeof renderHome === "function") renderHome();
+    if (view === "calendar") show("calendar", "none");
+    if (view === "lock" || view === "pin") renderLock();
+  }
 
   // 3. 通话状态实时更新 (严格基于真实流逝时间)
   if (typeof callState !== "undefined" && callState === "active") {

@@ -1071,7 +1071,7 @@ window.calNav = function (d) {
   const n = calMonth + d;
   if (n < 11 || n > 11) return;
   calMonth = n;
-  selectedDay = 15;
+  selectedDay = typeof gameTodayDay === "function" ? gameTodayDay() : 15;
   const pg = show("calendar");
   pg.querySelector("#calg").animate(
     [
@@ -1085,12 +1085,13 @@ VIEWS.calendar = () => {
   const nov = calMonth === 11,
     first = nov ? 0 : 4,
     days = nov ? 30 : 31;
+  const todayD = typeof gameTodayDay === "function" ? gameTodayDay() : 15;
   let c = "";
   for (let i = 0; i < first; i++) c += "<div></div>";
   for (let d = 1; d <= days; d++) {
     const dow = (first + d - 1) % 7,
       has = nov ? d === 16 : !!events[d],
-      td = nov && d === 15;
+      td = nov && d === todayD;
     c += `<button class="cal-d ${td ? "td" : ""} ${d === selectedDay ? "sel" : ""} ${dow === 0 || dow === 6 ? "we" : ""}" onclick="selectedDay=${d};show('calendar')"><span>${d}</span>${has ? "<i></i>" : ""}</button>`;
   }
   const ev =

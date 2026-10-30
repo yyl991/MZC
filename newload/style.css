@@ -5190,13 +5190,13 @@ svg {
 .dock-dnd.on .dock-dnd-ic { background: linear-gradient(180deg, #c084fc, #7c3aed); }
 
 /* ---- 主屏幕下拉控制中心 ---- */
-.cc {
+.ccwrap {
     position: absolute; inset: 0; z-index: 9998;
     background: rgba(0, 0, 0, 0);
     pointer-events: none;
     transition: background .25s;
 }
-.cc.open {
+.ccwrap.open {
     background: rgba(0, 0, 0, .3);
     pointer-events: auto;
     -webkit-backdrop-filter: blur(2px);
@@ -5213,7 +5213,7 @@ svg {
     transition: transform .3s cubic-bezier(.2, .9, .25, 1);
     color: #fff;
 }
-.cc.open .cc-panel { transform: none; }
+.ccwrap.open .cc-panel { transform: none; }
 .cc-title { font-size: 13px; letter-spacing: 1px; color: rgba(255, 255, 255, .55); padding: 0 6px 12px; text-align: left; }
 .cc-dnd {
     display: flex; align-items: center; gap: 14px;
@@ -5245,3 +5245,44 @@ svg {
 .wx-bb .wx-quote-txt { font-size: 13px; color: #666; max-width: none; white-space: normal; }
 .wx-reject-tip { text-align: center; }
 .wx-reject-send { color: #576b95; margin-left: 4px; }
+
+/* 引用：气泡下面单独一块灰底「名字：内容」 */
+.wx-quote {
+    display: inline-block;
+    max-width: 100%;
+    margin-top: 6px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: #e3e3e3;
+    color: #8a8a8a;
+    font-size: 14px;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-sizing: border-box;
+    text-align: left;
+}
+.wx-quote-name { color: #8a8a8a; font-size: 14px; }
+.wx-quote-txt { font-size: 14px; color: #8a8a8a; }
+
+/* 翻历史记录时的新消息提醒 */
+.wx-newpill {
+    position: absolute;
+    right: 14px;
+    bottom: 92px;
+    display: none;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    border: none;
+    border-radius: 18px;
+    background: #fff;
+    color: #07c160;
+    font-size: 14px;
+    font-family: inherit;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .12);
+    z-index: 6;
+}
+.wx-newpill.open { display: flex; }
+.wx-newpill svg { flex: none; }
