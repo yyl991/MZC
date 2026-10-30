@@ -1,7 +1,7 @@
 # HANDOVER ·「橙粉色捡起来」捡手机网页
 
-> 更新时间：2026-10-28
-> 分支：`feature/update-ui` · 最新提交：`59f7d0e` · 远端：`origin`（= `mzc:yyl991/MZC.git`）
+> 更新时间：2026-10-30
+> 分支：`feature/update-ui` · 最新提交：`4988a73` · 远端：`origin`（= `mzc:yyl991/MZC.git`）
 
 写给接手的新 AI。读完这份 + 同目录的 `角色聊天记录总表.md` 就能接着干。
 
@@ -82,7 +82,7 @@
   | 2–6 天前 | `周二` |
   | 今年更早 | `11月12日` |
   | 跨年 | `2025年11月12日` |
-  「今天」唯一来源 = `gameTodayLabel()`：`gameMin() >= 24*60` 算 `11月16日`，否则 `CFG.start.date`（`11月15日`）。列表渲染处 `const time = last ? wxListTime(chatLastDate(n), last[2]) : ""`，`chatLastDate()` 取该会话最后一个 `date` 行。
+  「今天」唯一来源 = `gameTodayLabel()`：`gameMin() >= 24*60` 算 `11月16日`，否则 `CFG.start.date`（`11月15日`）。列表渲染处 `const time = last ? wxListTime(chatLastDate(n), last[2]) : ""`，`chatLastDate()` 取「**最后一条消息**所属的日期段」——数据末尾常挂着一条空的 `["11月15日","date"]`（留给今晚的消息），直接取最后一个 date 行会让所有会话都判成今天（踩过）。
 - **聊天记录内的时间胶囊** `getWxTimeString()` 同一套规则（早就实现，只是「今天」原来硬编码 `2026-10-15`，已改走 `gameTodayLabel()`）。10 分钟内不重复显示时间。
 - **排序**：置顶优先，其余按 `chatLastStamp`（日期+时间）倒序；新消息先 `ensureChatToday()` 补今天日期段再 push，`view==="wechat"` 时整体重渲染 → 自动上浮，无需手动重排。
 - **时间补零** `padHm()`（`core/utils.js`）：`下午 6:16 → 下午 06:16`。用在：消息胶囊早返回分支（`昨天/前天/周x/yyyy年`）、聊天搜索、朋友圈、`wxTimeLabel`。**数据文件里仍是裸时间，只在渲染层补，没有动 `data/`。**
@@ -178,9 +178,11 @@ newload/
 └── obfuscate.js    打包脚本（输出 dist/，当前未启用）
 ```
 
+> **加新模块时**：在 `index.html` 的 `scripts` 数组里按依赖顺序插一行（`data/` → `core/` → `views/`），漏加就是 `initApp()` 时找不到全局函数。`dist/` 不参与部署。
+
 ### 关键机制
 
-**路由**：`VIEWS` 注册表 → `show(id, anim)` / `push(id)` / `back()`。`PARENT` 映射决定返回目标，`ROOT_VIEWS` 白名单里的页面会隐藏返回键。
+**路由**：`VIEWS` 注册表 → `show(id, anim)` / `push(id)` / `back()`。`PARENT` 映射决定返回目标，`ROOT_VIEWS` 白名单里的页面会隐藏返回键（详见下面「全局返回键」）。
 
 **游戏时钟**：
 ```js
@@ -203,6 +205,59 @@ pacedAt(at) = offset + amp * ln(1 + at/soft)   // CFG.pace = {offset:90, amp:112
 对数压缩：越往后间隔越短（当前 6.4 秒 → 4.2 秒，不再陡成 1 秒一条）。`pressureTick()` 在 `nagFrom`(680秒) 之后继续施压。
 
 **语音留言**：占位用 `data/album/boli.mp3`，等作者换真人录音。
+
+### 数据格式速查（填内容照这个写）
+
+**聊天消息**（`CHAT_HISTORY[角色]` / `S.chats[角色]`，两者拼起来就是完整聊天）：
+
+```js
+['11月15日', 'date']                              // 日期分隔行
+['文本', 'me' | 'them', '下午 10:05']              // 普通气泡
+['文本', 'me', '下午 10:05', 'rejected']           // 被对方删除 → 红叹号 + 验证提示
+['文本', 'me', '下午 10:05', 'blocked']            // 我拉黑 TA 之后发的 → 只有红叹号
+['文本', 'me', '下午 10:05', 'rd']                 // 发送中
+['文本', 'me', '下午 10:05', '', { name, text }]   // 带引用
+['[系统] 我拍了拍他', 'sys', '下午 10:15']          // 系统提示（会补小尾巴）
+['[图片] ./data/chat/1.jpg', 'them', '...']
+['[表情] ./data/chat/emoji.png', 'them', '...']
+['[语音] 5|./data/chat/boli.mp3|今天好累呀', 'them', '...']        // 秒数|音频|转写
+['[视频] ./data/chat/1.mp4|./data/chat/c.jpg|0:15', 'them', '...'] // 视频|封面|时长
+```
+
+**时间线**：`S.timeline = [{ at: 秒, type: 'notify' | 'call' | 'mail', from, text, subject, body }]`
+**备忘录**：`S.notes = [标题, 预览, 全文, 日期]`，全文里的换行用 `\n`
+**日历**：`S.events = { 15: ['捡到手机'], 16: ['🎂 生日'] }`
+**朋友圈**：`MOCK_MOMENTS_DATA[角色] = { wxid, region, cover, posts: [{ id, date:{day,month}, text, images, time, likes, comments }] }`，`id` 越大越靠前；`cat` / `pig` / `tiger` / `rabbit` 用代码 key，渲染走 `dn()`。
+
+### 主屏幕与黑胶唱片（`views/home_ui.js`）
+
+`renderHome()` 完全接管主屏幕：大日历（含迷你月历 + 事件点）占满顶部，天气 + 黑胶 2x2，下面 App 图标网格。
+
+- **旋转**：`requestAnimationFrame` 实时算角度，写成行内 `transform: rotate()`。**绝对不能用 CSS animation**——收消息重绘会把动画打回零。
+- **切图**：`musicImages` 数组（加图直接 push），两层 `<img>` 用 opacity 交叉过渡。监听 `bgm.onended` 才切下一张；暂停不切，恢复播放才切。
+- **点击锁**：`toggleHomeMusic()` 置 `window.isVinylBusy = true`，动画结束解锁；`core/app.js` 重绘处 `if (view === "home" && !window.isVinylBusy) renderHome()` 拦截。
+- 暂停**只 `pause()`**，不要碰 `currentTime`。
+
+### 全局返回键（`show()` 自动注入，别手写）
+
+- **一级界面**（`core/app.js` 的 `ROOT_VIEWS`：home / lock / pin / wechat / wx_contacts / wx_discover / wx_me / phone / sms / weather / recorder / calendar / clock / notes / safari / music / maps / photos / settings / mail / weibo / weibo_profile / xianyu / xianyu_me / bilibili / xhs / instagram）→ 强制隐藏页面内的 `.nb-back` / `.bk`。
+- **二级界面** → 若已有 `.nav` 或 `.wx-chat-h` 容器，或 HTML 里写了 `onclick="back()"` / `closeApp()` / `backSuperTopic()`，就认为你处理过了；**都没有才**自动在 `top:45px; left:10px` 插一个纯色无圆圈的箭头（`.auto-global-back`）。
+- ⛔ 所以**别在非 `.nav` 页面再手写返回键**，会出现两个。
+- 侧滑 / 物理返回走 `popstate`：主页要 2 秒内两次才允许退出网页；App 内执行 `goBack()` 后重新 `pushState`。
+- 微信底部 Tab 切换用 `show()`，**不要用 `push()`**（否则出现推拉覆盖动画）。
+
+### 音频（`core/audio.js` + `#bgm`）
+
+- `AudioHub` 在捕获阶段接管所有 `<video>` / `<audio>`（`#bgm` 除外）：一播放就暂停 BGM，停 100ms 后恢复。**新增视频 / 语音直接写原生标签，不要手写暂停 BGM 的代码。**
+- 本地 MP3 在手机端读不到 `duration`，**不要用 `setInterval` 做进度条**。
+- `#bgm` 的 volume 有两处设置（`initApp()` 和 `pointerdown` 监听），改一处会被另一处覆盖。
+
+### 朋友圈：路由来源与像素级对齐
+
+- 三组来源变量，`back()` 照此 `pop` 回正确的页面，用完即重置：`_momentDetailFrom`（详情页）、`_momentsUserFrom`（个人相册）、`_profileFrom`（资料页）。都在 `core/app.js`。
+- **像素级对齐（作者亲自调过，别动）**：左侧头像固定，右侧内容 `flex: 1`；名字 / 文案 / 图片 / 日期 / 灰框左边缘必须垂直对齐。灰框里**第一列固定 52px** 放点赞爱心与评论气泡，第二列放头像（24 或 32px）。只有**第一条**评论显示气泡 SVG，后面用空 `<div>` 占位。
+- 空状态不写"暂无朋友圈"，画一条 80px 灰虚线 + 圆点。
+- **三个点只控制黑色胶囊**（赞 / 评论按钮），灰色点赞评论区常显。
 
 ---
 
@@ -240,6 +295,10 @@ EdgeOne 的静态缓存是 `Cache-Control: max-age=1200`（20 分钟），所以
 
 ### 数据
 - ⛔ **不要在 JS 对象字面量里重复定义同一个键**。`chat_history.js` 和 `story.js` 都踩过，后者覆盖前者，记录静默消失
+- ⛔ **不要把 Emoji 当对象键名**。`cat` / `pig` / `tiger` / `rabbit` 用英文键 + `DISPLAY` 映射，渲染走 `dn()`
+- ⛔ **内联 `onclick` 拼名字要转义**。名字里带引号会截断 HTML 属性，用 `esc()` 或 `&quot;`
+- ⛔ **不要引不存在的图片路径**。控制台一堆红色 404 会拖慢主线程；缺素材走 `wxMediaMiss` 占位
+- ⛔ **大图记得预加载**（`new Image().src = url` 放在 `core/app.js`），否则进页面一片白块
 - ⛔ **不要重新引入持久化存档**
 - ⛔ **恩恩 / 黑猫 / 丞丞 / MU 四个角色已定稿（2026-10-30 作者定）**：聊天记录、性格、口癖、催命、朋友圈全部冻结，不要改、不要补、不要"顺手优化"，**口癖也不用再写**。见总表 §0.6
 - ⛔ **注意 `'pig'` 在 `S.chats` 里的缩进是 8 空格**（不是 4），脚本化改文件时要小心
@@ -251,18 +310,33 @@ EdgeOne 的静态缓存是 `Cache-Control: max-age=1200`（20 分钟），所以
 ### 朋友圈
 - ⛔ **三个点只控制黑色胶囊**（赞/评论按钮），下面的灰色点赞评论区必须一直显示。上一轮把灰框也藏了，被退回重做
 
+### 路由
+- ⛔ **微信底部 Tab 用 `show()`，不要用 `push()`**，否则出现推拉覆盖动画
+- ⛔ **别在非 `.nav` 页面手写返回键**，`show()` 已经自动注入，会变成两个
+- ⛔ **不要在脚本加载时提前 `pushState`**，会打乱 `popstate` 的二次确认
+
+### 主屏幕
+- ⛔ **黑胶不能用 CSS animation**，必须 `requestAnimationFrame` + 行内 `transform`
+- ⛔ **别在 `renderHome()` 外面重绘主屏幕**，会打断黑胶；重绘前先看 `window.isVinylBusy`
+
 ### 电话
 - ⛔ **拨号键盘拨出的号码不要回拨**（`dial(name, true)`）
 - ⛔ 追命有次数上限（穆祉丞 5 次、其他人 3 次），超了发 `CALL_ANGRY` 收手，不要改成无限
+- ⛔ **挂断后 `closeCallUI` 必须退回原界面**，不能强行打开电话 App
 
 ### 音频
 - ⛔ **`#bgm` 的 volume 有两处设置**：`initApp()` 和 `pointerdown` 监听。改一处会被另一处覆盖——之前声音小的根因就是这里
 - ⛔ BGM 播放用 `tryStartBGM()`，**不要改回 `{once:true}`**
+- ⛔ BGM 被打断**只能 `pause()`**，绝不能碰 `currentTime = 0`
+- ⛔ **不要手写暂停 BGM 的代码**，`AudioHub` 已全局接管
+- ⛔ **不要用 `setInterval` 做本地音频进度条**，手机端读不到 `duration`
 
 ### 工具
 - ⛔ Windows 下 Python `print()` 中文到 GBK 控制台会抛 `UnicodeEncodeError`，**文件其实已经写成功了**，别误判重做
 - ⛔ heredoc 里的 `\n` 可能被 shell 解释成真实换行破坏 JS，用 Python 写文件更稳
 - ⛔ `grep -P` 在这个环境不可用（locale 问题）
+- ⛔ **`const` / `let` 定义的函数不会挂到 `window`**。要在 `onclick` 里调就得 `window.foo = foo`，或者用顶层 `function` 声明
+- ⛔ 所有脚本共享全局作用域，**同名函数后者覆盖前者**，新增全局函数前先 grep 一遍
 
 ---
 
@@ -274,11 +348,74 @@ EdgeOne 的静态缓存是 `Cache-Control: max-age=1200`（20 分钟），所以
 - 改了功能要说明改了什么，让他决定是否保留
 - 他会直接发截图说 UI 哪里不对，以截图为准确认
 - 他给的对话原文标 `✅ 原文` 的**一个字都不能改**
+- **`data/chat_history.js`、`data/story.js` 是他自己在写**，不要动内容，也别 `git add` 带上
+
+### 交付规则（踩过很多次，按这个来）
+
+| 情况 | 怎么给 |
+|---|---|
+| 一个文件改了 3 处以上 / 跨多个 `VIEWS` | **给整文件**，让他直接覆盖 |
+| 只改一个函数 | 给那段函数 |
+| 只改一个 `onclick` | 给那一个 div |
+
+- ⛔ **不要"修改第 XX 行"式补丁**，他极度讨厌对行号
+- ⛔ **UI 默认冻结**：除非他明确说改 UI，否则 HTML 结构 / class / style / 布局一律不碰，只改逻辑
+- **先讲机制再动手**：涉及跳转、状态、路由的，先用一段话讲清楚基础逻辑，他点头再写代码
+- **代码必带防呆**：`typeof X !== 'undefined'`、`|| {}`、`if (!x) return`，某个模块没加载不能全站白屏
+- 他会问"你是在我源代码的基础上改的吗"，**改之前先读源文件，不要凭印象生成**
 
 ---
 
 ## 十、上线前必做
 
-1. **恢复 `obfuscate.js` 的 domainLock**（为分享测试临时关闭的，见 memory 里的 `domain-lock-reminder.md`）
-2. 替换语音留言的占位音频
-3. 补全缺失的聊天素材（`data/chat/` 里只有 `1.mp4`、`boli.mp3`、`pigcry.jpg`，但聊天记录引用了大量 `./data/chat/xxx.png`，目前走 `wxMediaMiss` 占位）
+1. **恢复 `obfuscate.js` 的 domainLock**（2026-10-28 为分享测试临时关掉的，见 memory `domain-lock-reminder.md`）。历史白名单：
+
+   ```js
+   domainLock: [
+     'cgcgdsg.cc.cd',                   // 当前专属域名
+     'mzc1116-10g3u3eg.maozi.io',       // 帽子云默认链接
+     'mzc1116.cc.cd',                   // 旧域名
+     'mzc-dpv14dr9uz2g.edgeone.dev',    // EdgeOne 备用
+     'localhost'
+   ]
+   ```
+
+   ⛔ 域名不在名单里会**直接白屏跳 `about:blank`**。加了新域名一定要补进来。
+2. **确认 `debugProtection`**：现在 `obfuscate.js` 里是 `true`，而旧文档记录它会让部分手机浏览器崩白屏、建议设 `false`。改之前和作者确认一次。
+3. 替换语音留言的占位音频
+4. 补全缺失的聊天素材（`data/chat/` 里只有 `1.mp4`、`boli.mp3`、`pigcry.jpg`，但聊天记录引用了大量 `./data/chat/xxx.png`，目前走 `wxMediaMiss` 占位）
+5. **核对分享卡片**：`index.html` 的 `og:image` / `weibo:image` 必须是完整 HTTPS 绝对路径、正方形（600×600 或 1200×630）；改完在分享链接后加 `?v=1` 让微信 / 微博重新抓取。
+
+---
+
+## 十一、旧版交接文档：哪些已经过时
+
+以前几版交接文档的结论，有些还成立、有些已经作废。**只看这份 HANDOVER 就够**，下表是给"翻到旧文件"的人对照用的。
+
+### 11.1 已过时（别照着做）
+
+| 旧文档说法 | 现状 |
+|---|---|
+| 文件是 `app.js` / `chat.js` / `data_extra.js` / `story.zh.js` | 早已拆成 `core/` + `views/` + `data/`，名字全变了 |
+| "当前是开发者调试模式，直接跳过锁屏" | 已恢复锁屏 + 密码（`1116`） |
+| 部署在**帽子云** | 现在主用 **EdgeOne**，直接托管 `newload` 源码目录，push 即上线 |
+| `s.src = src + '?v=' + new Date().getTime()` 强力防缓存 | 已改成固定 `ASSET_V`，**别改回去** |
+| 用 `setInterval` 做音乐进度条 | 本地 MP3 读不到 `duration`，别做 |
+| 黑胶用 CSS `animation` 转 | 必须 `requestAnimationFrame` |
+
+### 11.2 旧文档里的 Todo，现在什么样
+
+| 事项 | 状态 |
+|---|---|
+| 朋友圈列表 / 详情 / 点赞评论 | ✅ 已完成（`views/wx_moments.js`） |
+| 通讯录 / 发现 / 我 三个 Tab | ✅ 已完成（`views/wx_pages.js`） |
+| 相册九宫格 / 备忘录 / 邮件 / 日历 | ✅ 已完成 |
+| 长按图标 3D Touch | ❌ 没做 |
+| 控制中心 / 通知中心 | ❌ 没做 |
+| 灵动岛 | ❌ 没做，HTML 在 `index.html` 里被注释掉了 |
+| 音乐 App / Safari / 地图 | ❌ 没做。`index.html` 里那三行是**注释掉的**，`app_safari.js`、`app_music.js`、`app_map.js` 文件本身都不存在 |
+| 加剧情分支 / 补聊天记录 | 内容层已落地；**恩恩 / 黑猫 / 丞丞 / MU 已冻结**，别加 |
+
+### 11.3 旧文档里仍然有效的提醒
+
+黑胶不能 CSS 动画、BGM 只能 `pause()`、AudioHub 全局接管媒体、微信 Tab 用 `show()`、域名白名单、`debugProtection` 可能崩浏览器——这些都已经并入 §六 和 §八，不用再翻旧文件。
