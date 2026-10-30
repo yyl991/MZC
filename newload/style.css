@@ -5227,3 +5227,21 @@ svg {
 .cc-dnd-main b { font-size: 16px; font-weight: 600; }
 .cc-dnd-main small { font-size: 12px; color: rgba(255, 255, 255, .75); }
 .cc-tip { text-align: center; font-size: 12px; color: rgba(255, 255, 255, .5); margin-top: 16px; }
+
+/* 引用块按微信样式：灰底一行「名字：内容」 */
+.wx-bb .wx-quote {
+    border-left: none;
+    border-radius: 4px;
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    background: rgba(0, 0, 0, .06);
+    font-size: 13px;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.wx-bb .wx-quote-name { color: #576b95; font-size: 13px; margin: 0; }
+.wx-bb .wx-quote-txt { font-size: 13px; color: #666; max-width: none; white-space: normal; }
+.wx-reject-tip { text-align: center; }
+.wx-reject-send { color: #576b95; margin-left: 4px; }

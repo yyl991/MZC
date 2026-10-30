@@ -41,7 +41,7 @@ ok("超过 10 分钟显示时间", (hp.match(/wx-dpill/g)||[]).length===2, "coun
 vm.runInContext("chatId = 'cat'", sb);
 const hc = sb.VIEWS.chat().html;
 ok("rejected icon", hc.includes("wx-reject-ic"), "none");
-ok("rejected tip", hc.includes("你还不是对方好友"), "none");
+ok("rejected tip", hc.includes("开启了朋友验证"), "none");
 ok("rejected tip exists", (hc.match(/wx-reject-tip/g)||[]).length >= 1, "count="+(hc.match(/wx-reject-tip/g)||[]).length);
 ok("rejected count", (hc.match(/wx-reject-ic/g)||[]).length >= 1, "count="+(hc.match(/wx-reject-ic/g)||[]).length);
 console.log(fails===0?"ALL PASS":fails+" FAILS");

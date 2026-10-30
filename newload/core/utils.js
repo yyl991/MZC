@@ -100,5 +100,5 @@ function timeToMin(s) {
 function wxTimeLabel(s) {
   const min = timeToMin(s);
   const h = Math.floor(min / 60) % 24;
-  return `${h >= 12 ? "下午" : "上午"} ${h % 12}:${pad(min % 60)}`;
+  return `${h >= 12 ? "下午" : "上午"} ${pad(h % 12)}:${pad(min % 60)}`;
 }

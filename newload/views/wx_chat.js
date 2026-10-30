@@ -548,7 +548,7 @@ function getWxTimeString(dateLabel, timeStr) {
     h >= 12
       ? '<span class="ampm">下午</span>'
       : '<span class="ampm">上午</span>';
-  const h12 = h % 12; // 凌晨 00:xx 显示「上午 0:xx」
+  const h12 = pad(h % 12); // 凌晨 00:xx 显示「上午 00:xx」
   const timeOnly = `${ampmCN} ${h12}:${pad(m)}`;
   if (!dateLabel) return timeOnly;
   let msgDate = new Date(2026, 10, 15);
@@ -747,7 +747,7 @@ function chatMsgs(id) {
     }
     if (x.quote)
       innerContent =
-        `<div class="wx-quote"><div class="wx-quote-name">${esc(x.quote.name)}</div><div class="wx-quote-txt">${esc(x.quote.text)}</div></div>` +
+        `<div class="wx-quote"><span class="wx-quote-name">${esc(x.quote.name)}：</span><span class="wx-quote-txt">${esc(x.quote.text)}</span></div>` +
         innerContent;
     const holdEvent = `onpointerdown="startHoldMsg(event, ${x.rawIdx})" onpointerup="cancelHoldMsg()" onpointerleave="cancelHoldMsg()"`;
     let dotHtml = "",
@@ -766,11 +766,11 @@ function chatMsgs(id) {
     const nextRej = nextIt && !nextIt.date && nextIt.rejected;
     const rejHtml =
       me && x.rejected
-        ? `<span class="wx-reject-ic" onclick="event.stopPropagation();toastDev('消息发送失败：你还不是对方好友')">!</span>`
+        ? `<span class="wx-reject-ic" onclick="event.stopPropagation();toastDev('消息已发出，但被对方拒收了。')">!</span>`
         : "";
     const rejTip =
       me && x.rejected && !nextRej
-        ? `<div class="wx-reject-tip">你还不是对方好友，请先发送朋友验证</div>`
+        ? `<div class="wx-reject-tip">${esc(wxName(chatId))}开启了朋友验证，你还不是他（她）朋友。请先发送朋友验证请求，对方验证通过后，才能聊天。<span class="wx-reject-send" onclick="event.stopPropagation();toastDev('已发送朋友验证')">发送朋友验证</span></div>`
         : "";
     o += `<div class="wx-ln ${me ? "me" : "th"}"><div class="wx-sav" onclick="event.stopPropagation();wxPatTap(event,${me},'${x.sender}')">${avatarFor(x.sender, false, me)}</div><div style="display: flex; flex-direction: column; align-items: ${me ? "flex-end" : "flex-start"}; max-width: calc(100% - 60px);"><div style="display: flex; align-items: center; flex-direction: ${me ? "row-reverse" : "row"}; gap: 6px;"><div class="${bubbleClass}" data-idx="${x.rawIdx}" ${onclickAttr} ${holdEvent}>${innerContent}</div>${rejHtml}${!me ? dotHtml : ""}${!me ? btnHtml : ""}</div>${rejTip}${textHtml}</div></div>`;
   });

@@ -178,7 +178,7 @@ function ampm(minutes) {
   const h = Math.floor(minutes / 60) % 24;
   const m = Math.floor(minutes % 60);
   const ap = h >= 12 ? "下午" : "上午";
-  const h12 = h % 12; // 凌晨 00:09 显示「上午 0:09」，不是 12
+  const h12 = pad(h % 12); // 凌晨 00:09 显示「上午 00:09」，不是 12
   return `${ap} ${h12}:${pad(m)}`;
 }
 function gameMin() {
@@ -193,7 +193,7 @@ function clock12(showAmpm = true) {
   const h = Math.floor(m / 60) % 24;
   const min = Math.floor(m % 60);
   const ampmStr = h >= 12 ? "下午" : "上午";
-  const h12 = h % 12; // 凌晨 00:09 显示「上午 0:09」
+  const h12 = pad(h % 12); // 凌晨 00:09 显示「上午 00:09」
   return showAmpm ? `${ampmStr}${h12}:${pad(min)}` : `${h12}:${pad(min)}`;
 }
 function gameTime24() {
@@ -1211,8 +1211,9 @@ function storyTick(e) {
       if (beat.type === "notify") incomingMsgFrom(beat.from, beat.text);
       if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");
       if (beat.type === "mail") incomingMailFrom(beat);
-      if (beat.type === "choice" && !SS.arriveHome) showStoryChoice();
-      if (beat.type === "ending" && !SS.arriveHome) showEnding(SS.choice || "B");
+      // 开发模式先不触发选择/结局，方便继续调试
+      if (beat.type === "choice" && !SS.arriveHome && !IS_DEV_HOST) showStoryChoice();
+      if (beat.type === "ending" && !SS.arriveHome && !IS_DEV_HOST) showEnding(SS.choice || "B");
     }
   });
 }
