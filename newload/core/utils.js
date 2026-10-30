@@ -104,6 +104,10 @@ function timeToMin(s) {
   }
   return 0;
 }
+// 微信里的时间统一补零：下午 6:16 → 下午 06:16
+function padHm(s) {
+  return String(s || "").replace(/(\d{1,2}):(\d{2})/g, (_, h, m) => `${pad(h)}:${m}`);
+}
 // 聊天列表右上角的时间文案（上午/下午 H:MM）
 function wxTimeLabel(s) {
   const min = timeToMin(s);

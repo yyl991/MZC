@@ -194,7 +194,7 @@ window.wxRenderSearch = function (q) {
       html += `<div class="wx-search-row" onclick="openSearchHit(${i})">
         <div class="wx-search-av">${avatarFor(h.chat, false)}</div>
         <div class="wx-search-info"><div class="wx-search-name">${esc(h.label)}</div><div class="wx-search-sub">${esc(h.sub)}</div></div>
-        ${h.time ? `<div class="wx-search-time">${esc(h.time)}</div>` : ""}
+        ${h.time ? `<div class="wx-search-time">${esc(padHm(h.time))}</div>` : ""}
       </div>`;
     });
   }

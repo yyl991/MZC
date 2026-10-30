@@ -525,7 +525,7 @@ window.openWxProfileFromDetail = function () {
 };
 
 function getWxTimeString(dateLabel, timeStr) {
-  if (/昨天|前天|周[一二三四五六日]|\d{4}年/.test(timeStr)) return timeStr;
+  if (/昨天|前天|周[一二三四五六日]|\d{4}年/.test(timeStr)) return padHm(timeStr);
   let h = 0,
     m = 0;
   let match = timeStr.match(/(上午|下午)\s*(\d+):(\d+)/);
@@ -865,9 +865,13 @@ function chatMsgs(id) {
       const ai = anchor ? (chatData[id] || []).indexOf(anchor) : -1;
       isBlockedSend = !anchor || ai < 0 || x.rawIdx > ai;
     }
+    // 两种红叹号：被对方删了（rejected）和你自己拉黑了对方（block），点开来提示不一样
+    const rejTap = x.rejected
+      ? "消息已发出，但被对方拒收了。"
+      : "对方已被你加入黑名单，这条消息没有送达。";
     const rejHtml =
       me && (x.rejected || isBlockedSend)
-        ? `<span class="wx-reject-ic" onclick="event.stopPropagation();toastDev('消息已发出，但被对方拒收了。')">!</span>`
+        ? `<span class="wx-reject-ic" onclick="event.stopPropagation();toastDev('${rejTap}')">!</span>`
         : "";
     const rejTip = me && x.rejected
       ? `<div class="wx-reject-tip">${esc(wxName(chatId))}开启了朋友验证，你还不是他（她）朋友。请先发送朋友验证请求，对方验证通过后，才能聊天。<span class="wx-reject-send" onclick="event.stopPropagation();toastDev('已发送朋友验证')">发送朋友验证</span></div>`

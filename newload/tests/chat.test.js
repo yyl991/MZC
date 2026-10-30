@@ -48,6 +48,7 @@ sb._wxBlockedSince["穆祉丞"] = sb.chatData["穆祉丞"].slice(-1)[0];
 sb.chatData["穆祉丞"].push(["拉黑后发的", "me", "下午 11:41"]);
 let hb = sb.VIEWS.chat().html;
 ok("拉黑红色叹号", hb.includes("wx-reject-ic"), "no icon");
+ok("拉黑叹号提示是黑名单文案", hb.includes("加入黑名单，这条消息没有送达") && !hb.includes("被对方拒收"), "tap");
 ok("拉黑不带验证提示", !hb.includes("开启了朋友验证"), "has tip");
 delete sb._wxBlocked["穆祉丞"];
 delete sb._wxBlockedSince["穆祉丞"];
@@ -64,4 +65,6 @@ ok("列表昨天", sb.wxListTime("11月14日", "下午 3:00") === "昨天", sb.w
 ok("列表周x", sb.wxListTime("11月10日", "下午 3:00") === "周二", sb.wxListTime("11月10日", "下午 3:00"));
 ok("列表今年", sb.wxListTime("3月2日", "下午 3:00") === "3月2日", sb.wxListTime("3月2日", "下午 3:00"));
 ok("列表跨年", sb.wxListTime("2025年3月2日", "下午 3:00") === "2025年3月2日", sb.wxListTime("2025年3月2日", "下午 3:00"));
+// 微信里所有时间小时补零
+ok("时间补零", sb.padHm("下午 6:16") === "下午 06:16" && sb.padHm("昨天 下午 6:16") === "昨天 下午 06:16", sb.padHm("昨天 下午 6:16"));
 console.log(fails===0?"ALL PASS":fails+" FAILS");

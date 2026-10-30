@@ -543,7 +543,7 @@ VIEWS.moments = () => {
               ${renderImages(m.images)}
               
               <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 8px;">
-                <span style="font-size: 12px; color: #999;">${esc(m.time)}</span>
+                <span style="font-size: 12px; color: #999;">${esc(padHm(m.time))}</span>
                 <div style="display:flex; align-items:center; gap:8px;">
                   <div class="wx-like-pill" style="display:none; align-items:center; background:#4c4c4c; border-radius:6px; overflow:hidden;">
                     <button onclick="event.stopPropagation(); wxLikeFromFeed(${index})" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:13px;padding:6px 12px;font-family:inherit;">${G.heart.replace('<svg', '<svg width="15" height="15" style="color:#fff;"')} 赞</button>
