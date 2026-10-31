@@ -556,7 +556,7 @@ VIEWS.wx_contacts_sub = () => {
     const tags = [
       { name: "家人", members: ["MuAMuA", "恩恩", "穆瑞恩"] },
       { name: "朋友", members: ["丞哥", "穆祉丞", "穆瑞恩", "恩仔"] },
-      { name: "同事", members: ["丞丞小队长", "pig"] },
+      { name: "同事", members: ["丞丞", "pig"] },
       { name: "不想说话", members: ["Mu", "pig", "cat"] },
     ];
     body = `<div style="background:#fff;">${tags

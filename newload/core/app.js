@@ -166,7 +166,7 @@ let callName = "穆祉丞";
 let lockNotes = [
   {
     title: "免打扰建议",
-    body: "穆祉丞一直很吵闹，可以点击这里开启免打扰",
+    body: "穆祉丞一直很吵闹，可以点击开启免打扰",
     app: "dnd",
     time: (typeof CFG !== "undefined" && CFG.start && CFG.start.time) || "23:09",
   },
@@ -1238,7 +1238,7 @@ function tick() {
     window._dndHintShown = true;
     lockNotes.unshift({
       title: "免打扰建议",
-      body: "穆祉丞一直很吵闹，可以点击这里开启免打扰",
+      body: "穆祉丞一直很吵闹，可以点击开启免打扰",
       app: "dnd",
       time: gameTime24(),
     });

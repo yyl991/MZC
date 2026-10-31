@@ -38,7 +38,7 @@ var INCOMING = [];
     穆瑞恩: { initial: "瑞", color: "#9ad0ec", avatar: "./data/avatar/ruien.jpg", pat: "说再练一遍" },
     恩仔: { initial: "恩", color: "#d9a7c7", avatar: "./data/avatar/enzai.jpg", pat: "说我命由我不由天" },
     Mu: { initial: "M", color: "#3a3a3c", avatar: "./data/avatar/mu.jpg", pat: "的AWP并疯狂报点：“A大！A大！”" },
-    丞丞小队长: { initial: "丞", color: "#4a90e2", avatar: "./data/avatar/leader.jpg", pat: "一起SIU~~~" },
+    丞丞: { initial: "丞", color: "#4a90e2", avatar: "./data/avatar/leader.jpg", pat: "一起SIU~~~" },
     pig: { initial: "Z", color: "#ffb6c1", avatar: "./data/avatar/pig.jpg", pat: "说老板要大份的谢谢" }, // 猪
     // 👇 新增的三个角色
     cat: { initial: "猫", color: "#3a3a3c", avatar: "./data/avatar/cat.jpg", pat: "…你敢拍我？" },
@@ -139,7 +139,7 @@ var INCOMING = [];
     },
 
     // 八中足球队队长 · 艺体两开花的 if 线
-    '丞丞小队长': {
+    '丞丞': {
       init: [['11月15日','date']],
       replies: [
         { mine:['我马上回去。'], them:['快回去啊，别让人等 😾'] },
@@ -163,7 +163,7 @@ var INCOMING = [];
 
   /* 完整时间线：所有人都会按秒数弹出来 */
   S.timeline = [
-    { at: 0, type:'notify', from:'穆祉丞', text:'不是 你人呢？手机怎么在街上？' },
+    { at: 0, type:'notify', from:'穆祉丞', text:'不是 你人呢？手机定位怎么在街上？' },
     { at: 7, type:'notify', from:'穆祉丞', text:'刚刚还跟我说话，一转眼人没了。' },
     { at: 10, type:'notify', from:'穆祉丞', text:'你去哪里了？马上快要到我的生日零点了，蛋糕已经摆好了，就差你。' },
     { at: 13, type:'notify', from:'pig', text:'馋死了' },
@@ -196,13 +196,13 @@ var INCOMING = [];
     { at: 123, type:'notify', from:'恩仔', text:'我明天就十四岁了。' },
     { at: 126, type:'notify', from:'穆祉丞', text:'宝宝，回一句。' },
     { at: 129, type: 'choice' },
-    { at: 135, type:'notify', from:'丞丞小队长', text:'诶你人呢' },
-    { at: 139, type:'notify', from:'丞丞小队长', text:'今天不是他生日吗' },
+    { at: 135, type:'notify', from:'丞丞', text:'诶你人呢' },
+    { at: 139, type:'notify', from:'丞丞', text:'今天不是他生日吗' },
     { at: 142, type:'notify', from:'恩恩', text:'我数三下了。三。' },
-    { at: 146, type:'notify', from:'丞丞小队长', text:'你该不会还在外面吧' },
+    { at: 146, type:'notify', from:'丞丞', text:'你该不会还在外面吧' },
     { at: 149, type:'notify', from:'cat', text:'一' },
     { at: 152, type:'notify', from:'rabbit', text:'是不是路上堵车了？' },
-    { at: 156, type:'notify', from:'丞丞小队长', text:'😾' },
+    { at: 156, type:'notify', from:'丞丞', text:'😾' },
     { at: 159, type:'notify', from:'丞哥', text:'定位在解放碑。你一个人？' },
     { at: 162, type:'notify', from:'恩恩', text:'二。' },
     { at: 166, type:'notify', from:'穆瑞恩', text:'今天压腿很痛，我不敢跟别人说。你什么时候才会来呀？' },
@@ -220,9 +220,9 @@ var INCOMING = [];
     { at: 209, type:'notify', from:'恩仔', text:'后来真的有一个人看见了。' },
     { at: 213, type:'notify', from:'cat', text:'门锁了 生日你也别过了' },
     { at: 216, type:'notify', from:'丞哥', text:'气笑了。' },
-    { at: 219, type:'notify', from:'丞丞小队长', text:'雪把球场盖了，球踢一半就散了' },
+    { at: 219, type:'notify', from:'丞丞', text:'雪把球场盖了，球踢一半就散了' },
     { at: 223, type:'notify', from:'恩恩', text:'我不是非要你今天回来的。' },
-    { at: 226, type:'notify', from:'丞丞小队长', text:'我路过你家楼下了 灯是暗的' },
+    { at: 226, type:'notify', from:'丞丞', text:'我路过你家楼下了 灯是暗的' },
     { at: 229, type: 'call', from: '恩恩' },
     { at: 235, type:'notify', from:'恩恩', text:'我只是……算了。' },
     { at: 239, type:'notify', from:'rabbit', text:'就是今天……好像是什么日子' },
@@ -239,7 +239,7 @@ var INCOMING = [];
     { at: 279, type:'notify', from:'pig', text:'蛋糕要化了' },
     { at: 282, type:'notify', from:'恩仔', text:'我今天练完了，一个人在练习室。' },
     { at: 286, type:'notify', from:'rabbit', text:'你慢慢来，我不着急' },
-    { at: 289, type:'notify', from:'丞丞小队长', text:'快回去啊，别让人等' },
+    { at: 289, type:'notify', from:'丞丞', text:'快回去啊，别让人等' },
     { at: 296, type:'notify', from:'穆祉丞', text:'穆祉丞。' },
     { at: 299, type:'notify', from:'Mu', text:'1' },
     { at: 303, type:'notify', from:'MuAMuA', text:'雪这么大，长寿面煮好了，汤还温着。' },
@@ -264,7 +264,7 @@ var INCOMING = [];
   S.missLines = {
     default: "算了。",
     MuAMuA: "不催你了，记得吃饭。",
-    丞丞小队长: "快回去啊，别让人等。",
+    丞丞: "快回去啊，别让人等。",
     丞哥: "爱回不回。",
     穆祉丞: "那我自己吹蜡烛了。",
     穆瑞恩: "没关系，我再等一会儿。",
@@ -286,7 +286,7 @@ var INCOMING = [];
     丞哥: "cgcgdsg",
     MuAMuA: "mama",
     Mu: "CSGOD",
-    丞丞小队长: "chengcheng",
+    丞丞: "chengcheng",
     pig: "xiaopangpang",
     cat: "laopo_zuo",
     rabbit: "laopo_guai",
@@ -498,12 +498,12 @@ var INCOMING = [];
       ["tiger", "等你。"],
       ["tiger", "快点回来，不然我要生气了。"],
     ],
-    丞丞小队长: [
-      ["丞丞小队长", "喂，是我。"],
+    丞丞: [
+      ["丞丞", "喂，是我。"],
       ["你", "嗯。"],
-      ["丞丞小队长", "我路过你家楼下了，灯是暗的。"],
+      ["丞丞", "我路过你家楼下了，灯是暗的。"],
       ["你", "我在外面，马上回。"],
-      ["丞丞小队长", "那我陪你走到门口。"],
+      ["丞丞", "那我陪你走到门口。"],
     ],
   };
 

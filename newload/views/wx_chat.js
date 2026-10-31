@@ -13,7 +13,7 @@ const MOCK_MOMENTS_DATA = {
         images: [],
         location: "家里",
         time: "2026年11月15日 21:40",
-        likes: ["恩恩", "兔子", "丞丞小队长"],
+        likes: ["恩恩", "兔子", "丞丞"],
         comments: []
       },
       {
@@ -23,7 +23,7 @@ const MOCK_MOMENTS_DATA = {
         images: [],
         location: "",
         time: "2026年9月13日 23:11",
-        likes: ["丞丞小队长", "Mu"],
+        likes: ["丞丞", "Mu"],
         comments: []
       }
     ]
@@ -116,7 +116,7 @@ const MOCK_MOMENTS_DATA = {
     ]
   },
 
-  "丞丞小队长": {
+  "丞丞": {
     wxid: "chengcheng",
     region: "重庆",
     cover: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=800",
@@ -131,7 +131,7 @@ const MOCK_MOMENTS_DATA = {
         likes: ["穆祉丞"],
         comments: [
           { user: "穆祉丞", text: "恭喜。", replyTo: "" },
-          { user: "丞丞小队长", text: "最后一名也是名。", replyTo: "穆祉丞" }
+          { user: "丞丞", text: "最后一名也是名。", replyTo: "穆祉丞" }
         ]
       },
       {
@@ -143,8 +143,8 @@ const MOCK_MOMENTS_DATA = {
         time: "2025年12月20日 10:58",
         likes: ["穆祉丞"],
         comments: [
-          { user: "穆祉丞", text: "耍起！", replyTo: "" },
-          { user: "丞丞小队长", text: "等考完。真的。", replyTo: "穆祉丞" }
+          { user: "我", text: "耍起！", replyTo: "" },
+          { user: "丞丞", text: "等考完！", replyTo: "我" }
         ]
       }
     ]
@@ -183,7 +183,7 @@ const MOCK_MOMENTS_DATA = {
         images: [],
         location: "训练室",
         time: "2026年11月14日 23:52",
-        likes: ["丞丞小队长"],
+        likes: ["丞丞"],
         comments: []
       },
       {
@@ -195,8 +195,8 @@ const MOCK_MOMENTS_DATA = {
         time: "2026年11月12日 01:30",
         likes: [],
         comments: [
-          { user: "丞丞小队长", text: "几点了哥。", replyTo: "" },
-          { user: "Mu", text: "1", replyTo: "丞丞小队长" }
+          { user: "丞丞", text: "几点了哥。", replyTo: "" },
+          { user: "Mu", text: "1", replyTo: "丞丞" }
         ]
       }
     ]
@@ -732,16 +732,29 @@ VIEWS.wechat = () => {
   };
 };
 
-// 聊天记录里手写的「[系统] 你拍了拍XXX」也要有拍一拍的小尾巴
+// 聊天记录里手写的拍一拍，自动补全引号和小尾巴
 function normalizePatSys(text, id) {
   let s = String(text || "").replace(/^[\[【]\s*系统\s*[\]】]\s*/, "").trim();
-  if (!/拍了/.test(s)) return s;
-  // 双击头像生成的已经是带小尾巴的格式，原样返回
-  if (/^["]我["]\s*拍了拍/.test(s)) return s;
-  if (!/^我\s*拍了拍/.test(s)) return s;
-  const role = CFG && CFG.roles && CFG.roles[id];
-  const suffix = role && role.pat ? role.pat : "";
-  return `我拍了拍"${wxName(id)}"${suffix ? " " + suffix : ""}`;
+  if (!/拍了拍/.test(s)) return s;
+  
+  // 1. 已经是双击头像实时生成的标准格式（带引号），原样返回，防止重复处理
+  if (/^["]我["]\s*拍了拍/.test(s) || /^我\s*拍了拍\s*["]/.test(s)) return s;
+  
+  // 2. 兼容历史数据里的各种手写格式（我拍了拍 / 你拍了拍 / 我拍了拍他 / 我拍了拍自己）
+  if (/^(你|我)\s*拍了拍/.test(s)) {
+    // 如果是拍自己
+    if (/拍了拍自己/.test(s)) {
+       const myPat = CFG && CFG.myPat ? CFG.myPat : "";
+       return `我拍了拍自己${myPat ? " " + myPat : ""}`;
+    }
+    // 如果是拍对方（不管写的是"他"还是具体的名字，都统一转成当前聊天对象的正确格式）
+    const role = CFG && CFG.roles && CFG.roles[id];
+    const suffix = role && role.pat ? role.pat : "";
+    const targetName = wxName(id);
+    return `我拍了拍"${targetName}"${suffix ? " " + suffix : ""}`;
+  }
+  
+  return s;
 }
 
 function chatItems(id) {
