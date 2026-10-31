@@ -448,14 +448,29 @@ VIEWS.moments = () => {
       });
     });
   }
-  (window._wxMyPosts || []).forEach((post) => {
+  
+    (window._wxMyPosts || []).forEach((post) => {
     allPosts.push({
       ...post,
       author: "我",
       avatar: CFG.myAvatar || G.sil,
     });
   });
-  allPosts.sort((a, b) => b.id - a.id);
+
+  // 👇 修复：按真实发布时间降序排列，而不是按 id 大小
+  allPosts.sort((a, b) => {
+    const getTime = (timeStr) => {
+      if (!timeStr) return 0;
+      if (timeStr.includes("刚刚")) return Date.now();
+      // 匹配 "2026年11月15日 21:40" 格式
+      const match = timeStr.match(/(\d{4})年(\d{1,2})月(\d{1,2})日(?:\s*(\d{1,2}):(\d{1,2}))?/);
+      if (match) {
+        return new Date(match[1], match[2] - 1, match[3], match[4] || 0, match[5] || 0).getTime();
+      }
+      return 0;
+    };
+    return getTime(b.time) - getTime(a.time);
+  });
 
   window._wxMomentFeed = allPosts;
 

@@ -13,7 +13,7 @@ const MOCK_MOMENTS_DATA = {
         images: [],
         location: "家里",
         time: "2026年11月15日 21:40",
-        likes: ["恩恩", "兔子", "丞丞"],
+        likes: ["恩恩", "rabbit", "丞丞"],
         comments: []
       },
       {
@@ -72,16 +72,6 @@ const MOCK_MOMENTS_DATA = {
     region: "重庆",
     cover: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=800",
     posts: [
-      {
-        id: 401,
-        date: { day: "今天", month: "" },
-        text: "等一个人，等到灯都困了。",
-        images: [],
-        location: "家",
-        time: "2026年11月15日 20:10",
-        likes: ["兔子"],
-        comments: []
-      },
       {
         id: 402,
         date: { day: "11", month: "11月" },
@@ -162,10 +152,10 @@ const MOCK_MOMENTS_DATA = {
         images: [],
         location: "家",
         time: "2026年11月15日 19:30",
-        likes: ["兔子", "恩恩", "黑猫"],
+        likes: ["rabbit", "恩恩", "黑猫"],
         comments: [
-          { user: "兔子", text: "我也留了饭。", replyTo: "" },
-          { user: "猪", text: "那我们两个一起等。", replyTo: "兔子" }
+          { user: "rabbit", text: "我也留了饭。", replyTo: "" },
+          { user: "猪", text: "那我们两个一起等。", replyTo: "rabbit" }
         ]
       }
     ]
@@ -281,7 +271,16 @@ const MOCK_MOMENTS_DATA = {
     region: "重庆",
     cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800",
     posts: [
-      {
+        {
+        id: 1200,
+        date: { day: "今天", month: "" },
+        text: "等一个人，等到灯都困了。",
+        images: [],
+        location: "家",
+        time: "2026年11月15日 20:10",
+        likes: ["恩恩"],
+        comments: []
+      },{
         id: 1201,
         date: { day: "昨天", month: "" },
         text: "三个月前，他说过一次。",
@@ -291,7 +290,7 @@ const MOCK_MOMENTS_DATA = {
         likes: ["恩恩"],
         comments: [
           { user: "恩恩", text: "你还记着啊。", replyTo: "" },
-          { user: "兔子", text: "嗯，我记性好。", replyTo: "恩恩" }
+          { user: "rabbit", text: "嗯，我记性好。", replyTo: "恩恩" }
         ]
       },
       {
