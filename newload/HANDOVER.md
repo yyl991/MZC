@@ -235,7 +235,27 @@ pacedAt(at) = offset + amp * ln(1 + at/soft)   // CFG.pace = {offset:90, amp:112
 **时间线**：`S.timeline = [{ at: 秒, type: 'notify' | 'call' | 'mail', from, text, subject, body }]`
 **备忘录**：`S.notes = [标题, 预览, 全文, 日期]`，全文里的换行用 `\n`。标题**以 `🔒` 开头** → 点进去要输 4 位 PIN（默认 `0913`，可被 `CFG.start.memoPin` / `notePin` 覆盖，`views/app_extra.js:1267` `pressNotePin`）；解锁状态只存在 `window._noteUnlocked`，刷新即失效（符合无存档决策）
 **日历**：`S.events = { 15: ['捡到手机'], 16: ['🎂 生日'] }`
-**朋友圈**：`MOCK_MOMENTS_DATA[角色] = { wxid, region, cover, posts: [{ id, date:{day,month}, text, images, time, likes, comments }] }`，`id` 越大越靠前；`cat` / `pig` / `tiger` / `rabbit` 用代码 key，渲染走 `dn()`。
+**朋友圈**（`MOCK_MOMENTS_DATA[角色键]`，数据在 `views/wx_chat.js`，渲染在 `views/wx_moments.js`）：
+
+```js
+{
+  wxid: "nanpengyou",          // 个人资料页显示的微信号
+  region: "重庆",
+  cover: "封面图 URL",
+  posts: [{
+    id: 101,                   // 越大越靠前
+    date: { day: "今天", month: "" },   // 列表左上日期块；"今天" 直接写文字，否则写 day/month
+    text: "正文",
+    images: [],                // 1 张 → 4:3 单图；≥2 张 → 三列九宫格
+    location: "家里",           // 可空字符串
+    time: "2026年11月15日 21:40",       // 详情页显示
+    likes: ["恩恩", "兔子"],     // 名字数组，头像走 getLikeAvatar()
+    comments: [{ user: "恩恩", text: "猫猫好可爱。", replyTo: "" }]  // replyTo 填被回复人，空=直接评论
+  }]
+}
+```
+
+`cat` / `pig` / `tiger` / `rabbit` 用代码 key，渲染走 `dn()`。
 
 ### 主屏幕与黑胶唱片（`views/home_ui.js`）
 
@@ -319,6 +339,8 @@ EdgeOne 的静态缓存是 `Cache-Control: max-age=1200`（20 分钟），所以
 
 ### 朋友圈
 - ⛔ **三个点只控制黑色胶囊**（赞/评论按钮），下面的灰色点赞评论区必须一直显示。上一轮把灰框也藏了，被退回重做
+- `likes` / `comments.user` 写**中文名**（`恩恩` / `丞丞` / `黑猫`），不要写代码键；头像查 `CFG.roles[名字]`，查不到就落 `G.sil` 占位图
+- 玩家本人写 `"我"`，不要写成角色名——上一轮丞丞那条评论写成了「穆祉丞」，视角错了被改回
 
 ### 路由
 - ⛔ **微信底部 Tab 用 `show()`，不要用 `push()`**，否则出现推拉覆盖动画
