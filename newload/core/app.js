@@ -649,6 +649,7 @@ const PARENT = {
   sms: "sms",
   recorder: "recorder",
   privateAlbum: "photos",
+   albumDetail: "photos",
 };
 const rootOf = (v) => PARENT[v] || v;
 function viewDark() {
