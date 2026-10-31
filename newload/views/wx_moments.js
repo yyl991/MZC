@@ -385,7 +385,7 @@ VIEWS.wx_moment_compose = () => ({
 });
 VIEWS.wx_moments_self = () => {
   const posts = window._wxMyPosts || [];
-  const cover = MOCK_MOMENTS_DATA["穆祉丞"]?.cover || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800";
+  const cover = "./data/data/pyq.jpg";
   const myAvatar = CFG.myAvatar || "./data/avatar/miantuan.jpg";
   return {
     cls: "wx-list",
@@ -534,8 +534,8 @@ VIEWS.moments = () => {
 
     <div class="scroll" id="moments-scroll" style="background: #fff; padding-top: 0; padding-bottom: 40px;">
       
-      <div style="position: relative; height: 300px; background: url('${MOCK_MOMENTS_DATA["穆祉丞"]?.cover || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800"}') center/cover;">
-        <div style="position: absolute; inset: 0; background: linear-gradient(transparent 60%, rgba(0,0,0,0.4));"></div>
+     <div style="position: relative; height: 300px; background: url('./data/chat/pyq.jpg') center/cover;"> 
+    <div style="position: absolute; inset: 0; background: linear-gradient(transparent 60%, rgba(0,0,0,0.4));"></div>
         
         <div style="position: absolute; bottom: 20px; right: 16px; display: flex; align-items: flex-end; gap: 12px;">
           <div style="text-align: right; color: #fff; padding-bottom: 4px;">
