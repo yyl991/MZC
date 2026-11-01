@@ -1,10 +1,11 @@
 // 自动拆分自 app_wechat.js（2026-10-28）
 // 朋友圈数据（按 角色聊天记录总表.md 重写 · 2026-10-29）
 const MOCK_MOMENTS_DATA = {
-  "穆祉丞": {
+  穆祉丞: {
     wxid: "nanpengyou",
     region: "重庆",
-    cover: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=800",
+    cover:
+      "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=800",
     posts: [
       {
         id: 101,
@@ -14,7 +15,7 @@ const MOCK_MOMENTS_DATA = {
         location: "家里",
         time: "2026年11月15日 21:40",
         likes: ["恩恩", "rabbit", "丞丞"],
-        comments: []
+        comments: [],
       },
       {
         id: 102,
@@ -24,15 +25,16 @@ const MOCK_MOMENTS_DATA = {
         location: "",
         time: "2026年9月13日 23:11",
         likes: ["丞丞", "Mu"],
-        comments: []
-      }
-    ]
+        comments: [],
+      },
+    ],
   },
 
-  "穆瑞恩": {
+  穆瑞恩: {
     wxid: "xiaobaobei",
     region: "重庆",
-    cover: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=800",
+    cover:
+      "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=800",
     posts: [
       {
         id: 201,
@@ -42,7 +44,7 @@ const MOCK_MOMENTS_DATA = {
         location: "Topking 舞社",
         time: "2017年9月10日 22:40",
         likes: ["张峻豪"],
-        comments: []
+        comments: [],
       },
       {
         id: 202,
@@ -52,7 +54,7 @@ const MOCK_MOMENTS_DATA = {
         location: "重庆国际少儿时装周",
         time: "2016年12月12日 21:10",
         likes: [],
-        comments: []
+        comments: [],
       },
       {
         id: 203,
@@ -62,15 +64,16 @@ const MOCK_MOMENTS_DATA = {
         location: "",
         time: "2016年9月13日 21:30",
         likes: [],
-        comments: []
-      }
-    ]
+        comments: [],
+      },
+    ],
   },
 
-  "恩恩": {
+  恩恩: {
     wxid: "laopo_jiao",
     region: "重庆",
-    cover: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=800",
+    cover:
+      "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=800",
     posts: [
       {
         id: 402,
@@ -80,36 +83,40 @@ const MOCK_MOMENTS_DATA = {
         location: "",
         time: "2026年11月11日 23:50",
         likes: ["穆祉丞"],
-        comments: []
-      }
-    ]
+        comments: [],
+      },
+    ],
   },
 
-  "cat": {
+  cat: {
     wxid: "laopo_zuo",
     region: "重庆",
-    cover: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800",
+    cover:
+      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800",
     posts: [
       {
         id: 501,
         date: { day: "13", month: "11月" },
         text: "他比我重要。",
-        images: ["https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=500"],
+        images: [
+          "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=500",
+        ],
         location: "家",
         time: "2026年11月13日 02:14",
         likes: ["恩恩"],
         comments: [
           { user: "恩恩", text: "猫猫好可爱。", replyTo: "" },
-          { user: "黑猫", text: "重点是这个吗。", replyTo: "恩恩" }
-        ]
-      }
-    ]
+          { user: "黑猫", text: "重点是这个吗。", replyTo: "恩恩" },
+        ],
+      },
+    ],
   },
 
-  "丞丞": {
+  丞丞: {
     wxid: "chengcheng",
     region: "重庆",
-    cover: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=800",
+    cover:
+      "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=800",
     posts: [
       {
         id: 601,
@@ -121,8 +128,8 @@ const MOCK_MOMENTS_DATA = {
         likes: ["穆祉丞"],
         comments: [
           { user: "穆祉丞", text: "恭喜。", replyTo: "" },
-          { user: "丞丞", text: "最后一名也是名。", replyTo: "穆祉丞" }
-        ]
+          { user: "丞丞", text: "最后一名也是名。", replyTo: "穆祉丞" },
+        ],
       },
       {
         id: 602,
@@ -134,16 +141,17 @@ const MOCK_MOMENTS_DATA = {
         likes: ["穆祉丞"],
         comments: [
           { user: "我", text: "耍起！", replyTo: "" },
-          { user: "丞丞", text: "等考完！", replyTo: "我" }
-        ]
-      }
-    ]
+          { user: "丞丞", text: "等考完！", replyTo: "我" },
+        ],
+      },
+    ],
   },
 
-  "pig": {
+  pig: {
     wxid: "xiaopangpang",
     region: "重庆",
-    cover: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800",
+    cover:
+      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800",
     posts: [
       {
         id: 701,
@@ -155,16 +163,17 @@ const MOCK_MOMENTS_DATA = {
         likes: ["rabbit", "恩恩", "黑猫"],
         comments: [
           { user: "rabbit", text: "我也留了饭。", replyTo: "" },
-          { user: "猪", text: "那我们两个一起等。", replyTo: "rabbit" }
-        ]
-      }
-    ]
+          { user: "猪", text: "那我们两个一起等。", replyTo: "rabbit" },
+        ],
+      },
+    ],
   },
 
-  "Mu": {
+  Mu: {
     wxid: "CSGOD",
     region: "上海",
-    cover: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800",
+    cover:
+      "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800",
     posts: [
       {
         id: 801,
@@ -174,7 +183,7 @@ const MOCK_MOMENTS_DATA = {
         location: "训练室",
         time: "2026年11月14日 23:52",
         likes: ["丞丞"],
-        comments: []
+        comments: [],
       },
       {
         id: 802,
@@ -186,16 +195,17 @@ const MOCK_MOMENTS_DATA = {
         likes: [],
         comments: [
           { user: "丞丞", text: "几点了哥。", replyTo: "" },
-          { user: "Mu", text: "1", replyTo: "丞丞" }
-        ]
-      }
-    ]
+          { user: "Mu", text: "1", replyTo: "丞丞" },
+        ],
+      },
+    ],
   },
 
-  "MuAMuA": {
+  MuAMuA: {
     wxid: "mama",
     region: "重庆",
-    cover: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800",
+    cover:
+      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800",
     posts: [
       {
         id: 901,
@@ -205,15 +215,16 @@ const MOCK_MOMENTS_DATA = {
         location: "厨房",
         time: "2026年11月15日 18:00",
         likes: ["恩恩"],
-        comments: []
-      }
-    ]
+        comments: [],
+      },
+    ],
   },
 
-  "丞哥": {
+  丞哥: {
     wxid: "cgcgdsg",
     region: "重庆",
-    cover: "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?q=80&w=800",
+    cover:
+      "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?q=80&w=800",
     posts: [
       {
         id: 1001,
@@ -223,15 +234,16 @@ const MOCK_MOMENTS_DATA = {
         location: "",
         time: "2026年11月11日 23:40",
         likes: [],
-        comments: []
-      }
-    ]
+        comments: [],
+      },
+    ],
   },
 
-  "恩仔": {
+  恩仔: {
     wxid: "xiaolianxisheng",
     region: "重庆",
-    cover: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800",
+    cover:
+      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800",
     posts: [
       {
         id: 1101,
@@ -241,7 +253,7 @@ const MOCK_MOMENTS_DATA = {
         location: "练习室",
         time: "2021年11月16日 22:50",
         likes: [],
-        comments: []
+        comments: [],
       },
       {
         id: 1102,
@@ -251,7 +263,7 @@ const MOCK_MOMENTS_DATA = {
         location: "片场",
         time: "2020年7月31日 23:10",
         likes: [],
-        comments: []
+        comments: [],
       },
       {
         id: 1103,
@@ -261,17 +273,18 @@ const MOCK_MOMENTS_DATA = {
         location: "",
         time: "2020年3月12日 22:40",
         likes: [],
-        comments: []
-      }
-    ]
+        comments: [],
+      },
+    ],
   },
 
-  "rabbit": {
+  rabbit: {
     wxid: "laopo_guai",
     region: "重庆",
-    cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800",
+    cover:
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800",
     posts: [
-        {
+      {
         id: 1200,
         date: { day: "今天", month: "" },
         text: "等一个人，等到灯都困了。",
@@ -279,8 +292,9 @@ const MOCK_MOMENTS_DATA = {
         location: "家",
         time: "2026年11月15日 20:10",
         likes: ["恩恩"],
-        comments: []
-      },{
+        comments: [],
+      },
+      {
         id: 1201,
         date: { day: "昨天", month: "" },
         text: "三个月前，他说过一次。",
@@ -290,8 +304,8 @@ const MOCK_MOMENTS_DATA = {
         likes: ["恩恩"],
         comments: [
           { user: "恩恩", text: "你还记着啊。", replyTo: "" },
-          { user: "rabbit", text: "嗯，我记性好。", replyTo: "恩恩" }
-        ]
+          { user: "rabbit", text: "嗯，我记性好。", replyTo: "恩恩" },
+        ],
       },
       {
         id: 1202,
@@ -301,7 +315,7 @@ const MOCK_MOMENTS_DATA = {
         location: "地铁终点站",
         time: "2026年11月12日 19:05",
         likes: ["猪"],
-        comments: []
+        comments: [],
       },
       {
         id: 1203,
@@ -311,10 +325,10 @@ const MOCK_MOMENTS_DATA = {
         location: "家",
         time: "2026年11月10日 22:30",
         likes: ["猪", "MuAMuA"],
-        comments: []
-      }
-    ]
-  }
+        comments: [],
+      },
+    ],
+  },
 };
 
 // ============ 朋友圈跳转来源管理 ============
@@ -475,7 +489,8 @@ document.addEventListener(
 );
 
 window.openWxProfileByName = function (name, from) {
-  if (!name || name === "小狗团汪汪" || name === "我" || name === "系统") return toastDev();
+  if (!name || name === "小狗团汪汪" || name === "我" || name === "系统")
+    return toastDev();
   chatId = name;
   window._profileFrom = from || "chat";
   push("wx_profile");
@@ -499,7 +514,8 @@ window.openMomentDetailFromUserFeed = function (index) {
   const post = window._wxMomentUserFeed && window._wxMomentUserFeed[index];
   if (!post) return toastDev();
   const name = wxName(chatId);
-  const av = (CFG.roles && CFG.roles[chatId] && CFG.roles[chatId].avatar) || G.sil;
+  const av =
+    (CFG.roles && CFG.roles[chatId] && CFG.roles[chatId].avatar) || G.sil;
   window._momentDetailFrom = "wx_moments_user";
   window._currentMomentDetail = {
     author: name,
@@ -524,7 +540,8 @@ window.openWxProfileFromDetail = function () {
 };
 
 function getWxTimeString(dateLabel, timeStr) {
-  if (/昨天|前天|周[一二三四五六日]|\d{4}年/.test(timeStr)) return padHm(timeStr);
+  if (/昨天|前天|周[一二三四五六日]|\d{4}年/.test(timeStr))
+    return padHm(timeStr);
   let h = 0,
     m = 0;
   let match = timeStr.match(/(上午|下午)\s*(\d+):(\d+)/);
@@ -634,7 +651,10 @@ function chatLastStamp(name) {
   let curDate = null;
   let last = null;
   for (const m of arr) {
-    if (m[1] === "date") { curDate = m[0]; continue; }
+    if (m[1] === "date") {
+      curDate = m[0];
+      continue;
+    }
     last = { date: curDate, time: m[2] || "" };
   }
   if (!last) return -Infinity;
@@ -645,8 +665,10 @@ function chatLastStamp(name) {
 
 // 游戏里的「今天」：23:09–23:59 算 11月15日，零点后算 11月16日
 function gameTodayLabel() {
-  const mins = (typeof gameMin === "function") ? gameMin() : (23 * 60 + 9);
-  return mins >= 24 * 60 ? "11月16日" : ((CFG.start && CFG.start.date) || "11月15日");
+  const mins = typeof gameMin === "function" ? gameMin() : 23 * 60 + 9;
+  return mins >= 24 * 60
+    ? "11月16日"
+    : (CFG.start && CFG.start.date) || "11月15日";
 }
 
 // 会话列表右侧时间：今天显示时间，昨天→昨天，一周内→周x，今年→x月x日，跨年→yyyy年x月x日
@@ -660,7 +682,10 @@ function wxListTime(dateLabel, timeStr) {
   const diff = Math.round((now - ms) / 86400000);
   if (diff <= 0) return t;
   if (diff === 1) return "昨天";
-  if (diff < 7) return ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][new Date(ms).getUTCDay()];
+  if (diff < 7)
+    return ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][
+      new Date(ms).getUTCDay()
+    ];
   if (p.y === td.y) return `${p.m}月${p.d}日`;
   return `${p.y}年${p.m}月${p.d}日`;
 }
@@ -683,16 +708,22 @@ function chatLastDate(name) {
 function ensureChatToday(from) {
   const arr = chatData[from] || (chatData[from] = []);
   // 用游戏时间判断“今天”：23:09–23:59 是 11月15日，00:00 后算 11月16日
-  const mins = (typeof gameMin === "function") ? gameMin() : (23 * 60 + 9);
+  const mins = typeof gameMin === "function" ? gameMin() : 23 * 60 + 9;
   const isAfterMidnight = mins >= 24 * 60;
-  const todayStr = isAfterMidnight ? "11月16日" : ((CFG.start && CFG.start.date) || "11月15日");
+  const todayStr = isAfterMidnight
+    ? "11月16日"
+    : (CFG.start && CFG.start.date) || "11月15日";
   const today = parseChatDate(todayStr);
   let lastDate = null;
   for (let i = arr.length - 1; i >= 0; i--) {
-    if (arr[i][1] === "date") { lastDate = arr[i][0]; break; }
+    if (arr[i][1] === "date") {
+      lastDate = arr[i][0];
+      break;
+    }
   }
   const p = parseChatDate(lastDate);
-  if (p && today && p.y === today.y && p.m === today.m && p.d === today.d) return;
+  if (p && today && p.y === today.y && p.m === today.m && p.d === today.d)
+    return;
   arr.push([todayStr, "date"]);
 }
 
@@ -739,18 +770,20 @@ VIEWS.wechat = () => {
 
 // 聊天记录里手写的拍一拍，自动补全引号和小尾巴
 function normalizePatSys(text, id) {
-  let s = String(text || "").replace(/^[\[【]\s*系统\s*[\]】]\s*/, "").trim();
+  let s = String(text || "")
+    .replace(/^[\[【]\s*系统\s*[\]】]\s*/, "")
+    .trim();
   if (!/拍了拍/.test(s)) return s;
-  
+
   // 1. 已经是双击头像实时生成的标准格式（带引号），原样返回，防止重复处理
   if (/^["]我["]\s*拍了拍/.test(s) || /^我\s*拍了拍\s*["]/.test(s)) return s;
-  
+
   // 2. 兼容历史数据里的各种手写格式（我拍了拍 / 你拍了拍 / 我拍了拍他 / 我拍了拍自己）
   if (/^(你|我)\s*拍了拍/.test(s)) {
     // 如果是拍自己
     if (/拍了拍自己/.test(s)) {
-       const myPat = CFG && CFG.myPat ? CFG.myPat : "";
-       return `我拍了拍自己${myPat ? " " + myPat : ""}`;
+      const myPat = CFG && CFG.myPat ? CFG.myPat : "";
+      return `我拍了拍自己${myPat ? " " + myPat : ""}`;
     }
     // 如果是拍对方（不管写的是"他"还是具体的名字，都统一转成当前聊天对象的正确格式）
     const role = CFG && CFG.roles && CFG.roles[id];
@@ -758,7 +791,7 @@ function normalizePatSys(text, id) {
     const targetName = wxName(id);
     return `我拍了拍"${targetName}"${suffix ? " " + suffix : ""}`;
   }
-  
+
   return s;
 }
 
@@ -887,7 +920,13 @@ function chatMsgs(id) {
     }
     // 被拒收（对方删了我）与拉黑：都要红色叹号；拒收才带下面那行验证提示
     let isBlockedSend = false;
-    if (me && !x.rejected && !x.blocked && window._wxBlocked && window._wxBlocked[id]) {
+    if (
+      me &&
+      !x.rejected &&
+      !x.blocked &&
+      window._wxBlocked &&
+      window._wxBlocked[id]
+    ) {
       // 锚点 = 拉黑那一刻的最后一条消息；按行对象定位，删消息/清空都不会算错
       const anchor = window._wxBlockedSince && window._wxBlockedSince[id];
       const ai = anchor ? (chatData[id] || []).indexOf(anchor) : -1;
@@ -901,11 +940,12 @@ function chatMsgs(id) {
       me && (x.rejected || x.blocked || isBlockedSend)
         ? `<span class="wx-reject-ic" onclick="event.stopPropagation();toastDev('${rejTap}')">!</span>`
         : "";
-    const rejTip = me && x.rejected
-      ? `<div class="wx-reject-tip">${esc(wxName(chatId))}开启了朋友验证，你还不是他（她）朋友。请先发送朋友验证请求，对方验证通过后，才能聊天。<span class="wx-reject-send" onclick="event.stopPropagation();toastDev('已发送朋友验证')">发送朋友验证</span></div>`
-      : "";
-    o += `<div class="wx-ln ${me ? "me" : "th"}"><div class="wx-sav" onclick="event.stopPropagation();wxPatTap(event,${me},'${x.sender}')">${avatarFor(x.sender, false, me)}</div><div style="display: flex; flex-direction: column; align-items: ${me ? "flex-end" : "flex-start"}; max-width: calc(100% - 60px);"><div style="display: flex; align-items: center; flex-direction: ${me ? "row-reverse" : "row"}; gap: 6px;"><div class="${bubbleClass}" data-idx="${x.rawIdx}" ${onclickAttr} ${holdEvent}>${innerContent}</div>${rejHtml}${!me ? dotHtml : ""}${!me ? btnHtml : ""}</div>${quoteHtml}${rejTip}${textHtml}</div></div>`;
-  });
+    const rejTip =
+      me && x.rejected
+        ? `<div class="wx-reject-tip">${esc(wxName(chatId))}开启了朋友验证，你还不是他（她）朋友。请先发送朋友验证请求，对方验证通过后，才能聊天。<span class="wx-reject-send" onclick="event.stopPropagation();toastDev('已发送朋友验证')">发送朋友验证</span></div>`
+        : "";
+       o += `<div class="wx-ln ${me ? "me" : "th"}"><div class="wx-sav" onclick="event.stopPropagation();wxPatTap(event,${me},'${x.sender}')">${avatarFor(x.sender, false, me)}</div><div style="display: flex; flex-direction: column; align-items: ${me ? "flex-end" : "flex-start"}; max-width: 70%;"><div style="display: flex; align-items: center; flex-direction: ${me ? "row-reverse" : "row"}; gap: 6px;"><div class="${bubbleClass}" data-idx="${x.rawIdx}" ${onclickAttr} ${holdEvent}>${innerContent}</div>${rejHtml}${!me ? dotHtml : ""}${!me ? btnHtml : ""}</div>${quoteHtml}${rejTip}${textHtml}</div></div>`;
+    });
   return o;
 }
 
@@ -1013,7 +1053,10 @@ function openMsgActions(rawIdx) {
     },
   });
   items.push({
-    label: window._wxBlocked && window._wxBlocked[chatId] ? "移出黑名单" : "加入黑名单",
+    label:
+      window._wxBlocked && window._wxBlocked[chatId]
+        ? "移出黑名单"
+        : "加入黑名单",
     danger: !(window._wxBlocked && window._wxBlocked[chatId]),
     onClick: () =>
       window._wxBlocked && window._wxBlocked[chatId]
@@ -1256,7 +1299,8 @@ VIEWS.chat = () => ({
   <div class="wx-panel" id="wx-panel"></div>`,
   init: () => {
     if (chatId) unread[chatId] = 0;
-    SS.typing = false; SS.pendingText = "";
+    SS.typing = false;
+    SS.pendingText = "";
     window._wxQuote = null;
     renderQuoteBar();
     resetNewPill();
@@ -1350,12 +1394,54 @@ function closeKbd() {
 
 // ============ 表情 / 更多面板 ============
 const WX_EMOJIS = [
-  "😀", "😁", "😂", "🤣", "😊", "😍", "😘", "😜",
-  "😎", "🤔", "😅", "😭", "😡", "👍", "👏", "🙏",
-  "💪", "🎉", "❤️", "💔", "🌹", "🍻", "🐶", "🐱",
-  "🐼", "🐷", "🌈", "☀️", "🌙", "⭐", "🔥", "💯",
-  "🍰", "🎂", "🎁", "🧧", "😴", "🤗", "😏", "🥰",
-  "😇", "🤩", "😱", "🥺", "😤", "🙄", "😬", "🤝",
+  "😀",
+  "😁",
+  "😂",
+  "🤣",
+  "😊",
+  "😍",
+  "😘",
+  "😜",
+  "😎",
+  "🤔",
+  "😅",
+  "😭",
+  "😡",
+  "👍",
+  "👏",
+  "🙏",
+  "💪",
+  "🎉",
+  "❤️",
+  "💔",
+  "🌹",
+  "🍻",
+  "🐶",
+  "🐱",
+  "🐼",
+  "🐷",
+  "🌈",
+  "☀️",
+  "🌙",
+  "⭐",
+  "🔥",
+  "💯",
+  "🍰",
+  "🎂",
+  "🎁",
+  "🧧",
+  "😴",
+  "🤗",
+  "😏",
+  "🥰",
+  "😇",
+  "🤩",
+  "😱",
+  "🥺",
+  "😤",
+  "🙄",
+  "😬",
+  "🤝",
 ];
 function wxEmojiPanelHTML() {
   return `<div class="wx-panel-in">
@@ -1470,11 +1556,7 @@ window.wxSendLocation = function () {
 window.wxSendRedPacket = function () {
   wxAmountPad("红包金额", "0.00", function (v) {
     if (!chatData[chatId]) return;
-    chatData[chatId].push([
-      `[红包] 恭喜发财，大吉大利|${v}`,
-      "me",
-      nowAmpm(),
-    ]);
+    chatData[chatId].push([`[红包] 恭喜发财，大吉大利|${v}`, "me", nowAmpm()]);
     saveChat();
     refreshChat(true);
     sfx("send");
@@ -1601,7 +1683,8 @@ function sendLine() {
     li = SS.lineIdx[chatId] || 0,
     line = SS.pendingText;
   const row = [line, "me", nowAmpm(), "rd"];
-  if (window._wxQuote) row[4] = { name: window._wxQuote.name, text: window._wxQuote.text };
+  if (window._wxQuote)
+    row[4] = { name: window._wxQuote.name, text: window._wxQuote.text };
   chatData[chatId].push(row);
   window._wxQuote = null;
   renderQuoteBar();
@@ -1705,7 +1788,7 @@ function deliverFrom(from, text) {
     const last = arr[arr.length - 1];
     if (last[0] === text && last[1] === "them") return;
   }
-  ensureChatToday(from);                                // ← 新增
+  ensureChatToday(from); // ← 新增
   chatData[from].push([text, "them", nowAmpm()]);
   saveChat();
   armPatience(from);
@@ -1751,11 +1834,16 @@ function notifyFrom(from, body) {
   }
   sfx("msg");
   vib([30, 60, 30]);
-  const stamp =
-    typeof gameTime24 === "function" ? gameTime24() : t("now");
+  const stamp = typeof gameTime24 === "function" ? gameTime24() : t("now");
   if (view === "lock" || view === "pin") {
     // 记住 from，点通知才能直接进对的人的聊天
-    lockNotes.unshift({ title: wxName(from), from, body, app: "wechat", time: stamp });
+    lockNotes.unshift({
+      title: wxName(from),
+      from,
+      body,
+      app: "wechat",
+      time: stamp,
+    });
     // 穆祉丞太吵的时候，在锁屏给一条免打扰建议
     if (from === "穆祉丞") {
       window._mzcNoise = (window._mzcNoise || 0) + 1;
