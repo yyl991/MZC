@@ -583,6 +583,12 @@ function previewText(s, grp) {
   if (s.startsWith("[转账]")) return "[转账]";
   return s;
 }
+// 引用块如果指向图片（quote.text 形如 "[图片] ./data/chat/xx.png"），解析出地址渲染成缩略图；
+// 不是图片或没带地址就返回 ""，照旧走文字兜底
+function quoteImgUrl(t) {
+  if (!t || !t.startsWith("[图片]")) return "";
+  return t.replace("[图片]", "").trim();
+}
 window._wxRemarks = window._wxRemarks || {};
 function wxName(n) {
   return (
@@ -859,9 +865,13 @@ function chatMsgs(id) {
       innerContent = esc(x.text);
     }
     // 引用：按微信的样子，放在气泡下面单独一块灰底（名字：内容）
-    const quoteHtml = x.quote
-      ? `<div class="wx-quote" onclick="event.stopPropagation()"><span class="wx-quote-name">${esc(x.quote.name)}：</span><span class="wx-quote-txt">${esc(x.quote.text)}</span></div>`
-      : "";
+    // 引用的是图片消息时显示小缩略图（可点开大图），其余类型照旧显示文字
+    const quoteUrl = quoteImgUrl(x.quote && x.quote.text);
+    const quoteHtml = !x.quote
+      ? ""
+      : quoteUrl
+        ? `<div class="wx-quote" onclick="event.stopPropagation()"><span class="wx-quote-name">${esc(x.quote.name)}：</span><img src="${quoteUrl}" class="wx-quote-img" onclick="event.stopPropagation();openMediaViewer(['${quoteUrl}'], 0)" onerror="wxMediaMiss(this,'图片未找到')" /></div>`
+        : `<div class="wx-quote" onclick="event.stopPropagation()"><span class="wx-quote-name">${esc(x.quote.name)}：</span><span class="wx-quote-txt">${esc(x.quote.text)}</span></div>`;
     const holdEvent = `onpointerdown="startHoldMsg(event, ${x.rawIdx})" onpointerup="cancelHoldMsg()" onpointerleave="cancelHoldMsg()"`;
     let dotHtml = "",
       btnHtml = "",
@@ -1018,9 +1028,11 @@ window.wxSetQuote = function (rawIdx) {
   const msg = (chatData[chatId] || [])[rawIdx];
   if (!msg) return;
   const me = msg[1] === "me";
+  const raw = String(msg[0] || "");
+  // 图片消息要保留完整地址（"[图片] ./xxx.png"），发出去的引用块才能渲染成缩略图；其他类型照旧走 previewText
   window._wxQuote = {
     name: me ? "我" : wxName(chatId),
-    text: previewText(String(msg[0] || "")),
+    text: raw.startsWith("[图片]") ? raw : previewText(raw),
   };
   vib(8);
   renderQuoteBar();
@@ -1039,7 +1051,9 @@ function renderQuoteBar() {
     bar.innerHTML = "";
     return;
   }
-  bar.innerHTML = `<div class="wx-quote-bar-in"><div class="wx-quote-bar-name">${esc(q.name)}</div><div class="wx-quote-bar-txt">${esc(q.text)}</div></div><button class="wx-quote-bar-x" onclick="event.stopPropagation();wxClearQuote()">×</button>`;
+  // 引用的是图片消息时，预览条里放小缩略图；地址解析不出来就照旧显示文字
+  const qu = quoteImgUrl(q.text);
+  bar.innerHTML = `<div class="wx-quote-bar-in"><div class="wx-quote-bar-name">${esc(q.name)}</div><div class="wx-quote-bar-txt">${qu ? `<img src="${qu}" class="wx-quote-bar-img" onerror="this.outerHTML='[图片]'">` : esc(q.text)}</div></div><button class="wx-quote-bar-x" onclick="event.stopPropagation();wxClearQuote()">×</button>`;
   bar.classList.add("open");
 }
 // ============ 拉黑 ============
