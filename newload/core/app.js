@@ -1211,7 +1211,9 @@ function storyTick(e) {
         return;
       SS.fired.add(key);
       if (beat.type === "notify") incomingMsgFrom(beat.from, beat.text);
-      if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");
+      // 自己主动呼出过电话后换逻辑：剧情电话也不再来（消息照发）
+      if (beat.type === "call" && !window._playerCalled)
+        incomingCallFrom(beat.from || "穆祉丞");
       if (beat.type === "mail") incomingMailFrom(beat);
       // 开发模式先不触发选择/结局，方便继续调试
       if (beat.type === "choice" && !SS.arriveHome && !IS_DEV_HOST) showStoryChoice();

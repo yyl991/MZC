@@ -141,6 +141,25 @@ sb.scheduleCallAgain(target2, "miss");
 const after = vm.runInContext(`chatData["${target2}"].length`, sb);
 ok("没回消息会追问一句", after > before, before + "->" + after);
 
+// 3b. 自己主动呼出过电话：全局停催命电话（时间线剧情电话跳过、追命停），消息照发
+vm.runInContext("window._playerCalled = true", sb);
+let outCalls = 0;
+sb.incomingCallFrom = () => outCalls++;
+sb.incomingMsgFrom = () => {};
+sb.incomingMailFrom = () => {};
+vm.runInContext("SS.fired = new Set()", sb);
+vm.runInContext("storyTick(99999)", sb);
+ok("呼出后时间线电话跳过", outCalls === 0, String(outCalls));
+let msgs = 0;
+sb.incomingMsgFrom = () => msgs++;
+vm.runInContext("SS.fired = new Set()", sb);
+vm.runInContext("storyTick(99999)", sb);
+ok("呼出后消息照发", msgs > 0, String(msgs));
+const nagBefore = vm.runInContext(`chatData["${target2}"].length`, sb);
+vm.runInContext(`scheduleCallAgain("${target2}", "miss")`, sb);
+const nagAfter = vm.runInContext(`chatData["${target2}"].length`, sb);
+ok("呼出后追命停", nagAfter === nagBefore, nagBefore + "->" + nagAfter);
+
 // 4. 节奏：第一条被推迟，后面越来越密
 const p0 = vm.runInContext("pacedAt(0)", sb);
 const p60 = vm.runInContext("pacedAt(60)", sb);

@@ -101,7 +101,8 @@
 - 返回路由：`core/app.js` 的 `PARENT` 增加 `albumDetail: "photos"`，详情页返回不再跳回主屏。
 - 相簿数据在 `MOCK_ALBUMS`（`id` / `title` / `cover` / `items`），加相簿=往数组加一项。
 - ⚠️ 作者要的最终形态是 **私密相册作为分类网格的最后一张卡片**；当前它还在首页底部独立「我的相簿」区块。要改只动 `VIEWS.photos` 的渲染顺序，**别碰 `VIEWS.privateAlbum` 的密码键盘逻辑**。
-- `data/story.js`、`data/chat_history.js`、`角色聊天记录总表.md` 的改动都在作者手上，**不要改内容、不要 `git add` 带上**。
+- `data/story.js`、`data/chat_history.js` 的改动都在作者手上，**不要改内容、不要 `git add` 带上**。
+- **`角色聊天记录总表.md` 要 `git add`**（作者 2026-11-01 指示）：内容仍是作者维护，但提交时必须一起带上。
 
 ---
 
@@ -118,7 +119,7 @@
 | **中文用系统输入法** | 自绘键盘打不了中文。只有红包/转账金额用内置数字键盘 `wxAmountPad` |
 | **拍一拍 + 点头像共存** | 单击(300ms延迟)进资料页，双击触发拍一拍，见 `wxPatTap` |
 | **消息交错到达** | `buildInterleavedTimeline()` 按人 round-robin 打散成 a-b-c-a-b-c |
-| **打电话给谁都会回拨** | `scheduleCallBack()`，但**拨号键盘直接拨的号码不回拨**（`dial(name, true)`） |
+| **自己先呼出过一次 → 全员停催命电话**（2026-11-01 改，推翻旧「打给谁都回拨」） | `dial()` 置 `window._playerCalled`（拨号键盘纯号码不算）：不回拨、追命停、时间线剧情电话跳过；**消息催命照旧**，零点结局电话保留 |
 
 ---
 
@@ -352,7 +353,8 @@ EdgeOne 的静态缓存是 `Cache-Control: max-age=1200`（20 分钟），所以
 - ⛔ **别在 `renderHome()` 外面重绘主屏幕**，会打断黑胶；重绘前先看 `window.isVinylBusy`
 
 ### 电话
-- ⛔ **拨号键盘拨出的号码不要回拨**（`dial(name, true)`）
+- ⛔ **自己呼出过一次电话后**（`window._playerCalled`，`dial()` 里置位）就换逻辑：谁都不再打来——不回拨、追命停、时间线剧情电话跳过；消息催命和零点结局电话不受影响
+- ⛔ **拨号键盘拨出的号码不要回拨**（`dial(name, true)`），且纯号码不算「呼出过」，不触发全局停
 - ⛔ 追命有次数上限（穆祉丞 5 次、其他人 3 次），超了发 `CALL_ANGRY` 收手，不要改成无限
 - ⛔ **挂断后 `closeCallUI` 必须退回原界面**，不能强行打开电话 App
 
