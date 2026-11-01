@@ -320,3 +320,107 @@ VIEWS.privateAlbum = () => {
     </div>`
   };
 };
+
+// ==========================================
+// 选图器：聊天「+」发图片、朋友圈发图调用
+// 数据沿用 getPhoneDisplayList()（三个相簿汇总），不再单独维护一份
+// ==========================================
+window._phoneAlbumState = null;
+
+window.openPhoneAlbumPicker = function (opts) {
+  const o = opts || {};
+  const display =
+    typeof getPhoneDisplayList === "function" ? getPhoneDisplayList() : [];
+  if (!display.length) return toastDev("相册里还没有照片");
+  window._phoneAlbumState = {
+    display: display,
+    selected: [],
+    multiple: !!o.multiple,
+    max: o.max || (o.multiple ? 9 : 1),
+    imagesOnly: !!o.imagesOnly,
+    onDone: o.onDone,
+  };
+  renderPhoneAlbumPicker();
+};
+
+function renderPhoneAlbumPicker() {
+  const st = window._phoneAlbumState;
+  if (!st) return;
+  const old = document.getElementById("pa-root");
+  if (old && old.remove) old.remove();
+  const root = document.createElement("div");
+  root.id = "pa-root";
+  root.className = "pa-root";
+  const cells = st.display
+    .map(function (item, i) {
+      if (!item.src) return "";
+      const sel = st.selected.indexOf(i) >= 0;
+      const isV = item.isVideo || /\.(mp4|webm|mov)$/i.test(item.src);
+      const s = typeof esc === "function" ? esc(item.src) : item.src;
+      return `<button class="pa-cell${sel ? " sel" : ""}" onclick="phoneAlbumTap(${i})">${
+        isV
+          ? `<video src="${s}" muted preload="metadata"></video><i class="pa-vd">0:15</i>`
+          : `<img src="${s}" loading="lazy" />`
+      }</button>`;
+    })
+    .join("");
+  root.innerHTML =
+    `<div class="pa-bar"><button onclick="closePhoneAlbumPicker()">取消</button><b>照片</b>` +
+    (st.multiple
+      ? `<button onclick="phoneAlbumDone()">完成${st.selected.length ? "(" + st.selected.length + ")" : ""}</button>`
+      : `<span style="width:34px"></span>`) +
+    `</div><div class="pa-grid">${cells}</div>`;
+  const host = document.getElementById("screen") || document.body;
+  if (host && host.appendChild) host.appendChild(root);
+}
+
+window.closePhoneAlbumPicker = function () {
+  window._phoneAlbumState = null;
+  const old = document.getElementById("pa-root");
+  if (old && old.remove) old.remove();
+};
+
+window.phoneAlbumTap = function (i) {
+  const st = window._phoneAlbumState;
+  if (!st) return;
+  const item = st.display[i];
+  if (!item || !item.src) return;
+  const isV = item.isVideo || /\.(mp4|webm|mov)$/i.test(item.src);
+  if (st.imagesOnly && isV) return toastDev("这里只能选图片");
+  if (typeof vib === "function") vib(6);
+  if (!st.multiple) {
+    const cb = st.onDone;
+    window.closePhoneAlbumPicker();
+    if (typeof cb === "function") cb([item.src]);
+    return;
+  }
+  const at = st.selected.indexOf(i);
+  if (at >= 0) st.selected.splice(at, 1);
+  else {
+    if (st.selected.length >= st.max)
+      return toastDev("最多选 " + st.max + " 张");
+    st.selected.push(i);
+  }
+  renderPhoneAlbumPicker();
+};
+
+window.phoneAlbumDone = function () {
+  const st = window._phoneAlbumState;
+  if (!st) return;
+  const urls = st.selected
+    .map(function (i) {
+      return st.display[i];
+    })
+    .filter(function (x) {
+      if (!x || !x.src) return false;
+      const isV = x.isVideo || /\.(mp4|webm|mov)$/i.test(x.src);
+      return !(st.imagesOnly && isV);
+    })
+    .map(function (x) {
+      return x.src;
+    });
+  if (!urls.length) return toastDev("先选一张吧");
+  const cb = st.onDone;
+  window.closePhoneAlbumPicker();
+  if (typeof cb === "function") cb(urls);
+};

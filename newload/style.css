@@ -5168,6 +5168,7 @@ svg {
 .wx-quote-bar-name { font-size: 12px; color: #07c160; font-weight: 600; }
 .wx-quote-bar-txt { font-size: 13px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .wx-quote-bar-x { border: none; background: none; font-size: 20px; color: #999; line-height: 1; padding: 0 4px; }
+.wx-quote-bar-img { height: 26px; width: 26px; object-fit: cover; border-radius: 3px; vertical-align: middle; }
 
 /* ---- 引用：气泡里的引用块 ---- */
 .wx-bb .wx-quote {
@@ -5243,6 +5244,17 @@ svg {
 }
 .wx-bb .wx-quote-name { color: #576b95; font-size: 13px; margin: 0; }
 .wx-bb .wx-quote-txt { font-size: 13px; color: #666; max-width: none; white-space: normal; }
+/* 引用块里被引用的是图片消息：名字后面跟一张小缩略图，点开看大图
+   （.wx-quote 是气泡的兄弟节点，不是子节点，选择器不能挂在 .wx-bb 下） */
+.wx-quote-img {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-left: 2px;
+    cursor: pointer;
+}
 .wx-reject-tip { text-align: center; }
 .wx-reject-send { color: #576b95; margin-left: 4px; }
 
@@ -5286,3 +5298,13 @@ svg {
 }
 .wx-newpill.open { display: flex; }
 .wx-newpill svg { flex: none; }
+
+/* 选图器（聊天「+」发图片 / 朋友圈发图） */
+.pa-root { position: absolute; inset: 0; z-index: 9000; background: #fff; display: flex; flex-direction: column; }
+.pa-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; font-size: 17px; color: #111; }
+.pa-bar button { background: none; border: none; color: #007aff; font-size: 17px; padding: 0; }
+.pa-grid { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 0 2px 24px; }
+.pa-cell { position: relative; aspect-ratio: 1; padding: 0; border: none; background: #eee; overflow: hidden; }
+.pa-cell img, .pa-cell video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.pa-cell.sel::after { content: ""; position: absolute; inset: 0; border: 3px solid #07c160; }
+.pa-vd { position: absolute; left: 6px; bottom: 4px; color: #fff; font-size: 11px; font-style: normal; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
