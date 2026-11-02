@@ -206,7 +206,7 @@ const MOCK_MOMENTS_DATA = {
       {
         id: 701,
         date: { day: "今天", month: "" },
-        text: "等一个人回来分蛋糕吃。",
+        text: "等一个室友回来分蛋糕吃。",
         images: [],
         location: "家",
         time: "2026年11月15日 19:30",
