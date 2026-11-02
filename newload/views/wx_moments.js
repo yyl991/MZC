@@ -15,7 +15,7 @@ VIEWS.wx_moments_user = () => {
       
       <div style="position:relative; height:320px; background:url('${data.cover}') center/cover;">
         <div style="position:absolute; right:16px; bottom:-20px; display:flex; align-items:flex-end; gap:12px;">
-          <span style="color:#fff; font-size:16px; font-weight:500; text-shadow:0 1px 3px rgba(0,0,0,0.5); padding-bottom:24px;">${esc(wxName(chatId))}</span>
+          <span style="color:#fff; font-size:16px; font-weight:500; text-shadow:0 1px 3px rgba(0,0,0,0.5); padding-bottom:24px;">${esc(dn(chatId))}</span>
           <img src="${avatar}" onclick="event.stopPropagation(); window._profileFrom='wx_moments_user'; push('wx_profile')" style="width:72px; height:72px; border-radius:8px; border:2px solid #fff; object-fit:cover; cursor:pointer;">
         </div>
       </div>
@@ -36,10 +36,10 @@ VIEWS.wx_moments_user = () => {
                <img src="${avatar}" style="width:100%; height:100%; border-radius:6px; object-fit:cover;">
             </div>
             <div style="flex:1; min-width:0;">
-              <div style="color: #576b95; font-size: 16px; font-weight: 600; margin-bottom: 4px;">${esc(wxName(chatId))}</div>
+              <div style="color: #576b95; font-size: 16px; font-weight: 600; margin-bottom: 4px;">${esc(dn(chatId))}</div>
               <div style="font-size:15px; color:#111; line-height:1.45; margin-bottom:8px; white-space:pre-wrap;">${esc(post.text)}</div>
               ${post.images && post.images.length > 0 ? `
-                <div style="display:grid; grid-template-columns:repeat(${post.images.length === 1 ? 1 : 3}, 1fr); gap:4px; margin-bottom: 6px; max-width:${post.images.length === 1 ? '180px' : '100%'};">
+                <div style="display:grid; grid-template-columns:repeat(${post.images.length === 1 ? 1 : (post.images.length === 4 ? 2 : 3)}, 1fr); gap:4px; margin-bottom: 6px; max-width:${post.images.length === 1 ? '180px' : '100%'};">
                   ${post.images.map(img => `<div style="${post.images.length === 1 ? 'aspect-ratio:4/3' : 'aspect-ratio:1'}; background:#eee; border-radius:2px; overflow:hidden;"><img src="${img}" style="width:100%;height:100%;object-fit:cover;"></div>`).join('')}
                 </div>
               ` : ''}
@@ -77,11 +77,6 @@ VIEWS.wx_moments_detail = () => {
   if (!post) return { html: "动态不存在" };
   const actOpen = !!window._mDetailOpen;
 
-  const getLikeAvatar = (user) => {
-    if (user === "我") return CFG.myAvatar || G.sil;
-    return (CFG.roles && CFG.roles[user] && CFG.roles[user].avatar) ? CFG.roles[user].avatar : G.sil;
-  };
-
   return {
     cls: "wx-list",
     html: `
@@ -105,13 +100,13 @@ VIEWS.wx_moments_detail = () => {
           
           <!-- 右侧文字、图片、时间等 -->
           <div style="flex:1; min-width:0;">
-            <div style="color:#576b95; font-size:16px; font-weight:600; margin-bottom: 6px;">${esc(authorName)}</div>
+            <div style="color:#576b95; font-size:16px; font-weight:600; margin-bottom: 6px;">${esc(dn(authorName))}</div>
             <div style="font-size:15px; color:#111; line-height:1.45; margin-bottom:8px; white-space:pre-wrap;">${esc(post.text)}</div>
             
             ${(() => {
               const imgs = post.images || [];
               if (!imgs.length) return "";
-              const cols = imgs.length === 1 ? 1 : imgs.length <= 4 ? 2 : 3;
+              const cols = imgs.length === 1 ? 1 : imgs.length === 4 ? 2 : 3;
               const box = imgs.length === 1 ? "width:72%;aspect-ratio:4/3;" : "width:100%;aspect-ratio:1;";
               return `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:4px;max-width:${cols === 1 ? "72%" : "100%"};margin-bottom:10px;">${imgs
                 .map((img) => `<img src="${img}" style="${box}object-fit:cover;border-radius:3px;display:block;cursor:pointer;" onclick="event.stopPropagation();openMediaViewer(['${img}'], 0)">`)
@@ -144,7 +139,7 @@ VIEWS.wx_moments_detail = () => {
               </div>
               <!-- 第二列从 52px 处开始，与上方文字完美对齐 -->
               <div style="display:flex; gap:6px; flex-wrap:wrap; flex: 1; align-items:center;">
-                ${post.likes.map(name => `<img src="${getLikeAvatar(name)}" onclick="event.stopPropagation(); window.openWxProfileByName('${name}', 'wx_moments_detail')" style="width:24px; height:24px; border-radius:4px; object-fit:cover; cursor:pointer;">`).join('')}
+                ${post.likes.map(name => `<div onclick="event.stopPropagation(); window.openWxProfileByName('${name}', 'wx_moments_detail')" style="width:24px; height:24px; border-radius:4px; overflow:hidden; cursor:pointer; flex:none;">${avatarFor(name, false, name === "我")}</div>`).join('')}
               </div>
             </div>
           ` : ''}
@@ -157,12 +152,12 @@ VIEWS.wx_moments_detail = () => {
                  ${index === 0 ? G.comment.replace('<svg', '<svg width="20" height="20" style="color:#576b95;"') : ''}
               </div>
               <!-- 第二列头像从 52px 处开始，与上方文字完美对齐 -->
-              <img src="${getLikeAvatar(c.user)}" onclick="event.stopPropagation(); window.openWxProfileByName('${c.user}', 'wx_moments_detail')" style="width: 24px; height: 24px; border-radius: 4px; object-fit: cover; flex: none; margin-right: 8px; margin-top: 2px;">
+              <div onclick="event.stopPropagation(); window.openWxProfileByName('${c.user}', 'wx_moments_detail')" style="width: 24px; height: 24px; border-radius: 4px; overflow: hidden; flex: none; margin-right: 8px; margin-top: 2px;">${avatarFor(c.user, false, c.user === "我")}</div>
               <!-- 第三列名字和内容 -->
               <div style="flex:1; min-width:0;">
                 <div style="color:#576b95; font-size:14px; font-weight:500;">
-                  <span onclick="event.stopPropagation(); window.openWxProfileByName('${c.user}', 'wx_moments_detail')" style="cursor:pointer;">${esc(c.user)}</span>
-                  ${c.replyTo ? `<span style="color:#111; font-weight:normal;"> 回复 </span><span onclick="event.stopPropagation(); window.openWxProfileByName('${c.replyTo}', 'wx_moments_detail')" style="color:#576b95; cursor:pointer;">${esc(c.replyTo)}</span>` : ''}
+                  <span onclick="event.stopPropagation(); window.openWxProfileByName('${c.user}', 'wx_moments_detail')" style="cursor:pointer;">${esc(dn(c.user))}</span>
+                  ${c.replyTo ? `<span style="color:#111; font-weight:normal;"> 回复 </span><span onclick="event.stopPropagation(); window.openWxProfileByName('${c.replyTo}', 'wx_moments_detail')" style="color:#576b95; cursor:pointer;">${esc(dn(c.replyTo))}</span>` : ''}
                 </div>
                 <div style="font-size:14px; color:#111; line-height:1.4; margin-top:2px;">${esc(c.text)}</div>
               </div>
@@ -415,7 +410,7 @@ VIEWS.wx_moments_self = () => {
                 <div style="font-size:15px;color:#111;line-height:1.45;margin-bottom:8px;white-space:pre-wrap;">${esc(post.text)}</div>
                 ${
                   post.images && post.images.length
-                    ? `<div style="display:grid;grid-template-columns:repeat(${post.images.length === 1 ? 1 : 3},1fr);gap:4px;margin-bottom:6px;max-width:${post.images.length === 1 ? "180px" : "100%"};">${post.images
+                    ? `<div style="display:grid;grid-template-columns:repeat(${post.images.length === 1 ? 1 : (post.images.length === 4 ? 2 : 3)},1fr);gap:4px;margin-bottom:6px;max-width:${post.images.length === 1 ? "180px" : "100%"};">${post.images
                         .map(
                           (img) =>
                             `<div style="${post.images.length === 1 ? "aspect-ratio:4/3" : "aspect-ratio:1"};background:#eee;border-radius:2px;overflow:hidden;"><img src="${img}" style="width:100%;height:100%;object-fit:cover;"></div>`,
@@ -477,8 +472,9 @@ VIEWS.moments = () => {
   const renderImages = (images) => {
     if (!images || images.length === 0) return '';
     const isSingle = images.length === 1;
+    const cols = isSingle ? 1 : (images.length === 4 ? 2 : 3);
     return `
-      <div style="display: grid; grid-template-columns: ${isSingle ? '1fr' : 'repeat(3, 1fr)'}; gap: 4px; margin-top: 8px; margin-bottom: 8px; max-width: ${isSingle ? '200px' : '100%'};">
+      <div style="display: grid; grid-template-columns: repeat(${cols}, 1fr); gap: 4px; margin-top: 8px; margin-bottom: 8px; max-width: ${isSingle ? '200px' : '100%'};">
         ${images.map(img => `
           <div style="${isSingle ? 'aspect-ratio: 4/3;' : 'aspect-ratio: 1;'} background: #eee; border-radius: 4px; overflow: hidden;" onclick="event.stopPropagation(); openMediaViewer(['${img}'], 0)">
             <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
@@ -495,7 +491,7 @@ VIEWS.moments = () => {
     if (likes && likes.length > 0) {
       const namesHTML = likes.map((n, i) => {
         const isLast = i === likes.length - 1;
-        return `<span onclick="event.stopPropagation(); window.openWxProfileByName('${n}', 'moments')" style="color: #576b95; font-weight: 500; cursor:pointer;">${esc(n)}</span>${isLast ? '' : '<span style="color: #576b95;">，</span>'}`;
+        return `<span onclick="event.stopPropagation(); window.openWxProfileByName('${n}', 'moments')" style="color: #576b95; font-weight: 500; cursor:pointer;">${esc(dn(n))}</span>${isLast ? '' : '<span style="color: #576b95;">，</span>'}`;
       }).join('');
       
       html += `<div style="display:flex; gap:6px; align-items:flex-start; ${comments && comments.length > 0 ? 'border-bottom:0.5px solid #e5e5ea; padding-bottom:8px; margin-bottom:8px;' : ''}">
@@ -509,9 +505,9 @@ VIEWS.moments = () => {
     if (comments && comments.length > 0) {
       comments.forEach(c => {
         html += `<div style="margin-top: 4px;">`;
-        html += `<span onclick="event.stopPropagation(); window.openWxProfileByName('${c.user}', 'moments')" style="color: #576b95; font-weight: 500; cursor:pointer;">${esc(c.user)}</span>`;
+        html += `<span onclick="event.stopPropagation(); window.openWxProfileByName('${c.user}', 'moments')" style="color: #576b95; font-weight: 500; cursor:pointer;">${esc(dn(c.user))}</span>`;
         if (c.replyTo) {
-          html += ` <span style="color: #111;">回复</span> <span onclick="event.stopPropagation(); window.openWxProfileByName('${c.replyTo}', 'moments')" style="color: #576b95; font-weight: 500; cursor:pointer;">${esc(c.replyTo)}</span>`;
+          html += ` <span style="color: #111;">回复</span> <span onclick="event.stopPropagation(); window.openWxProfileByName('${c.replyTo}', 'moments')" style="color: #576b95; font-weight: 500; cursor:pointer;">${esc(dn(c.replyTo))}</span>`;
         }
         html += `<span style="color: #111;">：${esc(c.text)}</span>`;
         html += `</div>`;

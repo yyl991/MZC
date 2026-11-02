@@ -225,7 +225,6 @@ var INCOMING = [];
     { at: 226, type:'notify', from:'丞丞', text:'我路过你家楼下了 灯是暗的' },
     { at: 229, type: 'call', from: '恩恩' },
     { at: 235, type:'notify', from:'恩恩', text:'我只是……算了。' },
-    { at: 239, type:'notify', from:'rabbit', text:'就是今天……好像是什么日子' },
     { at: 242, type:'notify', from:'丞哥', text:'几点。' },
     { at: 249, type:'notify', from:'穆瑞恩', text:'我等了你好久好久。' },
     { at: 252, type:'notify', from:'恩仔', text:'没关系，你忙。' },
