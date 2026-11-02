@@ -53,7 +53,7 @@ var INCOMING = [];
   };
  // 你的专属拍一拍后缀
   S.myAvatar = "./data/avatar/me.jpg"; 
-  S.myPat = "的聪明小脑瓜"; 
+  S.myPat = "橙粉色灯牌说比博燃"; 
 
     S.chats = {
     'MuAMuA': {
