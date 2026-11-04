@@ -85,8 +85,8 @@
     <script>
         window.LANG = 'zh';
         
-        // ⚠️ 每次发版一定要把这里加 1，这次更新到了 h
-        const ASSET_V = '20261104h'; 
+        // ⚠️ 每次发版一定要把这里加 1，这次更新到了 j
+        const ASSET_V = '20261104j'; 
 
         function load(src) {
             return new Promise((res, rej) => {
@@ -125,7 +125,7 @@
                     await load(src);
                 }
 
-                // 2. 启动系统 (此时 DOM 里的主屏图标开始渲染，并且 app.js 可能会发大量请求)
+                // 2. 启动系统 (此时 DOM 里的主屏图标开始渲染)
                 initApp();
                 
                 // 3. 强行抓取主屏的图标和壁纸（优先级最高，最多等 10 秒）
