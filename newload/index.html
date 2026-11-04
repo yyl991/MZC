@@ -7,23 +7,34 @@
     <meta name="theme-color" content="#000000">
     <title>橙粉色捡起来</title>
     
+    <!-- 消除 favicon 404 报错 -->
     <link rel="icon" href="data:,">
+
+    <!-- 通用 Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="橙粉色捡起来 | 穆祉丞生日剧情">
     <meta property="og:description" content="捡到一部手机，推开属于他的局部宇宙。你会怎么选？">
     <meta property="og:image" content="https://cgcgdsg.cc.cd/data/share-cover.jpg">
     <meta property="og:url" content="https://cgcgdsg.cc.cd">
+
+    <!-- 微博专属 -->
     <meta name="weibo:card" content="summary_large_image">
     <meta name="weibo:title" content="橙粉色捡起来 | 穆祉丞生日剧情">
     <meta name="weibo:image" content="https://cgcgdsg.cc.cd/data/share-cover.jpg">
+
+    <!-- 微信/QQ 兼容 -->
     <meta itemprop="name" content="橙粉色捡起来">
     <meta itemprop="image" content="https://cgcgdsg.cc.cd/data/share-cover.jpg">
+
+    <!-- Twitter Card (备用) -->
     <meta name="twitter:card" content="summary_large_image">
 
+    <!-- 直接使用系统字体，速度起飞 -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <!-- 全屏黑屏遮罩：保证玩家进来先看到这个，防止主屏图标白块 -->
     <div id="loading-overlay" style="position:fixed; inset:0; z-index:9999999; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.5s;">
         <div style="color:#fff; font-size:16px; text-align:center; line-height:1.8; letter-spacing:1px; font-family: sans-serif;">
             等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿
@@ -32,6 +43,7 @@
 
     <div id="phone">
         <div id="screen">
+            <!-- 原有的 boot 隐藏在后面，作为兜底 -->
             <div id="boot"><span>等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿</span></div>
             <div id="wall"></div>
             <div id="homeL" class="layer"></div>
@@ -43,13 +55,25 @@
             <div id="ov"></div>
         </div>
         
+        <!-- 状态栏 -->
         <div id="sb" class="light">
             <button id="sbk" aria-label="Home"></button>
             <span class="t" id="sbt">23:09</span>
             <span class="r">
-                <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" /><rect x="5" y="5.5" width="3" height="6.5" rx="1" /><rect x="10" y="3" width="3" height="9" rx="1" /><rect x="15" y="0" width="3" height="12" rx="1" /></svg>
-                <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.3c2.3 0 4.4.9 6 2.4l1.2-1.2A10.3 10.3 0 0 0 8 .6 10.3 10.3 0 0 0 .8 3.5L2 4.7a8.6 8.6 0 0 1 6-2.4Zm0 3.4c1.4 0 2.6.5 3.6 1.4l1.2-1.2A6.8 6.8 0 0 0 8 4a6.8 6.8 0 0 0-4.8 1.9l1.2 1.2c1-.9 2.2-1.4 3.6-1.4Zm0 3.4c-.6 0-1.2.2-1.6.6L8 11.3l1.6-1.6c-.4-.4-1-.6-1.6-.6Z" /></svg>
-                <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.8" fill="none" stroke="currentColor" opacity=".4" /><rect x="2" y="2" width="14" height="9" rx="2.4" /><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" opacity=".4" /></svg>
+                <svg width="18" height="12" viewBox="0 0 18 12">
+                    <rect x="0" y="8" width="3" height="4" rx="1" />
+                    <rect x="5" y="5.5" width="3" height="6.5" rx="1" />
+                    <rect x="10" y="3" width="3" height="9" rx="1" />
+                    <rect x="15" y="0" width="3" height="12" rx="1" />
+                </svg>
+                <svg width="16" height="12" viewBox="0 0 16 12">
+                    <path d="M8 2.3c2.3 0 4.4.9 6 2.4l1.2-1.2A10.3 10.3 0 0 0 8 .6 10.3 10.3 0 0 0 .8 3.5L2 4.7a8.6 8.6 0 0 1 6-2.4Zm0 3.4c1.4 0 2.6.5 3.6 1.4l1.2-1.2A6.8 6.8 0 0 0 8 4a6.8 6.8 0 0 0-4.8 1.9l1.2 1.2c1-.9 2.2-1.4 3.6-1.4Zm0 3.4c-.6 0-1.2.2-1.6.6L8 11.3l1.6-1.6c-.4-.4-1-.6-1.6-.6Z" />
+                </svg>
+                <svg width="27" height="13" viewBox="0 0 27 13">
+                    <rect x=".5" y=".5" width="23" height="12" rx="3.8" fill="none" stroke="currentColor" opacity=".4" />
+                    <rect x="2" y="2" width="14" height="9" rx="2.4" />
+                    <path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" opacity=".4" />
+                </svg>
             </span>
         </div>
         <div id="hb" class="light"><i></i></div>
@@ -60,8 +84,9 @@
     
     <script>
         window.LANG = 'zh';
-        // ⚠️ 版本号更新到 k
-        const ASSET_V = '20261104k'; 
+        
+        // ⚠️ 这里的版本号会在云端构建时，被 obfuscate.js 自动替换成最新时间戳！
+        const ASSET_V = 'local_test_v1'; 
 
         function load(src) {
             return new Promise((res, rej) => {
@@ -83,11 +108,19 @@
                     './views/app_bilibili.js', './views/app_xhs.js'
                 ];
 
+                // 🚀 加速核心 1：并发高速下载所有 JS (瞬间同时发出所有请求)
+                await Promise.all(scripts.map(src => fetch(src + '?v=' + ASSET_V).catch(() => {})));
+                
+                // 🚀 加速核心 2：按顺序瞬间执行
                 for (const src of scripts) { await load(src); }
 
+                // 启动系统 (此时 DOM 里的主屏图标开始渲染)
                 initApp();
+                
+                // 强行抓取主屏的图标和壁纸（最多等 3 秒，防止个别图卡死）
                 await preloadHomeAssets();
 
+                // 掀开遮罩层
                 const overlay = document.getElementById('loading-overlay');
                 if (overlay) {
                     overlay.style.opacity = '0';
@@ -95,27 +128,35 @@
                         overlay.style.display = 'none';
                         const oldBoot = document.getElementById('boot');
                         if (oldBoot) oldBoot.style.display = 'none'; 
-                    }, 500);
+                    }, 300);
                 }
 
+                // 玩家进去后，后台开始 VIP 排队下载图片
                 backgroundPreload();
 
             } catch (e) {
                 console.error(e);
                 const overlay = document.getElementById('loading-overlay');
                 if (overlay) overlay.style.display = 'none';
-                alert('加载失败：\n' + e.message);
+                alert('加载失败，请检查文件是否齐全或是否有语法错误：\n' + e.message);
             }
         })();
 
+        // =========================================
+        // 👇 预加载1：绝对保证主屏不白块（死等 3 秒）
+        // =========================================
         async function preloadHomeAssets() {
             const imgPromises = [];
             const urlsToLoad = new Set();
-            await new Promise(r => setTimeout(r, 300)); 
+            
+            await new Promise(r => setTimeout(r, 100)); 
 
+            // 1. 抓取主屏所有 img 标签
             document.querySelectorAll('#homeL img').forEach(img => {
                 if (img.src) urlsToLoad.add(img.src);
             });
+
+            // 2. 抓取主屏所有的 CSS 背景图
             document.querySelectorAll('#homeL *').forEach(el => {
                 const bg = window.getComputedStyle(el).backgroundImage;
                 if (bg && bg !== 'none' && bg.includes('url(')) {
@@ -123,19 +164,24 @@
                     if (match && match[1]) urlsToLoad.add(match[1]);
                 }
             });
+
+            // 3. 强行去下载它们
             urlsToLoad.forEach(src => {
                 imgPromises.push(new Promise(resolve => {
                     const img = new Image();
-                    img.onload = resolve; img.onerror = resolve;
+                    img.onload = resolve; 
+                    img.onerror = resolve; 
                     img.src = src;
                 }));
             });
-            const timeout = new Promise(r => setTimeout(r, 10000));
+
+            // 4. 兜底时间 3 秒。如果 3 秒还没加载完，直接放行，防止死等
+            const timeout = new Promise(r => setTimeout(r, 3000));
             await Promise.race([Promise.all(imgPromises), timeout]);
         }
 
         // =========================================
-        // 👇 新增：供 app.js 调用的插队优先加载器
+        // 👇 供 app.js 调用的插队优先加载器
         // =========================================
         window.priorityPreload = function(urls) {
             if (!urls || !urls.length) return;
@@ -148,17 +194,21 @@
                     document.head.appendChild(link);
                 } else {
                     const img = new Image();
-                    img.src = src; // 直接发起请求，无视排队队列
+                    img.src = src; 
                 }
             });
-            console.log(`🚀 触发插队加载，共 ${uniqueUrls.length} 个资源`);
         };
 
+        // =========================================
+        // 👇 预加载2：微信优先排队静默下载（延迟 10 秒）
+        // =========================================
         function backgroundPreload() {
             setTimeout(() => {
                 const queue = [];
+
                 if (window.CHAT_HISTORY) {
                     const vipRoles = ["穆祉丞", "恩恩", "丞哥", "MuAMuA", "cat", "rabbit"];
+                    
                     vipRoles.forEach(role => {
                         const msgs = window.CHAT_HISTORY[role];
                         if (Array.isArray(msgs)) {
@@ -166,12 +216,38 @@
                                 if (Array.isArray(msg) && typeof msg[0] === 'string') {
                                     const text = msg[0];
                                     if (text.startsWith('[图片] ') || text.startsWith('[表情] ')) queue.push(text.slice(4).trim());
-                                    else if (text.startsWith('[视频] ')) { queue.push(text.slice(4).split('|')[0].trim()); }
+                                    else if (text.startsWith('[视频] ')) {
+                                        const parts = text.slice(4).split('|');
+                                        queue.push(parts[0].trim());
+                                        if (parts[1]) queue.push(parts[1].trim());
+                                    } else if (text.startsWith('[语音] ')) {
+                                        const parts = text.slice(4).split('|');
+                                        if (parts[1]) queue.push(parts[1].trim());
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                    Object.keys(window.CHAT_HISTORY).forEach(role => {
+                        if (vipRoles.includes(role)) return;
+                        const msgs = window.CHAT_HISTORY[role];
+                        if (Array.isArray(msgs)) {
+                            msgs.forEach(msg => {
+                                if (Array.isArray(msg) && typeof msg[0] === 'string') {
+                                    const text = msg[0];
+                                    if (text.startsWith('[图片] ') || text.startsWith('[表情] ')) queue.push(text.slice(4).trim());
+                                    else if (text.startsWith('[视频] ')) {
+                                        const parts = text.slice(4).split('|');
+                                        queue.push(parts[0].trim());
+                                        if (parts[1]) queue.push(parts[1].trim());
+                                    }
                                 }
                             });
                         }
                     });
                 }
+
                 if (window.MOCK_MOMENTS_DATA) {
                     Object.values(window.MOCK_MOMENTS_DATA).forEach(role => {
                         if (role.posts) role.posts.forEach(post => {
@@ -179,21 +255,43 @@
                         });
                     });
                 }
+
                 if (window.MOCK_PHOTOS) window.MOCK_PHOTOS.forEach(i => { if (i.src) queue.push(i.src); });
+                if (window.CFG && window.CFG.privateAlbum) window.CFG.privateAlbum.forEach(i => { if (i.src) queue.push(i.src); });
 
                 const finalQueue = [...new Set(queue)].filter(src => src && src.length > 5);
+                if (finalQueue.length === 0) return;
+
                 let index = 0;
+                const BATCH_SIZE = 6;
+
                 function loadNextBatch() {
                     if (index >= finalQueue.length) return;
-                    const batch = finalQueue.slice(index, index + 3);
-                    index += 3;
-                    let loaded = 0;
+
+                    const batch = finalQueue.slice(index, index + BATCH_SIZE);
+                    index += BATCH_SIZE;
+
+                    let loadedInBatch = 0;
                     batch.forEach(src => {
-                        const img = new Image();
-                        img.onload = img.onerror = () => { if (++loaded === batch.length) setTimeout(loadNextBatch, 100); };
-                        img.src = src;
+                        if (/\.(mp4|mp3|wav|m4a)$/i.test(src)) {
+                            const link = document.createElement('link');
+                            link.rel = 'prefetch'; link.href = src;
+                            link.onload = link.onerror = () => {
+                                loadedInBatch++;
+                                if (loadedInBatch === batch.length) setTimeout(loadNextBatch, 100);
+                            };
+                            document.head.appendChild(link);
+                        } else {
+                            const img = new Image();
+                            img.onload = img.onerror = () => {
+                                loadedInBatch++;
+                                if (loadedInBatch === batch.length) setTimeout(loadNextBatch, 100);
+                            };
+                            img.src = src;
+                        }
                     });
                 }
+
                 loadNextBatch();
             }, 10000); 
         }
