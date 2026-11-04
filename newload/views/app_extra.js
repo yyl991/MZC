@@ -936,40 +936,20 @@ VIEWS.weather = () => {
    4. 录音 (Recorder)
    ========================================== */
 const RECORDER_DATA = [
-  {
-    id: 0,
-    title: "城许路",
-    date: "星期日",
-    time: "04:19",
-    src: "./data/music/boli.mp3",
-  },
+  
   {
     id: 1,
-    title: "竹园弄",
+    title: "那个用",
     date: "2025年4月1日",
     time: "02:14",
     src: "./data/music/boli.mp3",
   },
   {
-    id: 2,
-    title: "235国道",
-    date: "2024年6月11日",
-    time: "00:26",
-    src: "./data/music/boli.mp3",
-  },
-  {
-    id: 3,
-    title: "运溪路",
-    date: "2024年1月31日",
-    time: "01:44",
-    src: "./data/music/boli.mp3",
-  },
-  {
-    id: 4,
-    title: "东莲街",
-    date: "2023年4月22日",
-    time: "00:14",
-    src: "./data/music/boli.mp3",
+    id: 0,
+    title: "叫妈妈",
+    date: "2022年5月21日",
+    time: "00：04",
+    src: "./data/music/nage.wav",
   },
 ];
 let currentRecorderId = -1,
