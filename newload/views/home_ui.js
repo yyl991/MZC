@@ -307,6 +307,7 @@
           }, 50);
         };
       }
+      // 👇 播放时切图
       switchVinylImage(true);
       bgm.volume = 1.0; 
       bgm.play().catch(e => console.log("播放被拦截:", e));
@@ -325,6 +326,8 @@
           }, 50);
         };
       }
+      // 👇 新增：暂停时也切图
+      switchVinylImage(true);
       bgm.pause();
     }
   };
