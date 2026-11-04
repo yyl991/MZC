@@ -14,21 +14,33 @@
     <meta property="og:image" content="https://cgcgdsg.cc.cd/data/share-cover.jpg">
     <meta property="og:url" content="https://cgcgdsg.cc.cd">
 
-    <!-- 字体异步加载 -->
-    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <!-- 微博专属 -->
+    <meta name="weibo:card" content="summary_large_image">
+    <meta name="weibo:title" content="橙粉色捡起来 | 穆祉丞生日剧情">
+    <meta name="weibo:image" content="https://cgcgdsg.cc.cd/data/share-cover.jpg">
+
+    <!-- 微信/QQ 兼容 -->
+    <meta itemprop="name" content="橙粉色捡起来">
+    <meta itemprop="image" content="https://cgcgdsg.cc.cd/data/share-cover.jpg">
+
+    <!-- Twitter Card (备用) -->
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- 👇 已经删除了慢吞吞的外部字体，直接使用系统字体，速度起飞 -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <!-- 全屏遮罩层（防白块专用） -->
+    <!-- 全屏黑屏遮罩：保证玩家进来先看到这个，防止白块 -->
     <div id="loading-overlay" style="position:fixed; inset:0; z-index:9999999; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.5s;">
-        <div style="color:#fff; font-size:16px; text-align:center; line-height:1.8; letter-spacing:1px;">
+        <div style="color:#fff; font-size:16px; text-align:center; line-height:1.8; letter-spacing:1px; font-family: sans-serif;">
             等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿
         </div>
     </div>
 
     <div id="phone">
         <div id="screen">
+            <!-- 原有的 boot 隐藏在后面，作为兜底 -->
             <div id="boot"><span>等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿</span></div>
             <div id="wall"></div>
             <div id="homeL" class="layer"></div>
@@ -39,6 +51,8 @@
             <div id="appL" class="layer"></div>
             <div id="ov"></div>
         </div>
+        
+        <!-- 状态栏 -->
         <div id="sb" class="light">
             <button id="sbk" aria-label="Home"></button>
             <span class="t" id="sbt">23:09</span>
@@ -61,14 +75,15 @@
         </div>
         <div id="hb" class="light"><i></i></div>
     </div>
+    
     <audio id="player" preload="auto"></audio>
     <audio id="bgm" src="./data/app/bgm.mp3" loop preload="auto"></audio>
     
     <script>
         window.LANG = 'zh';
         
-        // 👈 每次发版记得改这里的版本号
-        const ASSET_V = '20261104d'; 
+        // ⚠️ 每次发版一定要把这里加 1，比如 e 改成 f
+        const ASSET_V = '20261104e'; 
 
         function load(src) {
             return new Promise((res, rej) => {
@@ -102,18 +117,18 @@
                     './views/app_xhs.js'
                 ];
 
-                // 按顺序执行 JS
+                // 1. 按顺序执行 JS
                 for (const src of scripts) {
                     await load(src);
                 }
 
-                // 启动系统
+                // 2. 启动系统
                 initApp();
                 
-                // 强行抓取主屏的图标和壁纸
+                // 3. 强行抓取主屏的图标和壁纸（最多等 1.5 秒）
                 await preloadHomeAssets();
 
-                // 掀开遮罩层
+                // 4. 掀开遮罩层
                 const overlay = document.getElementById('loading-overlay');
                 if (overlay) {
                     overlay.style.opacity = '0';
@@ -124,7 +139,7 @@
                     }, 500);
                 }
 
-                // 掀开遮罩后，后台悄悄下载
+                // 5. 玩家进去后，后台悄悄下载聊天图片等大资源
                 backgroundPreload();
 
             } catch (e) {
@@ -135,39 +150,58 @@
             }
         })();
 
-        // 预加载1：主屏资源
+        // =========================================
+        // 👇 预加载1：绝对保证主屏不白块
+        // =========================================
         async function preloadHomeAssets() {
-            await new Promise(r => setTimeout(r, 150));
             const imgPromises = [];
-            document.querySelectorAll('img').forEach(img => {
+            
+            // 等 100ms 让 DOM 把首页图标渲染出来
+            await new Promise(r => setTimeout(r, 100)); 
+
+            // 抓取主屏幕上所有的 <img> 标签
+            document.querySelectorAll('#homeL img').forEach(img => {
                 if (!img.complete) {
                     imgPromises.push(new Promise(resolve => {
-                        img.onload = resolve; img.onerror = resolve;
+                        img.onload = resolve; 
+                        img.onerror = resolve;
                     }));
                 }
             });
-            const wallEl = document.getElementById('wall');
-            if (wallEl) {
-                const bg = window.getComputedStyle(wallEl).backgroundImage;
-                const match = bg.match(/url\(["']?([^"']+)["']?\)/);
-                if (match && match[1] && !match[1].includes('gradient')) {
-                    imgPromises.push(new Promise(resolve => {
-                        const img = new Image();
-                        img.onload = resolve; img.onerror = resolve;
-                        img.src = match[1];
-                    }));
+
+            // 抓取主屏幕所有的 CSS 背景图（防漏）
+            document.querySelectorAll('#homeL *').forEach(el => {
+                const bg = window.getComputedStyle(el).backgroundImage;
+                if (bg && bg !== 'none' && bg.includes('url(')) {
+                    const match = bg.match(/url\(["']?([^"']+)["']?\)/);
+                    if (match && match[1]) {
+                        imgPromises.push(new Promise(resolve => {
+                            const img = new Image();
+                            img.onload = resolve; 
+                            img.onerror = resolve;
+                            img.src = match[1];
+                        }));
+                    }
                 }
-            }
-            const timeout = new Promise(r => setTimeout(r, 2500));
+            });
+
+            // 👇 核心：主屏幕的图片如果 1.5 秒还没加载完，直接强行进系统，不等了！
+            const timeout = new Promise(r => setTimeout(r, 1500));
             await Promise.race([Promise.all(imgPromises), timeout]);
         }
 
-        // 预加载2：后台静默下载
+        // =========================================
+        // 👇 预加载2：后台静默下载（不卡首屏）
+        // =========================================
         function backgroundPreload() {
             setTimeout(() => {
                 const urls = new Set();
+                
+                // 相册
                 if (window.MOCK_PHOTOS) window.MOCK_PHOTOS.forEach(i => { if (i.src) urls.add(i.src); });
                 if (window.CFG && window.CFG.privateAlbum) window.CFG.privateAlbum.forEach(i => { if (i.src) urls.add(i.src); });
+                
+                // 朋友圈
                 if (window.MOCK_MOMENTS_DATA) {
                     Object.values(window.MOCK_MOMENTS_DATA).forEach(role => {
                         if (role.posts) role.posts.forEach(post => {
@@ -175,6 +209,8 @@
                         });
                     });
                 }
+                
+                // 聊天记录
                 if (window.CHAT_HISTORY) {
                     Object.values(window.CHAT_HISTORY).forEach(msgs => {
                         if (Array.isArray(msgs)) {
@@ -195,20 +231,24 @@
                         }
                     });
                 }
+
+                // 开始偷偷下载
                 let count = 0;
                 urls.forEach(src => {
                     if (!src || src.length < 5) return;
                     count++;
+                    // 音频视频用 prefetch
                     if (/\.(mp4|mp3|wav|m4a)$/i.test(src)) {
                         const link = document.createElement('link');
                         link.rel = 'prefetch'; link.href = src;
                         document.head.appendChild(link);
                     } else {
+                        // 图片用 Image 对象
                         const img = new Image(); img.src = src;
                     }
                 });
-                console.log(`📦 后台预加载 ${count} 个资源...`);
-            }, 1500);
+                console.log(`📦 后台已悄悄预加载 ${count} 个内部图片/音视频资源...`);
+            }, 1500); // 进主屏 1.5 秒后再开始下
         }
     </script>
 </body>
