@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
     <meta name="theme-color" content="#000000">
     <title>橙粉色捡起来</title>
+    
+    <!-- 消除 favicon 404 报错 -->
+    <link rel="icon" href="data:,">
 
     <!-- 通用 Open Graph -->
     <meta property="og:type" content="website">
@@ -26,7 +29,7 @@
     <!-- Twitter Card (备用) -->
     <meta name="twitter:card" content="summary_large_image">
 
-    <!-- 删除了慢吞吞的外部字体，直接使用系统字体，速度起飞 -->
+    <!-- 直接使用系统字体，速度起飞 -->
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -82,8 +85,8 @@
     <script>
         window.LANG = 'zh';
         
-        // ⚠️ 每次发版一定要把这里加 1，这次更新到了 g
-        const ASSET_V = '20261104g'; 
+        // ⚠️ 每次发版一定要把这里加 1，这次更新到了 h
+        const ASSET_V = '20261104h'; 
 
         function load(src) {
             return new Promise((res, rej) => {
@@ -122,10 +125,10 @@
                     await load(src);
                 }
 
-                // 2. 启动系统
+                // 2. 启动系统 (此时 DOM 里的主屏图标开始渲染，并且 app.js 可能会发大量请求)
                 initApp();
                 
-                // 3. 强行抓取主屏的图标和壁纸（优先级最高，最多等 5 秒）
+                // 3. 强行抓取主屏的图标和壁纸（优先级最高，最多等 10 秒）
                 await preloadHomeAssets();
 
                 // 4. 掀开遮罩层
@@ -151,42 +154,41 @@
         })();
 
         // =========================================
-        // 👇 预加载1：绝对保证主屏不白块（最长等待 5 秒）
+        // 👇 预加载1：绝对保证主屏不白块（死等 10 秒版）
         // =========================================
         async function preloadHomeAssets() {
             const imgPromises = [];
+            const urlsToLoad = new Set();
             
-            // 等 200ms 让 DOM 把首页图标渲染出来
-            await new Promise(r => setTimeout(r, 200)); 
+            // 等待 300ms，确保 DOM 完全渲染出所有图标元素
+            await new Promise(r => setTimeout(r, 300)); 
 
-            // 抓取主屏幕上所有的 <img> 标签
+            // 1. 暴力抓取主屏所有 img 标签
             document.querySelectorAll('#homeL img').forEach(img => {
-                if (!img.complete) {
-                    imgPromises.push(new Promise(resolve => {
-                        img.onload = resolve; 
-                        img.onerror = resolve;
-                    }));
-                }
+                if (img.src) urlsToLoad.add(img.src);
             });
 
-            // 抓取主屏幕所有的 CSS 背景图（防漏）
+            // 2. 抓取主屏所有的 CSS 背景图
             document.querySelectorAll('#homeL *').forEach(el => {
                 const bg = window.getComputedStyle(el).backgroundImage;
                 if (bg && bg !== 'none' && bg.includes('url(')) {
                     const match = bg.match(/url\(["']?([^"']+)["']?\)/);
-                    if (match && match[1]) {
-                        imgPromises.push(new Promise(resolve => {
-                            const img = new Image();
-                            img.onload = resolve; 
-                            img.onerror = resolve;
-                            img.src = match[1];
-                        }));
-                    }
+                    if (match && match[1]) urlsToLoad.add(match[1]);
                 }
             });
 
-            // 核心：主屏幕的图片如果 5 秒还没加载完，直接强行进系统，不等了！
-            const timeout = new Promise(r => setTimeout(r, 5000));
+            // 3. 用全新的 Image 对象强行去下载它们，确保它们在缓存里
+            urlsToLoad.forEach(src => {
+                imgPromises.push(new Promise(resolve => {
+                    const img = new Image();
+                    img.onload = resolve; 
+                    img.onerror = resolve; // 找不到的图（404）直接放行，防止死锁
+                    img.src = src;
+                }));
+            });
+
+            // 4. 核心：把兜底时间延长到 10 秒！哪怕网速再慢，也要等这些图下完
+            const timeout = new Promise(r => setTimeout(r, 10000));
             await Promise.race([Promise.all(imgPromises), timeout]);
         }
 
