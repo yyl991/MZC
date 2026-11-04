@@ -1,156 +1,97 @@
 // ==========================================
-// 📱 相册模块 (app_photos.js) - 最终标题动态版
+// 📱 相册模块 (app_photos.js) - 纯净原版 (无相簿分组)
 // ==========================================
 
 window.currentMediaList = [];
 
-// 1. 相簿分组数据
-const MOCK_ALBUMS = [
-  {
-    id: "avatar",
-    title: "头像库", // 👈 这个就是显示在标题上的名字
-    cover: "./data/album/me.jpg",
-    items: [
-      { type: 'section', title: '今天', date: '2026年11月15日' },
-      { src: "./data/album/mzc.jpg" },
-      { src: "./data/album/me.jpg" },
-      { src: "./data/album/cat.jpg" },
-      { src: "./data/album/1.mp4", isVideo: true, time: "0:15" },
+// 相册里是这部手机真正拍过的照片（本地素材，不依赖外网）
+const MOCK_PHOTOS = [
+  // 分组 1：今天
+  /*
+  { type: 'section', title: '今天', date: '2026年11月15日' },
+  { src: "./data/album/mzc.jpg" },
+  { src: "./data/album/me.jpg" },
+  { src: "./data/album/cat.jpg" },
+  { src: "./data/album/1.mp4", isVideo: true, time: "0:15" },
 
-      { type: 'section', title: '昨天', date: '2026年11月14日' },
-      { src: "./data/album/enzai.jpg" },
-      { src: "./data/album/leader.jpg" },
-      { src: "./data/album/rabbit.jpg" },
-      { src: "./data/album/1tiger.jpg" },
-      { src: "./data/album/mama.jpg" },
+  // 分组 2：昨天
+  { type: 'section', title: '昨天', date: '2026年11月14日' },
+  { src: "./data/album/enzai.jpg" },
+  { src: "./data/album/leader.jpg" },
+  { src: "./data/album/rabbit.jpg" },
+  { src: "./data/album/1tiger.jpg" },
+  { src: "./data/album/mama.jpg" },
 
-      { type: 'section', title: '2026年10月', date: '' },
-      { src: "./data/album/enen.jpg" },
-      { src: "./data/album/mu.jpg" },
-      { src: "./data/album/lpp.jpg" },
-      { src: "./data/album/pigcry.jpg" },
-      { src: "./data/album/le.jpg" },
-      { src: "./data/album/2mama.jpg" }
-    ]
-  },
-  {
-    id: "mzc",
-    title: "穆祉丞", // 👈 进去后大标题和顶栏会变成这个
-    cover: "./data/album/mzc.jpg",
-    items: [
-      { type: 'section', title: '11月', date: '' },
-      { src: "./data/album/mzc.jpg" },
-      { src: "./data/album/lpp.jpg" },
-      { src: "./data/album/le.jpg" }
-    ]
-  },
-  {
-    id: "animals",
-    title: "猫猫狗狗", // 👈 进去后大标题和顶栏会变成这个
-    cover: "./data/album/cat.jpg",
-    items: [
-      { type: 'section', title: '10月', date: '' },
-      { src: "./data/album/cat.jpg" },
-      { src: "./data/album/1tiger.jpg" },
-      { src: "./data/album/rabbit.jpg" },
-      { src: "./data/album/2mama.jpg" }
-    ]
-  }
+  // 分组 3：2026年10月
+  { type: 'section', title: '2026年10月', date: '' },
+  { src: "./data/album/enen.jpg" },
+  { src: "./data/album/mu.jpg" },
+  { src: "./data/album/lpp.jpg" },
+  { src: "./data/album/pigcry.jpg" },
+  { src: "./data/album/le.jpg" },
+  { src: "./data/album/2mama.jpg" }
+   */
+  
+  { type: 'section', title: '2023年10月', date: '' },
+  
+  { src: "./data/photo/1.mp4", isVideo: true, time: "0:26" },
+  
+  { src: "./data/photo/2.mp4", isVideo: true, time: "0:19" },
+
 ];
 
-// 2. 供微信发图调用
+// 供微信发图调用
 function getPhoneDisplayList() {
-  if (typeof photoSections !== "undefined" && photoSections.length > 0 && photoSections[0][1].length > 1) {
-    let displayList = [];
+  let displayList = [];
+  if (
+    typeof photoSections !== "undefined" &&
+    photoSections.length > 0 &&
+    photoSections[0][1].length > 1
+  ) {
     photoSections.forEach((sec) => {
       displayList.push({ type: "section", title: sec[2] || sec[0], date: sec[0] });
-      sec[1].forEach((src) => displayList.push({ src }));
+      sec[1].forEach((src) => {
+        displayList.push({ src });
+      });
     });
+  } else {
+    displayList = MOCK_PHOTOS.map((item) => ({ ...item }));
     return displayList;
   }
-
-  let allMedia = [];
-  MOCK_ALBUMS.forEach(album => {
-    album.items.forEach(item => {
-      if (item.src) allMedia.push(item);
-    });
-  });
-
-  return [
-    { type: "section", title: "所有照片", date: "" },
-    ...allMedia
-  ];
+  return displayList;
 }
 
 window.getPhoneDisplayList = getPhoneDisplayList;
 window.getPhoneMedia = function () {
   return getPhoneDisplayList().filter(
-    (item) => !item.type && item.src && (item.src.startsWith("http") || item.src.startsWith("./") || item.src.startsWith("/"))
+    (item) =>
+      !item.type &&
+      item.src &&
+      (item.src.startsWith("http") ||
+        item.src.startsWith("./") ||
+        item.src.startsWith("/"))
   );
 };
 
-// 3. 相册主页 (三列相簿列表)
+// 3. 相册主页 (一进相册直接是最近项目)
 VIEWS.photos = () => {
+  const displayList = getPhoneDisplayList();
+
+  // 记录所有纯媒体路径，给全屏查看器使用
+  window.currentMediaList = displayList.filter(item => !item.type).map(item => item.src);
+
   return {
     html: navHTML({ title: "照片", back: "主页", backFn: "closeApp()" }) + 
     `<div class="scroll" style="background:#fff; padding-bottom: 100px;">
       
-      <div style="display:flex; justify-content:space-between; align-items:center; margin: 10px 16px 14px;">
-         <h1 class="lt" style="margin:0; font-size:32px; font-weight:700;">相簿</h1>
-      </div>
-
-      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; padding:0 16px;">
-        ${MOCK_ALBUMS.map(album => {
-          const count = album.items.filter(i => !i.type && i.src).length;
-          return `
-          <div style="cursor:pointer; display:flex; flex-direction:column; align-items:center;" onclick="window._currentAlbumId='${album.id}'; push('albumDetail')">
-            <div style="width:100%; aspect-ratio:1; background:#eee; border-radius:8px; overflow:hidden; position:relative; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
-              ${album.cover ? `<img src="${album.cover}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="display:grid; place-items:center; height:100%; color:#999; font-size:12px;">空</div>`}
-            </div>
-            <div style="width:100%; margin-top:6px;">
-              <div style="font-size:14px; font-weight:500; color:#111; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${album.title}</div>
-              <div style="font-size:12px; color:#888;">${count} 个项目</div>
-            </div>
-          </div>
-          `;
-        }).join('')}
-      </div>
-
-      <h1 class="lt" style="margin: 24px 16px 10px; font-size:22px;">我的相簿</h1>
-      <div style="padding:0 16px; display:flex; flex-direction:column; gap:12px; margin-bottom: 40px;">
-        <div style="display:flex; align-items:center; gap:16px; cursor:pointer; padding-bottom: 20px;" onclick="push('privateAlbum')">
-          <div style="width:80px; height:80px; border-radius:8px; background:#3a3a3c; display:grid; place-items:center; color:#fff; font-size:24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">🔒</div>
-          <div style="flex:1;">
-            <div style="font-size:16px; font-weight:600; color:#111;">私密相册</div>
-            <div style="font-size:13px; color:#888; margin-top:4px;">已加密</div>
-          </div>
-          <div style="color:#999;">${G.chevR}</div>
-        </div>
-      </div>
-    </div>`,
-  };
-};
-
-// 4. 相簿详情页 (UI 和以前一样，但标题动态变更为相册名)
-VIEWS.albumDetail = () => {
-  const albumId = window._currentAlbumId || "recent";
-  const album = MOCK_ALBUMS.find(a => a.id === albumId) || MOCK_ALBUMS[0];
-  
-  // 隔离大图查看器
-  window.currentMediaList = album.items.filter(item => !item.type).map(item => item.src);
-
-  return {
-    // 👇 第一处：navHTML 的 title 这里绑定 album.title，这就是下滑吸顶后显示的相册名称
-    html: navHTML({ title: album.title, back: "相册", backFn: "back()" }) + 
-    `<div class="scroll" style="background:#fff; padding-bottom: 100px;">
-      
-      <!-- 👇 第二处：大标题这里也绑定 album.title，这就是最开始看到的大字 -->
+      <!-- 顶部标题 -->
       <div style="display:flex; justify-content:space-between; align-items:center; margin: 10px 16px 4px;">
-         <h1 class="lt" style="margin:0; font-size:32px; font-weight:700;">${album.title}</h1>
+         <h1 class="lt" style="margin:0; font-size:32px; font-weight:700;">最近项目</h1>
       </div>
       
+      <!-- 照片网格 -->
       <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; padding:0 12px;">
-        ${album.items.map((item, i) => {
+        ${displayList.map((item, i) => {
           if (item.type === 'section') {
             return `<div style="grid-column: 1 / -1; font-size:22px; font-weight:700; color:#111; margin: 24px 0 10px;">
                       ${esc(item.title)} 
@@ -174,12 +115,22 @@ VIEWS.albumDetail = () => {
           </div>
         `}).join('')}
       </div>
+      
+      <!-- 底部我的相簿：改成一行三列的网格 -->
+      <h1 class="lt" style="margin: 24px 16px 10px; font-size:22px;">我的相簿</h1>
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; padding:0 12px; margin-bottom: 40px;">
+        <div style="aspect-ratio:1; background:#3a3a3c; overflow:hidden; cursor:pointer; border-radius:4px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;" onclick="push('privateAlbum')">
+          <div style="font-size:28px; line-height:1;">🔒</div>
+          <div style="font-size:11px; margin-top:8px; opacity:.85;">私密相册</div>
+        </div>
+      </div>
+
     </div>`,
   };
 };
 
 // ==========================================
-// 🔒 5. 私密相册 (密码键盘版) - 原版完整保留
+// 🔒 私密相册 (密码键盘版)
 // ==========================================
 let privateAlbumUnlocked = false;
 let privatePincode = "";
@@ -203,10 +154,10 @@ window.pressPrivatePin = function(num, el) {
   }
   if(typeof sfx === 'function') sfx("key");
   if(typeof vib === 'function') vib(8);
-  
+
   privatePincode += num;
   renderPrivateDots();
-  
+
   if (privatePincode.length === 4) {
     const correctPassword = (typeof CFG !== 'undefined' && CFG.start?.privatePin) ? CFG.start.privatePin : "1116";
     if (privatePincode === correctPassword) {
@@ -245,40 +196,44 @@ window.delPrivatePin = function() {
 };
 
 VIEWS.privateAlbum = () => {
-  const defaultSecretPics = [
-    { src: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=400&auto=format&fit=crop" },
-    { src: "./data/chat/1.mp4", isVideo: true, time: "0:30" },
-    { src: "p_secret1", label: "占位 · 剪影" },
-    { src: "p_secret2", label: "占位 · 舞台灯" },
-    { src: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop" },
-    { src: "p_secret3", label: "占位 · 秘密" },
+  const pics = [
+    { src: "./data/photo/private (1).jpg" },
+    { src: "./data/photo/private (2).jpg" },    
+    { src: "./data/photo/private (3).jpg" },
+    { src: "./data/photo/private (4).jpg" },
+    { src: "./data/photo/private (5).jpg" },
+    { src: "./data/photo/private (6).jpg" },
+    { src: "./data/photo/private (7).jpg" },    
+    { src: "./data/photo/private (8).jpg" },
+    { src: "./data/photo/private (9).jpg" },   
+    
+    { src: "./data/photo/private (1).mp4" },
+    
+    { src: "./data/photo/private (10).jpg" },
+    { src: "./data/photo/private (2).mp4" }, 
+    { src: "./data/photo/private (11).jpg" },
+    { src: "./data/photo/private (12).jpg" },    
+    { src: "./data/photo/private (13).jpg" },
+    { src: "./data/photo/private (14).jpg" },
   ];
-
-  const pics = (typeof CFG !== 'undefined' && CFG.privateAlbum && CFG.privateAlbum.length > 1) 
-    ? CFG.privateAlbum 
-    : defaultSecretPics;
 
   if (!privateAlbumUnlocked) {
     privatePincode = "";
     return {
-      cls: "dark",
-      dark: true, 
+      cls: "dark", dark: true, 
       html: `
       <div style="height:100vh; background:#000; display:flex; flex-direction:column; align-items:center; padding-top:12vh;">
         <div style="width:60px; height:60px; background:#222; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:16px; box-shadow:0 4px 15px rgba(0,0,0,0.5);">🔒</div>
         <div class="pt" style="color:#fff; font-size:20px; font-weight:500; margin-bottom: 24px;">输入密码以查看</div>
-        
         <div class="pdots" id="private-pdots" style="margin-bottom: 40px;">
             ${[0,1,2,3].map(i => `<i class="${i < privatePincode.length ? "on" : ""}"></i>`).join("")}
         </div>
-
         <div class="pkeys">
             ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="pk" onclick="pressPrivatePin('${n}',this)"><b>${n}</b><small>${["","ABC","DEF","GHI","JKL","MNO","PQRS","TUV","WXYZ"][n-1]}</small></button>`).join("")}
             <span></span>
             <button class="pk" onclick="pressPrivatePin('0',this)"><b>0</b><small></small></button>
             <span></span>
         </div>
-        
         <div class="pbot" style="position:absolute; bottom:48px; left:46px; right:46px; display:flex; justify-content:center;">
             <button id="private-del-btn" onclick="delPrivatePin()" style="color:#007aff; font-size:16px; text-align:center; background:transparent; border:none; cursor:pointer;">取消</button>
         </div>
@@ -290,40 +245,35 @@ VIEWS.privateAlbum = () => {
   window.currentMediaList = validSrcs;
 
   return {
-    cls: "dark",
-    dark: true, 
+    cls: "dark", dark: true, 
     html: `
-    <div class="scroll" style="background:#000; padding-bottom: 100px; min-height:100vh; padding-top: 60px;">
-      <div style="padding: 10px 16px 20px; display:flex; justify-content:space-between; align-items:center;">
-         <h1 class="lt" style="margin:0; color:#fff; font-size:24px;">私密照片</h1>
-         <span style="color:#ff3b30; font-size:16px; cursor:pointer; padding:4px;" onclick="privateAlbumUnlocked=false; show('privateAlbum')">重新锁定</span>
+    <!-- 👇 padding-top 增加到 90px，让整个内容往下沉 -->
+    <div class="scroll" style="background:#000; padding-bottom: 0; min-height:100vh; padding-top: 120px;">
+      
+      <div style="padding: 0 16px 20px; display:flex; justify-content:space-between; align-items:flex-end;">
+         <h1 class="lt" style="margin:0; color:#fff; font-size:32px; font-weight:700;">私密照片</h1>
+         <span style="color:#ff3b30; font-size:15px; cursor:pointer; padding:4px 0; margin-bottom:6px;" onclick="privateAlbumUnlocked=false; show('privateAlbum')">重新锁定</span>
       </div>
       
-      <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px; padding:0 16px;">
+      <!-- 👇 gap 缩小到 1px，更满；底部不留任何 padding，直接顶到底 -->
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:1px;">
         ${pics.map((p, i) => {
           const isVideo = p.isVideo || /\.(mp4|webm|mov)$/i.test(p.src);
           return `
-          <div style="aspect-ratio:3/4; background:#222; overflow:hidden; border-radius:10px; position:relative; cursor:pointer;" onclick="openMediaViewer(${i})">
+          <div style="aspect-ratio:1; background:#1a1a1a; overflow:hidden; position:relative; cursor:pointer;" onclick="openMediaViewer(${i})">
              ${isVideo 
-               ? `<video src="${p.src}" muted preload="metadata" style="width:100%; height:100%; object-fit:cover; pointer-events:none;"></video>
-                  <div style="position:absolute; bottom:6px; left:8px; color:#fff; font-size:12px; font-weight:500; text-shadow:0 1px 2px rgba(0,0,0,0.8); z-index:2;">${p.time || '0:00'}</div>
-                  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:44px; height:44px; background:rgba(0,0,0,0.5); border-radius:50%; display:grid; place-items:center; color:#fff; font-size:20px; padding-left:4px; backdrop-filter:blur(4px);">▶</div>`
-               : (p.src.length > 5 ? `<img src="${p.src}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">` : `
-                 <div style="width:100%; height:100%; background:linear-gradient(135deg, #4a00e0, #8e2de2); display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
-                   <div style="font-size:12px; opacity:0.8;">${esc(p.label)}</div>
-                   <div style="font-size:24px; margin-top:10px;">🔒</div>
-                 </div>
-               `)}
+               ? `<video src="${p.src}" muted preload="metadata" playsinline webkit-playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; pointer-events:none;"></video>
+                  <div style="position:absolute; bottom:4px; left:6px; color:#fff; font-size:11px; font-weight:500; text-shadow:0 1px 2px rgba(0,0,0,0.8); z-index:2;">0:15</div>
+                  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:32px; height:32px; background:rgba(0,0,0,0.5); border-radius:50%; display:grid; place-items:center; color:#fff; font-size:14px; padding-left:2px; backdrop-filter:blur(4px);">▶</div>`
+               : `<img src="${p.src}" style="width:100%; height:100%; object-fit:cover; display:block;" loading="lazy">`}
           </div>
         `}).join('')}
       </div>
     </div>`
   };
 };
-
 // ==========================================
-// 选图器：聊天「+」发图片、朋友圈发图调用
-// 数据沿用 getPhoneDisplayList()（三个相簿汇总），不再单独维护一份
+// iOS 风格相册选择器（微信发图 / 朋友圈配图共用）
 // ==========================================
 window._phoneAlbumState = null;
 

@@ -1158,10 +1158,12 @@ VIEWS.clock = () => {
       .join("")}</div></div>`;
   } else if (window.clockTab === "alarm") {
     const alarms = [
-      { time: "07:30", label: "起床练功", on: true },
-      { time: "09:00", label: "声乐课", on: true },
-      { time: "13:30", label: "午休", on: false }, 
-      { time: "18:00", label: "舞蹈排练", on: true }
+      
+      { time: "07:30", label: "起床", on: true },
+      
+      { time: "08:00", label: "起床", on: true },
+      
+      { time: "08:30", label: "起床", on: true },
     ];
     contentHTML = `<div class="scroll" style="padding-top:60px; padding-bottom:120px;"><div style="display:flex; justify-content:space-between; align-items:center; padding: 0 16px 20px;"><button onclick="toastDev()" style="background:#2c2c2e; color:#fff; border-radius:20px; padding:8px 16px; border:none; font-size:15px; font-weight:500;">编辑</button><button onclick="toastDev()" style="background:#2c2c2e; color:#fff; border-radius:50%; width:36px; height:36px; display:grid; place-items:center; border:none;">${G.plus.replace("<svg", '<svg width="20" height="20"')}</button></div><h1 style="margin: 0 16px 24px; font-size:34px; font-weight:700; color:#fff; letter-spacing:0.5px;">闹钟</h1><div style="margin: 0 16px;">${alarms.map(a => `
       <div style="border-bottom:0.5px solid #333; padding:16px 0; display:flex; justify-content:space-between; align-items:center;">
