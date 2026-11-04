@@ -5,14 +5,14 @@ const { execSync } = require('child_process');
 const { globSync } = require('glob');
 
 // ================= 配置区 =================
-const IMAGE_QUALITY = 80; // 图片质量 (80为肉眼无损，嫌大可以改 70)
-const MIN_IMAGE_SIZE_KB = 100; // 小于 100KB 的图不压
-const MIN_VIDEO_SIZE_MB = 2; // 小于 2MB 的视频不压
+const IMAGE_QUALITY = 82; // 图片质量（80-85 为肉眼无损）
+const MIN_IMAGE_SIZE_KB = 300; // 防二次压糊：小于 300KB 的图不压，直接跳过
+const MIN_VIDEO_SIZE_MB = 3; // 防二次压糊：小于 3MB 的视频不压
 const AUDIO_BITRATE = '192k'; // 音频转码码率
+// ==========================================
 
 const ffmpegPath = path.join(__dirname, 'ffmpeg.exe');
 const hasFfmpeg = fs.existsSync(ffmpegPath);
-// ==========================================
 
 let savedSpace = 0; // 统计总共节省的空间 (KB)
 
@@ -26,12 +26,15 @@ async function compressImages() {
     const stat = fs.statSync(filePath);
     const sizeKB = stat.size / 1024;
 
+    // 小于设定阈值，跳过（防止二次压糊）
     if (sizeKB < MIN_IMAGE_SIZE_KB) continue;
 
     try {
       const ext = path.extname(filePath).toLowerCase();
       let pipeline = sharp(filePath);
       const metadata = await pipeline.metadata();
+      
+      // 如果图片太宽，限制一下宽度（800px 适合手机端）
       if (metadata.width > 800) pipeline = pipeline.resize({ width: 800 });
 
       if (ext === '.jpg' || ext === '.jpeg') pipeline = pipeline.jpeg({ quality: IMAGE_QUALITY, mozjpeg: true });
@@ -42,6 +45,7 @@ async function compressImages() {
       await pipeline.toFile(tempPath);
       const newSizeKB = fs.statSync(tempPath).size / 1024;
 
+      // 如果压完更小了，就替换掉原文件
       if (newSizeKB < sizeKB) {
         fs.unlinkSync(filePath);
         fs.renameSync(tempPath, filePath);
@@ -67,10 +71,13 @@ function compressVideos() {
     const stat = fs.statSync(filePath);
     const sizeMB = stat.size / 1024 / 1024;
     
+    // 小于阈值，跳过
     if (sizeMB < MIN_VIDEO_SIZE_MB) return;
 
     console.log(`⏳ 正在压缩视频: ${file} (${sizeMB.toFixed(1)}MB)...`);
     const tempPath = filePath + '.temp.mp4';
+    
+    // CRF 28 是比较平衡的画质，-2:720 表示高度缩放到 720p
     const cmd = `"${ffmpegPath}" -y -i "${filePath}" -vf "scale=-2:720" -c:v libx264 -crf 28 -c:a aac -b:a 96k "${tempPath}"`;
     
     try {
@@ -86,7 +93,7 @@ function compressVideos() {
   });
 }
 
-// 3. 转换音频
+// 3. 转换音频 (WAV -> MP3)
 function convertAudios() {
   if (!hasFfmpeg) return;
   const files = globSync('data/**/*.wav', { cwd: __dirname });
@@ -130,7 +137,7 @@ function convertAudios() {
   }
   
   if (hasFfmpeg) {
-    console.log(`\n🚨 重要提醒：音频已从 .wav 转换为了 .mp3。`);
-    console.log(`请务必去 index.html 或代码里，把 src="./data/app/bgm.wav" 改成 src="./data/app/bgm.mp3" !`);
+    console.log(`\n🚨 重要提醒：音频已从 .wav 转换为了 .mp3，且原来的 .wav 已被删除。`);
+    console.log(`请务必去 index.html 或代码里，把 src="./data/xxx.wav" 改成 src="./data/xxx.mp3" ！否则网页会没声音！`);
   }
 })();

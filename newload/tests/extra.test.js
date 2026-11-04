@@ -76,9 +76,9 @@ ok("phoneToggle flips wifi", sb.window._phoneSettings.wifi !== before);
 sb.setPhoneBrightness(60);
 ok("brightness applied", String(sb.window._phoneSettings.brightness) === "0.6");
 // 壁纸
-sb.setPhoneWallpaper("./data/album/cat.jpg");
-ok("wallpaper saved", sb.window._phoneSettings.wallpaper === "./data/album/cat.jpg");
-ok("wallpaper persisted", JSON.parse(sb.localStorage.getItem("phone_settings") || "{}").wallpaper === "./data/album/cat.jpg");
+sb.setPhoneWallpaper("./data/avatar/cat.jpg");
+ok("wallpaper saved", sb.window._phoneSettings.wallpaper === "./data/avatar/cat.jpg");
+ok("wallpaper persisted", JSON.parse(sb.localStorage.getItem("phone_settings") || "{}").wallpaper === "./data/avatar/cat.jpg");
 
 // 备忘录增删改
 const beforeLen = sb.notes.length;

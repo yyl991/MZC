@@ -403,12 +403,6 @@ var INCOMING = [];
   ];
   S.incoming = ["快回家。"];
 
-  S.privateAlbum = [
-  { src: "./data/album/1leader.jpg", label: "" },
-  { src: "./data/album/1.mp4", label: "" },
-  { src: "p_secret3", label: "占位 · 被折叠的信" },
-  { src: "p_secret4", label: "占位 · 模糊的剪影" }
-];
 
   S.ending = {
     B: {

@@ -139,7 +139,7 @@ window.phonePlayVm = function (el, i) {
     return;
   }
   a.dataset.on = String(i);
-  a.src = "./data/album/boli.mp3";
+  a.src = "./data/app/boli.mp3";
   a.currentTime = 0;
   a.play().catch(() => {});
   el.textContent = "❚❚";
@@ -942,14 +942,14 @@ const RECORDER_DATA = [
     title: "那个用",
     date: "2025年2月14日",
     time: "00:15",
-    src: "./data/recorder/nage.wav",
+    src: "./data/recorder/nage.mp3",
   },
   {
     id: 0,
     title: "叫妈妈",
     date: "2022年5月21日",
     time: "00:04",
-    src: "./data/recorder/mama.wav",
+    src: "./data/recorder/mama.mp3",
   },
 ];
 let currentRecorderId = -1,
@@ -1734,9 +1734,6 @@ VIEWS.settings_wallpaper = () => {
   const s = window._phoneSettings;
   const walls = [
     { src: "./data/app/wallpaper.jpg", label: "默认" },
-    { src: "./data/album/mzc.jpg", label: "橙粉色" },
-    { src: "./data/album/cat.jpg", label: "猫" },
-    { src: "./data/album/1leader.jpg", label: "舞台" },
   ];
   return {
     cls: "grouped",
