@@ -940,16 +940,16 @@ const RECORDER_DATA = [
   {
     id: 1,
     title: "那个用",
-    date: "2025年4月1日",
-    time: "02:14",
-    src: "./data/music/boli.mp3",
+    date: "2025年2月14日",
+    time: "00:15",
+    src: "./data/recorder/nage.wav",
   },
   {
     id: 0,
     title: "叫妈妈",
     date: "2022年5月21日",
-    time: "00：04",
-    src: "./data/music/nage.wav",
+    time: "00:04",
+    src: "./data/recorder/mama.wav",
   },
 ];
 let currentRecorderId = -1,
