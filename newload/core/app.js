@@ -332,6 +332,30 @@ function toggleDnd(e) {
   vib(10);
   if (view === "lock") renderLock();
   syncDndUI();
+
+  // 👇 新增：全局免打扰状态提示 (Toast)
+  document.querySelectorAll(".dnd-global-toast").forEach(el => el.remove());
+  const toast = document.createElement("div");
+  toast.className = "dnd-global-toast";
+  toast.style.cssText = "position:absolute; top:80px; left:50%; transform:translate(-50%, 0); background:rgba(30,30,30,0.85); color:#fff; padding:12px 24px; border-radius:24px; font-size:14px; font-weight:500; z-index:99999999; pointer-events:none; display:flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); opacity:0;";
+  
+  // 根据状态显示不同图标和文字
+  toast.innerHTML = `<span style="font-size:16px;">${window.isDnd ? "🌙" : "☀️"}</span>${window.isDnd ? "已开启免打扰" : "已关闭免打扰"}`;
+  document.getElementById("screen").appendChild(toast);
+  
+  // 丝滑的 iOS 弹出动画
+  toast.animate(
+    [{ opacity: 0, transform: "translate(-50%, -10px) scale(0.95)" }, { opacity: 1, transform: "translate(-50%, 0) scale(1)" }],
+    { duration: 300, fill: "forwards", easing: "cubic-bezier(0.2, 0.9, 0.25, 1)" }
+  );
+  
+  // 1.8秒后自动消失
+  setTimeout(() => {
+    toast.animate(
+      [{ opacity: 1, transform: "translate(-50%, 0) scale(1)" }, { opacity: 0, transform: "translate(-50%, -10px) scale(0.95)" }],
+      { duration: 300, fill: "forwards" }
+    ).onfinish = () => toast.remove();
+  }, 1800);
 }
 
 function updateDndBadge() {
