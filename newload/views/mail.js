@@ -20,6 +20,25 @@ function updateMailHomeBadge() {
   }
 }
 const emailData = [
+    {
+    id: 99,
+    sender: "SDFJ",
+    initial: "S",
+    from: "SDFJ <sdfjhaiwai@mailhaiwai.tfent.cn>",
+    subject: "【通知】海外平台订单自行修改地址说明",
+    preview: "亲亲 您的海外平台订单可自行在订单页面修改地址，非偏远改偏远地区会收取邮费...",
+    time: "2026年11月2日 19:59",
+    unread: true,
+    body: `
+      <div style="font-size:15px; color:#333; line-height:1.8; padding-top:16px;">
+        <p style="margin:0 0 16px 0;">亲亲&nbsp;&nbsp;您的海外平台订单可自行在订单页面修改地址，非偏远改偏远地区会收取邮费，具体邮费规则以修改地址页面为准。如有修改需求，请您尽快完成修改，发货中和已发货状态的订单将不再支持自助修改。</p>
+        <p style="margin:0 0 16px 0;">修改地址时请注意以下事项：</p>
+        <p style="margin:0 0 16px 0;">一、如因个人原因导致下单地址错误或更改，会产生退款运费的情况，每笔退款平台都将产生手续费HK$3元，退款时将进行扣除，请知悉。(注：国内非偏远地址改国内非偏远地区不需要扣手续费)</p>
+        <p style="margin:0 0 16px 0;">二、如您的订单填写的是大陆收件信息，建议您的收件电话请勿填写区号，收件地址使用简体中文填写</p>
+        <p style="margin:0 0 16px 0;">三、因台湾海关要求收件人为台湾户籍的个人需要在台湾实名认证平台APP“EZ WAY易利委”进行实名认证，订单收件姓名和易利委认证的姓名需要一致，认证之后请发送邮件至 <a href="#" onclick="toastDev();return false;" style="color:#007aff;text-decoration:underline;">sdfjhaiwai@tfent.cn</a> 提供您的订单号、身份证号码、收件信息（姓名，电话，地址）和易利委认证的截图，进行核对。</p>
+        <p style="margin:0 0 16px 0;">如有海外订单售后问题，请邮件联系 <a href="#" onclick="toastDev();return false;" style="color:#007aff;text-decoration:underline;">sdfjhaiwai@tfent.cn</a> 核实处理，感谢您的支持与理解，谢谢。</p>
+      </div>`
+  },
   {
     id: 3,
     sender: "TFEntertainment",

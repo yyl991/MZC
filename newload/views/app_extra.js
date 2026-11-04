@@ -757,7 +757,7 @@ VIEWS.sms_detail = () => {
         backFn: "back()",
         right: `<span onclick="dial('${esc(data.name)}')" style="color:#007aff; display:flex;">${G.handset}</span>`,
       }) +
-      `<div style="position:absolute;top:98px;left:0;right:0;z-index:6;background:#f2f2f7;padding:6px 16px;font-size:13px;color:#8e8e93;border-bottom:0.5px solid #e5e5ea;">收件人：<b style="color:#111;">${esc(data.name)}</b></div>` +
+      `<div style="position:absolute;top:98px;left:0;right:0;z-index:6;background:#f2f2f7;padding:6px 16px;font-size:13px;color:#8e8e93;border-bottom:0.5px solid #e5e5ea;">发件人：<b style="color:#111;">${esc(data.name)}</b></div>` +
       `<div class="scroll" style="background:#f2f2f7; padding-top:130px; padding-bottom:100px; display:flex; flex-direction:column; gap:8px;">${data.msgs
         .map((msg) => {
           if (msg.type === "card") {
