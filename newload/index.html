@@ -35,8 +35,16 @@
 </head>
 
 <body>
+    <!-- 👇 新增：全屏绝对遮罩层（防白块专用） -->
+    <div id="loading-overlay" style="position:fixed; inset:0; z-index:9999999; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.5s;">
+        <div style="color:#fff; font-size:16px; text-align:center; line-height:1.8; letter-spacing:1px;">
+            等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿
+        </div>
+    </div>
+
     <div id="phone">
         <div id="screen">
+            <!-- 原来的 boot 保留，但会被上方的遮罩挡住 -->
             <div id="boot"><span>等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿</span></div>
             <div id="wall"></div>
             <div id="homeL" class="layer"></div>
@@ -69,26 +77,21 @@
                 </svg>
             </span>
         </div>
-        <!-- 把灵动岛隐藏了，以后想用再去掉两边的符号
-<div id="island"><span class="ia"></span><span class="ib"><i></i><i></i><i></i><i></i></span></div>
--->
         <div id="hb" class="light"><i></i></div>
     </div>
     <audio id="player" preload="auto"></audio>
-    <!-- 👇 新增：背景音乐 -->
     <audio id="bgm" src="./data/app/bgm.mp3" loop preload="auto"></audio>
     
-        <script>
+    <script>
         window.LANG = 'zh';
         
-        // 统一的加载函数
-        // ⚠️ 改完代码要发版时把这个版本号 +1，浏览器才会重新拉取脚本
-        const ASSET_V = '20261102a';
+        // 👈 注意：以后每次发版，务必把这个版本号修改一下，比如 a 改 b
+        const ASSET_V = '20261104a'; 
 
         function load(src) {
             return new Promise((res, rej) => {
                 const s = document.createElement('script');
-                s.src = src + '?v=' + ASSET_V; // 固定版本号，允许浏览器缓存
+                s.src = src + '?v=' + ASSET_V;
                 s.onload = res;
                 s.onerror = () => rej(new Error("找不到文件: " + src));
                 document.body.appendChild(s);
@@ -97,9 +100,7 @@
 
         (async () => {
             try {
-                // 👇 核心加载顺序（数组格式，以后加新文件直接在这里加一行就行）
                 const scripts = [
-                    // 1. 数据层与工具
                     './data/chat_history.js', 
                     './data/story.js',
                     './core/utils.js',
@@ -108,18 +109,8 @@
                     './core/app.js',
                     './views/home_ui.js',
                     './views/app_extra.js',
-
-                    // 3. 基础组件与杂项（包含日历、时钟、电话、相册、备忘录等所有系统级组件）
-                    
-                    //'./views/app_safari.js',
-                    //'./views/app_music.js',
-                    //'./views/app_map.js',
-
-
                     './views/mail.js',
                     './views/app_photos.js',
-
-                    // 4. 独立 App 模块
                     './views/wx_chat.js',
                     './views/wx_pages.js',
                     './views/wx_moments.js',
@@ -129,31 +120,78 @@
                     './views/app_xhs.js'
                 ];
 
-                // 先并行预热下载，再按顺序执行，避免一个个串行等待
-                await Promise.all(
-                    scripts.map((src) =>
-                        fetch(src + '?v=' + ASSET_V).catch(() => {})
-                    )
-                );
+                // 1. 预热下载 JS 脚本
+                await Promise.all(scripts.map((src) => fetch(src + '?v=' + ASSET_V).catch(() => {})));
 
-                // 循环按顺序加载
+                // 2. 按顺序执行 JS
                 for (const src of scripts) {
-                    console.log("⏳ 正在加载: " + src);
                     await load(src);
                 }
 
-                // 全部加载完毕，启动系统
-                console.log("✅ 所有模块加载完毕，启动系统！");
+                // 3. 启动系统，渲染主屏幕
                 initApp();
                 
+                // 4. 👇 核心：强行抓取主屏的图标和壁纸，全部下完再放人
+                await preloadHomeAssets();
+
+                // 5. 掀开遮罩层
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        const oldBoot = document.getElementById('boot');
+                        if (oldBoot) oldBoot.style.display = 'none'; // 防止穿帮
+                    }, 500);
+                }
+
             } catch (e) {
                 console.error(e);
-                // 如果某个文件没找到或者有语法错误，直接弹窗告诉你具体是哪个文件
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) overlay.style.display = 'none';
                 alert('加载失败，请检查文件是否齐全或是否有语法错误：\n' + e.message);
             }
         })();
+
+        // =========================================
+        // 👇 主屏资源预加载：防止 App 图标白块
+        // =========================================
+        async function preloadHomeAssets() {
+            // 给 DOM 一点时间渲染出图标标签
+            await new Promise(r => setTimeout(r, 150));
+
+            const imgPromises = [];
+
+            // 抓取主屏上所有的 <img> 标签（包括微博、B站图标等）
+            document.querySelectorAll('img').forEach(img => {
+                if (!img.complete) {
+                    imgPromises.push(new Promise(resolve => {
+                        img.onload = resolve;
+                        img.onerror = resolve; // 404 报错也放行
+                    }));
+                }
+            });
+
+            // 抓取壁纸
+            const wallEl = document.getElementById('wall');
+            if (wallEl) {
+                const bg = window.getComputedStyle(wallEl).backgroundImage;
+                const match = bg.match(/url\(["']?([^"']+)["']?\)/);
+                if (match && match[1] && !match[1].includes('gradient')) {
+                    imgPromises.push(new Promise(resolve => {
+                        const img = new Image();
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                        img.src = match[1];
+                    }));
+                }
+            }
+
+            // 兜底时间：最多等 2.5 秒。如果图实在太大没下完，2.5秒后也强行放行。
+            const timeout = new Promise(r => setTimeout(r, 2500));
+            await Promise.race([Promise.all(imgPromises), timeout]);
+        }
     </script>
-    
 </body>
 
 </html>
