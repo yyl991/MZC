@@ -1,6 +1,3 @@
-// ==========================================
-// 混淆打包脚本（最终安全版：核心逻辑放行，防抄袭拉满）
-// ==========================================
 const JavaScriptObfuscator = require("javascript-obfuscator");
 const fs = require("fs");
 const path = require("path");
@@ -8,44 +5,32 @@ const path = require("path");
 const ROOT = __dirname;
 const DIST = path.join(ROOT, "dist");
 
-// 🛡️ 王牌 1：域名锁白名单
 const ALLOWED_DOMAINS = [
-  'cgcgdsg.cc.cd',
-  'mzc1116.cc.cd',
-  'mzc-dpnwtj1zgivj.edgeone.dev',
-  'mzc1116-10g3u3eg.maozi.io',
-  'localhost',
-  '127.0.0.1'
+  'cgcgdsg.cc.cd', 'mzc1116.cc.cd', 'mzc-dpnwtj1zgivj.edgeone.dev',
+  'mzc1116-10g3u3eg.maozi.io', 'localhost', '127.0.0.1'
 ];
 
-// 不输出到 dist 的目录/文件
+// 这些文件/目录不上传（纯本地文件）
+const IGNORE_FILES = new Set([
+  "obfuscate.js", "compress.js", "warmup.js", "package.json", 
+  "package-lock.json", ".gitignore", ".assetsignore", "ffmpeg.exe"
+]);
 const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "waste", "trash", "tests"]);
-const SKIP_FILES = new Set([
-  "obfuscate.js",
-  "compress.js",
-  "warmup.js",
-  "package.json",
-  "package-lock.json",
-  ".gitignore",
-  ".assetsignore",
-  "ffmpeg.exe",
-  // 👇 极度重要：核心逻辑文件跳过混淆！
-  // 只要文件名是这个，就直接原样复制过去，不改名不压缩，确保时间线100%正常
-  "app.js", 
-  "story.js", 
-  "chat_history.js", 
-  "audio.js",
-  "utils.js"
+
+// 这些 JS 文件要放进 dist，但是【不混淆】（保证剧情逻辑100%正常）
+const SKIP_OBFUSCATION = new Set([
+  "app.js", "story.js", "chat_history.js", "audio.js", "utils.js"
 ]);
 
 function walk(dir, out = []) {
   for (const name of fs.readdirSync(dir)) {
     if (SKIP_DIRS.has(name)) continue;
-    if (name.startsWith(".")) continue;
+    if (name.startsWith(".") || IGNORE_FILES.has(name)) continue;
     const p = path.join(dir, name);
     const st = fs.statSync(p);
+    // 不过滤 SKIP_OBFUSCATION，让它们进入待处理列表
     if (st.isDirectory()) walk(p, out);
-    else if (!SKIP_FILES.has(name) && !/\.(exe|dll|so|dylib)$/i.test(name)) out.push(p);
+    else if (!/\.(exe|dll|so|dylib)$/i.test(name)) out.push(p);
   }
   return out;
 }
@@ -76,10 +61,10 @@ for (const src of files) {
     continue;
   }
 
-  // 如果这个文件在跳过名单里（比如 app.js），直接原样复制，不混淆！
-  if (SKIP_FILES.has(path.basename(src))) {
+  // 👇 核心修复：如果是需要保留但不混淆的 JS，直接原样复制！
+  if (SKIP_OBFUSCATION.has(path.basename(src))) {
     fs.copyFileSync(src, dest);
-    console.log(`⏭️ [跳过] ${rel}（核心逻辑放行）`);
+    console.log(`⏭️ [跳过混淆] ${rel}`);
     ok++;
     continue;
   }
@@ -87,16 +72,10 @@ for (const src of files) {
   const code = fs.readFileSync(src, "utf8");
   try {
     const obfuscated = JavaScriptObfuscator.obfuscate(code, {
-      compact: true, 
-      controlFlowFlattening: false,
-      deadCodeInjection: false,
-      debugProtection: false,       
-      stringArray: false,           
-      selfDefending: false,         
-      disableConsoleOutput: true,   
-      domainLock: ALLOWED_DOMAINS,  
-      identifierNamesGenerator: "hexadecimal", 
-      renameGlobals: false,         
+      compact: true, controlFlowFlattening: false, deadCodeInjection: false,
+      debugProtection: false, stringArray: false, selfDefending: false,         
+      disableConsoleOutput: true, domainLock: ALLOWED_DOMAINS,  
+      identifierNamesGenerator: "hexadecimal", renameGlobals: false,         
     }).getObfuscatedCode();
 
     fs.writeFileSync(dest, obfuscated);
