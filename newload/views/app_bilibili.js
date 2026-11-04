@@ -2,15 +2,55 @@
 // 📱 B站模块 (app_bilibili.js)
 // ==========================================
 VIEWS.bilibili = () => {
-  const topCoverStyle = "background: url('https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1000&auto=format&fit=crop') center/cover;";
+  // 👈 把大图背景换成了本地的 bili1.jpg
+  const topCoverStyle = "background: url('./data/bili/bili1.jpg') center/cover;";
   
+  // 👈 下面的视频流数据，按你要求的顺序：P2, P3, P5, P4
   const videos = [
-    { title: "连出道首舞台都不行的根本不是帽女", up: "Jeninini_", views: "34.1万", danmu: "1539", time: "09:32", type: "link", url: "https://www.bilibili.com/", coverType: "web_img", coverSrc: "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=500&auto=format&fit=crop" },
-    { title: "EP2：小猪背后看看左边看看，我们颜色咋不一样捏", up: "好眠_Aurora", views: "634", danmu: "2", time: "03:39", type: "link", url: "https://www.bilibili.com/", coverType: "web_img", coverSrc: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=500&auto=format&fit=crop" },
-    { title: "卡门：地区限定摄政王", up: "奇奇怪怪的英专生", views: "13.1万", danmu: "330", time: "05:14", type: "local", video: "./data/chat/1.mp4", coverType: "video" },
-    { title: "【大脑里的能量战争】越休息越累的原因找到", up: "脑洞大开", views: "78.1万", danmu: "168", time: "12:00", type: "link", url: "https://www.bilibili.com/", coverType: "gradient", cover: "linear-gradient(135deg, #43e97b, #38f9d7)" },
-    { title: "自制猫猫头！萌化了", up: "喵喵教教主", views: "11.2万", danmu: "420", time: "01:15", type: "link", url: "https://www.bilibili.com/", coverType: "web_img", coverSrc: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=500&auto=format&fit=crop" },
-    { title: "深夜放毒：一碗完美的拉面", up: "食神小当家", views: "55.3万", danmu: "890", time: "08:20", type: "local", video: "./data/chat/1.mp4", coverType: "video" }
+    { 
+      title: "穆百草，就是现在！", 
+      up: "Chanen响铃卷", 
+      views: "19.2万", 
+      danmu: "90", 
+      time: "00:27", 
+      type: "link", 
+      url: "https://www.bilibili.com/video/BV1hCypBtEda/", 
+      coverType: "local_img", 
+      coverSrc: "./data/bili/bili2.jpg" 
+    },
+    { 
+      title: "天啊！内娱竟然还有表情管理这么牛逼的练习生吗！？", 
+      up: "小歪煮茶叶蛋", 
+      views: "32.4万", 
+      danmu: "560", 
+      time: "00:27", 
+      type: "link", 
+      url: "https://www.bilibili.com/video/BV1bV411L7J3/", 
+      coverType: "local_img", 
+      coverSrc: "./data/bili/bili3.jpg" 
+    },
+    { 
+      title: "穆祉丞：我跃迁走了，下个轮回见！期待这个朝鲜族金元勋", 
+      up: "我爱祉丞", 
+      views: "1.5万", 
+      danmu: "1", 
+      time: "01:58", 
+      type: "link", 
+      url: "https://www.bilibili.com/video/BV1R9M365ETV/", 
+      coverType: "local_img", 
+      coverSrc: "./data/bili/bili5.jpg" 
+    },
+    { 
+      title: "【穆祉丞】倒霉熊不是停播了吗", 
+      up: "我零食呢_", 
+      views: "3.1万", 
+      danmu: "14", 
+      time: "00:14", 
+      type: "link", 
+      url: "https://www.bilibili.com/video/BV18rWCzmEEh/", 
+      coverType: "local_img", 
+      coverSrc: "./data/bili/bili4.jpg" 
+    }
   ];
 
   return {
@@ -24,7 +64,7 @@ VIEWS.bilibili = () => {
           </div>
         </div>
         <div onclick="toastDev()" style="flex:1; background:#fff; border:1px solid #ccc; border-radius:18px; height:34px; display:flex; align-items:center; padding:0 12px; font-size:13.5px; color:#333; gap:6px;">
-          ${G.biliSearch} 王楚淇解说 · 18小时...
+          ${G.biliSearch} TF_ING · 2小时...
         </div>
         <div onclick="toastDev()" style="width:28px; height:28px; display:grid; place-items:center; flex:none; color:#111;">
           ${G.biliGame}
@@ -48,26 +88,32 @@ VIEWS.bilibili = () => {
         </div>
       </div>
 
+      <!-- 👇 顶部大图推荐位 -->
       <div style="padding:10px 8px;">
         <div onclick="event.stopPropagation(); window.open('https://www.bilibili.com/video/BV1cgTV6bEru/', '_blank')" style="background:#fff; border-radius:8px; overflow:hidden; cursor:pointer;">
           <div style="height:200px; ${topCoverStyle} position:relative;">
             <div style="position:absolute; inset:0; background:linear-gradient(transparent 60%, rgba(0,0,0,0.4));"></div>
             <div style="position:absolute; bottom:6px; left:8px; display:flex; gap:10px; color:#fff; font-size:11px; font-weight:500; z-index:2; align-items:center;">
-               <span style="display:flex; align-items:center; gap:2px;">${G.biliPlay14} 10.3万</span>
-               <span style="display:flex; align-items:center; gap:2px;">${G.biliDanmu14} 262</span>
+               <span style="display:flex; align-items:center; gap:2px;">${G.biliPlay14} 106.8万</span>
+               <span style="display:flex; align-items:center; gap:2px;">${G.biliDanmu14} 2.3万</span>
             </div>
-            <span style="position:absolute; bottom:6px; right:8px; color:#fff; font-size:11px; text-shadow:0 1px 2px rgba(0,0,0,0.8); z-index:2;">3:43</span>
+            <span style="position:absolute; bottom:6px; right:8px; color:#fff; font-size:11px; text-shadow:0 1px 2px rgba(0,0,0,0.8); z-index:2;">04:22</span>
           </div>
           <div style="padding:10px 12px; display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
-            <div style="font-size:15px; font-weight:600; color:#111; line-height:1.4;">曼联献礼巴佩梅开二度，足球圈齐贺王楚淇南瓜大婚</div>
+            <div style="font-size:15px; font-weight:600; color:#111; line-height:1.4;">[4K]260628 穆祉丞-Carnival (COVER)三机位…</div>
             <div style="display:flex; flex-direction:column; align-items:center; color:#999;">
                ${G.biliLike16}
-               <span style="font-size:10px; margin-top:2px;">4131</span>
+               <span style="font-size:10px; margin-top:2px;">点赞</span>
             </div>
+          </div>
+          <!-- 补上原图里的 UP 主和日期 -->
+          <div style="padding:0 12px 10px; font-size:11px; color:#999; display:flex; align-items:center; gap:4px;">
+             <span style="border:1px solid #ccc; border-radius:2px; padding:0 2px; font-size:10px;">UP</span> unlock-穆祉丞 · 6月29日
           </div>
         </div>
       </div>
 
+      <!-- 👇 下方双列视频流 -->
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:0 8px;">
         ${videos.map((v) => {
             let coverHTML = "";
