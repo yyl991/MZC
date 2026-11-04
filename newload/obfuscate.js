@@ -10,14 +10,14 @@ const ALLOWED_DOMAINS = [
   'mzc1116-10g3u3eg.maozi.io', 'localhost', '127.0.0.1'
 ];
 
-// 这些文件/目录不上传（纯本地文件）
+// 这些目录/文件绝对不进 dist（纯本地文件或垃圾）
+const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "waste", "trash", "tests"]);
 const IGNORE_FILES = new Set([
   "obfuscate.js", "compress.js", "warmup.js", "package.json", 
   "package-lock.json", ".gitignore", ".assetsignore", "ffmpeg.exe"
 ]);
-const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "waste", "trash", "tests"]);
 
-// 这些 JS 文件要放进 dist，但是【不混淆】（保证剧情逻辑100%正常）
+// 这些 JS 文件要放进 dist，但是【不混淆】（保留明文保证逻辑）
 const SKIP_OBFUSCATION = new Set([
   "app.js", "story.js", "chat_history.js", "audio.js", "utils.js"
 ]);
@@ -26,11 +26,16 @@ function walk(dir, out = []) {
   for (const name of fs.readdirSync(dir)) {
     if (SKIP_DIRS.has(name)) continue;
     if (name.startsWith(".") || IGNORE_FILES.has(name)) continue;
+    
     const p = path.join(dir, name);
     const st = fs.statSync(p);
-    // 不过滤 SKIP_OBFUSCATION，让它们进入待处理列表
-    if (st.isDirectory()) walk(p, out);
-    else if (!/\.(exe|dll|so|dylib)$/i.test(name)) out.push(p);
+    
+    if (st.isDirectory()) {
+      walk(p, out);
+    } else {
+      // 👇 暴力收集所有文件，不管后缀，只要不是本地配置文件就行
+      out.push(p);
+    }
   }
   return out;
 }
@@ -46,22 +51,24 @@ for (const src of files) {
   const dest = path.join(DIST, rel);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
 
+  // 1. 如果不是 JS 文件
   if (!src.endsWith(".js")) {
     if (rel === "index.html") {
       const stamp = Date.now().toString(36);
       let html = fs.readFileSync(src, "utf8");
       html = html.replace(/const ASSET_V = '[^']*';/, `const ASSET_V = '${stamp}';`);
       fs.writeFileSync(dest, html);
-      console.log(`✅ ${rel}（自动更新版本号 ${stamp}）`);
+      console.log(`✅ ${rel}（更新版本号 ${stamp}）`);
       ok++;
       continue;
     }
+    // 其他图片、音频等，原样复制
     fs.copyFileSync(src, dest);
     ok++;
     continue;
   }
 
-  // 👇 核心修复：如果是需要保留但不混淆的 JS，直接原样复制！
+  // 2. 如果是 JS 文件，但属于“跳过混淆”名单
   if (SKIP_OBFUSCATION.has(path.basename(src))) {
     fs.copyFileSync(src, dest);
     console.log(`⏭️ [跳过混淆] ${rel}`);
@@ -69,13 +76,20 @@ for (const src of files) {
     continue;
   }
 
+  // 3. 剩下的 JS 文件，进行混淆
   const code = fs.readFileSync(src, "utf8");
   try {
     const obfuscated = JavaScriptObfuscator.obfuscate(code, {
-      compact: true, controlFlowFlattening: false, deadCodeInjection: false,
-      debugProtection: false, stringArray: false, selfDefending: false,         
-      disableConsoleOutput: true, domainLock: ALLOWED_DOMAINS,  
-      identifierNamesGenerator: "hexadecimal", renameGlobals: false,         
+      compact: true, 
+      controlFlowFlattening: false, 
+      deadCodeInjection: false,
+      debugProtection: false, 
+      stringArray: false, 
+      selfDefending: false,         
+      disableConsoleOutput: true, 
+      domainLock: ALLOWED_DOMAINS,  
+      identifierNamesGenerator: "hexadecimal", 
+      renameGlobals: false,         
     }).getObfuscatedCode();
 
     fs.writeFileSync(dest, obfuscated);
