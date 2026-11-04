@@ -384,7 +384,7 @@ VIEWS.wx_contacts = () => {
         ${listHTML}
       </div>
       
-      <div style="text-align:center; padding: 20px 0 40px; color: #999; font-size: 15px;">705个朋友</div>
+      <div style="text-align:center; padding: 20px 0 40px; color: #999; font-size: 15px;">12个朋友</div>
     </div>
 
     <div style="position: absolute; right: 2px; top: 100px; bottom: 80px; width: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; gap: 1px; background: transparent;">

@@ -7,7 +7,6 @@
     <meta name="theme-color" content="#000000">
     <title>橙粉色捡起来</title>
     
-    <!-- 消除 favicon 404 报错 -->
     <link rel="icon" href="data:,">
 
     <!-- 通用 Open Graph -->
@@ -16,25 +15,18 @@
     <meta property="og:description" content="捡到一部手机，推开属于他的局部宇宙。你会怎么选？">
     <meta property="og:image" content="https://cgcgdsg.cc.cd/data/share-cover.jpg">
     <meta property="og:url" content="https://cgcgdsg.cc.cd">
-
-    <!-- 微博专属 -->
     <meta name="weibo:card" content="summary_large_image">
     <meta name="weibo:title" content="橙粉色捡起来 | 穆祉丞生日剧情">
     <meta name="weibo:image" content="https://cgcgdsg.cc.cd/data/share-cover.jpg">
-
-    <!-- 微信/QQ 兼容 -->
     <meta itemprop="name" content="橙粉色捡起来">
     <meta itemprop="image" content="https://cgcgdsg.cc.cd/data/share-cover.jpg">
-
-    <!-- Twitter Card (备用) -->
     <meta name="twitter:card" content="summary_large_image">
 
-    <!-- 直接使用系统字体，速度起飞 -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <!-- 全屏黑屏遮罩：保证玩家进来先看到这个，防止主屏图标白块 -->
+    <!-- 全屏黑屏遮罩 -->
     <div id="loading-overlay" style="position:fixed; inset:0; z-index:9999999; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.5s;">
         <div style="color:#fff; font-size:16px; text-align:center; line-height:1.8; letter-spacing:1px; font-family: sans-serif;">
             等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿
@@ -43,7 +35,6 @@
 
     <div id="phone">
         <div id="screen">
-            <!-- 原有的 boot 隐藏在后面，作为兜底 -->
             <div id="boot"><span>等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿</span></div>
             <div id="wall"></div>
             <div id="homeL" class="layer"></div>
@@ -55,7 +46,6 @@
             <div id="ov"></div>
         </div>
         
-        <!-- 状态栏 -->
         <div id="sb" class="light">
             <button id="sbk" aria-label="Home"></button>
             <span class="t" id="sbt">23:09</span>
@@ -85,7 +75,7 @@
     <script>
         window.LANG = 'zh';
         
-        // ⚠️ 这里的版本号会在云端构建时，被 obfuscate.js 自动替换成最新时间戳！
+        // 本地测试用，云端构建会自动替换时间戳
         const ASSET_V = 'local_test_v1'; 
 
         function load(src) {
@@ -100,6 +90,9 @@
 
         (async () => {
             try {
+                // 记录开始加载的时间
+                const startTime = Date.now();
+                
                 const scripts = [
                     './data/chat_history.js', './data/story.js', './core/utils.js', './core/icons.js', 
                     './core/audio.js', './core/app.js', './views/home_ui.js', './views/app_extra.js', 
@@ -108,19 +101,25 @@
                     './views/app_bilibili.js', './views/app_xhs.js'
                 ];
 
-                // 🚀 加速核心 1：并发高速下载所有 JS (瞬间同时发出所有请求)
+                // 1. 并发高速下载，按顺序执行
                 await Promise.all(scripts.map(src => fetch(src + '?v=' + ASSET_V).catch(() => {})));
-                
-                // 🚀 加速核心 2：按顺序瞬间执行
                 for (const src of scripts) { await load(src); }
 
-                // 启动系统 (此时 DOM 里的主屏图标开始渲染)
+                // 2. 启动系统
                 initApp();
                 
-                // 强行抓取主屏的图标和壁纸（最多等 3 秒，防止个别图卡死）
+                // 3. 加载主屏资源（最长等 3 秒）
                 await preloadHomeAssets();
 
-                // 掀开遮罩层
+                // 👇 4. 核心修改：强制遮罩层至少停留 3.5 秒
+                const minDisplayTime = 3500; 
+                const elapsedTime = Date.now() - startTime;
+                if (elapsedTime < minDisplayTime) {
+                    // 如果加载太快，就强行再等一会儿
+                    await new Promise(r => setTimeout(r, minDisplayTime - elapsedTime));
+                }
+
+                // 5. 掀开遮罩层
                 const overlay = document.getElementById('loading-overlay');
                 if (overlay) {
                     overlay.style.opacity = '0';
@@ -128,35 +127,28 @@
                         overlay.style.display = 'none';
                         const oldBoot = document.getElementById('boot');
                         if (oldBoot) oldBoot.style.display = 'none'; 
-                    }, 300);
+                    }, 300); // 等待淡出动画
                 }
 
-                // 玩家进去后，后台开始 VIP 排队下载图片
+                // 6. 玩家进去后，后台开始 VIP 排队下载图片
                 backgroundPreload();
 
             } catch (e) {
                 console.error(e);
                 const overlay = document.getElementById('loading-overlay');
                 if (overlay) overlay.style.display = 'none';
-                alert('加载失败，请检查文件是否齐全或是否有语法错误：\n' + e.message);
+                alert('加载失败：\n' + e.message);
             }
         })();
 
-        // =========================================
-        // 👇 预加载1：绝对保证主屏不白块（死等 3 秒）
-        // =========================================
         async function preloadHomeAssets() {
             const imgPromises = [];
             const urlsToLoad = new Set();
-            
             await new Promise(r => setTimeout(r, 100)); 
 
-            // 1. 抓取主屏所有 img 标签
             document.querySelectorAll('#homeL img').forEach(img => {
                 if (img.src) urlsToLoad.add(img.src);
             });
-
-            // 2. 抓取主屏所有的 CSS 背景图
             document.querySelectorAll('#homeL *').forEach(el => {
                 const bg = window.getComputedStyle(el).backgroundImage;
                 if (bg && bg !== 'none' && bg.includes('url(')) {
@@ -164,29 +156,20 @@
                     if (match && match[1]) urlsToLoad.add(match[1]);
                 }
             });
-
-            // 3. 强行去下载它们
             urlsToLoad.forEach(src => {
                 imgPromises.push(new Promise(resolve => {
                     const img = new Image();
-                    img.onload = resolve; 
-                    img.onerror = resolve; 
+                    img.onload = resolve; img.onerror = resolve;
                     img.src = src;
                 }));
             });
-
-            // 4. 兜底时间 3 秒。如果 3 秒还没加载完，直接放行，防止死等
             const timeout = new Promise(r => setTimeout(r, 3000));
             await Promise.race([Promise.all(imgPromises), timeout]);
         }
 
-        // =========================================
-        // 👇 供 app.js 调用的插队优先加载器
-        // =========================================
         window.priorityPreload = function(urls) {
             if (!urls || !urls.length) return;
             const uniqueUrls = [...new Set(urls)].filter(src => src && src.length > 5);
-            
             uniqueUrls.forEach(src => {
                 if (/\.(mp4|mp3|wav|m4a)$/i.test(src)) {
                     const link = document.createElement('link');
@@ -199,16 +182,11 @@
             });
         };
 
-        // =========================================
-        // 👇 预加载2：微信优先排队静默下载（延迟 10 秒）
-        // =========================================
         function backgroundPreload() {
             setTimeout(() => {
                 const queue = [];
-
                 if (window.CHAT_HISTORY) {
                     const vipRoles = ["穆祉丞", "恩恩", "丞哥", "MuAMuA", "cat", "rabbit"];
-                    
                     vipRoles.forEach(role => {
                         const msgs = window.CHAT_HISTORY[role];
                         if (Array.isArray(msgs)) {
@@ -216,38 +194,12 @@
                                 if (Array.isArray(msg) && typeof msg[0] === 'string') {
                                     const text = msg[0];
                                     if (text.startsWith('[图片] ') || text.startsWith('[表情] ')) queue.push(text.slice(4).trim());
-                                    else if (text.startsWith('[视频] ')) {
-                                        const parts = text.slice(4).split('|');
-                                        queue.push(parts[0].trim());
-                                        if (parts[1]) queue.push(parts[1].trim());
-                                    } else if (text.startsWith('[语音] ')) {
-                                        const parts = text.slice(4).split('|');
-                                        if (parts[1]) queue.push(parts[1].trim());
-                                    }
-                                }
-                            });
-                        }
-                    });
-
-                    Object.keys(window.CHAT_HISTORY).forEach(role => {
-                        if (vipRoles.includes(role)) return;
-                        const msgs = window.CHAT_HISTORY[role];
-                        if (Array.isArray(msgs)) {
-                            msgs.forEach(msg => {
-                                if (Array.isArray(msg) && typeof msg[0] === 'string') {
-                                    const text = msg[0];
-                                    if (text.startsWith('[图片] ') || text.startsWith('[表情] ')) queue.push(text.slice(4).trim());
-                                    else if (text.startsWith('[视频] ')) {
-                                        const parts = text.slice(4).split('|');
-                                        queue.push(parts[0].trim());
-                                        if (parts[1]) queue.push(parts[1].trim());
-                                    }
+                                    else if (text.startsWith('[视频] ')) { queue.push(text.slice(4).split('|')[0].trim()); }
                                 }
                             });
                         }
                     });
                 }
-
                 if (window.MOCK_MOMENTS_DATA) {
                     Object.values(window.MOCK_MOMENTS_DATA).forEach(role => {
                         if (role.posts) role.posts.forEach(post => {
@@ -255,43 +207,21 @@
                         });
                     });
                 }
-
                 if (window.MOCK_PHOTOS) window.MOCK_PHOTOS.forEach(i => { if (i.src) queue.push(i.src); });
-                if (window.CFG && window.CFG.privateAlbum) window.CFG.privateAlbum.forEach(i => { if (i.src) queue.push(i.src); });
 
                 const finalQueue = [...new Set(queue)].filter(src => src && src.length > 5);
-                if (finalQueue.length === 0) return;
-
                 let index = 0;
-                const BATCH_SIZE = 6;
-
                 function loadNextBatch() {
                     if (index >= finalQueue.length) return;
-
-                    const batch = finalQueue.slice(index, index + BATCH_SIZE);
-                    index += BATCH_SIZE;
-
-                    let loadedInBatch = 0;
+                    const batch = finalQueue.slice(index, index + 6); // 后台并发 6 个
+                    index += 6;
+                    let loaded = 0;
                     batch.forEach(src => {
-                        if (/\.(mp4|mp3|wav|m4a)$/i.test(src)) {
-                            const link = document.createElement('link');
-                            link.rel = 'prefetch'; link.href = src;
-                            link.onload = link.onerror = () => {
-                                loadedInBatch++;
-                                if (loadedInBatch === batch.length) setTimeout(loadNextBatch, 100);
-                            };
-                            document.head.appendChild(link);
-                        } else {
-                            const img = new Image();
-                            img.onload = img.onerror = () => {
-                                loadedInBatch++;
-                                if (loadedInBatch === batch.length) setTimeout(loadNextBatch, 100);
-                            };
-                            img.src = src;
-                        }
+                        const img = new Image();
+                        img.onload = img.onerror = () => { if (++loaded === batch.length) setTimeout(loadNextBatch, 100); };
+                        img.src = src;
                     });
                 }
-
                 loadNextBatch();
             }, 10000); 
         }
