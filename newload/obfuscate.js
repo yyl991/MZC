@@ -21,7 +21,7 @@ const ALLOWED_DOMAINS = [
 ];
 
 // 这些目录/文件不进 dist（保持你原有的精简逻辑）
-const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "waste", "trash", "tests", "data"]);
+const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "waste", "trash", "tests"]);
 // 注意：上面加了 "data"，因为你的 data 里面全是图片和聊天记录，不需要参与 JS 混淆，直接原样复制就行
 
 const SKIP_FILES = new Set([
