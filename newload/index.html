@@ -26,12 +26,12 @@
     <!-- Twitter Card (备用) -->
     <meta name="twitter:card" content="summary_large_image">
 
-    <!-- 👇 已经删除了慢吞吞的外部字体，直接使用系统字体，速度起飞 -->
+    <!-- 删除了慢吞吞的外部字体，直接使用系统字体，速度起飞 -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <!-- 全屏黑屏遮罩：保证玩家进来先看到这个，防止白块 -->
+    <!-- 全屏黑屏遮罩：保证玩家进来先看到这个，防止主屏图标白块 -->
     <div id="loading-overlay" style="position:fixed; inset:0; z-index:9999999; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.5s;">
         <div style="color:#fff; font-size:16px; text-align:center; line-height:1.8; letter-spacing:1px; font-family: sans-serif;">
             等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿
@@ -82,8 +82,8 @@
     <script>
         window.LANG = 'zh';
         
-        // ⚠️ 每次发版一定要把这里加 1，比如 e 改成 f
-        const ASSET_V = '20261104e'; 
+        // ⚠️ 每次发版一定要把这里加 1，这次更新到了 g
+        const ASSET_V = '20261104g'; 
 
         function load(src) {
             return new Promise((res, rej) => {
@@ -125,7 +125,7 @@
                 // 2. 启动系统
                 initApp();
                 
-                // 3. 强行抓取主屏的图标和壁纸（最多等 1.5 秒）
+                // 3. 强行抓取主屏的图标和壁纸（优先级最高，最多等 5 秒）
                 await preloadHomeAssets();
 
                 // 4. 掀开遮罩层
@@ -139,7 +139,7 @@
                     }, 500);
                 }
 
-                // 5. 玩家进去后，后台悄悄下载聊天图片等大资源
+                // 5. 玩家进去后，后台开始 VIP 排队下载
                 backgroundPreload();
 
             } catch (e) {
@@ -151,13 +151,13 @@
         })();
 
         // =========================================
-        // 👇 预加载1：绝对保证主屏不白块
+        // 👇 预加载1：绝对保证主屏不白块（最长等待 5 秒）
         // =========================================
         async function preloadHomeAssets() {
             const imgPromises = [];
             
-            // 等 100ms 让 DOM 把首页图标渲染出来
-            await new Promise(r => setTimeout(r, 100)); 
+            // 等 200ms 让 DOM 把首页图标渲染出来
+            await new Promise(r => setTimeout(r, 200)); 
 
             // 抓取主屏幕上所有的 <img> 标签
             document.querySelectorAll('#homeL img').forEach(img => {
@@ -185,46 +185,58 @@
                 }
             });
 
-            // 👇 核心：主屏幕的图片如果 1.5 秒还没加载完，直接强行进系统，不等了！
-            const timeout = new Promise(r => setTimeout(r, 1500));
+            // 核心：主屏幕的图片如果 5 秒还没加载完，直接强行进系统，不等了！
+            const timeout = new Promise(r => setTimeout(r, 5000));
             await Promise.race([Promise.all(imgPromises), timeout]);
         }
 
         // =========================================
-        // 👇 预加载2：后台静默下载（不卡首屏）
+        // 👇 预加载2：VIP排队静默下载（微信优先，分批下载防拥堵）
         // =========================================
         function backgroundPreload() {
+            // 延迟 10 秒，等玩家在主屏操作稳定了再开始
             setTimeout(() => {
-                const urls = new Set();
-                
-                // 相册
-                if (window.MOCK_PHOTOS) window.MOCK_PHOTOS.forEach(i => { if (i.src) urls.add(i.src); });
-                if (window.CFG && window.CFG.privateAlbum) window.CFG.privateAlbum.forEach(i => { if (i.src) urls.add(i.src); });
-                
-                // 朋友圈
-                if (window.MOCK_MOMENTS_DATA) {
-                    Object.values(window.MOCK_MOMENTS_DATA).forEach(role => {
-                        if (role.posts) role.posts.forEach(post => {
-                            if (post.images) post.images.forEach(src => urls.add(src));
-                        });
-                    });
-                }
-                
-                // 聊天记录
+                const queue = [];
+
+                // 🥇 【第一优先级】微信聊天记录
                 if (window.CHAT_HISTORY) {
-                    Object.values(window.CHAT_HISTORY).forEach(msgs => {
+                    // 把最常聊的几个人排在前面
+                    const vipRoles = ["穆祉丞", "恩恩", "丞哥", "MuAMuA", "cat", "rabbit"];
+                    
+                    // 先抓取 VIP 角色的聊天记录
+                    vipRoles.forEach(role => {
+                        const msgs = window.CHAT_HISTORY[role];
                         if (Array.isArray(msgs)) {
                             msgs.forEach(msg => {
                                 if (Array.isArray(msg) && typeof msg[0] === 'string') {
                                     const text = msg[0];
-                                    if (text.startsWith('[图片] ') || text.startsWith('[表情] ')) urls.add(text.slice(4).trim());
+                                    if (text.startsWith('[图片] ') || text.startsWith('[表情] ')) queue.push(text.slice(4).trim());
                                     else if (text.startsWith('[视频] ')) {
                                         const parts = text.slice(4).split('|');
-                                        urls.add(parts[0].trim());
-                                        if (parts[1]) urls.add(parts[1].trim());
+                                        queue.push(parts[0].trim());
+                                        if (parts[1]) queue.push(parts[1].trim());
                                     } else if (text.startsWith('[语音] ')) {
                                         const parts = text.slice(4).split('|');
-                                        if (parts[1]) urls.add(parts[1].trim());
+                                        if (parts[1]) queue.push(parts[1].trim());
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                    // 再抓取其他角色的聊天记录
+                    Object.keys(window.CHAT_HISTORY).forEach(role => {
+                        if (vipRoles.includes(role)) return;
+                        const msgs = window.CHAT_HISTORY[role];
+                        if (Array.isArray(msgs)) {
+                            msgs.forEach(msg => {
+                                if (Array.isArray(msg) && typeof msg[0] === 'string') {
+                                    const text = msg[0];
+                                    if (text.startsWith('[图片] ') || text.startsWith('[表情] ')) queue.push(text.slice(4).trim());
+                                    else if (text.startsWith('[视频] ')) {
+                                        const parts = text.slice(4).split('|');
+                                        queue.push(parts[0].trim());
+                                        if (parts[1]) queue.push(parts[1].trim());
                                     }
                                 }
                             });
@@ -232,23 +244,62 @@
                     });
                 }
 
-                // 开始偷偷下载
-                let count = 0;
-                urls.forEach(src => {
-                    if (!src || src.length < 5) return;
-                    count++;
-                    // 音频视频用 prefetch
-                    if (/\.(mp4|mp3|wav|m4a)$/i.test(src)) {
-                        const link = document.createElement('link');
-                        link.rel = 'prefetch'; link.href = src;
-                        document.head.appendChild(link);
-                    } else {
-                        // 图片用 Image 对象
-                        const img = new Image(); img.src = src;
+                // 🥈 【第二优先级】朋友圈
+                if (window.MOCK_MOMENTS_DATA) {
+                    Object.values(window.MOCK_MOMENTS_DATA).forEach(role => {
+                        if (role.posts) role.posts.forEach(post => {
+                            if (post.images) post.images.forEach(src => queue.push(src));
+                        });
+                    });
+                }
+
+                // 🥉 【第三优先级】相册
+                if (window.MOCK_PHOTOS) window.MOCK_PHOTOS.forEach(i => { if (i.src) queue.push(i.src); });
+                if (window.CFG && window.CFG.privateAlbum) window.CFG.privateAlbum.forEach(i => { if (i.src) queue.push(i.src); });
+
+                // 去重并过滤空值
+                const finalQueue = [...new Set(queue)].filter(src => src && src.length > 5);
+                
+                console.log(`📦 开始 VIP 排队预加载，共 ${finalQueue.length} 个内部资源...`);
+
+                // 👇 核心：分批下载（每次只下 3 个，下完再下下一批），绝不会卡死主线程
+                let index = 0;
+                const BATCH_SIZE = 3; // 每次并发 3 个
+
+                function loadNextBatch() {
+                    if (index >= finalQueue.length) {
+                        console.log("✅ 所有内部资源后台预加载完毕！");
+                        return;
                     }
-                });
-                console.log(`📦 后台已悄悄预加载 ${count} 个内部图片/音视频资源...`);
-            }, 1500); // 进主屏 1.5 秒后再开始下
+
+                    const batch = finalQueue.slice(index, index + BATCH_SIZE);
+                    index += BATCH_SIZE;
+
+                    let loadedInBatch = 0;
+                    batch.forEach(src => {
+                        if (/\.(mp4|mp3|wav|m4a)$/i.test(src)) {
+                            const link = document.createElement('link');
+                            link.rel = 'prefetch'; link.href = src;
+                            link.onload = link.onerror = () => {
+                                loadedInBatch++;
+                                if (loadedInBatch === batch.length) setTimeout(loadNextBatch, 100);
+                            };
+                            document.head.appendChild(link);
+                        } else {
+                            const img = new Image();
+                            img.onload = img.onerror = () => {
+                                loadedInBatch++;
+                                if (loadedInBatch === batch.length) setTimeout(loadNextBatch, 100);
+                            };
+                            img.src = src;
+                        }
+                    });
+                }
+
+                // 启动排队下载
+                loadNextBatch();
+
+            }, 10000); // 10 秒后开始
         }
     </script>
 </body>
