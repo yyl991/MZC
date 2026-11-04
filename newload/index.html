@@ -1,8 +1,74 @@
+<!doctype html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <title>橙粉色捡起来</title>
+
+    <!-- 通用 Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="橙粉色捡起来 | 穆祉丞生日剧情">
+    <meta property="og:description" content="捡到一部手机，推开属于他的局部宇宙。你会怎么选？">
+    <meta property="og:image" content="https://cgcgdsg.cc.cd/data/share-cover.jpg">
+    <meta property="og:url" content="https://cgcgdsg.cc.cd">
+
+    <!-- 字体异步加载 -->
+    <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- 全屏遮罩层（防白块专用） -->
+    <div id="loading-overlay" style="position:fixed; inset:0; z-index:9999999; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.5s;">
+        <div style="color:#fff; font-size:16px; text-align:center; line-height:1.8; letter-spacing:1px;">
+            等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿
+        </div>
+    </div>
+
+    <div id="phone">
+        <div id="screen">
+            <div id="boot"><span>等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿</span></div>
+            <div id="wall"></div>
+            <div id="homeL" class="layer"></div>
+            <div id="lockL" class="layer">
+                <div id="lkc"></div>
+                <div id="pinL"></div>
+            </div>
+            <div id="appL" class="layer"></div>
+            <div id="ov"></div>
+        </div>
+        <div id="sb" class="light">
+            <button id="sbk" aria-label="Home"></button>
+            <span class="t" id="sbt">23:09</span>
+            <span class="r">
+                <svg width="18" height="12" viewBox="0 0 18 12">
+                    <rect x="0" y="8" width="3" height="4" rx="1" />
+                    <rect x="5" y="5.5" width="3" height="6.5" rx="1" />
+                    <rect x="10" y="3" width="3" height="9" rx="1" />
+                    <rect x="15" y="0" width="3" height="12" rx="1" />
+                </svg>
+                <svg width="16" height="12" viewBox="0 0 16 12">
+                    <path d="M8 2.3c2.3 0 4.4.9 6 2.4l1.2-1.2A10.3 10.3 0 0 0 8 .6 10.3 10.3 0 0 0 .8 3.5L2 4.7a8.6 8.6 0 0 1 6-2.4Zm0 3.4c1.4 0 2.6.5 3.6 1.4l1.2-1.2A6.8 6.8 0 0 0 8 4a6.8 6.8 0 0 0-4.8 1.9l1.2 1.2c1-.9 2.2-1.4 3.6-1.4Zm0 3.4c-.6 0-1.2.2-1.6.6L8 11.3l1.6-1.6c-.4-.4-1-.6-1.6-.6Z" />
+                </svg>
+                <svg width="27" height="13" viewBox="0 0 27 13">
+                    <rect x=".5" y=".5" width="23" height="12" rx="3.8" fill="none" stroke="currentColor" opacity=".4" />
+                    <rect x="2" y="2" width="14" height="9" rx="2.4" />
+                    <path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" opacity=".4" />
+                </svg>
+            </span>
+        </div>
+        <div id="hb" class="light"><i></i></div>
+    </div>
+    <audio id="player" preload="auto"></audio>
+    <audio id="bgm" src="./data/app/bgm.mp3" loop preload="auto"></audio>
+    
     <script>
         window.LANG = 'zh';
         
-        // 👈 注意：以后每次发版，务必把这个版本号修改一下，比如 a 改 b
-        const ASSET_V = '20261104b'; 
+        // 👈 每次发版记得改这里的版本号
+        const ASSET_V = '20261104d'; 
 
         function load(src) {
             return new Promise((res, rej) => {
@@ -36,21 +102,18 @@
                     './views/app_xhs.js'
                 ];
 
-                // 1. 预热下载 JS 脚本
-                await Promise.all(scripts.map((src) => fetch(src + '?v=' + ASSET_V).catch(() => {})));
-
-                // 2. 按顺序执行 JS
+                // 按顺序执行 JS
                 for (const src of scripts) {
                     await load(src);
                 }
 
-                // 3. 启动系统，渲染主屏幕
+                // 启动系统
                 initApp();
                 
-                // 4. 强行抓取主屏的图标和壁纸，全部下完再放人
+                // 强行抓取主屏的图标和壁纸
                 await preloadHomeAssets();
 
-                // 5. 掀开遮罩层
+                // 掀开遮罩层
                 const overlay = document.getElementById('loading-overlay');
                 if (overlay) {
                     overlay.style.opacity = '0';
@@ -61,7 +124,7 @@
                     }, 500);
                 }
 
-                // 6. 👇 核心：掀开遮罩后，让浏览器在后台悄悄下载微信/朋友圈的图
+                // 掀开遮罩后，后台悄悄下载
                 backgroundPreload();
 
             } catch (e) {
@@ -72,13 +135,10 @@
             }
         })();
 
-        // =========================================
-        // 👇 预加载1：主屏资源（阻塞加载，防白块）
-        // =========================================
+        // 预加载1：主屏资源
         async function preloadHomeAssets() {
             await new Promise(r => setTimeout(r, 150));
             const imgPromises = [];
-
             document.querySelectorAll('img').forEach(img => {
                 if (!img.complete) {
                     imgPromises.push(new Promise(resolve => {
@@ -86,7 +146,6 @@
                     }));
                 }
             });
-
             const wallEl = document.getElementById('wall');
             if (wallEl) {
                 const bg = window.getComputedStyle(wallEl).backgroundImage;
@@ -99,82 +158,58 @@
                     }));
                 }
             }
-
             const timeout = new Promise(r => setTimeout(r, 2500));
             await Promise.race([Promise.all(imgPromises), timeout]);
         }
 
-        // =========================================
-        // 👇 预加载2：后台静默下载（不阻塞，进去微信秒出图）
-        // =========================================
+        // 预加载2：后台静默下载
         function backgroundPreload() {
             setTimeout(() => {
                 const urls = new Set();
-
-                // 1. 收集相册的图
-                if (window.MOCK_PHOTOS) {
-                    window.MOCK_PHOTOS.forEach(i => { if (i.src) urls.add(i.src); });
-                }
-                // 收集私密相册
-                if (window.CFG && window.CFG.privateAlbum) {
-                    window.CFG.privateAlbum.forEach(i => { if (i.src) urls.add(i.src); });
-                }
-
-                // 2. 收集朋友圈的图
+                if (window.MOCK_PHOTOS) window.MOCK_PHOTOS.forEach(i => { if (i.src) urls.add(i.src); });
+                if (window.CFG && window.CFG.privateAlbum) window.CFG.privateAlbum.forEach(i => { if (i.src) urls.add(i.src); });
                 if (window.MOCK_MOMENTS_DATA) {
                     Object.values(window.MOCK_MOMENTS_DATA).forEach(role => {
-                        if (role.posts) {
-                            role.posts.forEach(post => {
-                                if (post.images) post.images.forEach(src => urls.add(src));
-                            });
-                        }
+                        if (role.posts) role.posts.forEach(post => {
+                            if (post.images) post.images.forEach(src => urls.add(src));
+                        });
                     });
                 }
-
-                // 3. 收集聊天记录里的图（通过正则解析数组）
                 if (window.CHAT_HISTORY) {
                     Object.values(window.CHAT_HISTORY).forEach(msgs => {
                         if (Array.isArray(msgs)) {
                             msgs.forEach(msg => {
                                 if (Array.isArray(msg) && typeof msg[0] === 'string') {
                                     const text = msg[0];
-                                    if (text.startsWith('[图片] ') || text.startsWith('[表情] ')) {
-                                        urls.add(text.slice(4).trim());
-                                    } else if (text.startsWith('[视频] ')) {
+                                    if (text.startsWith('[图片] ') || text.startsWith('[表情] ')) urls.add(text.slice(4).trim());
+                                    else if (text.startsWith('[视频] ')) {
                                         const parts = text.slice(4).split('|');
-                                        urls.add(parts[0].trim()); // 视频路径
-                                        if (parts[1]) urls.add(parts[1].trim()); // 封面图
+                                        urls.add(parts[0].trim());
+                                        if (parts[1]) urls.add(parts[1].trim());
                                     } else if (text.startsWith('[语音] ')) {
                                         const parts = text.slice(4).split('|');
-                                        if (parts[1]) urls.add(parts[1].trim()); // 音频路径
+                                        if (parts[1]) urls.add(parts[1].trim());
                                     }
                                 }
                             });
                         }
                     });
                 }
-
-                // 开始静默下载
                 let count = 0;
                 urls.forEach(src => {
                     if (!src || src.length < 5) return;
                     count++;
-                    
-                    // 如果是视频/音频，用 prefetch 悄悄下
                     if (/\.(mp4|mp3|wav|m4a)$/i.test(src)) {
                         const link = document.createElement('link');
-                        link.rel = 'prefetch';
-                        link.href = src;
+                        link.rel = 'prefetch'; link.href = src;
                         document.head.appendChild(link);
                     } else {
-                        // 如果是图片，用 Image 对象悄悄下
-                        const img = new Image();
-                        img.src = src;
+                        const img = new Image(); img.src = src;
                     }
                 });
-                
-                console.log(`📦 后台已开始静默预加载 ${count} 个内部资源...`);
-
-            }, 1500); // 延迟 1.5 秒开始，不抢占首屏的网速
+                console.log(`📦 后台预加载 ${count} 个资源...`);
+            }, 1500);
         }
     </script>
+</body>
+</html>
