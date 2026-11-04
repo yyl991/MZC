@@ -1,6 +1,5 @@
 // ==========================================
-// 混淆打包脚本（静默防御版：防域名盗用 + 防格式化 + 零性能损耗）
-// 用法：node obfuscate.js   →   把 dist/ 整个上传到托管平台
+// 混淆打包脚本（绝对安全版，牺牲一点防抄，保证绝不报错）
 // ==========================================
 const JavaScriptObfuscator = require("javascript-obfuscator");
 const fs = require("fs");
@@ -9,8 +8,7 @@ const path = require("path");
 const ROOT = __dirname;
 const DIST = path.join(ROOT, "dist");
 
-// 🛡️ 王牌 1：域名锁白名单（别人搬运代码换域名，直接变成白屏）
-// ⚠️ 请确认这里有你所有正在使用的域名，如果有遗漏，新域名下网页会白屏！
+// 白名单，如果你是在 EdgeOne 测试域名跑的，一定要加上
 const ALLOWED_DOMAINS = [
   'cgcgdsg.cc.cd',
   'mzc1116.cc.cd',
@@ -20,19 +18,10 @@ const ALLOWED_DOMAINS = [
   '127.0.0.1'
 ];
 
-// 这些目录/文件不进 dist（保持你原有的精简逻辑）
 const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "waste", "trash", "tests"]);
-// 注意：上面加了 "data"，因为你的 data 里面全是图片和聊天记录，不需要参与 JS 混淆，直接原样复制就行
-
 const SKIP_FILES = new Set([
-  "obfuscate.js",
-  "compress.js",
-  "warmup.js", 
-  "package.json",
-  "package-lock.json",
-  ".gitignore",
-  ".assetsignore",
-  "ffmpeg.exe",
+  "obfuscate.js", "compress.js", "warmup.js", "package.json", 
+  "package-lock.json", ".gitignore", ".assetsignore", "ffmpeg.exe",
 ]);
 
 function walk(dir, out = []) {
@@ -51,25 +40,18 @@ const files = walk(ROOT);
 console.log(`📦 共 ${files.length} 个文件准备输出到 dist/`);
 
 fs.rmSync(DIST, { recursive: true, force: true });
-
-let ok = 0,
-  fail = 0;
+let ok = 0, fail = 0;
 
 for (const src of files) {
   const rel = path.relative(ROOT, src);
   const dest = path.join(DIST, rel);
   fs.mkdirSync(path.dirname(dest), { recursive: true });
 
-  // 处理非 JS 文件（HTML、图片、CSS、JSON 等）
   if (!src.endsWith(".js")) {
     if (rel === "index.html") {
-      // 每次打包自动更新资源版本号，让你的更新立即生效，同时破解浏览器的强缓存
       const stamp = Date.now().toString(36);
       let html = fs.readFileSync(src, "utf8");
-      html = html.replace(
-        /const ASSET_V = '[^']*';/,
-        `const ASSET_V = '${stamp}';`,
-      );
+      html = html.replace(/const ASSET_V = '[^']*';/, `const ASSET_V = '${stamp}';`);
       fs.writeFileSync(dest, html);
       console.log(`✅ ${rel}（自动更新版本号 ${stamp}）`);
       ok++;
@@ -80,25 +62,22 @@ for (const src of files) {
     continue;
   }
 
-  // 处理 JS 文件（进入静默防御混淆）
   const code = fs.readFileSync(src, "utf8");
   try {
     const obfuscated = JavaScriptObfuscator.obfuscate(code, {
-      compact: true, // 压缩代码，去掉所有换行和空格，体积最小，加载最快
+      compact: true, 
       
-      // 🚫 关掉所有耗性能、容易导致手机白屏的炸弹
+      // 🚫 关掉所有可能导致运行中断的暗病
       controlFlowFlattening: false,
       deadCodeInjection: false,
-      debugProtection: false,       // 绝对不要开
-      stringArray: false,           // 关掉字符串加密，0 性能损耗，不影响黑胶动画
-      disableConsoleOutput: true,   // 顺手把 console.log 屏蔽了，防小白偷看
+      debugProtection: false,       
+      stringArray: false,           
+      selfDefending: false,         // 👈 极度容易导致部分机型/代码变异，关掉！
+      disableConsoleOutput: false,  // 👈 留着控制台，方便看报错
       
-      // 👇 三大静默防御王牌：
-      domainLock: ALLOWED_DOMAINS,  // 1. 防盗版搬运（换域名直接 403/白屏）
-      selfDefending: true,          // 2. 防格式化（一用代码美化工具整理就变形报错）
-      identifierNamesGenerator: "hexadecimal", // 3. 变量名全变成 _0x3a4b，完全没法阅读
-      
-      // ⚠️ 必须关掉！否则 HTML 里的 onclick 事件全部失效
+      // 👇 仅保留的基础防御
+      domainLock: ALLOWED_DOMAINS,  
+      identifierNamesGenerator: "hexadecimal", 
       renameGlobals: false,         
     }).getObfuscatedCode();
 
@@ -110,6 +89,4 @@ for (const src of files) {
     console.error("❌ " + rel + " 混淆失败:", err.message);
   }
 }
-
-console.log(`\n🎉 静默防御混淆完成：成功 ${ok} 个，失败 ${fail} 个`);
-console.log("👉 请将 dist/ 目录里的所有内容上传到线上服务器，源码目录未被改动。");
+console.log(`\n🎉 完成：成功 ${ok} 个，失败 ${fail} 个`);
