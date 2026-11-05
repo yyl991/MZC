@@ -1986,9 +1986,20 @@ function unlockFragment(id) {
   saveStory();
   notifyFrom("系统", `已解锁：${f.title} · 回家进度 ${SS.goingHome}%`);
 }
-// 不做任何持久化：每次刷新都是全新的一局
-function saveStory() {}
-function saveChat() {}
+
+// 👇 调用全局存档引擎
+function saveStory() {
+  if (typeof window.saveGameState === 'function') window.saveGameState();
+}
+function saveChat() {
+  if (typeof window.saveGameState === 'function') window.saveGameState();
+}
+
+window.resetWxChat = function () {
+  if (typeof window.resetGameState === 'function') window.resetGameState();
+  else location.reload();
+};
+
 window.resetWxChat = function () {
   location.reload();
 };

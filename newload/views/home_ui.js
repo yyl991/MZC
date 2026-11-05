@@ -246,6 +246,15 @@
             <span class="cc-dnd-ic">🌙</span>
             <span class="cc-dnd-main"><b>免打扰</b><small class="cc-dnd-s">${window.isDnd ? "已开启，锁屏不再弹消息" : "开启后锁屏不再弹消息"}</small></span>
           </button>
+          <!-- 👇 新增：重置进度按钮 -->
+          <button class="cc-dnd" onclick="event.stopPropagation(); window.resetGameState();" style="margin-top:10px; background:rgba(255,59,48,0.1); color:#ff3b30;">
+            <span class="cc-dnd-ic" style="filter: none;">🔄</span>
+            <span class="cc-dnd-main">
+              <b style="color:#ff3b30;">重置进度</b>
+              <small class="cc-dnd-s" style="color:#ff3b30; opacity: 0.8;">清空当前存档，重头开始</small>
+            </span>
+          </button>
+
           <div class="cc-tip">从屏幕顶部下拉可再次打开</div>
         </div>
       </div>
