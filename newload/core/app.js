@@ -262,7 +262,9 @@ function renderLock() {
   const shown = lockNotes.slice(0, MAX);
   const rest = lockNotes.length - shown.length;
   $("#lkc").innerHTML =
-    `<div class="lk-date">${isAfterZero() ? "11月16日 星期一" : (CFG.start?.date || "11月15日") + " " + (CFG.start?.weekday || "星期日")}</div><div class="lk-time" id="lkt">${clock12()}</div><div class="lk-notes">${shown.map((n, i) => `<button class="ncard" onclick="lockNoteTap(${i},event)">${ncardHTML(n)}</button>`).join("")}${rest > 0 ? `<div class="lk-more">还有 ${rest} 条更早的通知</div>` : ""}</div><div class="lk-actions" style="display:flex; gap:12px; justify-content:center; align-items:center;"><button class="lk-dnd ${window.isDnd ? "on" : ""}" onclick="toggleDnd(event)"><span style="filter:${window.isDnd ? "none" : "grayscale(100%)"};margin-right:4px;">🌙</span>${window.isDnd ? "免打扰已开启" : "开启免打扰"}</button><button class="lk-dnd" onclick="window.resetGameState()" style="background:rgba(255,255,255,0.15); border:none; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);"><span style="margin-right:4px;">🔄</span>重置进度</button></div><div class="lk-hint">向上轻扫以打开</div>`;
+    `<div class="lk-date">${isAfterZero() ? "11月16日 星期一" : (CFG.start?.date || "11月15日") + " " + (CFG.start?.weekday || "星期日")}</div><div class="lk-time" id="lkt">${clock12()}</div><div class="lk-notes">${shown.map((n, i) => `<button class="ncard" onclick="lockNoteTap(${i},event)">${ncardHTML(n)}</button>`).join("")}${rest > 0 ? `<div class="lk-more">还有 ${rest} 条更早的通知</div>` : ""}</div><div class="lk-actions" style="display:flex; gap:12px; justify-content:center; align-items:center;"><button class="lk-dnd ${window.isDnd ? "on" : ""}" onclick="toggleDnd(event)"><span style="filter:${window.isDnd ? "none" : "grayscale(100%)"};margin-right:4px;">🌙</span>${window.isDnd ? "免打扰已开启" : "开启免打扰"}</button>
+   <button class="lk-dnd" onclick="window.resetGameState()"><span style="margin-right:6px; display:flex; align-items:center; justify-content:center; width:16px; height:16px;">${G.sysReset}</span>重置进度</button>
+    </div><div class="lk-hint">向上轻扫以打开</div>`;
 }
 function syncDndUI() {
   const on = !!window.isDnd;
@@ -1270,9 +1272,9 @@ function tick() {
   const currentSec = Math.floor(Date.now() / 1000);
   if (currentSec === lastTickSec) return;
   lastTickSec = currentSec;
-    if (!window._lastSaveSec || currentSec - window._lastSaveSec >= 5) {
+  if (!window._lastSaveSec || currentSec - window._lastSaveSec >= 5) {
     window._lastSaveSec = currentSec;
-    if (typeof window.saveGameState === 'function') window.saveGameState();
+    if (typeof window.saveGameState === "function") window.saveGameState();
   }
   typeof updateCrumb === "function" && updateCrumb();
   const sbtEl = $("#sbt");
