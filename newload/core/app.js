@@ -1496,71 +1496,76 @@ window.resetGameState = function () {
     }, 300);
   };
 };
-
-// 👇 一键回到锁屏（带极致黑屏过渡动画，解决元素重叠）
+// 👇 一键回到锁屏（带黑屏过渡 + 彻底清理动画残留）
 window.lockPhone = function () {
   if (typeof callState !== "undefined" && callState) return;
-  if (view === "lock") return; // 已经在锁屏就不做处理
+  if (view === "lock") return;
   if (!["home", "pin"].includes(view)) return;
 
-  // 1. 创建一个全屏纯黑遮罩，盖在最上方
+  // 1. 创建全屏纯黑遮罩
   const mask = document.createElement("div");
   mask.style.cssText = "position:absolute; inset:0; z-index:999999999; background:#000; opacity:0; transition:opacity 0.35s ease; pointer-events:none; -webkit-tap-highlight-color:transparent;";
   document.getElementById("screen").appendChild(mask);
   
-  // 2. 强制触发重排后，让黑屏渐变（淡入）
+  // 2. 黑屏淡入
   requestAnimationFrame(() => {
     mask.style.opacity = "1";
   });
 
-  // 3. 在屏幕全黑时（350ms后），瞬间完成底层的“偷梁换柱”
+  // 3. 屏幕全黑时（350ms后），在底层大换血
   setTimeout(() => {
-    // 彻底隐藏桌面和 App，绝不留情，防止重叠
+    // 隐藏桌面和 App
     if (typeof APP !== "undefined") APP.style.visibility = "hidden";
     if (typeof HOME !== "undefined") {
       HOME.style.visibility = "hidden"; 
       HOME.style.transform = "none";
       HOME.style.opacity = "1";
-      HOME.getAnimations().forEach(a => a.cancel());
+      HOME.getAnimations().forEach(a => a.cancel()); // 取消桌面残留动画
     }
     
-    // 清理壁纸上的模糊和变暗滤镜
+    // 清理壁纸滤镜
     const wall = $("#wall");
     if (wall) {
       wall.classList.remove("dim");
       wall.style.filter = ""; 
+      wall.getAnimations().forEach(a => a.cancel());
     }
     
     // 隐藏密码键盘
     const pinL = $("#pinL");
-    if (pinL) pinL.style.display = "none";
-    
-    // 重置锁屏内容的位移和透明度（清除之前上滑解锁的动画残留）
-    const lk = $("#lkc");
-    if (lk) {
-      lk.style.transform = "none";
-      lk.style.opacity = "1";
-      lk.style.pointerEvents = "";
-      lk.getAnimations().forEach(a => a.cancel());
+    if (pinL) {
+      pinL.style.display = "none";
+      pinL.getAnimations().forEach(a => a.cancel());
     }
     
-    // 渲染锁屏内容并强制显示
-    view = "lock";
-    renderLock();
+    // 👇 核心修复：取消锁屏层的动画，并强制复位！
+    LOCK.getAnimations().forEach(a => a.cancel()); 
     LOCK.style.display = "block";
     LOCK.style.visibility = "visible";
     LOCK.style.opacity = "1";
+
+    // 👇 核心修复：取消锁屏内容的动画，并强制复位！
+    const lk = $("#lkc");
+    if (lk) {
+      lk.getAnimations().forEach(a => a.cancel()); // 取消上滑消失的动画
+      lk.style.transform = "none";
+      lk.style.opacity = "1";
+      lk.style.pointerEvents = "";
+    }
+    
+    // 重新渲染锁屏并生效
+    view = "lock";
+    renderLock();
     
     setStatus(true);
     updateCrumb();
 
-    // 4. 黑屏渐变退出（亮起），露出全新的锁屏界面
+    // 4. 黑屏淡出（亮起）
     mask.style.opacity = "0";
     setTimeout(() => {
       if (mask.parentNode) mask.remove();
-    }, 350); // 350ms 动画结束后清理遮罩
-
-  }, 350); // 黑屏停留时间
+    }, 350);
+  }, 350);
 };
 function initApp() {
   window.loadGameState();

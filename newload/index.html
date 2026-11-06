@@ -111,8 +111,8 @@
                 // 3. 加载主屏资源（最长等 3 秒）
                 await preloadHomeAssets();
 
-                // 👇 4. 核心修改：强制遮罩层至少停留 3.5 秒
-                const minDisplayTime = 3500; 
+                // 👇 4. 核心修改：强制遮罩层至少停留 2 秒
+                const minDisplayTime = 2000; 
                 const elapsedTime = Date.now() - startTime;
                 if (elapsedTime < minDisplayTime) {
                     // 如果加载太快，就强行再等一会儿
