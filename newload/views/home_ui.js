@@ -241,7 +241,7 @@
         ${dockApps.map(appBtn).join("")}
         <button class="app" id="home-dnd" onclick="event.stopPropagation();toggleDnd(event)">
           <div class="icon" style="background:${window.isDnd ? '#5e5ce6' : '#8e8e93'};">
-            <div class="ic" style="display:grid; place-items:center; color:#fff; font-size:26px; opacity:${window.isDnd ? '1' : '0.5'};">🌙</div>
+       <div class="ic" style="display:grid; place-items:center; color:#fff; font-size:26px;">🌙</div>
           </div>
           <span class="lbl">免打扰</span>
         </button>

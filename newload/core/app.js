@@ -169,13 +169,12 @@ function syncDndUI() {
   }
   const ccBtn = document.getElementById("cc-dnd"); if (ccBtn) ccBtn.classList.toggle("on", on);
   
-  // 👇 极速切换：直接改背景和透明度，去掉所有渐变滤镜
-  const homeBtn = document.getElementById("home-dnd");
+ 
+    const homeBtn = document.getElementById("home-dnd");
   if (homeBtn) {
     const iconWrap = homeBtn.querySelector(".icon");
+    // 👇 只切背景色，月亮保持彩色
     if (iconWrap) iconWrap.style.background = on ? "#5e5ce6" : "#8e8e93";
-    const moonIcon = homeBtn.querySelector(".ic");
-    if (moonIcon) moonIcon.style.opacity = on ? "1" : "0.5"; 
   }
   
   const ccTxt = document.querySelector(".cc-dnd-s"); if (ccTxt) ccTxt.textContent = on ? "已开启，锁屏不再弹消息" : "开启后锁屏不再弹消息";
