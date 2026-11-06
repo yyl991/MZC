@@ -67,7 +67,7 @@
     @keyframes snow-fall {
       0% { transform: translateY(-10px) translateX(0) rotate(0deg); opacity: 0; }
       20% { opacity: 1; }
-      100% { transform: translateY(160px) translateX(20px) rotate(360deg); opacity: 0; }
+      100% { transform: translateY(260px) translateX(40px) rotate(360deg); opacity: 0; }
     }
     .snowflake {
       position: absolute; top: -10px; color: #fff; text-shadow: 0 0 3px rgba(255,255,255,0.5); pointer-events: none; z-index: 0;
