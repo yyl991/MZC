@@ -203,14 +203,24 @@ VIEWS.privateAlbum = () => {
     { src: "./data/photo/private (4).jpg" },
     { src: "./data/photo/private (5).jpg" },
     { src: "./data/photo/private (6).jpg" },
-    { src: "./data/photo/private (7).jpg" },    
-    { src: "./data/photo/private (8).jpg" },
+    
+    { src: "./data/photo/mouth1.jpg" },
+    
+    { src: "./data/photo/mouth2.jpg" },
+    
+    { src: "./data/photo/mouth3.jpg" },
+    
     { src: "./data/photo/private (9).jpg" },   
     
-    { src: "./data/photo/private (1).mp4" },
+    { src: "./data/photo/private (8).jpg" },
+    { src: "./data/photo/private (7).jpg" },    
+ //   { src: "./data/photo/private (8).jpg" },
+   // { src: "./data/photo/private (9).jpg" },   
+    
+    { src: "./data/photo/private (1).mp4" , isVideo: true, time: "0:02"},
     
     { src: "./data/photo/private (10).jpg" },
-    { src: "./data/photo/private (2).mp4" }, 
+    { src: "./data/photo/private (2).mp4", isVideo: true, time: "0:02" }, 
     { src: "./data/photo/private (11).jpg" },
     { src: "./data/photo/private (12).jpg" },    
     { src: "./data/photo/private (13).jpg" },
@@ -248,7 +258,7 @@ VIEWS.privateAlbum = () => {
     cls: "dark", dark: true, 
     html: `
     <!-- 👇 padding-top 增加到 90px，让整个内容往下沉 -->
-    <div class="scroll" style="background:#000; padding-bottom: 0; min-height:100vh; padding-top: 120px;">
+    <div class="scroll" style="background:#000; padding-bottom: 0; min-height:100vh; padding-top: 90px;">
       
       <div style="padding: 0 16px 20px; display:flex; justify-content:space-between; align-items:flex-end;">
          <h1 class="lt" style="margin:0; color:#fff; font-size:32px; font-weight:700;">私密照片</h1>
@@ -263,7 +273,7 @@ VIEWS.privateAlbum = () => {
           <div style="aspect-ratio:1; background:#1a1a1a; overflow:hidden; position:relative; cursor:pointer;" onclick="openMediaViewer(${i})">
              ${isVideo 
                ? `<video src="${p.src}" muted preload="metadata" playsinline webkit-playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; pointer-events:none;"></video>
-                  <div style="position:absolute; bottom:4px; left:6px; color:#fff; font-size:11px; font-weight:500; text-shadow:0 1px 2px rgba(0,0,0,0.8); z-index:2;">0:15</div>
+                  <div style="position:absolute; bottom:4px; left:6px; color:#fff; font-size:11px; font-weight:500; text-shadow:0 1px 2px rgba(0,0,0,0.8); z-index:2;">${p.time || "0:02"}</div>
                   <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:32px; height:32px; background:rgba(0,0,0,0.5); border-radius:50%; display:grid; place-items:center; color:#fff; font-size:14px; padding-left:2px; backdrop-filter:blur(4px);">▶</div>`
                : `<img src="${p.src}" style="width:100%; height:100%; object-fit:cover; display:block;" loading="lazy">`}
           </div>
@@ -309,7 +319,7 @@ function renderPhoneAlbumPicker() {
       const s = typeof esc === "function" ? esc(item.src) : item.src;
       return `<button class="pa-cell${sel ? " sel" : ""}" onclick="phoneAlbumTap(${i})">${
         isV
-          ? `<video src="${s}" muted preload="metadata"></video><i class="pa-vd">0:15</i>`
+          ? `<video src="${s}" muted preload="metadata"></video><i class="pa-vd">${item.time || "0:02"}</i>`
           : `<img src="${s}" loading="lazy" />`
       }</button>`;
     })
