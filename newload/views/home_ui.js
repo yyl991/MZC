@@ -1,5 +1,5 @@
 // ==========================================
-// 📱 主屏幕自定义布局 (home_ui.js) - 动态下雪版
+// 📱 主屏幕自定义布局 (home_ui.js) - 极速秒切版
 // ==========================================
 
 (function () {
@@ -63,11 +63,12 @@
     .wwx-dark .w-desc { font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px; }
     .wwx-dark .w-range { font-size: 11px; font-weight: 500; margin-top: auto; display: flex; gap: 6px; }
 
-    /* 👇 动态下雪特效 */
+    /* 👇 动态下雪特效 (飘落得更深) */
     @keyframes snow-fall {
       0% { transform: translateY(-10px) translateX(0) rotate(0deg); opacity: 0; }
       20% { opacity: 1; }
-      100% { transform: translateY(170px) translateX(20px) rotate(360deg); opacity: 0; }
+      90% { opacity: 1; }
+      100% { transform: translateY(260px) translateX(30px) rotate(360deg); opacity: 0; }
     }
     .snowflake {
       position: absolute; top: -10px; color: #fff; text-shadow: 0 0 3px rgba(255,255,255,0.5); pointer-events: none; z-index: 0;
@@ -187,9 +188,8 @@
     const musicHTML = getMusicWidgetHTML(isPlaying);
     const dockApps = ["wechat", "phone", "sms"];
 
-    // 👇 动态生成 12 片随机雪花
     let snowHtml = "";
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 15; i++) {
       const left = Math.random() * 100;
       const delay = Math.random() * 3;
       const duration = 2.5 + Math.random() * 2;
@@ -207,15 +207,9 @@
           <div class="cal-right"><div class="cal-month-title">11月</div><div class="mini-cal">${buildMiniCalHTML(2026, 11, todayD)}</div></div>
         </button>
 
-        <!-- 👇 天气卡片（注入了动态雪花） -->
         <button class="widget wwx-dark" data-app="weather" onclick="openApp('weather',this)" style="position: relative; overflow: hidden;">
-          
-          <!-- 动态雪花覆盖层 -->
           ${snowHtml}
-          
-          <!-- 大云朵图标 (调低透明度放在底层，当做背景) -->
           <div style="position: absolute; top: 20px; right: -5px; font-size: 90px; line-height: 1; z-index: 0; opacity: 0.6;">🌨️</div>
-          
           <div style="font-size: 18px; font-weight: 500; margin-bottom: 2px; position: relative; z-index: 1;">北京</div>
           <div style="font-size: 64px; font-weight: 200; line-height: 1; letter-spacing: -1.5px; margin-top: 4px; margin-bottom: 2px; position: relative; z-index: 1;">0°</div>
           <div style="font-size: 17px; font-weight: 500; margin-top: 2px; margin-bottom: auto; position: relative; z-index: 1;">阴转小雪</div>
@@ -230,7 +224,6 @@
             </div>
           </div>
         </button>
-        
         ${appBtn("photos")}${appBtn("mail")}${appBtn("clock")}${appBtn("recorder")}
         
         ${appBtn("weibo")}${appBtn("xianyu")}
@@ -238,24 +231,22 @@
         ${appBtn("bilibili")}${appBtn("xhs")}
       </div>
 
-      <!-- 👇 贴边悬浮防误触按钮 -->
       <div class="floating-tools">
         <button onclick="event.stopPropagation(); window.lockPhone()" title="锁屏">${G.sysLock}</button>
         <button onclick="event.stopPropagation(); window.resetGameState()" title="重置进度">${G.sysReset}</button>
       </div>
 
-      <!-- 👇 底部 Dock 栏：免打扰 -->
+      <!-- 👇 Dock栏：极速版免打扰（去掉所有渐变和滤镜，纯瞬间变） -->
       <div class="dock">
         ${dockApps.map(appBtn).join("")}
-        <button class="app" id="home-dnd" onpointerdown="event.stopPropagation();toggleDnd(event)" style="touch-action: manipulation;">
-  <div class="icon" style="background:${window.isDnd ? '#5e5ce6' : '#8e8e93'}; transition: background 0.2s;">
-    <div class="ic" style="display:grid; place-items:center; color:#fff; font-size:26px; filter:${window.isDnd ? 'none' : 'grayscale(100%) opacity(0.8)'}; transition: filter 0.2s;">🌙</div>
-  </div>
-  <span class="lbl">免打扰</span>
-</button>
+        <button class="app" id="home-dnd" onclick="event.stopPropagation();toggleDnd(event)">
+          <div class="icon" style="background:${window.isDnd ? '#5e5ce6' : '#8e8e93'};">
+            <div class="ic" style="display:grid; place-items:center; color:#fff; font-size:26px; opacity:${window.isDnd ? '1' : '0.5'};">🌙</div>
+          </div>
+          <span class="lbl">免打扰</span>
+        </button>
       </div>
 
-      <!-- 下拉控制中心 -->
       <div class="ccwrap" id="cc" onclick="if(event.target===this)closeCC()">
         <div class="cc-panel">
           <div class="cc-title">控制中心</div>
