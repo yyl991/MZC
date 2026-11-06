@@ -1329,21 +1329,40 @@ function tick() {
 }
 function fit() {
   const ph = $("#phone");
-  ph.classList.remove("mob");
-  ph.classList.toggle("short", innerHeight < 740);
-  const baseW = 393,
-    baseH = 852;
-  const safeH = innerHeight - 30,
-    safeW = innerWidth - 20;
-  SC = Math.min(safeW / baseW, safeH / baseH, 1);
-  ph.style.width = baseW + "px";
-  ph.style.height = baseH + "px";
-  ph.style.position = "absolute";
-  ph.style.left = "50%";
-  ph.style.top = "50%";
-  ph.style.transformOrigin = "center center";
-  ph.style.transform = `translate(-50%, -50%) scale(${SC})`;
-  ph.style.margin = "0";
+  // 如果屏幕宽度小于 768px，说明是手机打开
+  const isMobile = innerWidth < 768;
+
+  if (isMobile) {
+    // 手机端：去掉边框，直接铺满整个屏幕
+    ph.classList.add("mob");
+    ph.style.width = "100vw";
+    ph.style.height = "100vh";
+    ph.style.transform = "none";
+    ph.style.position = "absolute";
+    ph.style.left = "0";
+    ph.style.top = "0";
+    ph.style.borderRadius = "0"; // 去掉圆角
+    ph.style.boxShadow = "none";  // 去掉外阴影
+    SC = 1; 
+  } else {
+    // 电脑端：保留手机壳模拟器效果
+    ph.classList.remove("mob");
+    ph.classList.toggle("short", innerHeight < 740);
+    const baseW = 393, baseH = 852;
+    const safeH = innerHeight - 30, safeW = innerWidth - 20;
+    SC = Math.min(safeW / baseW, safeH / baseH, 1);
+    
+    ph.style.width = baseW + "px";
+    ph.style.height = baseH + "px";
+    ph.style.position = "absolute";
+    ph.style.left = "50%";
+    ph.style.top = "50%";
+    ph.style.transformOrigin = "center center";
+    ph.style.transform = `translate(-50%, -50%) scale(${SC})`;
+    ph.style.margin = "0";
+    ph.style.borderRadius = ""; // 恢复 CSS 里的默认圆角
+    ph.style.boxShadow = "";    // 恢复 CSS 里的默认阴影
+  }
 }
 function buildInterleavedTimeline() {
   const list = CFG.timeline || [];
@@ -1438,13 +1457,45 @@ window.loadGameState = function () {
 window.saveChat = window.saveGameState;
 window.saveStory = window.saveGameState;
 
+// 👇 重置进度（手写 UI 确认版，防浏览器拦截）
 window.resetGameState = function () {
-  if (confirm("确定要重置进度吗？聊天记录和时间线将全部清空！")) {
-    localStorage.removeItem("mzc_game_save");
-    location.reload();
-  }
-};
+  // 防止重复点击
+  if (document.getElementById("reset-confirm-wrap")) return;
 
+  const wrap = document.createElement("div");
+  wrap.id = "reset-confirm-wrap";
+  wrap.style.cssText = "position:absolute; inset:0; z-index:9999999; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); opacity:0; transition:opacity 0.2s;";
+  
+  wrap.innerHTML = `
+    <div style="background:#fff; width:270px; border-radius:20px; overflow:hidden; text-align:center; transform:scale(0.95); transition:transform 0.2s; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+      <div style="padding:24px 20px 20px;">
+        <div style="font-size:17px; font-weight:600; color:#111; margin-bottom:8px;">重置进度</div>
+        <div style="font-size:13px; color:#666; line-height:1.5;">清空当前存档，聊天记录和时间线将全部清空，从头开始。</div>
+      </div>
+      <div style="display:flex; border-top:0.5px solid #e5e5ea;">
+        <button style="flex:1; padding:16px; border:none; background:none; font-size:16px; color:#007aff; border-right:0.5px solid #e5e5ea; cursor:pointer;" onclick="document.getElementById('reset-confirm-wrap').remove();">取消</button>
+        <button style="flex:1; padding:16px; border:none; background:none; font-size:16px; color:#ff3b30; font-weight:600; cursor:pointer;" id="btn-do-reset">确认重置</button>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById("screen").appendChild(wrap);
+  
+  // 动画淡入
+  requestAnimationFrame(() => {
+    wrap.style.opacity = "1";
+    wrap.querySelector('div').style.transform = "scale(1)";
+  });
+
+  // 绑定确认按钮
+  wrap.querySelector("#btn-do-reset").onclick = () => {
+    localStorage.removeItem("mzc_game_save");
+    if (typeof toastDev === "function") toastDev("进度已清空");
+    setTimeout(() => {
+      location.reload();
+    }, 300);
+  };
+};
 // 👇 一键回到锁屏（完全强制复位版）
 window.lockPhone = function () {
   if (!["home", "pin", "lock"].includes(view)) return;
