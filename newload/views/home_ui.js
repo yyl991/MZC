@@ -1,5 +1,5 @@
 // ==========================================
-// 📱 主屏幕自定义布局 (home_ui.js) - 完美贴边悬浮版
+// 📱 主屏幕自定义布局 (home_ui.js) - 动态下雪版
 // ==========================================
 
 (function () {
@@ -35,7 +35,7 @@
     .app .icon .bdg { position: absolute; top: -5px; right: -5px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #ff3b30; color: #fff; font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; z-index: 10; }
     .app .lbl { font-size: 11px; font-weight: 500; color: #fff; text-shadow: 0 1px 4px rgba(0, 0, 0, .5); white-space: nowrap; }
 
-    /* 经典大日历（占 2 行） */
+    /* 经典大日历 */
     .wcal-wide { 
       grid-column: span 4; grid-row: span 2; width: 100%; height: 100%; 
       background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
@@ -56,18 +56,29 @@
     .wcal-wide .mini-cal span.today { background: #ff3b30; color: #fff; border-radius: 50%; font-weight: 600; }
     .wcal-wide .mini-cal span.has-event::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: #FDAFAB; border-radius: 50%; }
 
-    .wwx-dark { grid-column: span 2; grid-row: span 2; width: 100%; aspect-ratio: 1 / 1.05; background: linear-gradient(180deg, #5c6670, #3a4149); border-radius: 22px; padding: 12px; color: #fff; position: relative; text-align: left; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .wwx-dark { grid-column: span 2; grid-row: span 2; width: 100%; aspect-ratio: 1 / 1.05; background: linear-gradient(180deg, #5c6670, #3a4149); border-radius: 22px; padding: 12px; color: #fff; position: relative; text-align: left; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 16px rgba(0,0,0,0.1); overflow: hidden; }
     .wwx-dark .w-top { display: flex; justify-content: space-between; align-items: flex-start; }
     .wwx-dark .w-city { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 2px; }
     .wwx-dark .w-temp { font-size: 42px; font-weight: 300; line-height: 1; letter-spacing: -1px; }
     .wwx-dark .w-desc { font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px; }
     .wwx-dark .w-range { font-size: 11px; font-weight: 500; margin-top: auto; display: flex; gap: 6px; }
 
-    /* 👇 贴边悬浮防误触版（位置 66%） */
+    /* 👇 动态下雪特效 */
+    @keyframes snow-fall {
+      0% { transform: translateY(-10px) translateX(0) rotate(0deg); opacity: 0; }
+      20% { opacity: 1; }
+      100% { transform: translateY(160px) translateX(20px) rotate(360deg); opacity: 0; }
+    }
+    .snowflake {
+      position: absolute; top: -10px; color: #fff; text-shadow: 0 0 3px rgba(255,255,255,0.5); pointer-events: none; z-index: 0;
+      animation: snow-fall linear infinite;
+    }
+
+    /* 👇 贴边悬浮防误触版 */
     .floating-tools {
-      position: absolute; right: -14px; top: 58%; transform: translateY(-50%);
-      display: flex; flex-direction: column; gap: 6px; z-index: 999;
-      pointer-events: none; /* 关键：点击会直接穿透到下层 App */
+      position: absolute; right: -14px; top: 56%; transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 4px; z-index: 999;
+      pointer-events: none; 
     }
     .floating-tools button {
       width: 44px; height: 44px; border-radius: 50%;
@@ -76,21 +87,15 @@
       border: 1px solid rgba(255, 255, 255, 0.4);
       color: #fff; display: flex; align-items: center; justify-content: flex-start;
       box-shadow: -2px 2px 8px rgba(0,0,0,0.1); 
-      pointer-events: auto; /* 只有按钮本身能响应点击 */
+      pointer-events: auto; 
       transition: all 0.2s; cursor: pointer;
       padding-left: 8px;
       -webkit-tap-highlight-color: transparent;
     }
     .floating-tools button svg { width: 18px; height: 18px; }
-    .floating-tools button:active { 
-      transform: scale(0.95); background: rgba(255, 255, 255, 0.6); 
-    }
-    .floating-tools button:first-child { 
-      background: rgba(28, 28, 30, 0.5); border-color: rgba(255, 255, 255, 0.2);
-    }
-    .floating-tools button:last-child {
-      background: rgba(255, 59, 48, 0.5); border-color: rgba(255, 59, 48, 0.6);
-    }
+    .floating-tools button:active { transform: scale(0.95); background: rgba(255, 255, 255, 0.6); }
+    .floating-tools button:first-child { background: rgba(28, 28, 30, 0.5); border-color: rgba(255, 255, 255, 0.2); }
+    .floating-tools button:last-child { background: rgba(255, 59, 48, 0.5); border-color: rgba(255, 59, 48, 0.6); }
     
     @media (max-width: 540px) {
       .hgrid { top: 46px; bottom: 95px; gap: 4px 4px; grid-template-rows: 0.85fr 0.85fr 1.1fr 1.1fr 1.1fr 1.1fr; }
@@ -182,6 +187,16 @@
     const musicHTML = getMusicWidgetHTML(isPlaying);
     const dockApps = ["wechat", "phone", "sms"];
 
+    // 👇 动态生成 12 片随机雪花
+    let snowHtml = "";
+    for (let i = 0; i < 12; i++) {
+      const left = Math.random() * 100;
+      const delay = Math.random() * 3;
+      const duration = 2.5 + Math.random() * 2;
+      const size = 8 + Math.random() * 10;
+      snowHtml += `<div class="snowflake" style="left: ${left}%; animation-duration: ${duration}s; animation-delay: ${delay}s; font-size: ${size}px;">❅</div>`;
+    }
+
     HOME.innerHTML = `
       <div class="hgrid">
         <button class="widget wcal-wide" data-app="calendar" onclick="openApp('calendar',this)">
@@ -192,8 +207,15 @@
           <div class="cal-right"><div class="cal-month-title">11月</div><div class="mini-cal">${buildMiniCalHTML(2026, 11, todayD)}</div></div>
         </button>
 
+        <!-- 👇 天气卡片（注入了动态雪花） -->
         <button class="widget wwx-dark" data-app="weather" onclick="openApp('weather',this)" style="position: relative; overflow: hidden;">
-          <div style="position: absolute; top: 30px; right: 0px; font-size: 90px; line-height: 1;">🌨️</div>
+          
+          <!-- 动态雪花覆盖层 -->
+          ${snowHtml}
+          
+          <!-- 大云朵图标 (调低透明度放在底层，当做背景) -->
+          <div style="position: absolute; top: 20px; right: -5px; font-size: 90px; line-height: 1; z-index: 0; opacity: 0.6;">🌨️</div>
+          
           <div style="font-size: 18px; font-weight: 500; margin-bottom: 2px; position: relative; z-index: 1;">北京</div>
           <div style="font-size: 64px; font-weight: 200; line-height: 1; letter-spacing: -1.5px; margin-top: 4px; margin-bottom: 2px; position: relative; z-index: 1;">0°</div>
           <div style="font-size: 17px; font-weight: 500; margin-top: 2px; margin-bottom: auto; position: relative; z-index: 1;">阴转小雪</div>
@@ -208,6 +230,7 @@
             </div>
           </div>
         </button>
+        
         ${appBtn("photos")}${appBtn("mail")}${appBtn("clock")}${appBtn("recorder")}
         
         ${appBtn("weibo")}${appBtn("xianyu")}
@@ -215,14 +238,20 @@
         ${appBtn("bilibili")}${appBtn("xhs")}
       </div>
 
-      <!-- 👇 贴边悬浮防误触按钮 (依赖 icons.js 里的 G 对象) -->
+      <!-- 👇 贴边悬浮防误触按钮 -->
       <div class="floating-tools">
         <button onclick="event.stopPropagation(); window.lockPhone()" title="锁屏">${G.sysLock}</button>
         <button onclick="event.stopPropagation(); window.resetGameState()" title="重置进度">${G.sysReset}</button>
       </div>
 
-      <!-- 经典 Dock 栏 -->
-      <div class="dock">${dockApps.map(appBtn).join("")}${appBtn("calendar")}</div>
+      <!-- 👇 底部 Dock 栏：免打扰 -->
+      <div class="dock">
+        ${dockApps.map(appBtn).join("")}
+        <button class="app ${window.isDnd ? "on" : ""}" id="home-dnd" onclick="event.stopPropagation();toggleDnd(event)">
+          <div class="icon" style="background:#5e5ce6;"><div class="ic" style="display:grid; place-items:center; color:#fff; font-size:26px;">🌙</div></div>
+          <span class="lbl">免打扰</span>
+        </button>
+      </div>
 
       <!-- 下拉控制中心 -->
       <div class="ccwrap" id="cc" onclick="if(event.target===this)closeCC()">
