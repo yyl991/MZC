@@ -1445,29 +1445,56 @@ window.resetGameState = function () {
   }
 };
 
-// 👇 一键回到锁屏
-window.lockPhone = function() {
-  if (["home", "pin"].includes(view)) {
-    // 如果当前在 App 里，先关掉
-    if (typeof closeApp === "function") APP.style.visibility = "hidden";
+// 👇 一键回到锁屏（完全强制复位版）
+window.lockPhone = function () {
+  if (!["home", "pin", "lock"].includes(view)) return;
+  if (typeof callState !== "undefined" && callState) return;
 
-    view = "lock";
-    renderLock();
-
-    // 把密码键盘隐藏，显示正常锁屏
-    $("#pinL").style.display = "none";
-    $("#wall").classList.remove("dim");
-
-    // 显示锁屏界面
-    LOCK.style.display = "block";
-    LOCK.style.visibility = "visible";
-    LOCK.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300 }).onfinish = () => {
-      HOME.style.visibility = "hidden";
-    };
-
-    setStatus(true);
-    updateCrumb();
+  view = "lock";
+  
+  // 1. 清理主屏幕和 APP
+  if (typeof APP !== "undefined") APP.style.visibility = "hidden";
+  if (typeof HOME !== "undefined") {
+    HOME.style.visibility = "visible";
+    HOME.style.transform = "none";
+    HOME.style.opacity = "1";
+    HOME.getAnimations().forEach(a => a.cancel());
   }
+  
+  // 2. 彻底清除壁纸的模糊和暗色
+  const wall = $("#wall");
+  if (wall) {
+    wall.classList.remove("dim");
+    wall.style.filter = "";
+  }
+  
+  // 3. 隐藏密码键盘
+  const pinL = $("#pinL");
+  if (pinL) pinL.style.display = "none";
+  
+  // 4. 强制重置锁屏内容的状态（极其关键！）
+  const lk = $("#lkc");
+  if (lk) {
+    lk.style.transform = "none";
+    lk.style.opacity = "1";
+    lk.style.pointerEvents = "";
+    lk.getAnimations().forEach(a => a.cancel()); // 清除可能残留的向上滑出动画
+  }
+  
+  // 5. 重新渲染锁屏并显示
+  renderLock();
+  
+  LOCK.style.display = "block";
+  LOCK.style.visibility = "visible";
+  LOCK.style.opacity = "1";
+  
+  // 6. 动画过渡
+  LOCK.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300, fill: "forwards" }).onfinish = () => {
+    HOME.style.visibility = "hidden"; // 动画结束，彻底隐藏桌面
+  };
+
+  setStatus(true);
+  updateCrumb();
 };
 
 function initApp() {
