@@ -247,9 +247,9 @@
       <!-- 👇 底部 Dock 栏：免打扰 -->
       <div class="dock">
         ${dockApps.map(appBtn).join("")}
-        <button class="app ${window.isDnd ? "on" : ""}" id="home-dnd" onclick="event.stopPropagation();toggleDnd(event)">
-  <div class="icon" style="background:${window.isDnd ? '#5e5ce6' : '#8e8e93'}; transition: background 0.3s;">
-    <div class="ic" style="display:grid; place-items:center; color:#fff; font-size:26px; filter:${window.isDnd ? 'none' : 'grayscale(100%) opacity(0.8)'}; transition: filter 0.3s;">🌙</div>
+        <button class="app" id="home-dnd" onpointerdown="event.stopPropagation();toggleDnd(event)" style="touch-action: manipulation;">
+  <div class="icon" style="background:${window.isDnd ? '#5e5ce6' : '#8e8e93'}; transition: background 0.2s;">
+    <div class="ic" style="display:grid; place-items:center; color:#fff; font-size:26px; filter:${window.isDnd ? 'none' : 'grayscale(100%) opacity(0.8)'}; transition: filter 0.2s;">🌙</div>
   </div>
   <span class="lbl">免打扰</span>
 </button>
