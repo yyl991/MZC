@@ -77,7 +77,8 @@ if (!SS.talked) SS.talked = {}; // 本局通过电话的角色
 const GAME_START_MIN = 23 * 60 + 9, GAME_END_AT = 660;
 let view = "lock", curDark = true, SC = 1, lastRect = null, animTok = 0, firstOpen = true, pendingOpen = null;
 let pincode = "", selectedDay = 15, calMonth = 11, chatId = "穆祉丞", mailId = 0;
-let unread = {};
+// 开局前就收到的两条消息，同样算未读
+let unread = { cat: 1, 丞丞: 1 };
 let callName = "穆祉丞";
 // 开局前就已经收到的两条：玩家点亮手机之前，锁屏上已经有消息了
 let lockNotes = [
