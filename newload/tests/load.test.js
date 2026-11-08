@@ -154,6 +154,11 @@ ok("锁屏可渲染", !lockErr, lockErr);
 const lockHTML = vm.runInContext('document.querySelector("#lkc").innerHTML', sb);
 ok("锁屏有免打扰按钮", String(lockHTML).includes("免打扰"), lockHTML.slice(0, 60));
 ok("锁屏有重置入口", String(lockHTML).includes("重置进度"));
+// 重置中要挡住 5 秒自动存档，否则删掉的旧档会被 tick 写回来
+sb.window._resetting = true;
+sb.saveGameState();
+ok("重置时不再写档", sb.localStorage.getItem("mzc_game_save") === null);
+sb.window._resetting = false;
 
 console.log(fails === 0 ? "ALL PASS" : fails + " FAILS");
 process.exit(fails ? 1 : 0);

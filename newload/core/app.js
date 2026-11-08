@@ -619,6 +619,8 @@ function hideBoot() { const b = document.getElementById("boot"); if (!b) return;
 
 // ================= 存档核心 =================
 window.saveGameState = function () {
+  // 正在重置：别让每 5 秒的自动存档把刚删掉的旧进度又写回来
+  if (window._resetting) return;
   try {
     const state = {
       elapsed: elapsed(),
@@ -686,6 +688,8 @@ window.resetGameState = function () {
   });
 
   wrap.querySelector("#btn-do-reset").onclick = () => {
+    // 先上锁再删档：不然 reload 前的这 300ms 里，tick 可能刚好又存一次旧档
+    window._resetting = true;
     localStorage.removeItem("mzc_game_save");
     if (typeof toastDev === "function") toastDev("进度已清空");
     setTimeout(() => { location.reload(); }, 300);

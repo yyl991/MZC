@@ -46,6 +46,17 @@ window.wxClearChat = function () {
       danger: true,
       onClick: () => {
         chatData[chatId] = [["11月15日", "date"]];
+        // 这个角色的剧情进度也一起清掉，否则记录清了、他那边还停在「已经回过话」的状态
+        if (typeof SS !== "undefined") {
+          if (SS.stage) SS.stage[chatId] = 0;
+          if (SS.lineIdx) SS.lineIdx[chatId] = 0;
+          if (SS.talked) SS.talked[chatId] = 0;
+          if (SS.fired && typeof CFG !== "undefined" && CFG.timeline) {
+            CFG.timeline.forEach((b, i) => {
+              if (b.from === chatId) SS.fired.delete(i + "@" + b.at);
+            });
+          }
+        }
         saveChat();
         show("wx_chat_info", "none");
         toastDev("聊天记录已清空");
