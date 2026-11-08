@@ -59,199 +59,164 @@ var INCOMING = [];
     'MuAMuA': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['我没事，就是有点懵。'], them:['那就好。','先找个亮的地方站着，别一直看手机。'] },
-        { mine:['我好像错过了很多。'], them:['以前那些事，你不用替我难过。','你现在回来就好。'] },
-        { mine:['我想你了。'], them:['……宝宝。','别在外面说这种话。'] }
+        { mine:['我没事，就是有点懵'], them:['那就好','先找个暖和的地方站着，别乱跑，我去接你'] },
+        { mine:['我想你了'], them:['宝宝','我很快就到'] }
       ],
       fragment: { title:'碎片 · 温柔', body:'他学会的第一件事，是把别人的情绪轻轻接住。\n\n“如果你也会害怕，就靠过来一点。”' }
     },
     '丞哥': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['知道了，我马上到。'], them:['这还差不多。'] },
-        { mine:['我是不是来晚了。'], them:['晚了。','门给你留着。','上来。'] }
+        { mine:['知道了，我马上到'], them:['这还差不多'] },
+        { mine:['我是不是来晚了'], them:['晚了','门给你留着','上来'] }
       ],
       fragment: { title:'碎片 · 铠甲', body:'台上气场很稳的人，台下也会偷偷看门口。\n\n“我不是不需要人，我只是习惯了不说。”' }
     },
     '穆祉丞': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['我在回家的路上。'], them:['好。门给你留着。'] },
-        { mine:['过去已经过去了，我会抓住现在的你。'], them:['嗯。我想要的是此刻，是今天生日，有你。'] }
+        { mine:['我在回家的路上'], them:['好，门给你留着'] },
+        { mine:['对不起'], them:['没事，我想要的是此刻，是今天生日，有你'] }
       ],
       fragment: { title:'碎片 · 此刻', body:'他等的不只是一个生日。\n\n是有人推开门，说“我到了”。' }
     },
     '穆瑞恩': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['我现在来了。'], them:['真的吗？那我可以再等一会儿。'] },
-        { mine:['对不起，我来得太晚。'], them:['没关系，现在你来就够啦。以前我一个人，现在有你了。'] }
+        { mine:['我现在来了'], them:['真的吗？那我可以再等一会儿'] },
+        { mine:['对不起，我来得太晚'], them:['没关系，现在你来就够啦','以前我一个人，现在有你了'] }
       ],
       fragment: { title:'碎片 · 九岁', body:'九岁那年，练习室的灯总是最后一个关。\n\n他以为没有人会来。' }
     },
     '恩仔': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['我看见你了。'], them:['……真的吗？'] },
-        { mine:['我知道我现在才认识你，但我会在。'], them:['没关系，你来就很好。'] }
+        { mine:['我看见你了'], them:['…真的吗？'] },
+        { mine:['我知道我现在才认识你，但我会在'], them:['没关系，你来就很好'] }
       ],
       fragment: { title:'碎片 · 角落', body:'有些难过说不出口。\n\n只能自己消化，然后第二天继续笑。' }
     },
-    'Mu': {
+    'pig': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['我不会消失。'], them:['1','上号'] },
-        { mine:['迟到总比永远不来要好。'], them:['上号','1'] }
-      ],
-      fragment: { title:'碎片 · 铠甲', body:'摔过话筒之后，他学会先把自己包起来。\n\n但铠甲里面，还是那个想被接住的人。' }
-    },
-        'pig': {
-      init: [['11月15日','date']],
-      replies: [
-        { mine:['别闹了，早点睡。'], them:['不行，蛋糕还没切。','切了才睡。'] },
-        { mine:['我快到了。'], them:['好！','我先尝一口边缘。','就一口。'] }
+        { mine:['别闹了，早点睡'], them:['不行，蛋糕还没切','吃完再睡'] },
+        { mine:['我快到了'], them:['好！','我先尝一口边边上的巧克力','就一口…'] }
       ],
       fragment: null
     },
     'cat': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['别生气了，我马上回。'], them:['蒽。','等着呢。'] },
-        { mine:['门锁了？'], them:['……没锁。','快点。'] }
+        { mine:['别生气了，我马上回'], them:['等着呢'] },
+        { mine:['门锁了？'], them:['……没锁','快点'] }
       ],
       fragment: null
     },
     'rabbit': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['我快到家了。'], them:['好呀。','那我去把饭热一下。'] },
-        { mine:['你先吃吧。'], them:['我先吃了。','但是我留的是你爱吃的那个。','我不太爱吃那个。'] },
-        { mine:['对不起，我回来晚了。'], them:['没关系呀。','我等你不算晚。'] }
+        { mine:['我快到家了'], them:['好呀','那我去把饭热一下'] },
+        { mine:['你先吃吧'], them:['我等你一起','没关系我还不太饿呢'] },
+        { mine:['对不起，我回来晚了'], them:['没关系呀','不算晚的'] }
       ],
       fragment: null
     },
-    'tiger': {
-      init: [['11月15日','date']],
-      replies: [
-        { mine:['你到底是猫还是老虎？'], them:['嗷呜！'] }
-      ],
-      fragment: null
-    },
-
-    // 八中足球队队长 · 艺体两开花的 if 线
     '丞丞': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['我马上回去。'], them:['快回去啊，别让人等 😾'] },
-        { mine:['你今天怎么这么晚还踢球。'], them:['路过你家，灯是暗的。'] }
+        { mine:['我马上'], them:["快点快点，let's go! 😾"] }
       ],
       fragment: null
     },
-        
-    // 👇 新增 '恩恩' 的剧情配置 👇
     '恩恩': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['我尽量早点过去。'], them:['不用勉强。','我一个人也可以的。','……真的。'] },
-        { mine:['对不起，让你等了。'], them:['我没生气。','我只是有点难过。','但是你说对不起，我就不难过了。'] }
+        { mine:['我尽量早点回去'], them:['不用勉强','我一个人也可以的','…真的'] },
+        { mine:['对不起，让你等太久'], them:['我没生气','我只是有点难过','但是你说对不起，我就不难过了'] }
       ],
       fragment: null
-    },
-    
-    // 👇 如果你把 '闺蜜' 改成了 '穆小恩'，要在这里也加上 👇
+    }
   };
 
   /* 完整时间线：所有人都会按秒数弹出来 */
   S.timeline = [
     { at: 0, type:'notify', from:'穆祉丞', text:'不是 你人呢？手机定位怎么在街上？' },
-    { at: 7, type:'notify', from:'穆祉丞', text:'刚刚还跟我说话，一转眼人没了。' },
-    { at: 10, type:'notify', from:'穆祉丞', text:'你去哪里了？马上快要到我的生日零点了，蛋糕已经摆好了，就差你。' },
+    { at: 7, type:'notify', from:'穆祉丞', text:'刚刚还跟我说话，一转眼人没了' },
+    { at: 10, type:'notify', from:'穆祉丞', text:'你去哪里了？马上快要到我的生日零点了，蛋糕已经摆好了，就差你回来' },
     { at: 13, type:'notify', from:'pig', text:'馋死了' },
     { at: 17, type:'notify', from:'pig', text:'你什么时候回来吃蛋糕' },
-    { at: 23, type:'notify', from:'MuAMuA', text:'宝宝，今天下雪了外面很冷，不要一个人待在外边好不好。' },
-    { at: 27, type:'notify', from:'穆祉丞', text:'今天我很想你。' },
+    { at: 23, type:'notify', from:'MuAMuA', text:'宝宝，今天下雪了外面很冷，不要一个人待在外边好不好' },
+    { at: 27, type:'notify', from:'穆祉丞', text:'今天我很想你' },
     { at: 30, type:'notify', from:'cat', text:'你死哪去了' },
     { at: 34, type:'notify', from:'cat', text:'？' },
     { at: 37, type:'notify', from:'丞哥', text:'？' },
-    { at: 40, type:'notify', from:'丞哥', text:'这样不乖哦。' },
+    { at: 40, type:'notify', from:'丞哥', text:'这样不乖哦' },
     { at: 47, type:'notify', from:'cat', text:'不问了' },
     { at: 50, type: 'call', from: 'pig' },
     { at: 56, type:'notify', from:'rabbit', text:'下雪了 你回来的时候小心一点哦' },
-    { at: 60, type:'notify', from:'穆瑞恩', text:'你在哪里呀？练习室好黑，大家都走了。' },
+    { at: 60, type:'notify', from:'穆瑞恩', text:'你在哪里呀？练习室好黑，大家都走了' },
     { at: 63, type:'notify', from:'pig', text:'？' },
-    { at: 66, type:'notify', from:'pig', text:'没人要猪了' },
     { at: 70, type:'notify', from:'pig', text:'😭😭😭' },
-    { at: 73, type:'notify', from:'恩仔', text:'我有点害怕……你不要丢下我好不好。' },
+    { at: 73, type:'notify', from:'恩仔', text:'我有点怕黑…' },
     { at: 80, type:'notify', from:'穆祉丞', text:'？' },
-    { at: 83, type:'notify', from:'恩恩', text:'蛋糕我摆好了，再不来我就自己吹蜡烛了。' },
+    { at: 83, type:'notify', from:'恩恩', text:'蛋糕我摆好了，再不来我就自己吹蜡烛了' },
+    { at: 86, type:'notify', from:'穆瑞恩', text:'我的腰有点痛。。。' },
     { at: 87, type: 'call', from: '穆祉丞' },
     { at: 93, type:'notify', from:'cat', text:'老子数到三' },
-    { at: 96, type:'notify', from:'恩恩', text:'哦。' },
+    { at: 96, type:'notify', from:'恩恩', text:'哦' },
     { at: 99, type:'notify', from:'cat', text:'三' },
-    { at: 103, type:'notify', from:'恩恩', text:'我没有生气啊。' },
-    { at: 106, type:'notify', from:'Mu', text:'上号' },
+    { at: 103, type:'notify', from:'恩恩', text:'我没有生气啊' },
     { at: 109, type:'notify', from:'cat', text:'二' },
     { at: 113, type:'notify', from:'rabbit', text:'我给你留了饭' },
-    { at: 119, type:'notify', from:'MuAMuA', text:'我知道你看到了。回我一句，就一句。' },
-    { at: 123, type:'notify', from:'恩仔', text:'我明天就十四岁了。' },
-    { at: 126, type:'notify', from:'穆祉丞', text:'宝宝，回一句。' },
-    { at: 129, type: 'choice' },
+    { at: 119, type:'notify', from:'MuAMuA', text:'我知道你看到了回我一句，就一句' },
+    { at: 126, type:'notify', from:'穆祉丞', text:'宝宝，回一句' },
     { at: 135, type:'notify', from:'丞丞', text:'诶你人呢' },
-    { at: 139, type:'notify', from:'丞丞', text:'今天不是他生日吗' },
-    { at: 142, type:'notify', from:'恩恩', text:'我数三下了。三。' },
-    { at: 146, type:'notify', from:'丞丞', text:'你该不会还在外面吧' },
+    { at: 139, type:'notify', from:'丞丞', text:'还在路上吗这么慢？' },
+    { at: 146, type:'notify', from:'丞丞', text:'不来了吗' },
     { at: 149, type:'notify', from:'cat', text:'一' },
     { at: 152, type:'notify', from:'rabbit', text:'是不是路上堵车了？' },
-    { at: 156, type:'notify', from:'丞丞', text:'😾' },
-    { at: 159, type:'notify', from:'丞哥', text:'定位在解放碑。你一个人？' },
-    { at: 162, type:'notify', from:'恩恩', text:'二。' },
-    { at: 166, type:'notify', from:'穆瑞恩', text:'今天压腿很痛，我不敢跟别人说。你什么时候才会来呀？' },
+    { at: 152, type:'notify', from:'恩仔', text:'没关系，你忙' },
+    { at: 156, type:'notify', from:'丞丞', text:'😿' },
+    { at: 159, type:'notify', from:'丞哥', text:'定位在解放碑你一个人？' },
+    { at: 166, type:'notify', from:'穆瑞恩', text:'今天压腿很痛，按到了我有伤的地方，我不敢跟别人说，你什么时候才会来呀？' },
     { at: 168, type:'notify', from:'cat', text:'你给老子等到起' },
     { at: 172, type:'notify', from:'rabbit', text:'那我再等一会儿' },
-    { at: 176, type:'notify', from:'恩仔', text:'曾经很多次，我躲起来哭的时候，都在幻想会不会有一个人看见我。' },
-    { at: 179, type:'notify', from:'Mu', text:'？' },
-    { at: 182, type:'notify', from:'恩恩', text:'你是不是不爱我了。' },
-    { at: 186, type:'notify', from:'Mu', text:'今天他生日' },
-    { at: 189, type:'notify', from:'穆祉丞', text:'外面下雪了，你到底在哪。' },
-    { at: 193, type:'notify', from:'Mu', text:'你不回去？' },
+    { at: 182, type:'notify', from:'恩仔', text:'我一个人在练习室' },
+    { at: 182, type:'notify', from:'恩恩', text:'你是不是不爱我了' },
+    { at: 189, type:'notify', from:'穆祉丞', text:'外面下雪了，你到底在哪' },
     { at: 196, type:'notify', from:'rabbit', text:'我不催你的，真的' },
-    { at: 203, type:'notify', from:'MuAMuA', text:'我不问你去了哪。' },
+    { at: 203, type:'notify', from:'MuAMuA', text:'我不问你去了哪' },
     { at: 206, type:'notify', from:'cat', text:'今天什么日子 你要爪子嘛' },
-    { at: 209, type:'notify', from:'恩仔', text:'后来真的有一个人看见了。' },
     { at: 213, type:'notify', from:'cat', text:'门锁了 生日你也别过了' },
-    { at: 216, type:'notify', from:'丞哥', text:'气笑了。' },
-    { at: 219, type:'notify', from:'丞丞', text:'雪把球场盖了，球踢一半就散了' },
-    { at: 223, type:'notify', from:'恩恩', text:'我不是非要你今天回来的。' },
-    { at: 226, type:'notify', from:'丞丞', text:'我路过你家楼下了 灯是暗的' },
+    { at: 216, type:'notify', from:'恩仔', text:'不要丢下我好不好' },
+    { at: 219, type:'notify', from:'丞丞', text:'你怎么了为什么不回消息' },
+    { at: 223, type:'notify', from:'恩恩', text:'我不是非要你今天回来的' },
+    { at: 226, type:'notify', from:'丞丞', text:'不来也没事，回一下，我怕你出事' },
     { at: 229, type: 'call', from: '恩恩' },
-    { at: 235, type:'notify', from:'恩恩', text:'我只是……算了。' },
-    { at: 242, type:'notify', from:'丞哥', text:'几点。' },
-    { at: 249, type:'notify', from:'穆瑞恩', text:'我等了你好久好久。' },
-    { at: 252, type:'notify', from:'恩仔', text:'没关系，你忙。' },
-    { at: 256, type:'notify', from:'MuAMuA', text:'但你得让我知道你没事。' },
-    { at: 259, type:'notify', from:'cat', text:'（门没锁）' },
-    { at: 262, type:'notify', from:'穆祉丞', text:'我数到十。' },
+    { at: 235, type:'notify', from:'恩恩', text:'只是今天是我的生日诶…' },
+    { at: 242, type:'notify', from:'丞哥', text:'自己看看几点了' },
+    { at: 249, type:'notify', from:'穆瑞恩', text:'我等了你好久好久' },
+    { at: 256, type:'notify', from:'MuAMuA', text:'但你得让我知道你没事' },
+    { at: 259, type:'notify', from:'cat', text:'没锁' },
+    { at: 262, type:'notify', from:'穆祉丞', text:'我数到十' },
     { at: 266, type:'notify', from:'rabbit', text:'我把蜡烛摆好了，不会点' },
-    { at: 269, type:'notify', from:'丞哥', text:'我要开始数了。' },
-    { at: 272, type:'notify', from:'恩恩', text:'我生气了（真的）。' },
-    { at: 276, type:'notify', from:'cat', text:'……我一个人把蜡烛吹了' },
-    { at: 279, type:'notify', from:'pig', text:'蛋糕要化了' },
-    { at: 282, type:'notify', from:'恩仔', text:'我今天练完了，一个人在练习室。' },
+    { at: 269, type:'notify', from:'丞哥', text:'回家，好不好' },
+    { at: 272, type:'notify', from:'恩恩', text:'我生气了' },
+    { at: 275, type:'notify', from:'恩恩', text:'真的' },
+    { at: 276, type:'notify', from:'cat', text:'…我一个人把蜡烛吹了' },
+    { at: 279, type:'notify', from:'pig', text:'我订的冰激凌蛋糕！要化了😭😭😭😭😭😭😭' },
     { at: 286, type:'notify', from:'rabbit', text:'你慢慢来，我不着急' },
-    { at: 289, type:'notify', from:'丞丞', text:'快回去啊，别让人等' },
-    { at: 296, type:'notify', from:'穆祉丞', text:'穆祉丞。' },
-    { at: 299, type:'notify', from:'Mu', text:'1' },
-    { at: 303, type:'notify', from:'MuAMuA', text:'雪这么大，长寿面煮好了，汤还温着。' },
-    { at: 306, type:'notify', from:'cat', text:'你回来 我不打你' },
+    { at: 289, type:'notify', from:'丞丞', text:'你在哪啊？' },
+    { at: 303, type:'notify', from:'MuAMuA', text:'雪这么大，长寿面煮好了，汤还温着' },
+    { at: 306, type:'notify', from:'cat', text:'你回来 我不骂你' },
     { at: 309, type:'notify', from:'rabbit', text:'但是我有点想你了' },
-    { at: 313, type:'notify', from:'丞哥', text:'三。' },
-    { at: 316, type:'notify', from:'恩仔', text:'你还会来吗。' },
-    { at: 319, type:'notify', from:'恩恩', text:'……你回来我就不生气了。' },
-    { at: 323, type:'notify', from:'穆祉丞', text:'零点过了。你说过会回来的。' },
-    { at: 326, type:'notify', from:'穆瑞恩', text:'姐姐，生日要过去了，你还不来吗。' },
-    { at: 330, type: 'ending' }
+    { at: 313, type:'notify', from:'丞哥', text:'别生气了，你回来我以后不在你手机里装定位了，今天我生日，陪陪我好不好' },
+    { at: 316, type:'notify', from:'恩仔', text:'你还会来吗' },
+    { at: 319, type:'notify', from:'恩恩', text:'你回来我就不生气了' },
+    { at: 323, type:'notify', from:'穆祉丞', text:'零点过了你说过会回来的' },
+    { at: 326, type:'notify', from:'穆瑞恩', text:'姐姐，我的生日要过去了，你还不来吗' },
+    { at: 330, type: 'ending' } // 👈 帮你补了大结局保底
   ];
-
   // 节奏：开场多久开始催、压缩强度（数字越大越早结束）
   S.pace = { offset: 90, amp: 1124, soft: 500 };
   // 多少秒之后开始"时间线跑完还在催"的追加压力
@@ -263,15 +228,15 @@ var INCOMING = [];
   S.missLines = {
     default: "算了。",
     MuAMuA: "不催你了，记得吃饭。",
-    丞丞: "快回去啊，别让人等。",
+    丞丞: "快来呀。",
     丞哥: "爱回不回。",
     穆祉丞: "那我自己吹蜡烛了。",
     穆瑞恩: "没关系，我再等一会儿。",
-    恩仔: "我不吵你了……",
+    恩仔: "我不吵你了…",
     Mu: "我记住了。",
     恩恩: "哦。",
     pig: "那我把蛋糕吃了啊",
-    cat: "……喵都不喵了",
+    cat: "你要爪子嘛",
     rabbit: "我不催你的，真的。",
     tiger: "哼",
   };
@@ -417,86 +382,67 @@ var INCOMING = [];
   // 每个人都要有能接通的通话内容，不能打空的
   S.callScripts = {
     穆祉丞: [
-      ["穆祉丞", "你终于接电话了。"],
-      ["你", "我在回去。"],
-      ["穆祉丞", "下雪了。慢一点，别跑。"],
-      ["你", "对不起，我好像来晚了。"],
-      ["穆祉丞", "不晚。今天还没过。"],
-      ["穆祉丞", "蛋糕给你留着。"],
+      ["穆祉丞", "你终于接电话了"],
+      ["你", "我在回去"],
+      ["穆祉丞", "下雪了慢一点，别跑"],
+      ["你", "对不起，我好像来晚了"],
+      ["穆祉丞", "不晚 今天还没过"],
+      ["穆祉丞", "蛋糕给你留着"],
     ],
     穆瑞恩: [
-      ["穆瑞恩", "姐姐，你什么时候来呀。"],
-      ["你", "马上就到。"],
-      ["穆瑞恩", "我在门口等你，我不进去。"],
-      ["穆瑞恩", "今天也没有人接我，除了你。"],
-    ],
-    恩仔: [
-      ["恩仔", "喂，是我。"],
-      ["你", "嗯，我在。"],
-      ["恩仔", "我练完了，练习室就剩我一个。"],
-      ["你", "我过去接你。"],
-      ["恩仔", "好，那我等你。"],
+      ["穆瑞恩", "姐姐，你什么时候来呀"],
+      ["你", "马上就到"],
+      ["穆瑞恩", "我在门口等你"],
+      ["穆瑞恩", "可不可以快一点呀"],
     ],
     恩恩: [
-      ["恩恩", "你接电话了。"],
-      ["你", "嗯，对不起，让你等了。"],
-      ["恩恩", "我没有生气，我就是想听听你的声音。"],
-      ["恩恩", "菜我热着呢，你回来就能吃。"],
+      ["恩恩", "你终于接电话了"],
+      ["你", "嗯，对不起，让你等了"],
+      ["恩恩", "我没有生气"],
+      ["恩恩", "菜我热着呢，你回来就能吃"],
     ],
     丞哥: [
-      ["丞哥", "喂。"],
-      ["你", "哥。"],
-      ["丞哥", "门给你留着，上来。"],
-      ["你", "我马上到。"],
-      ["丞哥", "别让我等太久。"],
-    ],
-    Mu: [
-      ["Mu", "不要消失。"],
-      ["你", "我不会。"],
-      ["Mu", "那就回来。"],
-      ["你", "已经在路上了。"],
+      ["丞哥", "喂"],
+      ["你", "哥"],
+      ["丞哥", "门给你留着，上来"],
+      ["你", "我马上到"],
+      ["丞哥", "别让我等太久"],
     ],
     MuAMuA: [
-      ["MuAMuA", "宝宝，冷不冷。"],
-      ["你", "不冷。"],
-      ["MuAMuA", "雪这么大，慢慢走。"],
-      ["MuAMuA", "汤还温着，你回来就能喝。"],
+      ["MuAMuA", "宝宝，冷不冷"],
+      ["你", "不冷"],
+      ["MuAMuA", "雪这么大，不要乱跑"],
+      ["MuAMuA", "等我"],
+      ["MuAMuA", "汤还温着，你回来就能喝"],
     ],
     pig: [
-      ["pig", "你什么时候回来呀。"],
-      ["你", "快了。"],
-      ["pig", "蛋糕要化了。"],
-      ["pig", "我先尝一口边缘，就一口。"],
-      ["你", "别啊。"],
-      ["pig", "已经吃了。"],
+      ["pig", "你什么时候回来呀"],
+      ["你", "快了"],
+      ["pig", "冰激凌蛋糕要化了"],
+      ["pig", "我先尝一口边边，就一口"],
+      ["你", "别啊"],
+      ["pig", "嘿嘿，好吃"],
     ],
     cat: [
-      ["cat", "接电话。"],
-      ["你", "在。"],
-      ["cat", "你晓不晓得今天啥子日子。"],
-      ["你", "晓得。"],
-      ["cat", "晓得就快点回来。"],
-      ["cat", "面团都在门口坐到起了。"],
+      ["cat", "接电话"],
+      ["你", "在"],
+      ["cat", "你晓不晓得今天啥子日子"],
+      ["你", "晓得"],
+      ["cat", "晓得就快点回来"],
+      ["cat", "再不回来就不用回了"],
     ],
     rabbit: [
-      ["rabbit", "喂，你那边冷不冷呀。"],
-      ["你", "还好。"],
-      ["rabbit", "我把饭热好了。"],
-      ["rabbit", "你慢慢来，我不催你。"],
-      ["rabbit", "真的。"],
-    ],
-    tiger: [
-      ["tiger", "嗷呜。"],
-      ["你", "你在干嘛。"],
-      ["tiger", "等你。"],
-      ["tiger", "快点回来，不然我要生气了。"],
+      ["rabbit", "喂，你现在冷不冷呀"],
+      ["你", "还好"],
+      ["rabbit", "我把饭热好了"],
+      ["rabbit", "你慢慢来，我不催你"],
     ],
     丞丞: [
-      ["丞丞", "喂，是我。"],
-      ["你", "嗯。"],
-      ["丞丞", "我路过你家楼下了，灯是暗的。"],
-      ["你", "我在外面，马上回。"],
-      ["丞丞", "那我陪你走到门口。"],
+      ["丞丞", "喂，你终于接电话了"],
+      ["你", "嗯"],
+      ["丞丞", "你到了吗，我下去接你！"],
+      ["你", "还没，不好意思让你等很久了吧"],
+      ["丞丞", "没事没事，你没事就好，吓死我了，等你到了我们再分蛋糕，不急不急"],
     ],
   };
 
