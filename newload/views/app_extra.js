@@ -241,9 +241,10 @@ window.dial = function (name, isNumber) {
   APP.querySelectorAll("video").forEach((v) => v.pause());
   OV.querySelectorAll(".banner:not(.story-choice)").forEach((b) => b.remove());
   renderCall();
+  // 打过去对面 3 秒不接就断掉
   rbIv = setTimeout(() => {
     if (callState === "dialing") endCall();
-  }, 5000);
+  }, 3000);
 };
 window.startRing = function () {
   ringOnce();
@@ -277,7 +278,7 @@ window.incomingCallFrom = function (from = "穆祉丞") {
   OV.querySelectorAll(".banner:not(.story-choice)").forEach((b) => b.remove());
   renderCall();
   startRing();
-  ringTo = setTimeout(missCall, 30000);
+  ringTo = setTimeout(missCall, 5000);
 };
 window.callTop = function () {
   const r = CFG.roles && CFG.roles[callName];
