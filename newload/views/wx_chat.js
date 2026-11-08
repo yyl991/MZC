@@ -870,11 +870,11 @@ function chatMsgs(id) {
       onclickAttr = "";
     if (x.text.startsWith("[图片]")) {
       const imgUrl = x.text.replace("[图片]", "").trim();
-      innerContent = `<img src="${imgUrl}" class="wx-img" style="cursor:pointer;" onerror="wxMediaMiss(this,'图片未找到')" onclick="event.stopPropagation();openMediaViewer(['${imgUrl}'], 0)" />`;
+      innerContent = `<img src="${imgUrl}" class="wx-img" style="cursor:pointer;" onload="wxScrollIfJustOpened()" onerror="wxMediaMiss(this,'图片未找到')" onclick="event.stopPropagation();openMediaViewer(['${imgUrl}'], 0)" />`;
       bubbleClass = "wx-bb img-bb";
     } else if (x.text.startsWith("[表情]")) {
       const emoUrl = x.text.replace("[表情]", "").trim();
-      innerContent = `<img src="${emoUrl}" class="wx-emoji" onerror="wxMediaMiss(this,'表情')" />`;
+      innerContent = `<img src="${emoUrl}" class="wx-emoji" onload="wxScrollIfJustOpened()" onerror="wxMediaMiss(this,'表情')" />`;
       bubbleClass = "wx-bb emo-bb";
     } else if (x.text.startsWith("[语音]")) {
       const raw = x.text.replace("[语音]", "").trim();
@@ -1320,12 +1320,16 @@ VIEWS.chat = () => ({
   <div class="wx-panel" id="wx-panel"></div>`,
   init: () => {
     if (chatId) unread[chatId] = 0;
+    window._wxOpenAt = Date.now();
     SS.typing = false;
     SS.pendingText = "";
     window._wxQuote = null;
     renderQuoteBar();
     resetNewPill();
     scrollChat();
+    // 图片/视频封面是异步加载的，会把底部顶高，补滚两次保证一进来就在最新消息
+    requestAnimationFrame(() => scrollChat());
+    setTimeout(() => scrollChat(), 300);
     // 翻到最底下时，把「x条新消息」收起来
     const b = $("#msgs");
     if (b && !b.dataset.npBound) {
@@ -1342,6 +1346,11 @@ function scrollChat(smooth) {
   if (smooth) b.scrollTo({ top: b.scrollHeight, behavior: "smooth" });
   else b.scrollTop = b.scrollHeight;
 }
+// 刚打开聊天的 1.5 秒内，图片加载完会把底部顶高，这时补滚到底；之后再加载就不打扰翻历史了
+function wxScrollIfJustOpened() {
+  if (Date.now() - (window._wxOpenAt || 0) < 1500) scrollChat();
+}
+window.wxScrollIfJustOpened = wxScrollIfJustOpened;
 // 是否已经贴在聊天底部
 function chatAtBottom(b) {
   if (!b) return true;
