@@ -956,7 +956,13 @@ svg {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 0 6px
+    padding: 0 6px;
+    
+    /* 👇 核心修复代码：防止 GPU 渲染时溢出 */
+    overflow: hidden; /* 强制把超出圆角的图标底色裁掉 */
+    transform: translateZ(0); /* 强制开启硬件加速，解决毛玻璃重绘时的绿色残影 Bug */
+    isolation: isolate; /* 隔离层级，防止受底层壁纸颜色影响 */
+    -webkit-mask-image: -webkit-radial-gradient(white, black); /* 苹果端强制圆角裁剪黑科技 */
 }
 
 .dock .lbl {
