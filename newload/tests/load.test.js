@@ -153,7 +153,7 @@ try {
 ok("锁屏可渲染", !lockErr, lockErr);
 const lockHTML = vm.runInContext('document.querySelector("#lkc").innerHTML', sb);
 ok("锁屏有免打扰按钮", String(lockHTML).includes("免打扰"), lockHTML.slice(0, 60));
-ok("锁屏不再有重置按钮", !String(lockHTML).includes("重置进度"));
+ok("锁屏有重置入口", String(lockHTML).includes("重置进度"));
 
 console.log(fails === 0 ? "ALL PASS" : fails + " FAILS");
 process.exit(fails ? 1 : 0);

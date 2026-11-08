@@ -18,6 +18,9 @@ const load=f=>vm.runInContext(fs.readFileSync(P+"/"+f,"utf8"),sb,{filename:f});
 load("core/utils.js");load("core/icons.js");load("data/chat_history.js");load("data/story.js");load("views/wx_chat.js");load("views/wx_pages.js");load("views/wx_moments.js");
 vm.runInContext("chatId = '穆祉丞'", sb);
 let fails=0;const ok=(n,c,e)=>{if(!c){fails++;console.log("FAIL "+n+(e?" :: "+e:""))}else console.log("OK   "+n)};
+// 历史记录里不一定还有表情/语音，自己塞两条保证覆盖渲染分支
+sb.chatData["穆祉丞"].push(["[表情] ./data/emoji/1.png","them","下午 11:30"]);
+sb.chatData["穆祉丞"].push(["[语音] 5||我马上到","them","下午 11:31"]);
 const r=sb.VIEWS.chat();
 const h=r.html;
 ok("chat renders",h.length>500);

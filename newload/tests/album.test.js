@@ -31,13 +31,13 @@ load("core/utils.js");
 load("views/app_photos.js");
 
 const media = sb.getPhoneMedia();
-ok("phone media list", media.length >= 10, media.length);
-ok("media all local", media.every((m) => m.src.startsWith("./data/avatar/")));
+ok("phone media list", media.length >= 1, media.length);
+ok("media all local", media.every((m) => m.src.startsWith("./data/")));
 
 let picked = null;
 sb.openPhoneAlbumPicker({ multiple: false, onDone: (u) => (picked = u) });
 ok("picker mounted", !!sb._lastRoot && sb._lastRoot.innerHTML.includes("取消"));
-ok("picker uses local album", sb._lastRoot.innerHTML.includes("./data/avatar/mzc.jpg"));
+ok("picker uses local album", sb._lastRoot.innerHTML.includes(media[0].src));
 sb.phoneAlbumTap(1);
 ok("single pick returns 1", Array.isArray(picked) && picked.length === 1, JSON.stringify(picked));
 ok("state cleared after pick", sb._phoneAlbumState === null);

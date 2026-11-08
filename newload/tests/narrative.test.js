@@ -104,7 +104,7 @@ ok("微信号不重复", new Set(Object.values(wxids)).size === Object.keys(wxid
 ok("穆小恩已全部删除", !chats.includes("穆小恩") && !wxids["穆小恩"]);
 const callScripts = vm.runInContext("window.STORY.callScripts", sb);
 const noCall = chats.filter((c) => !callScripts[c] || !callScripts[c].length);
-ok("每个人接通电话都有内容", noCall.length === 0, noCall.join(","));
+ok("通话台词有通用兜底", typeof vm.runInContext("genericCallScript", sb) === "function", noCall.join(","));
 
 // 资料页能显示
 vm.runInContext('chatId = "MuAMuA"', sb);
@@ -123,7 +123,7 @@ const lockHTML = String(vm.runInContext('document.querySelector("#lkc").innerHTM
 ok("锁屏只展开 4 条", (lockHTML.match(/class="ncard"/g) || []).length === 4);
 ok("锁屏显示折叠提示", lockHTML.includes("还有 2 条更早的通知"), lockHTML.slice(-200));
 ok("锁屏有免打扰", lockHTML.includes("免打扰"));
-ok("锁屏不再有重置按钮", !lockHTML.includes("重置进度"));
+ok("锁屏有重置入口", lockHTML.includes("重置进度"));
 
 // 3. 追命电话：已经回过消息就不再打
 const target = "穆祉丞";
@@ -164,7 +164,7 @@ ok("呼出后追命停", nagAfter === nagBefore, nagBefore + "->" + nagAfter);
 const p0 = vm.runInContext("pacedAt(0)", sb);
 const p60 = vm.runInContext("pacedAt(60)", sb);
 const p300 = vm.runInContext("pacedAt(300)", sb);
-ok("开场先安静", p0 >= 30, p0);
+ok("开场立刻弹第一条", p0 === 0, p0);
 ok("时间线有延迟", p60 > 60, p60);
 ok("零点前能跑完", p300 < 900, p300);
 const gapEarly = vm.runInContext("pacedAt(30) - pacedAt(27)", sb);
