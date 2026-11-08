@@ -530,7 +530,7 @@ VIEWS.moments = () => {
 
     <div class="scroll" id="moments-scroll" style="background: #fff; padding-top: 0; padding-bottom: 40px;">
       
-     <div style="position: relative; height: 300px; background: url('./data/chat/pyq.jpg') center/cover;"> 
+     <div style="position: relative; height: 300px; background: url('./data/avatar/mycover.jpg') center/cover;"> 
     <div style="position: absolute; inset: 0; background: linear-gradient(transparent 60%, rgba(0,0,0,0.4));"></div>
         
         <div style="position: absolute; bottom: 20px; right: 16px; display: flex; align-items: flex-end; gap: 12px;">

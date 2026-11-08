@@ -77,7 +77,7 @@ const MOCK_MOMENTS_DATA = {
       },
     ],
   },
-    cat: {
+  cat: {
     wxid: "laopo_zuo",
     region: "重庆",
     cover:
@@ -259,7 +259,7 @@ const MOCK_MOMENTS_DATA = {
     wxid: "mama",
     region: "重庆",
     cover:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800",
+      "./data/avatar/muacover.jpg",
     posts: [
       {
         id: 901,
