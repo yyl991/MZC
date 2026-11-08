@@ -551,7 +551,9 @@ function storyTick(e) {
   if (!CFG.timeline) return;
   CFG.timeline.forEach((beat, i) => {
     const key = i + "@" + beat.at;
-    if (e >= pacedAt(beat.at) && !SS.fired.has(key)) {
+    // beat.t = 直接指定第几秒触发（开场连环通知用），不填则按 at 走节奏曲线
+    const due = beat.t != null ? beat.t : pacedAt(beat.at);
+    if (e >= due && !SS.fired.has(key)) {
       // 催命类台词：玩家已经回过话就直接作废，避免「刚说好又质问」
       if (beat.skipIfReplied && beat.from && hasRepliedTo(beat.from)) { SS.fired.add(key); return; }
       if (beat.needStage !== undefined && beat.from) {
