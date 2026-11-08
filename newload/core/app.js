@@ -538,11 +538,20 @@ function midnightBoom() {
   setTimeout(() => { if (typeof incomingCallFrom === "function" && !callState) incomingCallFrom("穆祉丞"); }, 11000);
 }
 
+// 本局在某个角色的聊天里是否已经回过话
+// 注意：不能用「聊天记录里有 me」判断——历史记录本来就带玩家消息
+function hasRepliedTo(name) {
+  if ((SS.stage && (SS.stage[name] || 0) > 0)) return true;
+  return ((SS.lineIdx && (SS.lineIdx[name] || 0)) > 0);
+}
+
 function storyTick(e) {
   if (!CFG.timeline) return;
   CFG.timeline.forEach((beat, i) => {
     const key = i + "@" + beat.at;
     if (e >= pacedAt(beat.at) && !SS.fired.has(key)) {
+      // 催命类台词：玩家已经回过话就直接作废，避免「刚说好又质问」
+      if (beat.skipIfReplied && beat.from && hasRepliedTo(beat.from)) { SS.fired.add(key); return; }
       if (beat.needStage !== undefined && beat.from) {
         const currentStage = SS.stage[beat.from] || 0;
         if (currentStage > beat.needStage) { SS.fired.add(key); return; }

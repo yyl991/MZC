@@ -189,6 +189,16 @@ const maxRun = senders.reduce(
 );
 ok("没有连续同一人", maxRun <= 2, "最长连发 " + maxRun);
 
+// 6b. 玩家回过话后，该角色的「催命/质问」台词不再弹
+vm.runInContext("SS.stage = { cat: 1, rabbit: 1 }; SS.lineIdx = {}; SS.fired = new Set()", sb);
+const fired = [];
+sb.incomingMsgFrom = (n, t) => fired.push(n + "|" + t);
+sb.incomingCallFrom = (n) => fired.push(n + "|call");
+vm.runInContext("storyTick(99999)", sb);
+const nagged = fired.filter((x) => x.startsWith("cat|") || x.startsWith("rabbit|"));
+ok("回过话后不再催命", !nagged.some((x) => /门锁了|数到|你死哪去了|堵车|不催你/.test(x)), nagged.join(" / "));
+ok("回过话仍保留温情消息", nagged.length > 0, nagged.join(" / "));
+
 // 7. 不再存档
 ok("saveChat 是空实现", !sb.saveChat.toString().includes("localStorage"));
 ok("saveStory 是空实现", vm.runInContext("saveStory.toString().includes('localStorage')", sb) === false);
