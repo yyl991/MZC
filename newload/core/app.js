@@ -72,6 +72,7 @@ if (!SS.fragments) SS.fragments = new Set();
 if (!SS.completed) SS.completed = new Set();
 if (!SS.stage) SS.stage = {};
 if (!SS.lineIdx) SS.lineIdx = {};
+if (!SS.talked) SS.talked = {}; // 本局通过电话的角色
 
 const GAME_START_MIN = 23 * 60 + 9, GAME_END_AT = 660;
 let view = "lock", curDark = true, SC = 1, lastRect = null, animTok = 0, firstOpen = true, pendingOpen = null;
@@ -524,7 +525,7 @@ function pressureTick() {
   const names = Object.keys(CFG.chats || {}).filter((k) => !(SS.missed && SS.missed.has(k)));
   if (!names.length) return;
   const who = names[Math.floor(Math.random() * names.length)];
-  if (typeof lastMsgFromMe === "function" && lastMsgFromMe(who)) { window._nextNag = now + 2000; return; }
+  if (hasRepliedTo(who)) { window._nextNag = now + 2000; return; }
   window._nagCount = n + 1;
   const wait = Math.max(4500, 13000 * Math.pow(0.9, n));
   window._nextNag = now + wait;
@@ -538,9 +539,10 @@ function midnightBoom() {
   setTimeout(() => { if (typeof incomingCallFrom === "function" && !callState) incomingCallFrom("穆祉丞"); }, 11000);
 }
 
-// 本局在某个角色的聊天里是否已经回过话
+// 本局是否已经跟这个角色接触过（聊过天，或通过电话）
 // 注意：不能用「聊天记录里有 me」判断——历史记录本来就带玩家消息
 function hasRepliedTo(name) {
+  if (SS.talked && SS.talked[name]) return true;
   if ((SS.stage && (SS.stage[name] || 0) > 0)) return true;
   return ((SS.lineIdx && (SS.lineIdx[name] || 0)) > 0);
 }
@@ -621,6 +623,7 @@ window.saveGameState = function () {
         stage: SS.stage, lineIdx: SS.lineIdx,
         fired: Array.from(SS.fired), fragments: Array.from(SS.fragments),
         missed: Array.from(SS.missed), arriveHome: SS.arriveHome, choice: SS.choice,
+        talked: SS.talked,
       },
     };
     localStorage.setItem("mzc_game_save", JSON.stringify(state));
@@ -639,6 +642,7 @@ window.loadGameState = function () {
       SS.stage = state.SS.stage || {}; SS.lineIdx = state.SS.lineIdx || {};
       SS.fired = new Set(state.SS.fired || []); SS.fragments = new Set(state.SS.fragments || []);
       SS.missed = new Set(state.SS.missed || []); SS.arriveHome = state.SS.arriveHome || false; SS.choice = state.SS.choice || null;
+      SS.talked = state.SS.talked || {};
     }
   } catch (e) { console.warn("读档失败", e); }
 };

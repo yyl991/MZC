@@ -400,6 +400,8 @@ window.answerCall = function () {
   stopRing();
   vib(20);
   callState = "active";
+  // 通过话就算「已接触」：之后这个角色的质问类时间线不再弹
+  if (callName && typeof SS !== "undefined" && SS.talked) SS.talked[callName] = 1;
   window._callHits[callName] = 0;
   callStart = Date.now();
   capIdx = -1;
