@@ -5,7 +5,7 @@ const MOCK_MOMENTS_DATA = {
     wxid: "nanpengyou",
     region: "重庆",
     cover:
-      "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=800",
+      "./data/avatar/mzccover.jpg",
     posts: [
       {
         id: 101,
@@ -63,7 +63,7 @@ const MOCK_MOMENTS_DATA = {
     wxid: "laopo_jiao",
     region: "重庆",
     cover:
-      "./data/chat/enencover1.jpg",
+      "./data/avatar/enencover.jpg",
     posts: [
       {
         id: 402,
@@ -81,7 +81,7 @@ const MOCK_MOMENTS_DATA = {
     wxid: "laopo_zuo",
     region: "重庆",
     cover:
-      "./data/chat/catcover.jpg",
+      "./data/avatar/catcover.jpg",
     posts: [
       {
         id: 4,
@@ -157,7 +157,7 @@ const MOCK_MOMENTS_DATA = {
     wxid: "chengcheng",
     region: "重庆",
     cover:
-      "./data/chat/cccover.jpg",
+      "./data/avatar/cccover.jpg",
     posts: [
       {
         id: 601,
@@ -225,7 +225,7 @@ const MOCK_MOMENTS_DATA = {
     wxid: "CSGOD",
     region: "上海",
     cover:
-      "./data/chat/mucover.jpg",
+      "./data/avatar/mucover.jpg",
     posts: [
       {
         id: 804,

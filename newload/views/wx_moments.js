@@ -380,7 +380,7 @@ VIEWS.wx_moment_compose = () => ({
 });
 VIEWS.wx_moments_self = () => {
   const posts = window._wxMyPosts || [];
-  const cover = "./data/data/pyq.jpg";
+  const cover = "./data/avatar/mycover.jpg";
   const myAvatar = CFG.myAvatar || "./data/avatar/miantuan.jpg";
   return {
     cls: "wx-list",
