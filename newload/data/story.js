@@ -159,14 +159,14 @@ var INCOMING = [];
     { at: 37, type:'notify', from:'丞哥', text:'？', skipIfReplied: true },
     { at: 40, type:'notify', from:'丞哥', text:'这样不乖哦', skipIfReplied: true },
     { at: 47, type:'notify', from:'cat', text:'不问了', skipIfReplied: true },
-    { at: 50, type: 'call', from: 'pig' },
+    { at: 50, type: 'call', from: 'pig', skipIfReplied: true },
     { at: 60, type:'notify', from:'穆瑞恩', text:'你在哪里呀？练习室好黑，大家都走了', skipIfReplied: true },
-    
+    { at: 63, type:'notify', from:'pig', text:'？', skipIfReplied: true },
     { at: 70, type:'notify', from:'pig', text:'😭😭😭', skipIfReplied: true },
     { at: 73, type:'notify', from:'恩仔', text:'我有点怕黑…' },
     { at: 80, type:'notify', from:'穆祉丞', text:'？', skipIfReplied: true },
     { at: 86, type:'notify', from:'穆瑞恩', text:'我的腰有点痛。。。', skipIfReplied: true },
-    { at: 87, type: 'call', from: '穆祉丞' },
+    { at: 87, type: 'call', from: '穆祉丞', skipIfReplied: true },
     { at: 93, type:'notify', from:'cat', text:'老子数到三', skipIfReplied: true },
     { at: 96, type:'notify', from:'恩恩', text:'哦', skipIfReplied: true },
     { at: 99, type:'notify', from:'cat', text:'三', skipIfReplied: true },
@@ -196,7 +196,7 @@ var INCOMING = [];
     { at: 219, type:'notify', from:'丞丞', text:'你怎么了为什么不回消息', skipIfReplied: true },
     { at: 223, type:'notify', from:'恩恩', text:'我不是非要你今天回来的', skipIfReplied: true },
     { at: 226, type:'notify', from:'丞丞', text:'不来也没事，回一下，我怕你出事', skipIfReplied: true },
-    { at: 229, type: 'call', from: '恩恩' },
+    { at: 229, type: 'call', from: '恩恩', skipIfReplied: true },
     { at: 235, type:'notify', from:'恩恩', text:'只是今天是我的生日诶…' },
     { at: 242, type:'notify', from:'丞哥', text:'自己看看几点了', skipIfReplied: true },
     { at: 249, type:'notify', from:'穆瑞恩', text:'我等了你好久好久', skipIfReplied: true },
@@ -487,7 +487,7 @@ var INCOMING = [];
   // 数据指纹：改过 chat_history / story 后，旧存档自动作废
   window.DATA_SIG = (function () {
     try {
-      const s = JSON.stringify(chatData) + "|" + (S.timeline || []).length;
+      const s = JSON.stringify(chatData) + "|" + JSON.stringify(S.timeline || []);
       let h = 5381;
       for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
       return (h >>> 0).toString(36);

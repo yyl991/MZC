@@ -57,10 +57,13 @@ sb.scheduleCallBack("丞哥");
 if(sb._pending) sb._pending();
 ok("call back rings",rang==="丞哥",String(rang));
 
-// 9. 自己主动呼出过电话后：不再回拨
+// 9. 主动给谁打过电话：这个人不回拨，别人照常回拨
 rang=null;sb._pending=null;
-sb._playerCalled=true;
+sb._playerCalledWho={"丞哥":1};
 sb.scheduleCallBack("丞哥");
-ok("呼出过就不回拨",sb._pending===null&&rang===null,String(rang));
+ok("打过的人不回拨",sb._pending===null&&rang===null,String(rang));
+sb.scheduleCallBack("恩恩");
+if(sb._pending) sb._pending();
+ok("别人照常回拨",rang==="恩恩",String(rang));
 
 console.log(fails===0?"ALL PASS":fails+" FAILS");

@@ -230,8 +230,8 @@ VIEWS.phone = () => {
 window.dial = function (name, isNumber) {
   pauseBGM();
   if (callState) return;
-  // 自己主动呼出过（拨号键盘的纯号码不算，没打到任何角色）：全局停催命电话
-  if (!isNumber && name) window._playerCalled = true;
+  // 自己主动呼出过谁，就只停谁的电话，不牵连其他人
+  if (!isNumber && name) (window._playerCalledWho = window._playerCalledWho || {})[name] = 1;
   callName = name;
   callDir = "out";
   callIsNumber = !!isNumber;
@@ -508,7 +508,7 @@ function pigCryFlood() {
 window._lastNag = window._lastNag || {};
 window.scheduleCallAgain = function (name, mode) {
   if (!name) return;
-  if (window._playerCalled) return; // 自己呼出过电话：不再追命
+  if (window._playerCalledWho && window._playerCalledWho[name]) return; // 给这个人打过电话了，不再追命
   if (window._wxBlocked && window._wxBlocked[name]) return;
   // 已经回过消息就不再追命
   if (lastMsgFromMe(name)) return;
@@ -535,10 +535,10 @@ window.scheduleCallAgain = function (name, mode) {
   }, wait);
 };
 
-// 你打给谁，对方都会回拨过来 —— 但自己主动呼出过一次后就不再回拨
+// 你打给谁，对方都会回拨过来 —— 但刚给这个人打过，就不再回拨
 window.scheduleCallBack = function (name) {
   if (!name) return;
-  if (window._playerCalled) return;
+  if (window._playerCalledWho && window._playerCalledWho[name]) return;
   if (window._wxBlocked && window._wxBlocked[name]) return;
   clearTimeout(window._callBackTo);
   window._callBackTo = setTimeout(() => {

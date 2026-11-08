@@ -567,9 +567,11 @@ function storyTick(e) {
         if (currentStage > beat.needStage) { SS.fired.add(key); return; }
       }
       if (beat.type === "ending" && typeof callState !== "undefined" && callState) return;
+      // 这通电话这次不打（已经主动找过这个人），但也别记成「已触发」，否则永远补不回来
+      if (beat.type === "call" && window._playerCalledWho && window._playerCalledWho[beat.from]) return;
       SS.fired.add(key);
       if (beat.type === "notify") incomingMsgFrom(beat.from, beat.text);
-      if (beat.type === "call" && !window._playerCalled) incomingCallFrom(beat.from || "穆祉丞");
+      if (beat.type === "call") incomingCallFrom(beat.from || "穆祉丞");
       if (beat.type === "mail") incomingMailFrom(beat);
       if (beat.type === "choice" && !SS.arriveHome && !IS_DEV_HOST) showStoryChoice();
       if (beat.type === "ending" && !SS.arriveHome && !IS_DEV_HOST) showEnding(SS.choice || "B");
@@ -624,6 +626,7 @@ window.saveGameState = function () {
   if (window._resetting) return;
   try {
     const state = {
+      sig: window.DATA_SIG,
       elapsed: elapsed(),
       chatData: window.chatData,
       unread: window.unread,
@@ -644,6 +647,8 @@ window.loadGameState = function () {
   const saved = localStorage.getItem("mzc_game_save"); if (!saved) return;
   try {
     const state = JSON.parse(saved);
+    // 剧情数据改过（指纹对不上）就把旧档丢掉，否则旧的时间线 fired 会一直生效
+    if (state.sig !== window.DATA_SIG) { localStorage.removeItem("mzc_game_save"); return; }
     if (state.chatData) { for (const k in window.chatData) delete window.chatData[k]; Object.assign(window.chatData, state.chatData); }
     if (state.unread) Object.assign(window.unread, state.unread);
     if (state.lockNotes) lockNotes = state.lockNotes;
