@@ -79,7 +79,12 @@ let view = "lock", curDark = true, SC = 1, lastRect = null, animTok = 0, firstOp
 let pincode = "", selectedDay = 15, calMonth = 11, chatId = "穆祉丞", mailId = 0;
 let unread = {};
 let callName = "穆祉丞";
-let lockNotes = [{ title: "免打扰建议", body: "穆祉丞一直很吵闹，可以点击开启免打扰", app: "dnd", time: (typeof CFG !== "undefined" && CFG.start && CFG.start.time) || "23:09" }];
+// 开局前就已经收到的两条：玩家点亮手机之前，锁屏上已经有消息了
+let lockNotes = [
+  { title: "🐈‍⬛", from: "cat", body: "你死哪去了", app: "wechat", time: "22:58" },
+  { title: "丞丞", from: "丞丞", body: "诶你人呢", app: "wechat", time: "22:53" },
+  { title: "免打扰建议", body: "穆祉丞一直很吵闹，可以点击开启免打扰", app: "dnd", time: (typeof CFG !== "undefined" && CFG.start && CFG.start.time) || "23:09" },
+];
 window._dndHintShown = true; 
 let nowSong = -1;
 window.isDnd = false;

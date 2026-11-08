@@ -105,7 +105,8 @@ var INCOMING = [];
       fragment: null
     },
     'cat': {
-      init: [['11月15日','date']],
+      // 开局之前就发过来的那条，锁屏上已经能看到
+      init: [['11月15日','date'], ['你死哪去了','them','下午 10:58']],
       replies: [
         { mine:['别生气了，我马上回'], them:['等着呢'] },
         { mine:['门锁了？'], them:['……没锁','快点'] }
@@ -122,7 +123,8 @@ var INCOMING = [];
       fragment: null
     },
     '丞丞': {
-      init: [['11月15日','date']],
+      // 开局之前就发过来的那条，锁屏上已经能看到
+      init: [['11月15日','date'], ['诶你人呢','them','下午 10:53']],
       replies: [
         { mine:['我马上'], them:["快点快点，let's go! 😾"] }
       ],
@@ -141,14 +143,13 @@ var INCOMING = [];
   /* 完整时间线：所有人都会按秒数弹出来 */
   S.timeline = [
     // skipIfReplied: true = 玩家在这个角色的聊天里回过话，这条就不弹（避免「刚说好又催命」）
-    // 开场顺序：丞丞 → 恩恩 → 黑猫 → 兔兔 → 猪 → 妈妈，之后穆祉丞接上
-    // t = 开局第几秒弹出（不走 at 的节奏曲线，保证依次很快出现）
-    { at: 0, t: 0, type:'notify', from:'丞丞', text:'诶你人呢', skipIfReplied: true },
-    { at: 3, t: 5, type:'notify', from:'恩恩', text:'蛋糕我摆好了，再不来我就自己吹蜡烛了', skipIfReplied: true },
-    { at: 6, t: 10, type:'notify', from:'cat', text:'你死哪去了', skipIfReplied: true },
-    { at: 9, t: 15, type:'notify', from:'rabbit', text:'下雪了 你回来的时候小心一点哦' },
-    { at: 12, t: 20, type:'notify', from:'pig', text:'馋死了' },
-    { at: 15, t: 25, type:'notify', from:'MuAMuA', text:'宝宝，今天下雪了外面很冷，不要一个人待在外边好不好', skipIfReplied: true },
+    // 丞丞和黑猫的开场消息在锁屏之前就已经收到了（见 app.js 的 lockNotes），这里不再重复弹
+    // 其余几个顺序靠前，但都晚一点弹，先让玩家自己玩一会儿
+    // t = 开局第几秒弹出（不走 at 的节奏曲线）
+    { at: 3, t: 60, type:'notify', from:'恩恩', text:'蛋糕我摆好了，再不来我就自己吹蜡烛了', skipIfReplied: true },
+    { at: 6, t: 75, type:'notify', from:'rabbit', text:'下雪了 你回来的时候小心一点哦' },
+    { at: 9, t: 90, type:'notify', from:'pig', text:'馋死了' },
+    { at: 12, t: 105, type:'notify', from:'MuAMuA', text:'宝宝，今天下雪了外面很冷，不要一个人待在外边好不好', skipIfReplied: true },
     { at: 18, type:'notify', from:'穆祉丞', text:'不是 你人呢？手机定位怎么在街上？', skipIfReplied: true },
     { at: 21, type:'notify', from:'穆祉丞', text:'刚刚还跟我说话，一转眼人没了', skipIfReplied: true },
     { at: 24, type:'notify', from:'穆祉丞', text:'你去哪里了？马上快要到我的生日零点了，蛋糕已经摆好了，就差你回来', skipIfReplied: true },
