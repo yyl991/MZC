@@ -198,7 +198,7 @@ sb.incomingMsgFrom = (n, t) => fired.push(n + "|" + t);
 sb.incomingCallFrom = (n) => fired.push(n + "|call");
 vm.runInContext("storyTick(99999)", sb);
 const nagged = fired.filter((x) => x.startsWith("cat|") || x.startsWith("rabbit|"));
-ok("回过话后不再催命", !nagged.some((x) => /门锁了|数到|你死哪去了|堵车|不催你/.test(x)), nagged.join(" / "));
+ok("回过话后不再催命", !nagged.some((x) => /门锁了|数到|死哪去了|堵车|不催你/.test(x)), nagged.join(" / "));
 ok("回过话仍保留温情消息", nagged.length > 0, nagged.join(" / "));
 
 // 7. 不再存档
