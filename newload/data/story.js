@@ -83,8 +83,8 @@ var INCOMING = [];
     '穆瑞恩': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['我现在来了'], them:['真的吗？那我可以再等一会儿'] },
-        { mine:['对不起，我来得太晚'], them:['没关系，现在你来就够啦','以前我一个人，现在有你了'] }
+        { mine:['我马上到了'], them:['真的吗？那我可以再等一会儿'] },
+        { mine:['对不起，我来得太晚'], them:['没关系，现在你来了就够啦','以前我一个人，现在有你了'] }
       ],
       fragment: { title:'碎片 · 九岁', body:'九岁那年，练习室的灯总是最后一个关。\n\n他以为没有人会来。' }
     },
@@ -140,88 +140,122 @@ var INCOMING = [];
       fragment: null
     }
   };
-
-  /* 完整时间线：所有人都会按秒数弹出来 */
   S.timeline = [
-    // skipIfReplied: true = 玩家在这个角色的聊天里回过话，这条就不弹（避免「刚说好又催命」）
-    // 丞丞和黑猫的开场消息在锁屏之前就已经收到了（见 app.js 的 lockNotes），这里不再重复弹
-    // 其余几个顺序靠前，但都晚一点弹，先让玩家自己玩一会儿
-    // t = 开局第几秒弹出（不走 at 的节奏曲线）
-    { at: 3, t: 60, type:'notify', from:'恩恩', text:'蛋糕我摆好了，再不来我就自己吹蜡烛了', skipIfReplied: true },
-    { at: 6, t: 75, type:'notify', from:'rabbit', text:'下雪了 你回来的时候小心一点哦' },
-    { at: 9, t: 90, type:'notify', from:'pig', text:'馋死了' },
-    { at: 12, t: 105, type:'notify', from:'MuAMuA', text:'宝宝，今天下雪了外面很冷，不要一个人待在外边好不好', skipIfReplied: true },
+    // ==========================================
+    // 👤 穆祉丞 (3次触发)
+    // ==========================================
     { at: 18, type:'notify', from:'穆祉丞', text:'不是，这个点了你人呢？', skipIfReplied: true },
     { at: 21, type:'notify', from:'穆祉丞', text:'你去哪里了？', skipIfReplied: true },
     { at: 24, type:'notify', from:'穆祉丞', text:'马上快要零点了，蛋糕我也摆好了，就差你回来', skipIfReplied: true },
     { at: 27, type:'notify', from:'穆祉丞', text:'今天我很想你' },
+    { at: 80, type:'notify', from:'穆祉丞', text:'？', skipIfReplied: true },
+    { at: 87, type:'call', from:'穆祉丞', skipIfReplied: true },
+    { at: 126, type:'notify', from:'穆祉丞', text:'宝宝，回一句', skipIfReplied: true },
+    { at: 189, type:'notify', from:'穆祉丞', text:'外面下雪了，你到底在哪', skipIfReplied: true },
+   // { at: 323, type:'notify', from:'穆祉丞', text:'零点过了你说过会回来的' },
+
+    // ==========================================
+    // 👤 恩恩 (电话与穆祉丞错开)
+    // ==========================================
+    { at: 3, type:'notify', from:'恩恩', text:'蛋糕我摆好了，再不来我就自己吹蜡烛了', skipIfReplied: true },
+    { at: 96, type:'notify', from:'恩恩', text:'哦', skipIfReplied: true },
+    { at: 103, type:'notify', from:'恩恩', text:'我没有生气啊', skipIfReplied: true },
+    { at: 182, type:'notify', from:'恩恩', text:'你是不是不爱我了', skipIfReplied: true },
+    { at: 223, type:'notify', from:'恩恩', text:'我不是非要你今天回来的', skipIfReplied: true },
+    { at: 250, type:'call', from:'恩恩', skipIfReplied: true }, // 👈 错开了穆祉丞的电话
+    { at: 255, type:'notify', from:'恩恩', text:'只是今天是我的生日诶…' },
+    { at: 272, type:'notify', from:'恩恩', text:'我生气了', skipIfReplied: true },
+    { at: 319, type:'notify', from:'恩恩', text:'你回来我就不生气了', skipIfReplied: true },
+
+    // ==========================================
+    // 👤 穆瑞恩 (8岁)
+    // ==========================================
+    { at: 60, type:'notify', from:'穆瑞恩', text:'你在哪里呀？我怕黑…', skipIfReplied: true },
+    { at: 86, type:'notify', from:'穆瑞恩', text:'我的眼睛有点痛。。。', skipIfReplied: true },
+    { at: 249, type:'notify', from:'穆瑞恩', text:'我等了你好久好久', skipIfReplied: true },
+    { at: 326, type:'notify', from:'穆瑞恩', text:'姐姐，我的生日要过去了，你还不来吗' },
+
+    // ==========================================
+    // 👤 pig (猪)
+    // ==========================================
+    { at: 9, type:'notify', from:'pig', text:'馋死了' },
     { at: 30, type:'notify', from:'pig', text:'你什么时候回来吃蛋糕', skipIfReplied: true },
-    
-    { at: 37, type:'notify', from:'丞哥', text:'？', skipIfReplied: true },
-    { at: 40, type:'notify', from:'丞哥', text:'这样不乖哦', skipIfReplied: true },
-    { at: 47, type:'notify', from:'cat', text:'不问了', skipIfReplied: true },
-    { at: 50, type: 'call', from: 'pig', skipIfReplied: true },
-    { at: 60, type:'notify', from:'穆瑞恩', text:'你在哪里呀？练习室好黑，大家都走了', skipIfReplied: true },
+    { at: 50, type:'call', from:'pig', skipIfReplied: true },
     { at: 63, type:'notify', from:'pig', text:'？', skipIfReplied: true },
     { at: 70, type:'notify', from:'pig', text:'😭😭😭', skipIfReplied: true },
-    { at: 73, type:'notify', from:'恩仔', text:'我有点怕黑' },
-    { at: 80, type:'notify', from:'穆祉丞', text:'？', skipIfReplied: true },
-    { at: 86, type:'notify', from:'穆瑞恩', text:'我的腰有点痛。。。', skipIfReplied: true },
-    { at: 87, type: 'call', from: '穆祉丞', skipIfReplied: true },
-    { at: 93, type:'notify', from:'cat', text:'老子数到三', skipIfReplied: true },
-    { at: 96, type:'notify', from:'恩恩', text:'哦', skipIfReplied: true },
-    { at: 99, type:'notify', from:'cat', text:'三', skipIfReplied: true },
-    { at: 103, type:'notify', from:'恩恩', text:'我没有生气啊', skipIfReplied: true },
-    { at: 109, type:'notify', from:'cat', text:'二', skipIfReplied: true },
+    { at: 279, type:'notify', from:'pig', text:'我订的冰激凌蛋糕！要化了😭😭😭😭😭😭😭' },
+
+    // ==========================================
+    // 👤 rabbit (兔子)
+    // ==========================================
+    { at: 6, type:'notify', from:'rabbit', text:'下雪了 你回来的时候小心一点哦' },
     { at: 113, type:'notify', from:'rabbit', text:'我给你留了饭' },
-    { at: 119, type:'notify', from:'MuAMuA', text:'我知道你看到了回我一句，就一句', skipIfReplied: true },
-    { at: 126, type:'notify', from:'穆祉丞', text:'宝宝，回一句', skipIfReplied: true },
-    { at: 139, type:'notify', from:'丞丞', text:'还在路上吗这么慢？', skipIfReplied: true },
-    { at: 146, type:'notify', from:'丞丞', text:'不来了吗', skipIfReplied: true },
-    { at: 149, type:'notify', from:'cat', text:'一', skipIfReplied: true },
     { at: 152, type:'notify', from:'rabbit', text:'是不是路上堵车了？', skipIfReplied: true },
-    { at: 152, type:'notify', from:'恩仔', text:'没关系，你忙', skipIfReplied: true },
-    { at: 156, type:'notify', from:'丞丞', text:'😿', skipIfReplied: true },
-    { at: 159, type:'notify', from:'丞哥', text:'定位在解放碑你一个人？', skipIfReplied: true },
-    { at: 166, type:'notify', from:'穆瑞恩', text:'今天压腿很痛，按到了我有伤的地方，我不敢跟别人说，你什么时候才会来呀？', skipIfReplied: true },
-    { at: 168, type:'notify', from:'cat', text:'你给老子等到起', skipIfReplied: true },
     { at: 172, type:'notify', from:'rabbit', text:'那我再等一会儿', skipIfReplied: true },
-    { at: 182, type:'notify', from:'恩仔', text:'我一个人在练习室' },
-    { at: 182, type:'notify', from:'恩恩', text:'你是不是不爱我了', skipIfReplied: true },
-    { at: 189, type:'notify', from:'穆祉丞', text:'外面下雪了，你到底在哪', skipIfReplied: true },
     { at: 196, type:'notify', from:'rabbit', text:'我不催你的，真的', skipIfReplied: true },
+    { at: 266, type:'notify', from:'rabbit', text:'我把蜡烛摆好了，不会点' },
+    { at: 286, type:'notify', from:'rabbit', text:'你慢慢来，我不着急', skipIfReplied: true },
+    { at: 309, type:'notify', from:'rabbit', text:'但是我有点想你了' },
+
+    // ==========================================
+    // 👤 MuAMuA (妈妈)
+    // ==========================================
+    { at: 12, type:'notify', from:'MuAMuA', text:'宝宝，今天下雪了外面很冷，不要一个人待在外边好不好', skipIfReplied: true },
+    { at: 119, type:'notify', from:'MuAMuA', text:'我知道你看到了回我一句，就一句', skipIfReplied: true },
     { at: 203, type:'notify', from:'MuAMuA', text:'我不问你去了哪', skipIfReplied: true },
+    { at: 256, type:'notify', from:'MuAMuA', text:'但你得让我知道你没事', skipIfReplied: true },
+    { at: 303, type:'notify', from:'MuAMuA', text:'雪这么大，长寿面煮好了，汤还温着' },
+
+    // ==========================================
+    // 👤 丞哥
+    // ==========================================
+    { at: 37, type:'notify', from:'丞哥', text:'？', skipIfReplied: true },
+    { at: 40, type:'notify', from:'丞哥', text:'这样不乖哦', skipIfReplied: true },
+    { at: 159, type:'notify', from:'丞哥', text:'定位在解放碑你一个人？', skipIfReplied: true },
+    { at: 242, type:'notify', from:'丞哥', text:'自己看看几点了', skipIfReplied: true },
+    { at: 269, type:'notify', from:'丞哥', text:'回家，好不好', skipIfReplied: true },
+    { at: 313, type:'notify', from:'丞哥', text:'别生气了，我以后不在你手机里装定位了，今天我生日，陪陪我好不好' },
+
+    // ==========================================
+    // 👤 cat (黑猫)
+    // ==========================================
+    { at: 47, type:'notify', from:'cat', text:'不问了', skipIfReplied: true },
+    { at: 93, type:'notify', from:'cat', text:'老子数到三', skipIfReplied: true },
+    { at: 99, type:'notify', from:'cat', text:'三', skipIfReplied: true },
+    { at: 109, type:'notify', from:'cat', text:'二', skipIfReplied: true },
+    { at: 149, type:'notify', from:'cat', text:'一', skipIfReplied: true },
+    { at: 168, type:'notify', from:'cat', text:'你给老子等到起', skipIfReplied: true },
     { at: 206, type:'notify', from:'cat', text:'今天什么日子 你要爪子嘛', skipIfReplied: true },
     { at: 213, type:'notify', from:'cat', text:'门锁了 生日你也别过了', skipIfReplied: true },
-    { at: 216, type:'notify', from:'恩仔', text:'不要丢下我好不好', skipIfReplied: true },
-    { at: 219, type:'notify', from:'丞丞', text:'你怎么了为什么不回消息', skipIfReplied: true },
-    { at: 223, type:'notify', from:'恩恩', text:'我不是非要你今天回来的', skipIfReplied: true },
-    { at: 226, type:'notify', from:'丞丞', text:'不来也没事，回一下，我怕你出事', skipIfReplied: true },
-    { at: 229, type: 'call', from: '恩恩', skipIfReplied: true },
-    { at: 235, type:'notify', from:'恩恩', text:'只是今天是我的生日诶…' },
-    { at: 242, type:'notify', from:'丞哥', text:'自己看看几点了', skipIfReplied: true },
-    { at: 249, type:'notify', from:'穆瑞恩', text:'我等了你好久好久', skipIfReplied: true },
-    { at: 256, type:'notify', from:'MuAMuA', text:'但你得让我知道你没事', skipIfReplied: true },
     { at: 259, type:'notify', from:'cat', text:'没锁', skipIfReplied: true },
-    //{ at: 262, type:'notify', from:'穆祉丞', text:'我数到十', skipIfReplied: true },
-    { at: 266, type:'notify', from:'rabbit', text:'我把蜡烛摆好了，不会点' },
-    { at: 269, type:'notify', from:'丞哥', text:'回家，好不好', skipIfReplied: true },
-    { at: 272, type:'notify', from:'恩恩', text:'我生气了', skipIfReplied: true },
-  //  { at: 275, type:'notify', from:'恩恩', text:'真的', skipIfReplied: true },
     { at: 276, type:'notify', from:'cat', text:'…我一个人把蜡烛吹了' },
-    { at: 279, type:'notify', from:'pig', text:'我订的冰激凌蛋糕！要化了😭😭😭😭😭😭😭' },
-    { at: 286, type:'notify', from:'rabbit', text:'你慢慢来，我不着急', skipIfReplied: true },
-    { at: 289, type:'notify', from:'丞丞', text:'你在哪啊？', skipIfReplied: true },
-    { at: 303, type:'notify', from:'MuAMuA', text:'雪这么大，长寿面煮好了，汤还温着' },
     { at: 306, type:'notify', from:'cat', text:'你回来 我不骂你', skipIfReplied: true },
-    { at: 309, type:'notify', from:'rabbit', text:'但是我有点想你了' },
-    { at: 313, type:'notify', from:'丞哥', text:'别生气了，我以后不在你手机里装定位了，今天我生日，陪陪我好不好' },
+
+    // ==========================================
+    // 👤 恩仔 (12岁)
+    // ==========================================
+    { at: 73, type:'notify', from:'恩仔', text:'我有点怕黑' },
+    { at: 152, type:'notify', from:'恩仔', text:'没关系，你忙', skipIfReplied: true },
+    { at: 182, type:'notify', from:'恩仔', text:'我一个人在练习室' },
+    { at: 216, type:'notify', from:'恩仔', text:'不要丢下我好不好', skipIfReplied: true },
     { at: 316, type:'notify', from:'恩仔', text:'你还会来吗', skipIfReplied: true },
-    { at: 319, type:'notify', from:'恩恩', text:'你回来我就不生气了', skipIfReplied: true },
-    { at: 323, type:'notify', from:'穆祉丞', text:'零点过了你说过会回来的' },
-    { at: 326, type:'notify', from:'穆瑞恩', text:'姐姐，我的生日要过去了，你还不来吗' },
-    { at: 330, type: 'ending' } // 👈 帮你补了大结局保底
+
+    // ==========================================
+    // 👤 丞丞 (足球队长)
+    // ==========================================
+    { at: 139, type:'notify', from:'丞丞', text:'还在路上吗这么慢？', skipIfReplied: true },
+    { at: 146, type:'notify', from:'丞丞', text:'不来了吗', skipIfReplied: true },
+    { at: 156, type:'notify', from:'丞丞', text:'😿', skipIfReplied: true },
+    { at: 219, type:'notify', from:'丞丞', text:'你怎么了为什么不回消息', skipIfReplied: true },
+    { at: 226, type:'notify', from:'丞丞', text:'不来也没事，回一下，我怕你出事', skipIfReplied: true },
+    { at: 289, type:'notify', from:'丞丞', text:'你在哪啊？', skipIfReplied: true },
+
+    // ==========================================
+    // 🎬 全局结局
+    // ==========================================
+    { at: 330, type: 'ending' }
   ];
+
   // 节奏：开场多久开始催、压缩强度（数字越大越早结束）
   S.pace = { offset: 90, amp: 1124, soft: 500 };
   // 多少秒之后开始"时间线跑完还在催"的追加压力
