@@ -68,7 +68,7 @@ var INCOMING = [];
       init: [['11月15日','date']],
       replies: [
         { mine:['知道了，我马上到'], them:['这还差不多'] },
-        { mine:['我是不是来晚了'], them:['晚了','门给你留着','上来'] }
+        { mine:['我是不是来晚了'], them:['晚了','晚了就不来了？','门给你留着','上来'] }
       ],
       fragment: { title:'碎片 · 铠甲', body:'台上气场很稳的人，台下也会偷偷看门口。\n\n“我不是不需要人，我只是习惯了不说。”' }
     },
@@ -76,7 +76,7 @@ var INCOMING = [];
       init: [['11月15日','date']],
       replies: [
         { mine:['我在回家的路上'], them:['好，门给你留着'] },
-        { mine:['对不起'], them:['没事，我想要的是此刻，是今天生日，有你'] }
+        { mine:['对不起啊'], them:['哎呀没事啦，注意安全宝宝'] }
       ],
       fragment: { title:'碎片 · 此刻', body:'他等的不只是一个生日。\n\n是有人推开门，说“我到了”。' }
     },
@@ -88,18 +88,18 @@ var INCOMING = [];
       ],
       fragment: { title:'碎片 · 九岁', body:'九岁那年，练习室的灯总是最后一个关。\n\n他以为没有人会来。' }
     },
-    '恩仔': {
+  /*  '恩仔': {
       init: [['11月15日','date']],
       replies: [
         { mine:['我看见你了'], them:['…真的吗？'] },
-        { mine:['我知道我现在才认识你，但我会在'], them:['没关系，你来就很好'] }
+        { mine:['我知道我现在才认识你，但我会一直在'], them:['没关系，你来就很好'] }
       ],
       fragment: { title:'碎片 · 角落', body:'有些难过说不出口。\n\n只能自己消化，然后第二天继续笑。' }
-    },
+    },*/
     'pig': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['别闹了，早点睡'], them:['不行，蛋糕还没切','吃完再睡'] },
+        { mine:['你先睡吧，我得一会儿'], them:['不行，蛋糕还没切','吃完再睡'] },
         { mine:['我快到了'], them:['好！','我先尝一口边边上的巧克力','就一口…'] }
       ],
       fragment: null
@@ -134,7 +134,7 @@ var INCOMING = [];
       init: [['11月15日','date']],
       replies: [
         { mine:['我尽量早点回去'], them:['不用勉强','我一个人也可以的','…真的'] },
-        { mine:['对不起，让你等太久了'], them:['我没生气','我只是有点难过','但是你说对不起，我就不难过了'] }
+        { mine:['对不起，让你等太久了'], them:['我没生气啊','好吧我只是有点难过','你快点回来嘛'] }
       ],
       fragment: null
     }
@@ -206,7 +206,7 @@ var INCOMING = [];
     { at: 266, type:'notify', from:'rabbit', text:'我把蜡烛摆好了，不会点' },
     { at: 269, type:'notify', from:'丞哥', text:'回家，好不好', skipIfReplied: true },
     { at: 272, type:'notify', from:'恩恩', text:'我生气了', skipIfReplied: true },
-    { at: 275, type:'notify', from:'恩恩', text:'真的', skipIfReplied: true },
+  //  { at: 275, type:'notify', from:'恩恩', text:'真的', skipIfReplied: true },
     { at: 276, type:'notify', from:'cat', text:'…我一个人把蜡烛吹了' },
     { at: 279, type:'notify', from:'pig', text:'我订的冰激凌蛋糕！要化了😭😭😭😭😭😭😭' },
     { at: 286, type:'notify', from:'rabbit', text:'你慢慢来，我不着急', skipIfReplied: true },
@@ -214,7 +214,7 @@ var INCOMING = [];
     { at: 303, type:'notify', from:'MuAMuA', text:'雪这么大，长寿面煮好了，汤还温着' },
     { at: 306, type:'notify', from:'cat', text:'你回来 我不骂你', skipIfReplied: true },
     { at: 309, type:'notify', from:'rabbit', text:'但是我有点想你了' },
-    { at: 313, type:'notify', from:'丞哥', text:'别生气了，你回来我以后不在你手机里装定位了，今天我生日，陪陪我好不好' },
+    { at: 313, type:'notify', from:'丞哥', text:'别生气了，我以后不在你手机里装定位了，今天我生日，陪陪我好不好' },
     { at: 316, type:'notify', from:'恩仔', text:'你还会来吗', skipIfReplied: true },
     { at: 319, type:'notify', from:'恩恩', text:'你回来我就不生气了', skipIfReplied: true },
     { at: 323, type:'notify', from:'穆祉丞', text:'零点过了你说过会回来的' },

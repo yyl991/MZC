@@ -1759,7 +1759,7 @@ function sendLine() {
     SS.replyBusy = false;
     if (SS.stage[chatId] >= c.replies.length) {
       SS.completed.add(chatId);
-      unlockFragment(chatId);
+    //  unlockFragment(chatId);
     }
   }, t + 50);
 }
