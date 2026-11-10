@@ -22,7 +22,7 @@
   const style = document.createElement("style");
   style.innerHTML = `
     .hgrid {
-      position: absolute; top: 50px; left: 12px; right: 12px; bottom: 100px; 
+      position: absolute; top: 50px; left: 12px; right: 12px; bottom: 120px;
       display: grid; grid-template-columns: repeat(4, 1fr);
       grid-template-rows: 0.85fr 0.85fr 1.1fr 1.1fr 1.1fr 1.1fr;
       gap: 2px 2px; justify-items: center; align-items: center;
@@ -140,7 +140,7 @@
     .floating-tools button:last-child { background: rgba(255, 59, 48, 0.5); border-color: rgba(255, 59, 48, 0.6); }
     
     @media (max-width: 540px) {
-      .hgrid { top: 46px; bottom: 106px; gap: 4px 4px; grid-template-rows: 0.85fr 0.85fr 1.1fr 1.1fr 1.1fr 1.1fr; }
+      .hgrid { top: 46px; bottom: 112px; gap: 4px 4px; grid-template-rows: 0.85fr 0.85fr 1.1fr 1.1fr 1.1fr 1.1fr; }
       .app .lbl { font-size: 10px; }
       .wcal-wide { padding: 10px 14px; border-radius: 20px; }
       .wcal-wide .cal-day { font-size: 40px; }
