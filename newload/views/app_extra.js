@@ -149,6 +149,7 @@ window.phonePlayVm = function (el, i) {
 };
 
 VIEWS.phone = () => {
+  if (phoneTab === "vm") phoneTab = "recent"; // 语音留言已删除，防止旧状态停在空页
   const all = [...extraCalls, ...calls].filter(
     (c) => !missOnly || c[2] === "未接来电",
   );
@@ -156,9 +157,8 @@ VIEWS.phone = () => {
     ["clock", "最近通话", "setPhoneTab('recent')"],
     ["contacts", "通讯录", "setPhoneTab('contacts')"],
     ["keypad", "拨号键盘", "setPhoneTab('keypad')"],
-    ["voicemail", "语音留言", "setPhoneTab('vm')"],
   ];
-  const tabIdx = { recent: 0, contacts: 1, keypad: 2, vm: 3 }[phoneTab];
+  const tabIdx = { recent: 0, contacts: 1, keypad: 2 }[phoneTab];
   let head = "";
   let body = "";
 
@@ -189,11 +189,6 @@ VIEWS.phone = () => {
         phoneRow(n, "手机", "", "phoneContactMenu(this.dataset.name)"),
       )
       .join("")}`;
-  } else if (phoneTab === "vm") {
-    head = `<div class="nav"><span></span><div class="nb-title">语音留言</div><span></span></div>`;
-    body = `<h1 class="lt">语音留言</h1>${PHONE_VM.map(
-      (v, i) => `<div class="prow"><button style="width:40px;height:40px;border-radius:50%;background:#eef0f3;color:#007aff;font-size:14px;flex:none" onclick="phonePlayVm(this,${i})">▶</button><div class="pn"><b>${esc(v.from)}</b><small>${v.dur}</small></div><span class="pd">${v.time}</span></div>`,
-    ).join("")}`;
   } else {
     head = `<div class="nav"><span></span><div class="nb-title">拨号键盘</div><span></span></div>`;
     const keys = [

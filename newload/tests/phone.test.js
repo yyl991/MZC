@@ -59,10 +59,10 @@ ok("phone contacts renders", r.html.includes("穆祉丞") && r.html.includes("�
 // 收藏页已删除，不该再出现入口
 r = sb.VIEWS.phone();
 ok("phone fav removed", !r.html.includes("个人收藏") && !r.html.includes("setPhoneTab('fav')"));
-// 语音留言
+// 语音留言已删除，不该再出现入口
 sb.setPhoneTab("vm");
 r = sb.VIEWS.phone();
-ok("phone voicemail renders", r.html.includes("语音留言") && r.html.includes("0:14"));
+ok("phone voicemail removed", !r.html.includes("语音留言") && !r.html.includes("setPhoneTab('vm')") && r.html.includes("最近通话"));
 // 拨号键盘
 sb.setPhoneTab("keypad");
 r = sb.VIEWS.phone();

@@ -148,11 +148,11 @@ VIEWS.xianyu_me = () => ({
             <span style="font-size:13px; color:#111;">我发布的</span>
           </div>
           <div onclick="xyOrderTab='sold'; push('xianyu_orders')" style="display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
-            <div style="position:relative;">${G.xyMaichu}</div>
+            <div style="position:relative;">${G.xyMaichu}<span style="position:absolute; top:-3px; right:-4px; width:9px; height:9px; background:#ff3b30; border-radius:50%; border:1.5px solid #fff;"></span></div>
             <span style="font-size:13px; color:#111;">我卖出的</span>
           </div>
           <div onclick="xyOrderTab='bought'; push('xianyu_orders')" style="display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
-            <div style="position:relative;">${G.xyMaidao}</div>
+            <div style="position:relative;">${G.xyMaidao}<span style="position:absolute; top:-3px; right:-4px; width:9px; height:9px; background:#ff3b30; border-radius:50%; border:1.5px solid #fff;"></span></div>
             <span style="font-size:13px; color:#111;">我买到的</span>
           </div>
           <div onclick="toastDev()" style="display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;">
