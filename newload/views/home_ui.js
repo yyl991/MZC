@@ -27,6 +27,42 @@
       grid-template-rows: 0.85fr 0.85fr 1.1fr 1.1fr 1.1fr 1.1fr;
       gap: 2px 2px; justify-items: center; align-items: center;
     }
+          .dock {
+      position: absolute;
+      bottom: 24px;
+      left: 12px;
+      right: 12px;
+      height: 88px;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      padding: 0 10px;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 30px;
+      z-index: 10;
+    }
+    .dock .app {
+      width: 62px;
+      height: 74px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+    .dock .app .icon {
+      width: 56px;
+      height: 56px;
+      max-width: 56px;
+      margin: 0;
+    }
+    .dock .app .lbl {
+      margin-top: 2px;
+    }
     .wcal-wide, .wwx-dark, .w-music { box-sizing: border-box; overflow: hidden; }
     .app { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
     .app .icon { position: relative; width: 95%; max-width: 66px; aspect-ratio: 1; height: auto; border-radius: 23%; margin: 0 auto; box-shadow: 0 2px 8px rgba(0,0,0,0.1); flex-shrink: 0; }
