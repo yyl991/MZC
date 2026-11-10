@@ -267,6 +267,8 @@ var INCOMING = [];
 
   // 耐心值：对方发来催促后多少秒内没回，就算错过这段对话
   S.patienceSec = 100;
+  // 错过对话时是否补一句收尾（暂时关闭，改成 true 恢复下面的 missLines）
+  S.missLinesOn = false;
   // 错过时对方留下的最后一句
   S.missLines = {
     default: "算了。",

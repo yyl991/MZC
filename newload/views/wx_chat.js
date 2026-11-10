@@ -1764,6 +1764,8 @@ function armPatience(name) {
     if (typeof lastMsgFromMe === "function" && lastMsgFromMe(name)) return;
     SS.missed.add(name);
     if (typeof saveStory === "function") saveStory();
+    // 暂时不追加「错过」收尾句；要恢复就把 story.js 里的 CFG.missLinesOn 设成 true
+    if (CFG.missLinesOn !== true) return;
     const line =
       (CFG.missLines && CFG.missLines[name]) ||
       (CFG.missLines && CFG.missLines.default) ||
