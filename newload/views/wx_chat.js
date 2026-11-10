@@ -2,7 +2,7 @@
 // 朋友圈数据（按 角色聊天记录总表.md 重写 · 2026-10-29）
 const MOCK_MOMENTS_DATA = {
   穆祉丞: {
-    wxid: "nanpengyou",
+    wxid: "npy",
     region: "重庆",
     cover:
       "./data/avatar/mzccover.jpg",
@@ -21,39 +21,19 @@ const MOCK_MOMENTS_DATA = {
   },
 
   穆瑞恩: {
-    wxid: "xiaobaobei",
+    wxid: "bb",
     region: "重庆",
     cover:
-      "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?q=80&w=800",
-    posts: [
-      {
-        id: 201,
-        date: { day: "10", month: "9月" },
-        text: "下面有一千个人。我一个都看不见。只看得到我自己。",
-        images: [],
-        location: "Topking 舞社",
-        time: "2017年9月10日 22:40",
-        likes: ["张峻豪"],
-        comments: [],
-      },
-      {
-        id: 202,
-        date: { day: "12", month: "12月" },
-        text: "压轴。老师说压轴就是最后一个，也是最重要的那个。",
-        images: [],
-        location: "重庆国际少儿时装周",
-        time: "2016年12月12日 21:10",
-        likes: [],
-        comments: [],
-      },
+      "./data/avatar/ruiencover.jpg",
+    posts: [      
       {
         id: 203,
-        date: { day: "13", month: "9月" },
-        text: "今天也没有偷懒。",
+        date: { day: "4", month: "5月" },
+        text: "什么时候才能和大家一起上台啊",
         images: [],
         location: "",
-        time: "2016年9月13日 21:30",
-        likes: [],
+        time: "2019年5月4日 21:07",
+        likes: ["我"],
         comments: [],
       },
     ],
@@ -154,7 +134,7 @@ const MOCK_MOMENTS_DATA = {
     ],
   },
   丞丞: {
-    wxid: "chengcheng",
+    wxid: "xiaoduizhang",
     region: "重庆",
     cover:
       "./data/avatar/cccover.jpg",
@@ -188,7 +168,7 @@ const MOCK_MOMENTS_DATA = {
   },
 
   pig: {
-    wxid: "xiaopangpang",
+    wxid: "pangpangshiyou",
     region: "重庆",
     cover:
       "./data/chat/pigcover.jpg",
@@ -275,10 +255,10 @@ const MOCK_MOMENTS_DATA = {
   },
 
   丞哥: {
-    wxid: "cgcgdsg",
+    wxid: "gege",
     region: "重庆",
     cover:
-      "https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?q=80&w=800",
+      "./data/avatar/gegecover.jpg",
     posts: [
       {
         id: 1001,
@@ -294,7 +274,7 @@ const MOCK_MOMENTS_DATA = {
   },
 
   恩仔: {
-    wxid: "xiaolianxisheng",
+    wxid: "lianxisheng",
     region: "重庆",
     cover:
       "./data/avatar/enzaicover.jpg",
@@ -336,7 +316,7 @@ const MOCK_MOMENTS_DATA = {
     wxid: "laopo_guai",
     region: "重庆",
     cover:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800",
+      "./data/avatar/rabbitcover.jpg",
     posts: [
       {
         id: 1200,

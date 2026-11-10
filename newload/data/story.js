@@ -248,15 +248,15 @@ var INCOMING = [];
 
   // 每个人的微信号（资料页展示）
   S.wxids = {
-    穆祉丞: "nanpengyou",
-    穆瑞恩: "xiaobaobei",
+    穆祉丞: "npy",
+    穆瑞恩: "bb",
     恩恩: "laopo_jiao",
-    恩仔: "xiaolianxisheng",
-    丞哥: "cgcgdsg",
+    恩仔: "lianxisheng",
+    丞哥: "gege",
     MuAMuA: "mama",
     Mu: "CSGOD",
-    丞丞: "chengcheng",
-    pig: "xiaopangpang",
+    丞丞: "xiaoduizhang",
+    pig: "pangpangshiyou",
     cat: "laopo_zuo",
     rabbit: "laopo_guai",
     tiger: "laohu_henmeng",
