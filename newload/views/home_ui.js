@@ -29,24 +29,29 @@
     }
           .dock {
       position: absolute;
-      bottom: 24px;
+      bottom: 20px;
       left: 12px;
       right: 12px;
-      height: 88px;
+      height: 90px;
       box-sizing: border-box;
       display: flex;
-      justify-content: space-evenly;
+      justify-content: space-around;
       align-items: center;
-      padding: 0 10px;
+      padding: 0 8px;
       background: rgba(255, 255, 255, 0.25);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-radius: 30px;
+      border-radius: 34px;
+      overflow: hidden;
+      isolation: isolate;
       z-index: 10;
+      /* 盖掉 style.css 里旧的 mask 黑科技：它在 WebKit 上会让毛玻璃上多出一块矩形 */
+      -webkit-mask-image: none;
+      mask-image: none;
     }
     .dock .app {
-      width: 62px;
-      height: 74px;
+      width: 68px;
+      height: 78px;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
@@ -55,9 +60,9 @@
       gap: 4px;
     }
     .dock .app .icon {
-      width: 56px;
-      height: 56px;
-      max-width: 56px;
+      width: 62px;
+      height: 62px;
+      max-width: 62px;
       margin: 0;
     }
     .dock .app .lbl {
@@ -135,7 +140,7 @@
     .floating-tools button:last-child { background: rgba(255, 59, 48, 0.5); border-color: rgba(255, 59, 48, 0.6); }
     
     @media (max-width: 540px) {
-      .hgrid { top: 46px; bottom: 95px; gap: 4px 4px; grid-template-rows: 0.85fr 0.85fr 1.1fr 1.1fr 1.1fr 1.1fr; }
+      .hgrid { top: 46px; bottom: 106px; gap: 4px 4px; grid-template-rows: 0.85fr 0.85fr 1.1fr 1.1fr 1.1fr 1.1fr; }
       .app .lbl { font-size: 10px; }
       .wcal-wide { padding: 10px 14px; border-radius: 20px; }
       .wcal-wide .cal-day { font-size: 40px; }
