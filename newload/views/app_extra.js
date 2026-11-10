@@ -266,6 +266,10 @@ window.stopRing = function () {
 window.incomingCallFrom = function (from = "穆祉丞") {
   if (window._wxBlocked && window._wxBlocked[from]) return;
   if (typeof SS !== "undefined" && SS.arriveHome) return;
+    window._totalCalls = window._totalCalls || {};
+  if ((window._totalCalls[from] || 0) >= 3) return;
+  window._totalCalls[from] = (window._totalCalls[from] || 0) + 1;
+  
   pauseBGM();
   const BGM = document.getElementById("bgm");
   if (BGM) BGM.pause();
@@ -516,7 +520,7 @@ window.scheduleCallAgain = function (name, mode) {
   const n = (window._callHits[name] || 0) + 1;
   window._callHits[name] = n;
   const isMzc = name === "穆祉丞";
-  const maxHit = 3; // 每人最多打三次，再多就没法看了
+  const maxHit = 2; // 每人最多打三次，再多就没法看了
   if (n > maxHit) {
     // 挂太多次，对方生气收手
     botSay(name, CALL_ANGRY[Math.floor(Math.random() * CALL_ANGRY.length)]);

@@ -203,7 +203,7 @@ var INCOMING = [];
     { at: 249, type:'notify', from:'穆瑞恩', text:'我等了你好久好久', skipIfReplied: true },
     { at: 256, type:'notify', from:'MuAMuA', text:'但你得让我知道你没事', skipIfReplied: true },
     { at: 259, type:'notify', from:'cat', text:'没锁', skipIfReplied: true },
-    { at: 262, type:'notify', from:'穆祉丞', text:'我数到十', skipIfReplied: true },
+    //{ at: 262, type:'notify', from:'穆祉丞', text:'我数到十', skipIfReplied: true },
     { at: 266, type:'notify', from:'rabbit', text:'我把蜡烛摆好了，不会点' },
     { at: 269, type:'notify', from:'丞哥', text:'回家，好不好', skipIfReplied: true },
     { at: 272, type:'notify', from:'恩恩', text:'我生气了', skipIfReplied: true },
