@@ -88,14 +88,18 @@ var INCOMING = [];
       ],
       fragment: { title:'碎片 · 九岁', body:'九岁那年，练习室的灯总是最后一个关。\n\n他以为没有人会来。' }
     },
-  /*  '恩仔': {
+    '恩仔': {
+      // 只催命，不回话
       init: [['11月15日','date']],
-      replies: [
-        { mine:['我看见你了'], them:['…真的吗？'] },
-        { mine:['我知道我现在才认识你，但我会一直在'], them:['没关系，你来就很好'] }
-      ],
+      replies: [],
       fragment: { title:'碎片 · 角落', body:'有些难过说不出口。\n\n只能自己消化，然后第二天继续笑。' }
-    },*/
+    },
+    'Mu': {
+      // 只催命，不回话
+      init: [['11月15日','date']],
+      replies: [],
+      fragment: null
+    },
     'pig': {
       init: [['11月15日','date']],
       replies: [
