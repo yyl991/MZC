@@ -134,7 +134,7 @@ sb.scheduleCallAgain(target, "miss");
 ok("回过消息不再追命", called === 0);
 
 // 没回过消息 -> 会记一次追命
-const target2 = "恩仔";
+const target2 = "恩恩";
 vm.runInContext(`chatData["${target2}"].push(["你在哪","them","下午 11:19"])`, sb);
 const before = vm.runInContext(`chatData["${target2}"].length`, sb);
 sb.scheduleCallAgain(target2, "miss");
@@ -142,7 +142,7 @@ const after = vm.runInContext(`chatData["${target2}"].length`, sb);
 ok("没回消息会追问一句", after > before, before + "->" + after);
 
 // 3b. 主动给谁打过电话：只停这个人的电话，其他人照打
-vm.runInContext("window._playerCalledWho = { 恩仔: 1, pig: 1 }", sb);
+vm.runInContext("window._playerCalledWho = { 恩恩: 1, pig: 1 }", sb);
 const calls = [];
 sb.incomingCallFrom = (n) => calls.push(n);
 sb.incomingMsgFrom = () => {};

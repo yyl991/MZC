@@ -528,7 +528,7 @@ function pressureTick() {
   if (now < window._nextNag) return;
   const n = window._nagCount || 0;
   if (n >= 12) return;
-  const names = Object.keys(CFG.chats || {}).filter((k) => !(SS.missed && SS.missed.has(k)));
+  const names = Object.keys(CFG.chats || {}).filter((k) => !(SS.missed && SS.missed.has(k)) && !(window._playerCalledBack && window._playerCalledBack[k]));
   if (!names.length) return;
   const who = names[Math.floor(Math.random() * names.length)];
   if (hasRepliedTo(who)) { window._nextNag = now + 2000; return; }
@@ -560,6 +560,12 @@ function storyTick(e) {
     // beat.t = 直接指定第几秒触发（开场连环通知用），不填则按 at 走节奏曲线
     const due = beat.t != null ? beat.t : pacedAt(beat.at);
     if (e >= due && !SS.fired.has(key)) {
+      // 已完成过一次回拨对话的人：时间线里他的 notify / call 全部作废
+      if (beat.from && window._playerCalledBack && window._playerCalledBack[beat.from] &&
+          (beat.type === "notify" || beat.type === "call")) {
+        SS.fired.add(key);
+        return;
+      }
       // 催命类台词：玩家已经回过话就直接作废，避免「刚说好又质问」
       if (beat.skipIfReplied && beat.from && hasRepliedTo(beat.from)) { SS.fired.add(key); return; }
       if (beat.needStage !== undefined && beat.from) {

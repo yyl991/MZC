@@ -541,14 +541,15 @@ window.scheduleCallAgain = function (name, mode) {
   }, wait);
 };
 
-// 你打给谁，对方都会回拨过来 —— 但刚给这个人打过，就不再回拨
+// 你打给谁，对方都会回拨过来 —— 但完成过一次回拨对话后就不再回拨
 window.scheduleCallBack = function (name) {
   if (!name) return;
-  if (window._playerCalledWho && window._playerCalledWho[name]) return;
+  if (window._playerCalledBack && window._playerCalledBack[name]) return; // 已完成过一次回拨对话，不再回拨
   if (window._wxBlocked && window._wxBlocked[name]) return;
   clearTimeout(window._callBackTo);
   window._callBackTo = setTimeout(() => {
     if (callState) return;
+    window._isCallBackName = name; // 标记这次来电是回拨
     incomingCallFrom(name);
   }, 3000);
 };
@@ -568,6 +569,10 @@ window.endCall = function () {
   if (callState !== "active") return;
   callState = "ended";
   vib(15);
+  // 回拨来电接通并挂断 → 标记完成，之后不再回拨、不再发消息
+  if (!wasOut && callName && window._isCallBackName === callName) {
+    (window._playerCalledBack = window._playerCalledBack || {})[callName] = 1;
+  }
   const t = $("#ctime");
   if (t) t.textContent = "通话结束";
   const c = OV.querySelector(".call");
@@ -594,6 +599,7 @@ window.endCall = function () {
 window.closeCallUI = function () {
   const c = OV.querySelector(".call");
   if (!c) return;
+  window._isCallBackName = null; // 本次回拨标记用掉即清空
   c.animate([{ opacity: 1 }, { opacity: 0, transform: "scale(1.04)" }], {
     duration: 320,
     fill: "forwards",
