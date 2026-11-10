@@ -259,6 +259,7 @@ window.stopRing = function () {
   clearInterval(ringIv);
   ringIv = null;
   clearTimeout(ringTo);
+   if (window._ringEl) { try { window._ringEl.pause(); window._ringEl.currentTime = 0; } catch (e) {} } 
   try {
     navigator.vibrate && navigator.vibrate(0);
   } catch (e) {}

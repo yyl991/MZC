@@ -21,9 +21,16 @@ function sfx(k) {
   else if (k === "lock") tone(500, 0, 0.06, 0.05, "triangle");
 }
 function ringOnce() {
-  [[784, 0], [988, 0.2], [1175, 0.4], [988, 0.6], [784, 1.0], [988, 1.2], [1175, 1.4], [1319, 1.6]].forEach(([f, t]) => {
-    tone(f, t, 0.35, 0.11); tone(f * 2, t, 0.18, 0.03);
-  });
+  if (!window._ringEl) {
+    window._ringEl = new Audio("./data/app/call.mp3");
+    window._ringEl.loop = true;
+    window._ringEl.preload = "auto";
+    window._ringEl.style.display = "none";
+    (document.body || document.documentElement).appendChild(window._ringEl);
+  }
+  if (!window._ringEl.paused) return;
+  try { window._ringEl.currentTime = 0; } catch (e) {}
+  window._ringEl.play().catch(() => {});
 }
 
 window.bgmPausedByOther = false;
