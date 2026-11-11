@@ -33,8 +33,8 @@ var INCOMING = [];
   S.roles = {
     MuAMuA: { initial: "妈", color: "#f6b6c8", avatar: "./data/avatar/mama.jpg", pat: ":不是说学了吗‎•᷄ࡇ•᷅" },
     恩恩: { initial: "婆", color: "#f6b6c8", avatar: "./data/avatar/enen.jpg", pat: "，哼" },
-    丞哥: { initial: "哥", color: "#c9a227", avatar: "./data/avatar/gege.jpg", pat: "说丞哥丞哥大帅哥" },
-    穆祉丞: { initial: "丞", color: "#ff8a3d", avatar: "./data/avatar/mzc.jpg", pat: "叫哥哥" },
+    丞哥: { initial: "哥", color: "#c9a227", avatar: "./data/avatar/gege.jpg", pat: "叫哥哥" },
+    穆祉丞: { initial: "丞", color: "#ff8a3d", avatar: "./data/avatar/mzc.jpg", pat: "说丞哥丞哥大帅哥" },
     穆瑞恩: { initial: "瑞", color: "#9ad0ec", avatar: "./data/avatar/ruien.jpg", pat: "说再练一遍" },
     恩仔: { initial: "恩", color: "#d9a7c7", avatar: "./data/avatar/enzai.jpg", pat: "说我命由我不由天" },
     Mu: { initial: "M", color: "#3a3a3c", avatar: "./data/avatar/mu.jpg", pat: "的AWP并疯狂报点：“A大！A大！”" },
