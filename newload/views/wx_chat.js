@@ -262,11 +262,11 @@ const MOCK_MOMENTS_DATA = {
     posts: [
       {
         id: 1001,
-        date: { day: "11", month: "11月" },
+        date: { day: "22", month: "10月" },
         text: "不乖。",
         images: [],
         location: "",
-        time: "2026年11月11日 23:40",
+        time: "2026年10月22日 23:40",
         likes: [],
         comments: [],
       },
