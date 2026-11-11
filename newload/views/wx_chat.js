@@ -128,7 +128,7 @@ const MOCK_MOMENTS_DATA = {
         likes: [],
         comments: [
           { user: "我", text: "导了。", replyTo: "" },
-          { user: "cat", text: "？", replyTo: "我" },
+          { user: "cat", text: "？滚", replyTo: "我" },
         ],
       },
     ],
