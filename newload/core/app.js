@@ -10,7 +10,7 @@ let base = 0;
 const elapsed = () => (base ? (Date.now() - base) / 1000 : 0);
 function startClock() {
   if (base) return;
-  const saved = localStorage.getItem("mzc_game_save");
+  const saved = localStorage.getItem(GAME_SAVE_KEY);
   if (saved) {
     try {
       const data = JSON.parse(saved);
@@ -27,6 +27,9 @@ const IS_DEV_HOST = (() => {
     return /^(localhost|127\.0\.0\.1|0\.0\.0\.0|::1|\[::1\])$/.test(location.hostname);
   } catch (e) { return false; }
 })();
+// 本地快速验收使用独立存档，不覆盖玩家进度。
+const ENDING_PREVIEW = IS_DEV_HOST && /[?&]endingPreview=1\b/.test(location.search);
+const GAME_SAVE_KEY = ENDING_PREVIEW ? "mzc_homecoming_preview" : "mzc_game_save";
 
 window.preloadAssets = function () { return; };
 
@@ -97,6 +100,9 @@ function ampm(minutes) {
 }
 function gameMin() {
   const e = elapsed();
+  if (SS.homecoming && SS.homecoming.phase === "exploring") {
+    return 24 * 60 + Math.floor(Math.max(0, e - SS.homecoming.continuedAt) / 60);
+  }
   if (e <= GAME_END_AT) return GAME_START_MIN + Math.floor((e / GAME_END_AT) * 51);
   return GAME_START_MIN + 51;
 }
@@ -492,6 +498,8 @@ function incomingMailFrom(beat) {
   b.onclick = () => { clearTimeout(tm); b.remove(); if (view === "home") openApp("mail", HOME.querySelector('.app[data-app="mail"] .icon')); else if (view === "mail") openMailDetail(newId); else if (view === "mail_detail") { currentMailId = newId; show("mail_detail", "push"); } };
 }
 function showStoryChoice() {
+  // feature 结尾由整点传送接管，旧时间线不再弹 A/B。
+  return;
   if (SS.choice) return;
   const d = document.createElement("div");
   d.className = "banner story-choice";
@@ -501,12 +509,93 @@ function showStoryChoice() {
 }
 function chooseStory(v, el) { SS.choice = v; saveStory(); el.closest(".banner").remove(); notifyFrom("穆祉丞", v === "A" ? "不要愧疚。你来了就好。" : "嗯。我想要的是此刻。"); }
 function showEnding(choice) {
+  return beginHomecoming();
+  /* 旧 A/B 结尾保留在 Git 历史，当前不再执行。
   if (SS.arriveHome) return; SS.arriveHome = true; saveStory();
   const E = CFG.ending?.[choice] || CFG.ending.B;
   const d = document.createElement("div");
   d.className = "viewer";
   d.innerHTML = `<div class="vbg"></div><div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:32px;color:#fff;background:linear-gradient(180deg,#2a1f1a,#0b0b0d)"><div style="font-size:13px;opacity:.6;letter-spacing:2px">11-16 00:00</div><h1 style="font-size:30px;margin:10px 0 18px">${esc(E.title)}</h1><div style="font-size:17px;line-height:1.7;white-space:pre-line">${esc(E.body)}</div><button style="margin-top:28px;padding:14px;border-radius:14px;background:#fff;color:#000;font-weight:700" onclick="this.closest('.viewer').remove();location.reload()">重新开始</button></div>`;
   OV.appendChild(d);
+  */
+}
+
+// 零点前 24 秒逐渐失真，零点传送。后续照片、生日歌可扩展 renderHomecoming。
+function updateHomecoming(e) {
+  if (SS.homecoming) {
+    if (SS.homecoming.phase === "transferred") renderHomecoming();
+    return;
+  }
+  if (e >= GAME_END_AT) { beginHomecoming(); return; }
+  if (e < GAME_END_AT - 24 || !SCREEN) return;
+  let effect = document.getElementById("homecoming-fault");
+  if (!effect) {
+    effect = document.createElement("div");
+    effect.id = "homecoming-fault";
+    effect.setAttribute("aria-hidden", "true");
+    effect.innerHTML = '<div class="fault-scan"></div><span class="fault-caption">信号不稳定 · 请勿离开</span>';
+    SCREEN.appendChild(effect);
+  }
+  const level = Math.min(1, Math.max(0, (e - (GAME_END_AT - 24)) / 24));
+  effect.style.setProperty("--fault", String(level));
+  SCREEN.classList.add("homecoming-failing");
+}
+function beginHomecoming() {
+  if (SS.homecoming) return;
+  SS.arriveHome = true;
+  SS.homecoming = { phase: "transferred" };
+  // 中断尚未送达的催命、电话与耐心计时，避免继续后又有残留回调。
+  Object.values(window._patience || {}).forEach(clearTimeout);
+  clearTimeout(window._callBackTo);
+  if (typeof stopRing === "function") stopRing();
+  if (typeof rbIv !== "undefined") clearTimeout(rbIv);
+  if (typeof callState !== "undefined") callState = "";
+  if (typeof closeCallUI === "function") closeCallUI();
+  if (typeof hideTyping === "function") hideTyping();
+  if (OV) OV.querySelectorAll(".banner, .call").forEach(el => el.remove());
+  document.querySelectorAll("video, audio").forEach(media => media.pause());
+  window.bgmPausedByOther = false;
+  window._bgmStarted = false;
+  if (SCREEN) SCREEN.classList.remove("homecoming-failing");
+  const fault = document.getElementById("homecoming-fault");
+  if (fault) fault.remove();
+  if (typeof window.saveGameState === "function") window.saveGameState();
+  renderHomecoming();
+}
+function renderHomecoming() {
+  if (!SCREEN || document.getElementById("homecoming-scene")) return;
+  const scene = document.createElement("div");
+  scene.id = "homecoming-scene";
+  scene.setAttribute("role", "dialog");
+  scene.setAttribute("aria-modal", "true");
+  scene.setAttribute("aria-labelledby", "homecoming-title");
+  scene.innerHTML = `<div class="homecoming-content">
+    <p class="homecoming-time">11 / 16 <span>00:00</span></p>
+    <div class="homecoming-rule"></div>
+    <p class="homecoming-status">传送完成</p>
+    <h1 id="homecoming-title">用户「小纸团」<br>已被强制传送回家。</h1>
+    <p class="homecoming-question">敢不陪穆祉丞过生日？</p>
+    <p class="homecoming-note">这一次，你没有错过。<br>门开着，蛋糕也还在等你。</p>
+    <button class="homecoming-continue" onclick="continueHomecoming()">继续 <span aria-hidden="true">→</span></button>
+    <p class="homecoming-footer">已到家 · 今晚不必再赶路</p>
+  </div>`;
+  SCREEN.appendChild(scene);
+  const button = scene.querySelector("button");
+  if (button) button.focus();
+}
+function continueHomecoming() {
+  if (!SS.homecoming || SS.homecoming.phase !== "transferred") return;
+  SS.homecoming = { phase: "exploring", continuedAt: elapsed() };
+  SS.arriveHome = true;
+  const scene = document.getElementById("homecoming-scene");
+  if (scene) scene.remove();
+  if (LOCK) LOCK.style.display = "none";
+  if (APP) { APP.innerHTML = ""; APP.style.visibility = "hidden"; }
+  view = "home";
+  if (HOME) HOME.style.visibility = "visible";
+  if (typeof renderHome === "function") renderHome();
+  if (typeof window.saveGameState === "function") window.saveGameState();
+  if (typeof window.tryStartBGM === "function") window.tryStartBGM();
 }
 
 function pacedAt(at) {
@@ -554,8 +643,10 @@ function hasRepliedTo(name) {
 }
 
 function storyTick(e) {
+  if (SS.arriveHome) return;
   if (!CFG.timeline) return;
   CFG.timeline.forEach((beat, i) => {
+    if (beat.type === "choice" || beat.type === "ending") return;
     const key = i + "@" + beat.at;
     // beat.t = 直接指定第几秒触发（开场连环通知用），不填则按 at 走节奏曲线
     const due = beat.t != null ? beat.t : pacedAt(beat.at);
@@ -598,7 +689,8 @@ function tick() {
   if (!window._dndHintShown && view === "lock" && elapsed() > 60 && (window._mzcNoise || 0) >= 3) {
     window._dndHintShown = true; lockNotes.unshift({ title: "免打扰建议", body: "穆祉丞一直很吵闹，可以点击开启免打扰", app: "dnd", time: gameTime24() }); renderLock();
   }
-  storyTick(elapsed()); pressureTick(); if (elapsed() >= GAME_END_AT && !SS.arriveHome) midnightBoom();
+  updateHomecoming(elapsed());
+  storyTick(elapsed()); pressureTick();
   if (!window._dateFlipped && elapsed() >= GAME_END_AT) { window._dateFlipped = true; selectedDay = 16; if (view === "home" && typeof renderHome === "function") renderHome(); if (view === "calendar") show("calendar", "none"); if (view === "lock" || view === "pin") renderLock(); }
   if (typeof callState !== "undefined" && callState === "active") {
     const sec = Math.floor((Date.now() - (typeof callStart !== "undefined" ? callStart : Date.now())) / 1000);
@@ -642,19 +734,19 @@ window.saveGameState = function () {
         stage: SS.stage, lineIdx: SS.lineIdx,
         fired: Array.from(SS.fired), fragments: Array.from(SS.fragments),
         missed: Array.from(SS.missed), arriveHome: SS.arriveHome, choice: SS.choice,
-        talked: SS.talked,
+        talked: SS.talked, homecoming: SS.homecoming || null,
       },
     };
-    localStorage.setItem("mzc_game_save", JSON.stringify(state));
+    localStorage.setItem(GAME_SAVE_KEY, JSON.stringify(state));
   } catch (e) { console.warn("存档失败", e); }
 };
 
 window.loadGameState = function () {
-  const saved = localStorage.getItem("mzc_game_save"); if (!saved) return;
+  const saved = localStorage.getItem(GAME_SAVE_KEY); if (!saved) return;
   try {
     const state = JSON.parse(saved);
     // 剧情数据改过（指纹对不上）就把旧档丢掉，否则旧的时间线 fired 会一直生效
-    if (state.sig !== window.DATA_SIG) { localStorage.removeItem("mzc_game_save"); return; }
+    if (state.sig !== window.DATA_SIG) { localStorage.removeItem(GAME_SAVE_KEY); return; }
     if (state.chatData) { for (const k in window.chatData) delete window.chatData[k]; Object.assign(window.chatData, state.chatData); }
     if (state.unread) Object.assign(window.unread, state.unread);
     if (state.lockNotes) lockNotes = state.lockNotes;
@@ -664,6 +756,7 @@ window.loadGameState = function () {
       SS.fired = new Set(state.SS.fired || []); SS.fragments = new Set(state.SS.fragments || []);
       SS.missed = new Set(state.SS.missed || []); SS.arriveHome = state.SS.arriveHome || false; SS.choice = state.SS.choice || null;
       SS.talked = state.SS.talked || {};
+      SS.homecoming = state.SS.homecoming || null;
     }
   } catch (e) { console.warn("读档失败", e); }
 };
@@ -702,7 +795,7 @@ window.resetGameState = function () {
   wrap.querySelector("#btn-do-reset").onclick = () => {
     // 先上锁再删档：不然 reload 前的这 300ms 里，tick 可能刚好又存一次旧档
     window._resetting = true;
-    localStorage.removeItem("mzc_game_save");
+    localStorage.removeItem(GAME_SAVE_KEY);
     if (typeof toastDev === "function") toastDev("进度已清空");
     setTimeout(() => { location.reload(); }, 300);
   };
@@ -757,5 +850,10 @@ function initApp() {
   if (IS_DEV_HOST) { view = "home"; LOCK.style.display = "none"; renderHome(); HOME.style.visibility = "visible"; }
   else { view = "lock"; HOME.style.visibility = "hidden"; LOCK.style.display = "block"; LOCK.style.visibility = "visible"; renderLock(); }
   try { const bgmEl = document.getElementById("bgm"); if (bgmEl && !bgmEl.dataset.vol) { bgmEl.volume = 1; bgmEl.dataset.vol = "1"; } } catch (e) {}
-  setStatus(true); startClock(); setInterval(tick, 1000); tick(); hideBoot();
+  setStatus(true); startClock();
+  if (ENDING_PREVIEW && !SS.homecoming) base = Date.now() - (GAME_END_AT - 18) * 1000;
+  if (SS.homecoming && SS.homecoming.phase === "transferred") {
+    document.querySelectorAll("video, audio").forEach(media => media.pause());
+  }
+  setInterval(tick, 1000); tick(); hideBoot();
 }

@@ -63,6 +63,7 @@ document.addEventListener("pause", (e) => {
 // （原来是 { once: true }，第一次点击被拦或资源没就绪就永远不放音乐了）
 window._bgmStarted = false;
 window.tryStartBGM = function () {
+  if (typeof SS !== "undefined" && SS.homecoming && SS.homecoming.phase === "transferred") return;
   const BGM = document.getElementById("bgm");
   if (!BGM || window._bgmStarted) return;
   if (window.bgmPausedByOther) return;

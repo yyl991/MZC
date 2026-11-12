@@ -449,6 +449,7 @@ function lastMsgFromMe(name) {
   return false;
 }
 function botSay(name, text) {
+  if (typeof SS !== "undefined" && SS.arriveHome) return;
   if (window._wxBlocked && window._wxBlocked[name]) return;
   if (lastMsgFromMe(name)) return;
   if (typeof chatData === "undefined" || !chatData[name]) return;
@@ -508,6 +509,7 @@ function pigCryFlood() {
 }
 window._lastNag = window._lastNag || {};
 window.scheduleCallAgain = function (name, mode) {
+  if (typeof SS !== "undefined" && SS.arriveHome) return;
   if (!name) return;
   if (window._playerCalledWho && window._playerCalledWho[name]) return; // 给这个人打过电话了，不再追命
   if (window._wxBlocked && window._wxBlocked[name]) return;
@@ -538,6 +540,7 @@ window.scheduleCallAgain = function (name, mode) {
 
 // 你打给谁，对方都会回拨过来 —— 但完成过一次回拨对话后就不再回拨
 window.scheduleCallBack = function (name) {
+  if (typeof SS !== "undefined" && SS.arriveHome) return;
   if (!name) return;
   if (window._playerCalledBack && window._playerCalledBack[name]) return; // 已完成过一次回拨对话，不再回拨
   if (window._wxBlocked && window._wxBlocked[name]) return;

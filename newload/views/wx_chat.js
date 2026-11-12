@@ -1769,12 +1769,14 @@ function hideTyping() {
 /* ---------- 耐心值：回得慢就错过这段对话 ---------- */
 window._patience = window._patience || {};
 function armPatience(name) {
+  if (SS.arriveHome) return;
   if (!name) return;
   if (typeof SS.missed === "undefined") SS.missed = new Set();
   if (SS.missed.has(name)) return;
   clearTimeout(window._patience[name]);
   const sec = (CFG.patienceSec || 100) * 1000;
   window._patience[name] = setTimeout(() => {
+    if (SS.arriveHome) return;
     if (typeof lastMsgFromMe === "function" && lastMsgFromMe(name)) return;
     SS.missed.add(name);
     if (typeof saveStory === "function") saveStory();
@@ -1838,9 +1840,11 @@ function deliverFrom(from, text) {
 }
 
 function incomingMsgFrom(from, text) {
+  if (SS.arriveHome) return;
   if (view === "chat" && chatId === from) {
     showTypingFrom(from);
     setTimeout(() => {
+      if (SS.arriveHome) return;
       hideTyping();
       deliverFrom(from, text);
     }, 1200);
