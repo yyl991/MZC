@@ -1,8 +1,20 @@
 ﻿# HANDOVER ·「橙粉色捡起来」捡手机网页
 
-> 更新：2026-11-12；源码核对基线：`c6891ae`（`all`）；当前分支：`main`。
+> 更新：2026-11-12；当前试验分支：`feature/midnight-homecoming`。旧文档核对基线为 `c6891ae`；本轮功能接续后续提交，具体以 Git 历史为准。
 > 远端 `origin` = `mzc:yyl991/MZC.git`。本轮核对本地提交和源码，未重新核验线上部署。
 > **每次完成项目改动，都必须同步更新本文件**，记录实际行为、验证结果与遗留事项；历史细节放 `HANDOVER-ARCHIVE.md`。
+
+## 本轮试验：零点强制传送回家
+
+- 用户要求在 feature 分支试做新结尾，未合并 main。旧 A/B 选择和结局由整点传送接管，不改作者维护的 story/chat_history 正文。
+- `core/app.js` 在新局第636秒（零点前24秒）开始暗色遮罩、扫描线、轻微错位；第660秒黑屏，短暂淡入「用户『小纸团』已被强制传送回家」「敢不陪穆祉丞过生日？」和「继续」。遵守减少动态效果设置。
+- 继续后回主屏，游戏时间从00:00起按真实速度流逝（60秒=1分钟），可探索手机；时间线、催命、回拨、耐心收尾停止。零点会结束现有来电、暂停媒体，继续后再尝试恢复BGM。
+- `SS.homecoming` 保存 transferred/exploring 阶段和 continuedAt；刷新未继续时重现传送幕，刷新已继续时保留自由时间。现有到家存档若无新阶段，到零点会补上新结尾。
+- `views/wx_chat.js` 为催命入口/延迟送达/耐心回调加到家门控；`views/app_extra.js` 为追命、回拨、botSay和猪哭图延迟回调加门控；`core/audio.js` 避免传送幕被自动BGM打断。
+- 场景渲染集中在 `renderHomecoming()`，样式在style.css尾部。生日照片、吹蜡烛和生日歌暂未加入，后续可在这里扩展。
+- ASSET_V与样式URL版本更新为 `20261112-homecoming1`。
+- 本地快速预览：`http://127.0.0.1:8765/?endingPreview=1`；仅开发模式有效，从最后18秒开始，跳过普通剧情，独立存档键为 `mzc_homecoming_preview`，不会覆盖正式进度。预览重置使用锁屏重置入口。
+- 验证：新增 `tests/homecoming.test.js`，验证触发边界、继续后时钟、两阶段读档、重复继续、A/B失效与预览存档隔离；全量回归结果见§五。Browser连接因环境缺少sandboxPolicy失败，未完成截图/真机视觉验收。
 
 ## 一、项目与协作约定
 
@@ -24,7 +36,7 @@
 
 | 模块 | 当前行为 |
 |---|---|
-| 存档 | **已有 localStorage 统一存档，刷新续玩**；旧「无存档、刷新即重开」决策已被后续实现取代 |
+| 存档 | **已有 localStorage 统一存档，刷新续玩**；本分支也保存结尾/自由探索阶段 |
 | 重置 | 锁屏提供确认式重置；先置 `_resetting` 再删档，防自动存档写回 |
 | 电话 | 按角色停止追命，支持回拨；回拨对话完成后排除该角色后续时间线通知/来电与随机催命 |
 | 时限/铃声 | 来电 5 秒未接挂断，呼出 3 秒未接结束；铃声 `data/app/call.mp3` |
@@ -39,7 +51,7 @@
 
 ## 三、技术入口
 
-原生 JS，无框架，所有脚本共享全局作用域。index.html 先预取再按序加载 17 个脚本，当前 `ASSET_V = '20261108p'`。
+原生 JS，无框架，所有脚本共享全局作用域。index.html 先预取再按序加载 17 个脚本，当前 `ASSET_V = '20261112-homecoming1'`。
 
 | 文件 | 职责 |
 |---|---|
@@ -57,7 +69,7 @@
 | views/wx_chat.js | 聊天、状态、拉黑、引用、拍一拍、朋友圈数据 |
 | 其他 views/ | 微信页面、朋友圈、邮件、微博、闲鱼、哔哩哔哩、小红书 |
 | style.css | 公共样式，并非样式的唯一来源 |
-| tests/ | 11 个 Node vm 测试文件，tests/run.js 汇总 |
+| tests/ | 12 个 Node vm 测试文件，tests/run.js 汇总 |
 | obfuscate.js | 可选构建到 dist，现有部署记录仍为源码托管 |
 
 新增脚本按依赖加入入口；视图为 `VIEWS.xxx = () => ({ cls, html })`。新增全局函数先搜索同名，防后加载覆盖；onclick 使用函数应挂 window 或顶层 function，拼接名字需转义。
@@ -67,7 +79,7 @@
 ### 存档与重置
 
 - app.js 的 `saveGameState()` / `loadGameState()` 使用 `mzc_game_save`。tick 约每 5 秒自动保存，saveChat/saveStory 转调统一引擎。
-- 保存 elapsed、chatData、unread、lockNotes、wxBlocked 和部分 SS：stage/lineIdx/fired/fragments/missed/arriveHome/choice/talked；**不是所有 window 状态都会恢复**。
+- 保存 elapsed、chatData、unread、lockNotes、wxBlocked 和部分 SS：stage/lineIdx/fired/fragments/missed/arriveHome/choice/talked/homecoming；**不是所有 window 状态都会恢复**。
 - DATA_SIG 根据初始 chatData 与 timeline 生成，指纹变化弃旧档；不是任意配置变更都会改变指纹。
 - initApp 先读档再启动时钟，startClock 从存档 elapsed 恢复 base，不能让聊天与时间错位。
 - resetGameState 使用页面内确认框；确认先 `_resetting = true`，再删除存档、reload。
@@ -75,11 +87,11 @@
 
 ### 时钟、时间线、回复
 
-- 新局 23:09 起，GAME_END_AT=660，11 分钟到 00:00 后封顶；旧「不要给 gameMin 封顶」提醒失效。凌晨显示「上午 00:xx」，不改成 12。
+- 新局23:09起，GAME_END_AT=660，11分钟到00:00进入传送幕；继续前停在零点，继续后按真实时间流逝。凌晨显示「上午 00:xx」，不改成12。
 - pacedAt 为 offset + amp * ln(1 + at/soft)，at=0 特判返回0；当前 pace={offset:90,amp:1124,soft:500}，nagFrom=680。beat.t 可指定直接触发秒数。
 - buildInterleavedTimeline 按角色交错，调整节奏需结合重排与曲线，不让尾部消息拥挤。
 - hasRepliedTo 看本局 stage/lineIdx/talked，不能用历史 me 消息判定。skipIfReplied、needStage 也会门控触发。
-- localhost / ?dev=1 开发模式直接进主屏且跳过 choice/ending；?dev=0 可覆盖本地默认值。
+- localhost / ?dev=1 开发模式直接进主屏；本分支新结尾在开发模式同样触发，旧choice/ending不再执行。?dev=0可测试正式锁屏开场；endingPreview=1仅开发模式有效。
 - 锁屏/私密 PIN=1116，备忘录 PIN=0913。备忘录解锁字段不在统一存档中。
 - 天气设定北京夜间0°，阴转小雪，最高2°最低-3°；主屏、天气 App 多处写死，修改须一起核对。
 - missLinesOn=false 只关闭错过收尾文案，不取消耐心计时与 missed 标记。
@@ -90,7 +102,7 @@
 - 普通角色呼出结束后可经 scheduleCallBack 延迟3秒回拨，纯号码不回拨。
 - 回拨来电接通并挂断时记 `_playerCalledBack[name]`，排除该角色后续时间线 notify/call 与随机催命；该标记未纳入现有存档。
 - incomingCallFrom 拦黑名单、到家状态，并用 `_totalCalls` 限每人最多3次；scheduleCallAgain 另有限制与 CALL_ANGRY 收尾，不能改为无限。
-- 时间线来电、追命、回拨、零点来电有不同门控，不能把某入口规则写成所有电话共有规则；零点仍有独立消息和电话逻辑。
+- 回家前时间线来电、追命、回拨有各自门控；本分支零点由传送幕接管，旧零点催命消息与电话不再执行，到家后停止自动催促。
 - 来电5秒未接、呼出3秒未接结束；closeCallUI 返回原页面。
 
 ### 路由、相册、微信
@@ -128,13 +140,13 @@
 
 ## 五、验证、提交、部署
 
-在newload执行 `node tests/run.js` 或 `npm test`。**2026-11-12 实测：11个测试文件全部通过**。本轮只改文档，未做浏览器完整交互验收或生产部署验证。
+在newload执行 `node tests/run.js` 或 `npm test`。2026-11-12本分支全量回归12个测试文件全部通过，修改的JS语法检查与git diff --check通过；本地预览HTTP返回200。Browser环境连接失败，未完成浏览器完整交互、真机视觉或生产部署验证。
 
 1. 检查git status和当前分支，读取源文件后修改。
 2. 按改动运行必要检查；业务代码改动跑现有回归，UI还需按目标屏幕检查。
 3. **同步本handover**；运行时代码发版递增ASSET_V，纯文档改动无需改版本。
 4. git add具体文件并检查staged diff，不用git add .。
-5. 提交并push实际工作分支（本轮main）；上线成功需另查结果。
+5. 提交并push实际工作分支（本轮feature/midnight-homecoming）；本分支未合并main，上线成功需另查结果。
 
 旧线上缓存记录max-age=1200（20分钟，本轮未重查），保留固定ASSET_V，不换Date.now()；本地可禁用缓存或硬刷新。
 
@@ -147,7 +159,7 @@
 
 ## 六、遗留与下次核对
 
-- 本轮没有新增业务需求，不自动恢复旧分类相簿、无存档或电话留言方案。
+- 本轮试验为零点传送与自由探索；生日照片、吹蜡烛、生日歌待用户后续定稿。不自动恢复旧分类相簿、无存档或电话留言方案。
 - resetWxChat重复定义问题见§四，本轮仅记录未修。
 - 涉及存档时验证刷新续玩、指纹弃档、确认重置；涉及电话时分别验证追命/回拨/零点及刷新后的状态，现有回归通过不等于这些路径全部验收。
 - 素材迁移至data/photo、data/avatar、data/chat、data/app等；检查当前引用，缺素材沿用wxMediaMiss，不照旧data/album路径补写。

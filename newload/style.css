@@ -5314,3 +5314,43 @@ svg {
 .pa-cell img, .pa-cell video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 .pa-cell.sel::after { content: ""; position: absolute; inset: 0; border: 3px solid #07c160; }
 .pa-vd { position: absolute; left: 6px; bottom: 4px; color: #fff; font-size: 11px; font-style: normal; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+
+/* feature/midnight-homecoming：临近零点的故障与传送幕 */
+#homecoming-fault {
+  position:absolute; inset:0; z-index:999990; pointer-events:none;
+  background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(3,1,8,.88));
+  opacity:calc(.15 + var(--fault,0) * .78); transition:opacity 1s;
+}
+.fault-scan { position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,0,0,.45) 4px 5px); }
+.fault-caption { position:absolute; bottom:110px; left:0; right:0; text-align:center; font-size:10px; letter-spacing:4px; color:#b3a3ac; }
+.homecoming-failing > #homeL, .homecoming-failing > #appL, .homecoming-failing > #lockL {
+  animation:homecoming-signal 4s steps(1,end) infinite;
+}
+@keyframes homecoming-signal {
+  0%,83%,89%,100% { transform:translateX(0); filter:none; }
+  84%,88% { transform:translateX(-2px); filter:brightness(.55) saturate(.2); }
+  85% { transform:translateX(3px); filter:brightness(.7); }
+}
+#homecoming-scene {
+  position:absolute; inset:0; z-index:1000000; background:#030304; color:#eee8e8;
+  display:flex; align-items:center; justify-content:center; overflow-y:auto;
+  overscroll-behavior:contain; isolation:isolate;
+}
+.homecoming-content { width:100%; max-width:390px; padding:76px 32px 52px; box-sizing:border-box; animation:homecoming-reveal 2.6s ease both; }
+.homecoming-time { margin:0 0 25px; color:#81777e; font-size:11px; letter-spacing:4px; font-variant-numeric:tabular-nums; }
+.homecoming-time span { float:right; color:#d3b5bd; }
+.homecoming-rule { height:1px; background:linear-gradient(90deg,#533540,transparent); margin-bottom:52px; }
+.homecoming-status { font-size:10px; letter-spacing:5px; color:#a77d8a; margin:0 0 18px; }
+#homecoming-title { margin:0; font-size:26px; line-height:1.65; font-weight:500; letter-spacing:1px; }
+.homecoming-question { margin:22px 0 0; color:#d7a5b3; font-size:16px; letter-spacing:.5px; }
+.homecoming-note { margin:36px 0 48px; font-size:13px; line-height:2; color:#95898e; }
+.homecoming-continue { width:100%; padding:17px 19px; text-align:left; background:#171115; border:1px solid #4f333f; border-radius:3px; color:#f1d6df; font-size:15px; cursor:pointer; }
+.homecoming-continue span { float:right; color:#bf8498; }
+.homecoming-continue:focus-visible { outline:2px solid #d7a5b3; outline-offset:5px; }
+.homecoming-footer { margin:19px 0 0; text-align:center; color:#65565e; font-size:10px; letter-spacing:2px; }
+@keyframes homecoming-reveal { 0%,28% { opacity:0; transform:translateY(7px); } 100% { opacity:1; transform:translateY(0); } }
+@media (prefers-reduced-motion:reduce) {
+  .homecoming-failing > #homeL, .homecoming-failing > #appL, .homecoming-failing > #lockL { animation:none; }
+  .homecoming-content { animation:none; }
+}
+@media (max-height:650px) { .homecoming-content { padding-top:55px; padding-bottom:32px; } .homecoming-rule { margin-bottom:28px; } .homecoming-note { margin:23px 0 28px; } }

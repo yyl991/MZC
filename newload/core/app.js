@@ -497,28 +497,8 @@ function incomingMailFrom(beat) {
   let tm = setTimeout(() => { b.animate([{ transform: "none", opacity: 1 }, { transform: "translateY(-140%) scale(.9)", opacity: 0 }], { duration: 300, fill: "forwards" }).onfinish = () => b.remove(); }, 5000);
   b.onclick = () => { clearTimeout(tm); b.remove(); if (view === "home") openApp("mail", HOME.querySelector('.app[data-app="mail"] .icon')); else if (view === "mail") openMailDetail(newId); else if (view === "mail_detail") { currentMailId = newId; show("mail_detail", "push"); } };
 }
-function showStoryChoice() {
-  // feature 结尾由整点传送接管，旧时间线不再弹 A/B。
-  return;
-  if (SS.choice) return;
-  const d = document.createElement("div");
-  d.className = "banner story-choice";
-  d.style.cssText = "top:80px;left:16px;right:16px;background:#fff;border-radius:16px;padding:16px;box-shadow:0 10px 40px rgba(0,0,0,.2)";
-  d.innerHTML = `<b style="font-size:17px">你要怎么面对这些年？</b><button style="display:block;width:100%;margin-top:12px;padding:12px;border-radius:12px;background:#f2f2f7" onclick="chooseStory('A',this)">A. 我好愧疚，我错过了你那么多年</button><button style="display:block;width:100%;margin-top:8px;padding:12px;border-radius:12px;background:#ffe8d6" onclick="chooseStory('B',this)">B. 过去无法重来，我会抓住现在的你</button>`;
-  OV.appendChild(d);
-}
-function chooseStory(v, el) { SS.choice = v; saveStory(); el.closest(".banner").remove(); notifyFrom("穆祉丞", v === "A" ? "不要愧疚。你来了就好。" : "嗯。我想要的是此刻。"); }
-function showEnding(choice) {
-  return beginHomecoming();
-  /* 旧 A/B 结尾保留在 Git 历史，当前不再执行。
-  if (SS.arriveHome) return; SS.arriveHome = true; saveStory();
-  const E = CFG.ending?.[choice] || CFG.ending.B;
-  const d = document.createElement("div");
-  d.className = "viewer";
-  d.innerHTML = `<div class="vbg"></div><div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:32px;color:#fff;background:linear-gradient(180deg,#2a1f1a,#0b0b0d)"><div style="font-size:13px;opacity:.6;letter-spacing:2px">11-16 00:00</div><h1 style="font-size:30px;margin:10px 0 18px">${esc(E.title)}</h1><div style="font-size:17px;line-height:1.7;white-space:pre-line">${esc(E.body)}</div><button style="margin-top:28px;padding:14px;border-radius:14px;background:#fff;color:#000;font-weight:700" onclick="this.closest('.viewer').remove();location.reload()">重新开始</button></div>`;
-  OV.appendChild(d);
-  */
-}
+function showStoryChoice() {}
+function showEnding() { beginHomecoming(); }
 
 // 零点前 24 秒逐渐失真，零点传送。后续照片、生日歌可扩展 renderHomecoming。
 function updateHomecoming(e) {
@@ -550,7 +530,7 @@ function beginHomecoming() {
   if (typeof stopRing === "function") stopRing();
   if (typeof rbIv !== "undefined") clearTimeout(rbIv);
   if (typeof callState !== "undefined") callState = "";
-  if (typeof closeCallUI === "function") closeCallUI();
+  window._isCallBackName = null;
   if (typeof hideTyping === "function") hideTyping();
   if (OV) OV.querySelectorAll(".banner, .call").forEach(el => el.remove());
   document.querySelectorAll("video, audio").forEach(media => media.pause());
@@ -590,10 +570,16 @@ function continueHomecoming() {
   const scene = document.getElementById("homecoming-scene");
   if (scene) scene.remove();
   if (LOCK) LOCK.style.display = "none";
+  const pin = document.getElementById("pinL");
+  if (pin) pin.style.display = "none";
+  const wall = document.getElementById("wall");
+  if (wall) { wall.classList.remove("dim"); wall.style.filter = ""; }
   if (APP) { APP.innerHTML = ""; APP.style.visibility = "hidden"; }
   view = "home";
   if (HOME) HOME.style.visibility = "visible";
   if (typeof renderHome === "function") renderHome();
+  setStatus(true);
+  if (typeof updateIsland === "function") updateIsland();
   if (typeof window.saveGameState === "function") window.saveGameState();
   if (typeof window.tryStartBGM === "function") window.tryStartBGM();
 }
@@ -627,12 +613,7 @@ function pressureTick() {
   const line = NAG_LINES[Math.min(n, NAG_LINES.length - 1)];
   if (typeof incomingMsgFrom === "function") incomingMsgFrom(who, line);
 }
-const MIDNIGHT_LINES = { 穆祉丞: "零点过了。你说过会回来的。", MuAMuA: "宝宝，已经零点了，回家好不好。", 丞哥: "零点了。别让我出去找你。", 恩仔: "蛋糕……还没切呢。", 穆瑞恩: "生日要过去了，你还不来吗。", Mu: "我说过，不要消失。" };
-function midnightBoom() {
-  if (SS.midnightBoom) return; SS.midnightBoom = true;
-  Object.keys(MIDNIGHT_LINES).forEach((n, i) => { setTimeout(() => { if (typeof incomingMsgFrom === "function") incomingMsgFrom(n, MIDNIGHT_LINES[n]); }, i * 1600); });
-  setTimeout(() => { if (typeof incomingCallFrom === "function" && !callState) incomingCallFrom("穆祉丞"); }, 11000);
-}
+function midnightBoom() { beginHomecoming(); }
 
 // 本局是否已经跟这个角色接触过（聊过天，或通过电话）
 // 注意：不能用「聊天记录里有 me」判断——历史记录本来就带玩家消息
@@ -690,7 +671,7 @@ function tick() {
     window._dndHintShown = true; lockNotes.unshift({ title: "免打扰建议", body: "穆祉丞一直很吵闹，可以点击开启免打扰", app: "dnd", time: gameTime24() }); renderLock();
   }
   updateHomecoming(elapsed());
-  storyTick(elapsed()); pressureTick();
+  if (!ENDING_PREVIEW) { storyTick(elapsed()); pressureTick(); }
   if (!window._dateFlipped && elapsed() >= GAME_END_AT) { window._dateFlipped = true; selectedDay = 16; if (view === "home" && typeof renderHome === "function") renderHome(); if (view === "calendar") show("calendar", "none"); if (view === "lock" || view === "pin") renderLock(); }
   if (typeof callState !== "undefined" && callState === "active") {
     const sec = Math.floor((Date.now() - (typeof callStart !== "undefined" ? callStart : Date.now())) / 1000);

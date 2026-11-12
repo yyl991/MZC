@@ -37,6 +37,7 @@ window.bgmPausedByOther = false;
 window.AudioHub = {
   bgm: () => document.getElementById("bgm"),
   isBusy() {
+    if (typeof SS !== "undefined" && SS.homecoming && SS.homecoming.phase === "transferred") return true;
     const videos = document.querySelectorAll("video");
     for (let v of videos) { if (!v.paused && !v.ended) return true; }
     const audios = document.querySelectorAll("audio");

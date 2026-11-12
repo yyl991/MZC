@@ -487,10 +487,12 @@ const CALL_NAG = {
 const CALL_ANGRY = ["行，不打了。", "随便你吧。", "……好。", "我等你主动找我。"];
 /* 猪被挂电话：先扣一个问号，然后开始狂发哭脸表情包 */
 function pigCryFlood() {
+  if (typeof SS !== "undefined" && SS.arriveHome) return;
   if (typeof chatData === "undefined" || !chatData["pig"]) return;
   if (window._wxBlocked && window._wxBlocked["pig"]) return;
   const send = (text, delay) =>
     setTimeout(() => {
+      if (typeof SS !== "undefined" && SS.arriveHome) return;
       chatData["pig"].push([
         text,
         "them",
