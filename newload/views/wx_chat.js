@@ -289,26 +289,7 @@ const MOCK_MOMENTS_DATA = {
         likes: [],
         comments: [],
       },
-      {
-        id: 1102,
-        date: { day: "31", month: "7月" },
-        text: "今天有一场戏，我 NG 了七次。但是过了。",
-        images: [],
-        location: "片场",
-        time: "2020年7月31日 23:10",
-        likes: [],
-        comments: [],
-      },
-      {
-        id: 1103,
-        date: { day: "12", month: "3月" },
-        text: "一个人也可以的。",
-        images: [],
-        location: "",
-        time: "2020年3月12日 22:40",
-        likes: [],
-        comments: [],
-      },
+
     ],
   },
 
