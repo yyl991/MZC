@@ -5316,6 +5316,7 @@ svg {
 .pa-vd { position: absolute; left: 6px; bottom: 4px; color: #fff; font-size: 11px; font-style: normal; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
 
 /* feature/midnight-homecoming：临近零点的故障与传送幕 */
+.ending-preview-control { position:absolute; top:52px; right:14px; z-index:1000001; padding:8px 12px; border:1px solid #705564; border-radius:20px; color:#f1d6df; background:#261d25; font-size:11px; cursor:pointer; }
 #homecoming-fault {
   position:absolute; inset:0; z-index:999990; pointer-events:none;
   background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(3,1,8,.88));

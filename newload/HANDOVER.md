@@ -11,9 +11,10 @@
 - 继续后回主屏，游戏时间从00:00起按真实速度流逝（60秒=1分钟），可探索手机；时间线、催命、回拨、耐心收尾停止。零点会结束现有来电、暂停媒体，继续后再尝试恢复BGM。
 - `SS.homecoming` 保存 transferred/exploring 阶段和 continuedAt；刷新未继续时重现传送幕，刷新已继续时保留自由时间。现有到家存档若无新阶段，到零点会补上新结尾。
 - `views/wx_chat.js` 为催命入口/延迟送达/耐心回调加到家门控；`views/app_extra.js` 为追命、回拨、botSay和猪哭图延迟回调加门控；`core/audio.js` 避免传送幕被自动BGM打断。
+- 电话名称修复：callNameDisp 统一使用 dn/DISPLAY，最近通话与通话顶栏显示 pig/cat/rabbit/tiger 对应emoji，保留重复来电计数与拨号内部key、纯号码。新增映射与预览重播回归，12个测试文件全部通过。
 - 场景渲染集中在 `renderHomecoming()`，样式在style.css尾部。生日照片、吹蜡烛和生日歌暂未加入，后续可在这里扩展。
-- ASSET_V与样式URL版本更新为 `20261112-homecoming1`。
-- 本地快速预览：`http://127.0.0.1:8765/?endingPreview=1`；仅开发模式有效，从最后18秒开始，跳过普通剧情，独立存档键为 `mzc_homecoming_preview`，不会覆盖正式进度。预览重置使用锁屏重置入口。
+- ASSET_V与样式URL版本更新为 `20261112-homecoming2`。
+- 本地快速预览：`http://127.0.0.1:8765/?endingPreview=1`；仅开发模式有效，从最后8秒开始，跳过普通剧情，独立存档键为 `mzc_homecoming_preview`，不会覆盖正式进度。开发模式屏幕右上角有“体验结尾 · 8秒”；预览中为“重播结尾 · 8秒”。每次打开/刷新预览都清理独立预览档并从8秒前开始，不再需要重置进度。普通模式不显示此按钮；非本地主机可用 ?dev=1&endingPreview=1 测试当前分支。
 - 验证：新增 `tests/homecoming.test.js`，验证触发边界、继续后时钟、两阶段读档、重复继续、A/B失效与预览存档隔离；全量回归结果见§五。Browser连接因环境缺少sandboxPolicy失败，未完成截图/真机视觉验收。
 
 ## 一、项目与协作约定
@@ -51,7 +52,7 @@
 
 ## 三、技术入口
 
-原生 JS，无框架，所有脚本共享全局作用域。index.html 先预取再按序加载 17 个脚本，当前 `ASSET_V = '20261112-homecoming1'`。
+原生 JS，无框架，所有脚本共享全局作用域。index.html 先预取再按序加载 17 个脚本，当前 `ASSET_V = '20261112-homecoming2'`。
 
 | 文件 | 职责 |
 |---|---|

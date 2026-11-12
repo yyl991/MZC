@@ -95,4 +95,18 @@ ok("sendSms appends message", r.html.includes("我马上回家"));
 r = sb.VIEWS.sms();
 ok("sendSms updates preview", r.html.includes("我马上回家"));
 
+// 电话记录和通话顶栏沿用角色显示名，内部key和纯号码保持不变。
+sb.DISPLAY = { pig: "🐖", cat: "🐈‍⬛", rabbit: "🐇", tiger: "🐅" };
+for (const [key, label] of Object.entries(sb.DISPLAY)) {
+  ok("电话名称映射 " + key, sb.callNameDisp(key) === label);
+  ok("重复来电计数映射 " + key, sb.callNameDisp(key + " (2)") === label + " (2)");
+  sb.callName = key;
+  ok("通话顶栏映射 " + key, sb.callTop().includes('class="cnm">' + label + '</div>'));
+  sb.calls.push([key, "今天 23:08", "未接来电"]);
+}
+sb.setPhoneTab("recent");
+r = sb.VIEWS.phone();
+ok("最近通话显示映射名称", Object.values(sb.DISPLAY).every(label => r.html.includes("<b>" + label + "</b>")));
+ok("映射不改变拨号key", r.html.includes("dial('pig')"));
+ok("纯号码不改名", sb.callNameDisp("10086") === "10086");
 console.log(fails === 0 ? "ALL PASS" : fails + " FAILS");

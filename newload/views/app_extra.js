@@ -30,7 +30,10 @@ window.callWhen = function (s) {
   if (ZH_WD[w] != null) return wdLong(2026, 10, 11 + ZH_WD[w]);
   return w;
 };
-window.callNameDisp = (n) => n;
+window.callNameDisp = (n) => String(n || "").replace(/^(.+?)( \(\d+\))?$/, (_, name, count) => {
+  const label = typeof dn === "function" ? dn(name) : (typeof DISPLAY !== "undefined" && DISPLAY[name]) || name;
+  return label + (count || "");
+});
 
 /* ---- 电话 App：分页 / 联系人 / 拨号盘 ---- */
 let phoneTab = "recent";
@@ -288,7 +291,7 @@ window.callTop = function () {
   else if (r) content = `<div style="font-size:40px">${r.initial}</div>`;
   else
     content = `<span style="width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(#a5abb6,#7f858f)">${G.sil.replace("<svg", '<svg width="64"')}</span>`;
-  return `<div class="cav">${content}</div><div class="cnm">${esc(dn(callName))}</div>`;
+  return `<div class="cav">${content}</div><div class="cnm">${esc(callNameDisp(callName))}</div>`;
 };
 window.renderCall = function () {
   let c = OV.querySelector(".call");

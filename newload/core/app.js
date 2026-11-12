@@ -30,6 +30,7 @@ const IS_DEV_HOST = (() => {
 // 本地快速验收使用独立存档，不覆盖玩家进度。
 const ENDING_PREVIEW = IS_DEV_HOST && /[?&]endingPreview=1\b/.test(location.search);
 const GAME_SAVE_KEY = ENDING_PREVIEW ? "mzc_homecoming_preview" : "mzc_game_save";
+const HOMECOMING_FAULT_SECONDS = ENDING_PREVIEW ? 8 : 24;
 
 window.preloadAssets = function () { return; };
 
@@ -507,16 +508,16 @@ function updateHomecoming(e) {
     return;
   }
   if (e >= GAME_END_AT) { beginHomecoming(); return; }
-  if (e < GAME_END_AT - 24 || !SCREEN) return;
+  if (e < GAME_END_AT - HOMECOMING_FAULT_SECONDS || !SCREEN) return;
   let effect = document.getElementById("homecoming-fault");
   if (!effect) {
     effect = document.createElement("div");
     effect.id = "homecoming-fault";
     effect.setAttribute("aria-hidden", "true");
-    effect.innerHTML = '<div class="fault-scan"></div><span class="fault-caption">信号不稳定 · 请勿离开</span>';
+    effect.innerHTML = '<div class="fault-scan"></div><span class="fault-caption">宇宙信号不稳定 · 请勿离开</span>';
     SCREEN.appendChild(effect);
   }
-  const level = Math.min(1, Math.max(0, (e - (GAME_END_AT - 24)) / 24));
+  const level = Math.min(1, Math.max(0, (e - (GAME_END_AT - HOMECOMING_FAULT_SECONDS)) / HOMECOMING_FAULT_SECONDS));
   effect.style.setProperty("--fault", String(level));
   SCREEN.classList.add("homecoming-failing");
 }
@@ -582,6 +583,18 @@ function continueHomecoming() {
   if (typeof updateIsland === "function") updateIsland();
   if (typeof window.saveGameState === "function") window.saveGameState();
   if (typeof window.tryStartBGM === "function") window.tryStartBGM();
+}
+function mountEndingPreviewControl() {
+  if (!IS_DEV_HOST || !SCREEN || document.getElementById("ending-preview-control")) return;
+  const button = document.createElement("button");
+  button.id = "ending-preview-control";
+  button.className = "ending-preview-control";
+  button.textContent = ENDING_PREVIEW ? "重播结尾 · 8秒" : "体验结尾 · 8秒";
+  button.onclick = () => {
+    // 重新打开预览会清理独立预览档，正式进度不受影响。
+    location.href = location.pathname + "?dev=1&endingPreview=1";
+  };
+  SCREEN.appendChild(button);
 }
 
 function pacedAt(at) {
@@ -826,15 +839,18 @@ window.lockPhone = function () {
 };
 
 function initApp() {
+  // 预览每次打开都重播，不被上一次的 transferred/exploring 阶段跳过。
+  if (ENDING_PREVIEW) localStorage.removeItem(GAME_SAVE_KEY);
   window.loadGameState();
   addEventListener("resize", fit); fit(); buildInterleavedTimeline();
   if (IS_DEV_HOST) { view = "home"; LOCK.style.display = "none"; renderHome(); HOME.style.visibility = "visible"; }
   else { view = "lock"; HOME.style.visibility = "hidden"; LOCK.style.display = "block"; LOCK.style.visibility = "visible"; renderLock(); }
   try { const bgmEl = document.getElementById("bgm"); if (bgmEl && !bgmEl.dataset.vol) { bgmEl.volume = 1; bgmEl.dataset.vol = "1"; } } catch (e) {}
   setStatus(true); startClock();
-  if (ENDING_PREVIEW && !SS.homecoming) base = Date.now() - (GAME_END_AT - 18) * 1000;
+  if (ENDING_PREVIEW) base = Date.now() - (GAME_END_AT - HOMECOMING_FAULT_SECONDS) * 1000;
   if (SS.homecoming && SS.homecoming.phase === "transferred") {
     document.querySelectorAll("video, audio").forEach(media => media.pause());
   }
   setInterval(tick, 1000); tick(); hideBoot();
+  mountEndingPreviewControl();
 }

@@ -18,11 +18,11 @@ function session(search = "", storage = {}) {
   });
   const get = (id) => { if (!nodes.has(id)) nodes.set(id, make(id)); return nodes.get(id); };
   const sb = {
-    console, now: 1000000, location: { hostname: "localhost", search },
+    console, now: 1000000, location: { hostname: "localhost", pathname: "/", search },
     Date: { now: () => sb.now }, navigator: {},
     document: {
       querySelector: (sel) => get(sel.slice(1)), querySelectorAll: () => [],
-      getElementById: (id) => id.startsWith("homecoming-") ? nodes.get(id) || null : get(id), createElement: () => make(),
+      getElementById: (id) => /^(homecoming-|ending-preview-)/.test(id) ? nodes.get(id) || null : get(id), createElement: () => make(),
       addEventListener() {},
     },
     localStorage: { getItem: k => storage[k] || null, setItem: (k, v) => { storage[k] = v; }, removeItem: k => { delete storage[k]; } },
@@ -83,4 +83,20 @@ const preview = session("?endingPreview=1", s.storage);
 assert.strictEqual(preview.run("GAME_SAVE_KEY"), "mzc_homecoming_preview");
 preview.run("loadGameState()");
 assert(!preview.run("SS.homecoming"));
-console.log("OK homecoming: boundary, continue, clock, reload, legacy beats, isolated preview");
+// 旧预览即使已继续，下次打开仍从8秒前开始；正式存档保持不变。
+const originalSave = s.storage.mzc_game_save;
+preview.storage.mzc_homecoming_preview = preview.storage.mzc_game_save;
+preview.run("fit = () => {}; buildInterleavedTimeline = () => {}; tick = () => {}; hideBoot = () => {}; base = 0; initApp();");
+assert.strictEqual(preview.run("elapsed()"), 652);
+assert(!preview.run("SS.homecoming"));
+assert.strictEqual(preview.storage.mzc_game_save, originalSave);
+assert.strictEqual(preview.nodes.get("ending-preview-control").textContent, "重播结尾 · 8秒");
+preview.nodes.get("ending-preview-control").onclick();
+assert.strictEqual(preview.sb.location.href, "/?dev=1&endingPreview=1");
+const normal = session();
+normal.run("mountEndingPreviewControl()");
+assert.strictEqual(normal.nodes.get("ending-preview-control").textContent, "体验结尾 · 8秒");
+const production = session("?dev=0");
+production.run("mountEndingPreviewControl()");
+assert(!production.nodes.has("ending-preview-control"));
+console.log("OK homecoming: boundary, continue, clock, reload, legacy beats, isolated/repeatable 8s preview");

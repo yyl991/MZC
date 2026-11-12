@@ -45,7 +45,7 @@ const MOCK_MOMENTS_DATA = {
     cover:
       "./data/avatar/enencover.jpg",
     posts: [
-      {
+    /*  {
         id: 402,
         date: { day: "11", month: "11月" },
         text: "一个在我这，一个在你那。",
@@ -55,8 +55,8 @@ const MOCK_MOMENTS_DATA = {
         likes: ["穆祉丞"],
         comments: [],
       },
-    ],
-  },
+  */   ],
+ },
   cat: {
     wxid: "laopo_zuo",
     region: "重庆",
