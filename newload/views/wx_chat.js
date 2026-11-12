@@ -895,20 +895,20 @@ function chatMsgs(id) {
       innerContent = `<div class="wx-card wx-transfer-card"><div class="wx-card-body"><div class="wx-card-title">￥${esc(trAmount || "0.00")}</div><div class="wx-card-sub">${esc(trNote || "转账")}</div></div><div class="wx-card-emoji">💸</div></div>`;
       bubbleClass = "wx-bb card-bb";
       onclickAttr = `onclick="event.stopPropagation();toastDev('转账已收款~')"`;
-    }     else if (x.text.startsWith("[通话]") || x.text.startsWith("[视频通话]")) {
+    }else if (x.text.startsWith("[通话]") || x.text.startsWith("[视频通话]")) {
       const isVideo = x.text.startsWith("[视频通话]");
       const callText = x.text.replace(isVideo ? "[视频通话]" : "[通话]", "").trim();
       
-      // 使用 icons 里的图标，设置 margin 和微小位移使其和文字垂直居中
       const iconSVG = isVideo ? (G.videoRecord || "") : (G.callRecord || "");
-      const iconHTML = `<span style="display:inline-flex; align-items:center; margin:0 4px; transform: translateY(-1px);">${iconSVG}</span>`;
       
-      // me（自己）：文字 + 右侧图标；them（对方）：左侧图标 + 文字
-      const content = me ? `${esc(callText)}${iconHTML}` : `${iconHTML}${esc(callText)}`;
+      // me (绿底)：文字 + 图标；them (白底)：图标 + 文字
+      const content = me 
+        ? `<span style="display:inline-flex; align-items:center; gap:6px;">${esc(callText)}${iconSVG}</span>` 
+        : `<span style="display:inline-flex; align-items:center; gap:6px;">${iconSVG}${esc(callText)}</span>`;
       
-      innerContent = `<div style="display:flex; align-items:center; padding: 12px 16px; font-size: 16px; font-weight: 500;">${content}</div>`;
+      innerContent = content;
       bubbleClass = "wx-bb";
-      onclickAttr = `onclick="event.stopPropagation();toastDev('通话记录')"`; }
+      onclickAttr = `onclick="event.stopPropagation();toastDev('通话记录')"`;}  
     else {
       innerContent = esc(x.text);
     }
