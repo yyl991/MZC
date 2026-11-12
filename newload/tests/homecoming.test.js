@@ -28,7 +28,7 @@ function session(search = "", storage = {}) {
     localStorage: { getItem: k => storage[k] || null, setItem: (k, v) => { storage[k] = v; }, removeItem: k => { delete storage[k]; } },
     setTimeout: fn => { timers.push(fn); return timers.length; }, clearTimeout() {},
     setInterval() {}, clearInterval() {}, addEventListener() {},
-    STORY: { timeline: [{ at: 0, type: "choice" }, { at: 0, type: "ending" }, { at: 0, type: "notify", from: "cat", text: "x" }] },
+    STORY: { homecomingTimeline: [{ id: "birthday", from: "恩仔", text: "birthday message" }], timeline: [{ at: 0, type: "choice" }, { at: 0, type: "ending" }, { at: 0, type: "notify", from: "cat", text: "x" }] },
     STORY_STATE: { fired: new Set(), missed: new Set(), fragments: new Set() },
     DATA_SIG: "test", chatData: {}, unread: {}, renderHome() {},
     pad: n => String(n).padStart(2, "0"), speech: [], calls: [], notes: [], photoSections: [],
@@ -41,6 +41,12 @@ function session(search = "", storage = {}) {
   return { sb, nodes, timers, storage, run: code => vm.runInContext(code, sb) };
 }
 const s = session();
+let birthdayMessages = 0;
+s.sb.deliverFrom = (from, text) => {
+  assert.strictEqual(from, "恩仔");
+  assert.strictEqual(text, "birthday message");
+  birthdayMessages++;
+};
 s.run("updateHomecoming(GAME_END_AT - 25)");
 assert(!s.nodes.has("homecoming-fault"));
 s.run("updateHomecoming(GAME_END_AT - 24)");
@@ -56,20 +62,25 @@ s.sb.incomingMsgFrom = () => { notifications++; };
 s.run("storyTick(9999); pressureTick(); midnightBoom();");
 assert.strictEqual(notifications, 0);
 assert.strictEqual(s.run("SS.homecoming.phase"), "transferred");
+assert.strictEqual(birthdayMessages, 0); // 传送幕期间不被消息打断
 // 刷新停在传送幕，继续后从00:00按真实分钟流逝。
 const restored = session("", s.storage);
 restored.run("loadGameState(); base = 0; startClock(); updateHomecoming(elapsed());");
 assert.strictEqual(restored.run("SS.homecoming.phase"), "transferred");
 assert(restored.nodes.has("homecoming-scene"));
 s.run("continueHomecoming()");
+assert.strictEqual(birthdayMessages, 1);
 assert(!s.nodes.has("homecoming-scene"));
 assert.strictEqual(s.run("view"), "home");
 s.sb.now += 120000;
 assert.strictEqual(s.run("gameMin()"), 1442);
 s.run("continueHomecoming(); saveGameState();");
+assert.strictEqual(birthdayMessages, 1);
 assert.strictEqual(s.run("gameMin()"), 1442); // 重复继续不重置时钟
 const free = session("", s.storage);
+free.sb.deliverFrom = () => { birthdayMessages++; };
 free.run("loadGameState(); base = 0; startClock(); updateHomecoming(elapsed());");
+assert.strictEqual(birthdayMessages, 1); // 刷新自由探索不重发
 assert.strictEqual(free.run("gameMin()"), 1442);
 assert(!free.nodes.has("homecoming-scene"));
 // 旧A/B beat被忽略，其他正常剧情在回家前仍能运行。

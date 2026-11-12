@@ -505,6 +505,7 @@ function showEnding() { beginHomecoming(); }
 function updateHomecoming(e) {
   if (SS.homecoming) {
     if (SS.homecoming.phase === "transferred") renderHomecoming();
+    if (SS.homecoming.phase === "exploring") deliverHomecomingTimeline();
     return;
   }
   if (e >= GAME_END_AT) { beginHomecoming(); return; }
@@ -583,6 +584,21 @@ function continueHomecoming() {
   if (typeof updateIsland === "function") updateIsland();
   if (typeof window.saveGameState === "function") window.saveGameState();
   if (typeof window.tryStartBGM === "function") window.tryStartBGM();
+  deliverHomecomingTimeline();
+}
+function deliverHomecomingTimeline() {
+  if (!SS.homecoming || SS.homecoming.phase !== "exploring" || typeof deliverFrom !== "function") return;
+  const fired = SS.homecoming.fired || (SS.homecoming.fired = []);
+  let changed = false;
+  (CFG.homecomingTimeline || []).forEach(beat => {
+    if (!beat.id || !beat.from || !beat.text || fired.includes(beat.id)) return;
+    fired.push(beat.id);
+    changed = true;
+    // 使用正常收信渲染：保留日期、未读、通知及黑名单/免打扰规则。
+    // 此处不走已经停止的催命入口 incomingMsgFrom。
+    deliverFrom(beat.from, beat.text);
+  });
+  if (changed && typeof window.saveGameState === "function") window.saveGameState();
 }
 function mountEndingPreviewControl() {
   if (!IS_DEV_HOST || !SCREEN || document.getElementById("ending-preview-control")) return;
