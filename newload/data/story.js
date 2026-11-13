@@ -270,7 +270,7 @@ var INCOMING = [];
   ];
 
   // 节奏：开场多久开始催、压缩强度（数字越大越早结束）
-  S.pace = { offset: 82, amp: 1031, soft: 500 };
+  S.pace = { offset: 78, amp: 987, soft: 500 };
   // 多少秒之后开始"时间线跑完还在催"的追加压力
   S.nagFrom = 680;
 
