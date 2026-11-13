@@ -6,6 +6,10 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-13按用户附件实现通话完成：任意来电（含回拨）接听且实际通话>=8秒，挂断时标SS.callDone[角色]并立即存档；约1.4秒后按CALL_END_LINES/CFG.callEndLines发一次收尾话，到家/重置时不再追加“回来”催促。未接、<8秒、仅主动呼出均不标完成；主动呼出仍3秒不接结束。去掉旧“回拨接通挂断就算完成”的无时长标记逻辑。
+- 完成角色在incomingCallFrom/scheduleCallAgain/scheduleCallBack/pressureTick/storyTick notify-call均拦截，已排队的incomingMsgFrom、追命文本和猪哭图、耐心计时也检查完成状态；不在deliverFrom统一拦截，确保收尾及零点homecomingTimeline生日话仍可送达。SS.callDone随统一存档读写，旧档缺字段默认空对象，重置后新局为空。原missed防护保留；无UI改动，版本20261113-calldone1。
+- 新增回归覆盖8秒边界、短回拨不完成、主动呼出3秒/回拨完成、收尾延迟、完成后各电话入口停止、时间线及随机催命排除、刷新完成标记、生日消息不被误拦。提交前运行全量15个测试文件，不预热。
+
 - 2026-11-13按审计建议只修4项逻辑：app.js补SS.missed初始化/保存空集合兜底；去掉resetWxChat重复覆盖，保留统一确认重置与缺模块刷新兜底；rootOf递归走父路由并防自引用/循环，正确定位微博/闲鱼/微信等根图标；show和backgroundPreload改用可见的词法const数据，相册读取实际getPhoneDisplayList，私密相册仅预加载当前已渲染媒体、不提前加载密码后照片。未修改UI、剧情正文、相册方案、日历范围、占位App或设置规则。
 - 验证：15个测试文件通过，覆盖新局/缺省missed保存、读档恢复、重置入口委托、各深层根路由及循环终止、const预加载与可选模块缺失。资源版本20261113-fixes1，提交后push当前分支，不预热。
 
@@ -176,7 +180,7 @@
 
 - dial 对非号码角色设置 `_playerCalledWho[name]`，只停此人的追命与时间线来电；旧 `_playerCalled` 全员停止逻辑已不适用。
 - 普通角色呼出结束后可经 scheduleCallBack 延迟3秒回拨，纯号码不回拨。
-- 回拨来电接通并挂断时记 `_playerCalledBack[name]`，排除该角色后续时间线 notify/call 与随机催命；该标记未纳入现有存档。
+- 最新通话完成状态为`SS.callDone[name]`：普通来电/回拨均须接听并聊满8秒才标记，停止该角色来电/催命/时间线通知，并保存到存档。旧`_playerCalledBack`只保留兼容判断，不再在短回拨挂断时写入。
 - incomingCallFrom 拦黑名单、到家状态，并用 `_totalCalls` 限每人最多3次；scheduleCallAgain 另有限制与 CALL_ANGRY 收尾，不能改为无限。
 - 回家前时间线来电、追命、回拨有各自门控；本分支零点由传送幕接管，旧零点催命消息与电话不再执行，到家后停止自动催促。
 - 来电5秒未接、呼出3秒未接结束；closeCallUI 返回原页面。

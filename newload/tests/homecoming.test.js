@@ -26,7 +26,7 @@ function session(search = "", storage = {}) {
       addEventListener() {},
     },
     localStorage: { getItem: k => storage[k] || null, setItem: (k, v) => { storage[k] = v; }, removeItem: k => { delete storage[k]; } },
-    setTimeout: fn => { timers.push(fn); return timers.length; }, clearTimeout() {},
+    setTimeout: (fn, delay) => { fn.delay = delay; timers.push(fn); return timers.length; }, clearTimeout() {},
     setInterval() {}, clearInterval() {}, addEventListener() {},
     STORY: { homecomingTimeline: [{ id: "birthday", from: "恩仔", text: "birthday message" }], timeline: [{ at: 0, type: "choice" }, { at: 0, type: "ending" }, { at: 0, type: "notify", from: "cat", text: "x" }] },
     STORY_STATE: { fired: new Set(), fragments: new Set() },
@@ -170,4 +170,62 @@ const stale = { remove() { badgeSession.nodes.delete("homecoming-fault"); } };
 badgeSession.nodes.set("homecoming-fault", stale);
 badgeSession.run('SS.homecoming = { phase: "exploring", continuedAt: elapsed() }; updateHomecoming(elapsed())');
 assert(!badgeSession.nodes.has("homecoming-fault"));
-console.log("OK homecoming: faults, states, birthday messages, badge-only updates, no stale fault layer");
+{
+function phoneSession() {
+  const p = session();
+  p.sb.pauseBGM = () => {};
+  p.run(fs.readFileSync(path.join(root, "views/app_extra.js"), "utf8"));
+  p.sb.renderCall = () => {};
+  p.sb.closeDialpad = () => {};
+  p.sb.closeCallUI = () => {};
+  p.sb.startRing = () => {};
+  p.sb.clearPatience = () => {};
+  return p;
+}
+const longCall = phoneSession(), endings = [];
+longCall.sb.deliverFrom = (from, text) => endings.push([from, text]);
+longCall.sb.incomingCallFrom("cat"); longCall.sb.answerCall();
+longCall.sb.now += 8000;longCall.sb.endCall();
+assert.strictEqual(longCall.run('SS.callDone.cat'),1);
+assert.strictEqual(JSON.parse(longCall.storage.mzc_game_save).SS.callDone.cat,1);
+const endTimer = longCall.timers.find(fn => fn.delay === 1400);
+assert(endTimer);assert.strictEqual(endings.length,0);endTimer();
+assert.strictEqual(endings.length,1);
+const pending = longCall.timers.length, oldSession = longCall.sb._callSession;
+longCall.run('callState = ""');
+longCall.sb.incomingCallFrom("cat");longCall.sb.scheduleCallAgain("cat","hangup");longCall.sb.scheduleCallBack("cat");
+assert.strictEqual(longCall.timers.length,pending);
+assert.strictEqual(longCall.sb._callSession,oldSession);
+const reloadDone = session("",longCall.storage);
+reloadDone.run("loadGameState()");assert.strictEqual(reloadDone.run("SS.callDone.cat"),1);
+const resetStorage={...longCall.storage};delete resetStorage.mzc_game_save;
+const newGame=session("",resetStorage);newGame.run("loadGameState()");
+assert(!newGame.run("SS.callDone.cat"));
+const oldSave=JSON.parse(longCall.storage.mzc_game_save);delete oldSave.SS.callDone;
+const legacy=session("",{mzc_game_save:JSON.stringify(oldSave)});legacy.run("loadGameState()");
+assert.strictEqual(legacy.run("Object.keys(SS.callDone).length"),0);
+const shortCall=phoneSession();
+shortCall.sb.incomingCallFrom("cat");shortCall.sb._isCallBackName="cat";shortCall.sb.answerCall();
+shortCall.sb.now+=7999;shortCall.sb.endCall();
+assert(!shortCall.run("SS.callDone.cat"));assert(!shortCall.sb._playerCalledBack?.cat);
+assert(!shortCall.timers.some(fn=>fn.delay===1400));
+const outgoing=phoneSession();outgoing.sb.dial("cat",false);
+assert(!outgoing.run("SS.callDone.cat"));assert.strictEqual(outgoing.run("callState"),"dialing");
+outgoing.timers.find(fn=>fn.delay===3000)(); // 呼出3秒未接结束，安排回拨
+assert(!outgoing.run("SS.callDone.cat"));
+outgoing.timers.at(-1)(); // 回拨
+assert.strictEqual(outgoing.run("callState"),"ring");
+outgoing.sb.answerCall();outgoing.sb.now+=8000;outgoing.sb.endCall();
+assert.strictEqual(outgoing.run("SS.callDone.cat"),1);
+const stopped=session();const notifications=[];
+stopped.sb.incomingMsgFrom=(from)=>notifications.push(from);
+stopped.sb.incomingCallFrom=()=>{throw Error("completed caller must not ring");};
+stopped.run('SS.callDone.cat=1;CFG.timeline=[{at:0,type:"notify",from:"cat",text:"x"},{at:0,type:"call",from:"cat"},{at:0,type:"notify",from:"rabbit",text:"ok"}];storyTick(1000)');
+assert.deepStrictEqual(notifications,["rabbit"]);
+stopped.run('CFG.chats={cat:{},rabbit:{}};CFG.nagFrom=0;base=Date.now()-1000000;window._nextNag=Date.now()-1;pressureTick()');
+assert.deepStrictEqual(notifications,["rabbit","rabbit"]);
+stopped.sb.deliverFrom=(from)=>notifications.push(from);
+stopped.run('SS.callDone["恩仔"]=1;SS.homecoming={phase:"exploring",continuedAt:elapsed()};deliverHomecomingTimeline()');
+assert.strictEqual(notifications.at(-1),"恩仔");
+}
+console.log("OK homecoming: states, birthday, fault cleanup; 8s call completion, persistence, short/outgoing/callback and stop gates");

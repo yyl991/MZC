@@ -78,6 +78,7 @@ if (!SS.missed) SS.missed = new Set();
 if (!SS.stage) SS.stage = {};
 if (!SS.lineIdx) SS.lineIdx = {};
 if (!SS.talked) SS.talked = {}; // 本局通过电话的角色
+if (!SS.callDone) SS.callDone = {};
 
 const GAME_START_MIN = 23 * 60 + 9, GAME_END_AT = 660;
 let view = "lock", curDark = true, SC = 1, lastRect = null, animTok = 0, firstOpen = true, pendingOpen = null;
@@ -710,7 +711,7 @@ function pressureTick() {
   if (now < window._nextNag) return;
   const n = window._nagCount || 0;
   if (n >= 12) return;
-  const names = Object.keys(CFG.chats || {}).filter((k) => !(SS.missed && SS.missed.has(k)) && !(window._playerCalledBack && window._playerCalledBack[k]));
+  const names = Object.keys(CFG.chats || {}).filter((k) => !(SS.missed && SS.missed.has(k)) && !(window._playerCalledBack && window._playerCalledBack[k]) && !SS.callDone[k]);
   if (!names.length) return;
   const who = names[Math.floor(Math.random() * names.length)];
   if (hasRepliedTo(who)) { window._nextNag = now + 2000; return; }
@@ -736,6 +737,10 @@ function storyTick(e) {
   CFG.timeline.forEach((beat, i) => {
     if (beat.type === "choice" || beat.type === "ending") return;
     const key = i + "@" + beat.at;
+    if (beat.from && SS.callDone[beat.from] && (beat.type === "notify" || beat.type === "call")) {
+      SS.fired.add(key);
+      return;
+    }
     // beat.t = 直接指定第几秒触发（开场连环通知用），不填则按 at 走节奏曲线
     const due = beat.t != null ? beat.t : pacedAt(beat.at);
     if (e >= due && !SS.fired.has(key)) {
@@ -822,7 +827,7 @@ window.saveGameState = function () {
         stage: SS.stage, lineIdx: SS.lineIdx,
         fired: Array.from(SS.fired), fragments: Array.from(SS.fragments),
         missed: Array.from(SS.missed || []), arriveHome: SS.arriveHome, choice: SS.choice,
-        talked: SS.talked, homecoming: SS.homecoming || null,
+        talked: SS.talked, callDone: SS.callDone, homecoming: SS.homecoming || null,
       },
     };
     localStorage.setItem(GAME_SAVE_KEY, JSON.stringify(state));
@@ -844,6 +849,7 @@ window.loadGameState = function () {
       SS.fired = new Set(state.SS.fired || []); SS.fragments = new Set(state.SS.fragments || []);
       SS.missed = new Set(state.SS.missed || []); SS.arriveHome = state.SS.arriveHome || false; SS.choice = state.SS.choice || null;
       SS.talked = state.SS.talked || {};
+      SS.callDone = state.SS.callDone || {};
       SS.homecoming = state.SS.homecoming || null;
     }
   } catch (e) { console.warn("读档失败", e); }

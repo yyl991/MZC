@@ -4,6 +4,21 @@
    1. 电话 & 通话
    ========================================== */
 window._callHits = window._callHits || {};
+const CALL_END_LINES = {
+  穆祉丞: "……行吧。电话挂了，早点回来。",
+  恩恩: "好啦不催你了，路上小心，我在家等你。",
+  丞丞: "知道了。回来再说。",
+  cat: "挂了。回来记得开门。",
+  pig: "那我等你回来吃饭。",
+  Mu: "嗯。回来。",
+  MuAMuA: "汤在锅里，早点回来。",
+  丞哥: "回来。",
+  恩仔: "哥哥早点回来！",
+  rabbit: "我等你。",
+  穆瑞恩: "爸爸早点回来。",
+  tiger: "等你。",
+  default: "好，那我等你回来。",
+};
 let callState = "",
   declined = 0,
   callStart = 0,
@@ -269,6 +284,7 @@ window.stopRing = function () {
   } catch (e) {}
 };
 window.incomingCallFrom = function (from = "穆祉丞") {
+  if (typeof SS !== "undefined" && SS.callDone && SS.callDone[from]) return;
   if (callState) return;
   if (window._wxBlocked && window._wxBlocked[from]) return;
   if (typeof SS !== "undefined" && SS.arriveHome) return;
@@ -462,6 +478,7 @@ function lastMsgFromMe(name) {
   return false;
 }
 function botSay(name, text) {
+  if (typeof SS !== "undefined" && SS.callDone && SS.callDone[name]) return;
   if (typeof SS !== "undefined" && SS.arriveHome) return;
   if (window._wxBlocked && window._wxBlocked[name]) return;
   if (lastMsgFromMe(name)) return;
@@ -500,11 +517,13 @@ const CALL_NAG = {
 const CALL_ANGRY = ["行，不打了。", "随便你吧。", "……好。", "我等你主动找我。"];
 /* 猪被挂电话：先扣一个问号，然后开始狂发哭脸表情包 */
 function pigCryFlood() {
+  if (typeof SS !== "undefined" && SS.callDone && SS.callDone.pig) return;
   if (typeof SS !== "undefined" && SS.arriveHome) return;
   if (typeof chatData === "undefined" || !chatData["pig"]) return;
   if (window._wxBlocked && window._wxBlocked["pig"]) return;
   const send = (text, delay) =>
     setTimeout(() => {
+      if (typeof SS !== "undefined" && SS.callDone && SS.callDone.pig) return;
       if (typeof SS !== "undefined" && SS.arriveHome) return;
       chatData["pig"].push([
         text,
@@ -524,6 +543,7 @@ function pigCryFlood() {
 }
 window._lastNag = window._lastNag || {};
 window.scheduleCallAgain = function (name, mode) {
+  if (typeof SS !== "undefined" && SS.callDone && SS.callDone[name]) return;
   if (typeof SS !== "undefined" && SS.arriveHome) return;
   if (!name) return;
   if (window._playerCalledWho && window._playerCalledWho[name]) return; // 给这个人打过电话了，不再追命
@@ -555,6 +575,7 @@ window.scheduleCallAgain = function (name, mode) {
 
 // 你打给谁，对方都会回拨过来 —— 但完成过一次回拨对话后就不再回拨
 window.scheduleCallBack = function (name) {
+  if (typeof SS !== "undefined" && SS.callDone && SS.callDone[name]) return;
   if (typeof SS !== "undefined" && SS.arriveHome) return;
   if (!name) return;
   if (window._playerCalledBack && window._playerCalledBack[name]) return; // 已完成过一次回拨对话，不再回拨
@@ -583,10 +604,6 @@ window.endCall = function () {
   if (callState !== "active") return;
   callState = "ended";
   vib(15);
-  // 回拨来电接通并挂断 → 标记完成，之后不再回拨、不再发消息
-  if (!wasOut && callName && window._isCallBackName === callName) {
-    (window._playerCalledBack = window._playerCalledBack || {})[callName] = 1;
-  }
   const t = $("#ctime");
   if (t) t.textContent = "通话结束";
   const c = OV.querySelector(".call");
@@ -608,6 +625,19 @@ window.endCall = function () {
   else if (!wasOut && secs < 8) {
     if (inName === "pig") pigCryFlood();
     else window.scheduleCallAgain(inName, "hangup");
+  } else if (!wasOut && secs >= 8) {
+    if (!SS.callDone) SS.callDone = {};
+    if (!SS.callDone[inName]) {
+      SS.callDone[inName] = 1;
+      if (typeof clearPatience === "function") clearPatience(inName);
+      if (typeof saveGameState === "function") saveGameState();
+      setTimeout(() => {
+        if (SS.arriveHome || window._resetting) return;
+        const lines = (typeof CFG !== "undefined" && CFG.callEndLines) || {};
+        const line = lines[inName] || lines.default || CALL_END_LINES[inName] || CALL_END_LINES.default;
+        if (typeof deliverFrom === "function") deliverFrom(inName, line);
+      }, 1400);
+    }
   }
 };
 window.closeCallUI = function () {
