@@ -671,7 +671,7 @@ function renderHomecoming() {
     <div style="margin-bottom: 24px; font-size: 13px; line-height: 1.6; color: #e8ccd4; font-weight: 500;">
       <p style="margin: 0 0 6px 0;">敢不陪恩恩大王过生日？</p>
       <p style="margin: 0 0 6px 0;">你要死定了！</p>
-      <p style="margin: 0;">烫知识18岁的最后一秒不在相当于让他等了你一年‎•᷄ࡇ•᷅</p>
+      <p style="margin: 0;">烫知识18岁的最后一秒不在相当于冷落了他一年‎•᷄ࡇ•᷅</p>
     </div>
     
     <!-- 按钮 -->
