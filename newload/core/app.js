@@ -29,7 +29,10 @@ const IS_DEV_HOST = (() => {
 })();
 // 本地快速验收使用独立存档，不覆盖玩家进度。
 const ENDING_PREVIEW = IS_DEV_HOST && /[?&]endingPreview=1\b/.test(location.search);
-const GAME_SAVE_KEY = ENDING_PREVIEW ? "mzc_homecoming_preview" : "mzc_game_save";
+// 尾段预览：直接从第545秒开局，约2分钟看完结尾消息高潮+故障+倒计时，独立存档不影响正式进度。
+const TAIL_PREVIEW = !ENDING_PREVIEW && IS_DEV_HOST && /[?&]tailPreview=1\b/.test(location.search);
+const TAIL_PREVIEW_START = 545;
+const GAME_SAVE_KEY = ENDING_PREVIEW ? "mzc_homecoming_preview" : TAIL_PREVIEW ? "mzc_tail_preview" : "mzc_game_save";
 const HOMECOMING_FAULT_SECONDS = ENDING_PREVIEW ? 20 : 660 * 5 / 51;
 // 零点前最后10秒：屏幕上方黑底带框纯数字死亡倒计时，最后一个数字是00:00:01，零点直接进传送幕。
 const HOMECOMING_COUNTDOWN_SECONDS = 10;
@@ -733,10 +736,10 @@ function mountEndingPreviewControl() {
   const button = document.createElement("button");
   button.id = "ending-preview-control";
   button.className = "ending-preview-control";
-  button.textContent = ENDING_PREVIEW ? "重播结尾 · 20秒" : "体验结尾 · 20秒";
+  button.textContent = ENDING_PREVIEW ? "重播结尾 · 20秒" : TAIL_PREVIEW ? "重播尾段 · 2分钟" : "体验结尾 · 20秒";
   button.onclick = () => {
     // 重新打开预览会清理独立预览档，正式进度不受影响。
-    location.href = location.pathname + "?dev=1&endingPreview=1";
+    location.href = location.pathname + (TAIL_PREVIEW ? "?dev=1&tailPreview=1" : "?dev=1&endingPreview=1");
   };
   SCREEN.appendChild(button);
 }
@@ -996,15 +999,23 @@ if (typeof addEventListener === "function") addEventListener("load", () => {
 
 function initApp() {
   // 预览每次打开都重播，不被上一次的 transferred/exploring 阶段跳过。
-  if (ENDING_PREVIEW) localStorage.removeItem(GAME_SAVE_KEY);
+  if (ENDING_PREVIEW || TAIL_PREVIEW) localStorage.removeItem(GAME_SAVE_KEY);
   window.loadGameState();
   if (typeof window.syncBackgroundTrack === "function") window.syncBackgroundTrack();
   addEventListener("resize", fit); fit(); buildInterleavedTimeline();
+  if (TAIL_PREVIEW) {
+    // 尾段预览只看最后两分钟：开始前的历史消息直接标记已发，避免一进预览就补播轰炸。
+    CFG.timeline.forEach((beat, i) => {
+      const due = beat.t != null ? beat.t : pacedAt(beat.at);
+      if (due < TAIL_PREVIEW_START) SS.fired.add(i + "@" + beat.at);
+    });
+  }
   if (IS_DEV_HOST) { view = "home"; LOCK.style.display = "none"; renderHome(); HOME.style.visibility = "visible"; }
   else { view = "lock"; HOME.style.visibility = "hidden"; LOCK.style.display = "block"; LOCK.style.visibility = "visible"; renderLock(); }
   try { const bgmEl = document.getElementById("bgm"); if (bgmEl && !bgmEl.dataset.vol) { bgmEl.volume = 1; bgmEl.dataset.vol = "1"; } } catch (e) {}
   setStatus(true); startClock();
   if (ENDING_PREVIEW) base = Date.now() - (GAME_END_AT - HOMECOMING_FAULT_SECONDS) * 1000;
+  if (TAIL_PREVIEW) base = Date.now() - TAIL_PREVIEW_START * 1000;
   if (SS.homecoming && SS.homecoming.phase === "transferred") {
     document.querySelectorAll("video, audio").forEach(media => media.pause());
   }
