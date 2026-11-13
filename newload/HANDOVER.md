@@ -6,6 +6,8 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-13按作者要求删除未加载的备用相册views/app_photos_new.js；入口仍加载app_photos.js，原私密相册、密码和照片视频列表保留。作者同期聊天素材替换与聊天记录一并保存。
+
 - 2026-11-13按用户附件实现通话完成：任意来电（含回拨）接听且实际通话>=8秒，挂断时标SS.callDone[角色]并立即存档；约1.4秒后按CALL_END_LINES/CFG.callEndLines发一次收尾话，到家/重置时不再追加“回来”催促。未接、<8秒、仅主动呼出均不标完成；主动呼出仍3秒不接结束。去掉旧“回拨接通挂断就算完成”的无时长标记逻辑。
 - 完成角色在incomingCallFrom/scheduleCallAgain/scheduleCallBack/pressureTick/storyTick notify-call均拦截，已排队的incomingMsgFrom、追命文本和猪哭图、耐心计时也检查完成状态；不在deliverFrom统一拦截，确保收尾及零点homecomingTimeline生日话仍可送达。SS.callDone随统一存档读写，旧档缺字段默认空对象，重置后新局为空。原missed防护保留；无UI改动，版本20261113-calldone1。
 - 新增回归覆盖8秒边界、短回拨不完成、主动呼出3秒/回拨完成、收尾延迟、完成后各电话入口停止、时间线及随机催命排除、刷新完成标记、生日消息不被误拦。提交前运行全量15个测试文件，不预热。
