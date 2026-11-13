@@ -851,14 +851,14 @@ function fit() {
   SC = Math.min(safeW / baseW, safeH / baseH, 1); ph.style.width = baseW + "px"; ph.style.height = baseH + "px"; ph.style.position = "absolute"; ph.style.left = "50%"; ph.style.top = "50%"; ph.style.transformOrigin = "center center"; ph.style.transform = `translate(-50%, -50%) scale(${SC})`; ph.style.margin = "0";
 }
 function buildInterleavedTimeline() {
-  const list = CFG.timeline || []; const withFrom = list.filter((b) => b.from); const rest = list.filter((b) => !b.from);
+  const list = CFG.timeline || [];
+  const withFrom = list.filter((b) => b.from);
+  const rest = list.filter((b) => !b.from);
   if (withFrom.length < 3) return;
-  const groups = {}; withFrom.forEach((b) => { if (!groups[b.from]) groups[b.from] = []; groups[b.from].push(b); });
-  const times = withFrom.map((b) => b.at).sort((x, y) => x - y);
-  const keys = Object.keys(groups); const out = []; let turn = 0; let guard = 0;
-  while (out.length < withFrom.length && guard++ < 2000) { const k = keys[turn % keys.length]; const q = groups[k]; if (q && q.length) out.push(q.shift()); turn++; }
-  out.forEach((b, i) => { b.at = times[i]; });
-  CFG.timeline = out.concat(rest);
+  // 作者已手工排定每条消息的at与交错顺序（含结尾303-326的情绪阶梯），这里只按at稳定排序、
+  // 保留原at触发，不再按角色轮询改写——改写会把条数少的角色挤到前段，结尾被高条数角色占走。
+  withFrom.sort((a, b) => a.at - b.at);
+  CFG.timeline = withFrom.concat(rest);
 }
 window.buildInterleavedTimeline = buildInterleavedTimeline;
 function hideBoot() { const b = document.getElementById("boot"); if (!b) return; b.style.opacity = "0"; setTimeout(() => { if (b.parentNode) b.parentNode.removeChild(b); }, 400); }

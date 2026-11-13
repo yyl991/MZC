@@ -178,18 +178,27 @@ ok("压力循环存在", typeof vm.runInContext("pressureTick", sb) === "functio
 // 5. 拍一拍后对方会「？」
 ok("拍一拍函数存在", typeof sb.wxPatTap === "function");
 
-// 6. 时间线交错：前 8 条不应该全是同一个人连发
+// 6. 时间线按作者手工排定触发：不改写at；开场穆祉丞四连等手排节奏原样保留
+const atBefore = vm.runInContext(
+  "CFG.timeline.filter(b=>b.from).map(b=>b.at).sort((a,b)=>a-b).join(',')",
+  sb,
+);
 vm.runInContext("buildInterleavedTimeline()", sb);
+const atAfter = vm.runInContext(
+  "CFG.timeline.filter(b=>b.from).map(b=>b.at).sort((a,b)=>a-b).join(',')",
+  sb,
+);
+ok("不改写消息时间", atBefore === atAfter, atAfter);
 const senders = vm.runInContext(
   "CFG.timeline.filter(b=>b.from).slice(0,8).map(b=>b.from)",
   sb,
 );
 ok("消息交错发送", new Set(senders).size >= 4, senders.join(","));
-const maxRun = senders.reduce(
-  (m, x, i) => (i && x === senders[i - 1] ? m + 1 : m),
-  1,
+const lastBeat = vm.runInContext(
+  "CFG.timeline.filter(b=>b.from).slice(-1)[0]",
+  sb,
 );
-ok("没有连续同一人", maxRun <= 2, "最长连发 " + maxRun);
+ok("结尾由穆瑞恩生日请求收尾", lastBeat.from === "穆瑞恩" && String(lastBeat.text).includes("生日"), lastBeat.from + "|" + lastBeat.text);
 
 // 6b. 玩家回过话后，该角色的「催命/质问」台词不再弹
 vm.runInContext("SS.stage = { cat: 1, rabbit: 1 }; SS.lineIdx = {}; SS.fired = new Set()", sb);
