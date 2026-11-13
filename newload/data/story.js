@@ -262,7 +262,10 @@ var INCOMING = [];
 
   // 传送回家、点继续后发送；独立于催命时间线，不参与旧存档指纹。
   S.homecomingTimeline = [
-    { id: 'enzai-birthday-2026', from: '恩仔', text: '谢谢你今年也陪我过生日呀。以后也陪着我，一直到120岁，好不好？' }
+    { id: 'enzai-birthday-2026-1', group: 'enzai-birthday-2026', after: 0, from: '恩仔', text: '谢谢你今年陪我过生日呀。' },
+    { id: 'enzai-birthday-2026-2', group: 'enzai-birthday-2026', after: 1.5, from: '恩仔', text: '以后也陪着我' },
+    { id: 'enzai-birthday-2026-3', group: 'enzai-birthday-2026', after: 3, from: '恩仔', text: '一直到120岁' },
+    { id: 'enzai-birthday-2026-4', group: 'enzai-birthday-2026', after: 4.5, from: '恩仔', text: '好不好？' }
   ];
 
   // 节奏：开场多久开始催、压缩强度（数字越大越早结束）

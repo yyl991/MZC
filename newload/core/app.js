@@ -611,6 +611,9 @@ function deliverHomecomingTimeline() {
   let changed = false;
   (CFG.homecomingTimeline || []).forEach(beat => {
     if (!beat.id || !beat.from || !beat.text || fired.includes(beat.id)) return;
+    // 兼容已收到旧版长句的存档；新分句逐条记进度，刷新后只补未发部分。
+    if (beat.group && fired.includes(beat.group)) return;
+    if (elapsed() - SS.homecoming.continuedAt < (beat.after || 0)) return;
     fired.push(beat.id);
     changed = true;
     // 使用正常收信渲染：保留日期、未读、通知及黑名单/免打扰规则。
