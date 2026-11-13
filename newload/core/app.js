@@ -31,8 +31,8 @@ const IS_DEV_HOST = (() => {
 const ENDING_PREVIEW = IS_DEV_HOST && /[?&]endingPreview=1\b/.test(location.search);
 const GAME_SAVE_KEY = ENDING_PREVIEW ? "mzc_homecoming_preview" : "mzc_game_save";
 const HOMECOMING_FAULT_SECONDS = ENDING_PREVIEW ? 20 : 660 * 5 / 51;
-// 零点前最后10秒：屏幕上半部分纯数字死亡倒计时；00:00:00停留1秒，到00:00:01进传送幕。
-const HOMECOMING_COUNTDOWN_SECONDS = 10, HOMECOMING_ZERO_HOLD = 1;
+// 零点前最后10秒：屏幕上方黑底带框纯数字死亡倒计时，最后一个数字是00:00:01，零点直接进传送幕。
+const HOMECOMING_COUNTDOWN_SECONDS = 10;
 
 window.preloadAssets = function () { return; };
 
@@ -547,7 +547,7 @@ function updateHomecoming(e) {
     if (SS.homecoming.phase === "exploring") deliverHomecomingTimeline();
     return;
   }
-  if (e >= GAME_END_AT + HOMECOMING_ZERO_HOLD) { beginHomecoming(); return; }
+  if (e >= GAME_END_AT) { beginHomecoming(); return; }
   updateHomecomingCountdown(e);
   const start = GAME_END_AT - HOMECOMING_FAULT_SECONDS;
   if (e < start || !SCREEN) return;
@@ -587,7 +587,8 @@ let homecomingCountdownRemain = null;
 function updateHomecomingCountdown(e) {
   const raw = Math.ceil(GAME_END_AT - e);
   if (raw > HOMECOMING_COUNTDOWN_SECONDS) { clearHomecomingCountdown(); return; }
-  const remain = Math.max(0, raw);
+  // 零点即跳传送幕，永远不显示00:00:00。
+  const remain = Math.max(1, raw);
   if (remain === homecomingCountdownRemain) return;
   homecomingCountdownRemain = remain;
   if (!SCREEN) return;
@@ -601,12 +602,11 @@ function updateHomecomingCountdown(e) {
   }
   const num = layer.firstChild || layer;
   num.textContent = "00:00:" + pad(remain);
-  layer.classList.toggle("cd-zero", remain === 0);
   // 每个数字压一下节奏；减少动态效果时只保留数字本身。
   if (typeof num.animate === "function" && !(typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
     num.animate(
       [{ transform: "scale(1.18)", opacity: .35, filter: "brightness(1.9)" }, { transform: "scale(1)", opacity: 1, filter: "brightness(1)" }],
-      { duration: remain === 0 ? 860 : 430, easing: "cubic-bezier(.17,.84,.44,1)" }
+      { duration: 430, easing: "cubic-bezier(.17,.84,.44,1)" }
     );
   }
 }
@@ -733,7 +733,7 @@ function mountEndingPreviewControl() {
   const button = document.createElement("button");
   button.id = "ending-preview-control";
   button.className = "ending-preview-control";
-  button.textContent = ENDING_PREVIEW ? "重播结尾 · 21秒" : "体验结尾 · 21秒";
+  button.textContent = ENDING_PREVIEW ? "重播结尾 · 20秒" : "体验结尾 · 20秒";
   button.onclick = () => {
     // 重新打开预览会清理独立预览档，正式进度不受影响。
     location.href = location.pathname + "?dev=1&endingPreview=1";

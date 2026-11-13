@@ -5342,21 +5342,15 @@ svg {
 .fault-variant-2 > * { display:none; }
 @keyframes phone-fault-pulse { 0% {opacity:0;} 12% {opacity:.82;} 40% {opacity:.48;} 68% {opacity:.72;} 100% {opacity:0;} }
 @keyframes phone-blackout { 0% {opacity:0;} 18% {opacity:.96;} 68% {opacity:.85;} 100% {opacity:0;} }
-/* 零点前最后10秒：上半屏纯数字死亡倒计时，盖在故障层之上、传送幕之下，不拦截点击。 */
+/* 零点前最后10秒：黑底带框纯数字死亡倒计时，悬在屏幕上方，盖在故障层之上、传送幕之下，不拦截点击。 */
 #homecoming-countdown {
-  position:absolute; left:0; right:0; top:0; height:46%;
+  position:absolute; left:0; right:0; top:0; height:32%;
   z-index:999995; pointer-events:none !important;
   display:flex; align-items:center; justify-content:center;
-  background:
-    radial-gradient(ellipse at 50% 30%, rgba(255,26,38,.17), transparent 64%),
-    linear-gradient(to bottom, rgba(3,0,4,.52), rgba(3,0,4,.24) 58%, transparent);
-}
-#homecoming-countdown.cd-zero {
-  background:
-    radial-gradient(ellipse at 50% 30%, rgba(255,26,38,.32), transparent 68%),
-    linear-gradient(to bottom, rgba(3,0,4,.66), rgba(3,0,4,.34) 58%, transparent);
 }
 .homecoming-countdown-num {
+  background:#000; border:1px solid rgba(255,64,72,.5); border-radius:3px;
+  padding:10px 24px 12px;
   font-family:ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Courier New",monospace;
   font-size:56px; font-weight:800; letter-spacing:2px; font-variant-numeric:tabular-nums;
   color:#ff1f2e;

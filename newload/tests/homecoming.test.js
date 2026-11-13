@@ -51,16 +51,14 @@ s.run("updateHomecoming(GAME_END_AT - HOMECOMING_FAULT_SECONDS - 1)");
 assert(!s.nodes.has("homecoming-fault"));
 s.run("updateHomecoming(GAME_END_AT - HOMECOMING_FAULT_SECONDS)");
 assert(s.nodes.has("homecoming-fault"));
-// 零点前最后10秒：上半屏纯数字倒计时，00:00:00停留1秒后到00:00:01进传送幕。
+// 零点前最后10秒：黑底带框纯数字倒计时，最后一个数字是00:00:01，零点直接进传送幕。
 s.run("updateHomecoming(GAME_END_AT - HOMECOMING_COUNTDOWN_SECONDS)");
 assert(s.nodes.has("homecoming-countdown"));
 assert.strictEqual(s.nodes.get("homecoming-countdown").textContent, "00:00:10");
 s.run("updateHomecoming(GAME_END_AT - 1)");
 assert.strictEqual(s.nodes.get("homecoming-countdown").textContent, "00:00:01");
-s.run("updateHomecoming(GAME_END_AT)");
-assert.strictEqual(s.nodes.get("homecoming-countdown").textContent, "00:00:00");
 assert(!s.nodes.has("homecoming-scene"));
-s.sb.now += 661000;
+s.sb.now += 660000;
 s.run("updateHomecoming(elapsed())");
 assert(s.nodes.has("homecoming-scene"));
 assert(!s.nodes.has("homecoming-countdown"));
@@ -111,12 +109,12 @@ preview.run("fit = () => {}; buildInterleavedTimeline = () => {}; tick = () => {
 assert.strictEqual(preview.run("elapsed()"), 640);
 assert(!preview.run("SS.homecoming"));
 assert.strictEqual(preview.storage.mzc_game_save, originalSave);
-assert.strictEqual(preview.nodes.get("ending-preview-control").textContent, "重播结尾 · 21秒");
+assert.strictEqual(preview.nodes.get("ending-preview-control").textContent, "重播结尾 · 20秒");
 preview.nodes.get("ending-preview-control").onclick();
 assert.strictEqual(preview.sb.location.href, "/?dev=1&endingPreview=1");
 const normal = session();
 normal.run("mountEndingPreviewControl()");
-assert.strictEqual(normal.nodes.get("ending-preview-control").textContent, "体验结尾 · 21秒");
+assert.strictEqual(normal.nodes.get("ending-preview-control").textContent, "体验结尾 · 20秒");
 const production = session("?dev=0");
 production.run("mountEndingPreviewControl()");
 assert(!production.nodes.has("ending-preview-control"));
