@@ -841,8 +841,8 @@ function tick() {
     const sec = Math.floor((Date.now() - (typeof callStart !== "undefined" ? callStart : Date.now())) / 1000);
     const tm = $("#ctime"); if (tm) tm.textContent = pad(Math.floor(sec / 60)) + ":" + pad(sec % 60);
     const S = (typeof curScript !== "undefined" && curScript) || speech || [["对方", "喂？"]]; if (!S || S.length === 0) return;
-    const idx = Math.min(S.length - 1, Math.floor(sec / 3)); if (idx !== capIdx) { capIdx = idx; const c = $("#cap"); if (c && S[idx]) c.innerHTML = `<small>${esc(dn(S[idx][0]))}</small>${esc(S[idx][1])}`; }
-    if (sec > S.length * 3 + 2 && typeof endCall === "function") endCall();
+    const idx = Math.min(S.length - 1, Math.floor(sec / 2)); if (idx !== capIdx) { capIdx = idx; const c = $("#cap"); if (c && S[idx]) c.innerHTML = `<small>${esc(dn(S[idx][0]))}</small>${esc(S[idx][1])}`; }
+    if (sec > S.length * 2 + 2 && typeof endCall === "function") endCall();
   }
 }
 function fit() {
