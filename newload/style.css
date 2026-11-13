@@ -5342,19 +5342,30 @@ svg {
 .fault-variant-2 > * { display:none; }
 @keyframes phone-fault-pulse { 0% {opacity:0;} 12% {opacity:.82;} 40% {opacity:.48;} 68% {opacity:.72;} 100% {opacity:0;} }
 @keyframes phone-blackout { 0% {opacity:0;} 18% {opacity:.96;} 68% {opacity:.85;} 100% {opacity:0;} }
-/* 零点前最后10秒：黑底带框纯数字死亡倒计时，悬在屏幕上方，盖在故障层之上、传送幕之下，不拦截点击。 */
+/* 零点前最后10秒：黑底圆角框 LED 数码管死亡倒计时，盖在故障层之上、传送幕之下，不拦截点击。 */
+@font-face {
+  font-family: "DSEG7 Classic";
+  src: url("data/fonts/DSEG7Classic-Bold.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
 #homecoming-countdown {
   position:absolute; left:0; right:0; top:0; height:32%;
   z-index:999995; pointer-events:none !important;
   display:flex; align-items:center; justify-content:center;
 }
 .homecoming-countdown-num {
-  background:#000; border:1px solid rgba(255,64,72,.5); border-radius:3px;
-  padding:10px 24px 12px;
-  font-family:ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Courier New",monospace;
-  font-size:56px; font-weight:800; letter-spacing:2px; font-variant-numeric:tabular-nums;
-  color:#ff1f2e;
-  text-shadow:0 0 12px rgba(255,32,44,.6), 0 0 42px rgba(255,32,44,.32), 0 2px 0 rgba(96,0,10,.75);
+  position:relative; z-index:0;
+  background:#050203; border:1px solid rgba(255,64,72,.4); border-radius:16px;
+  padding:14px 26px 16px;
+  font-family:"DSEG7 Classic","Cascadia Mono",Consolas,monospace;
+  font-size:46px; font-weight:700; letter-spacing:0; font-variant-numeric:tabular-nums;
+  color:#ff2a23;
+  text-shadow:0 0 10px rgba(255,42,35,.55), 0 0 34px rgba(255,32,20,.3);
+}
+/* LED 熄灭段的余辉：全部段码以极暗红色垫底。 */
+.homecoming-countdown-num::before {
+  content:"88:88:88"; position:absolute; z-index:-1; inset:0; padding:14px 26px 16px;
+  color:rgba(255,42,35,.13); text-shadow:none;
 }
 #homecoming-scene {
   position:absolute; inset:0; z-index:1000000; background:#030304; color:#eee8e8;
