@@ -47,9 +47,9 @@ s.sb.deliverFrom = (from, text) => {
   assert.strictEqual(text, "birthday message");
   birthdayMessages++;
 };
-s.run("updateHomecoming(GAME_END_AT - 25)");
+s.run("updateHomecoming(GAME_END_AT - HOMECOMING_FAULT_SECONDS - 1)");
 assert(!s.nodes.has("homecoming-fault"));
-s.run("updateHomecoming(GAME_END_AT - 24)");
+s.run("updateHomecoming(GAME_END_AT - HOMECOMING_FAULT_SECONDS)");
 assert(s.nodes.has("homecoming-fault"));
 s.sb.now += 660000;
 s.run("updateHomecoming(elapsed())");
@@ -94,20 +94,43 @@ const preview = session("?endingPreview=1", s.storage);
 assert.strictEqual(preview.run("GAME_SAVE_KEY"), "mzc_homecoming_preview");
 preview.run("loadGameState()");
 assert(!preview.run("SS.homecoming"));
-// 旧预览即使已继续，下次打开仍从8秒前开始；正式存档保持不变。
+// 旧预览即使已继续，下次打开仍从20秒前开始；正式存档保持不变。
 const originalSave = s.storage.mzc_game_save;
 preview.storage.mzc_homecoming_preview = preview.storage.mzc_game_save;
 preview.run("fit = () => {}; buildInterleavedTimeline = () => {}; tick = () => {}; hideBoot = () => {}; base = 0; initApp();");
-assert.strictEqual(preview.run("elapsed()"), 652);
+assert.strictEqual(preview.run("elapsed()"), 640);
 assert(!preview.run("SS.homecoming"));
 assert.strictEqual(preview.storage.mzc_game_save, originalSave);
-assert.strictEqual(preview.nodes.get("ending-preview-control").textContent, "重播结尾 · 8秒");
+assert.strictEqual(preview.nodes.get("ending-preview-control").textContent, "重播结尾 · 20秒");
 preview.nodes.get("ending-preview-control").onclick();
 assert.strictEqual(preview.sb.location.href, "/?dev=1&endingPreview=1");
 const normal = session();
 normal.run("mountEndingPreviewControl()");
-assert.strictEqual(normal.nodes.get("ending-preview-control").textContent, "体验结尾 · 8秒");
+assert.strictEqual(normal.nodes.get("ending-preview-control").textContent, "体验结尾 · 20秒");
 const production = session("?dev=0");
 production.run("mountEndingPreviewControl()");
 assert(!production.nodes.has("ending-preview-control"));
-console.log("OK homecoming: boundary, continue, clock, reload, legacy beats, isolated/repeatable 8s preview");
+
+const faults = session();
+faults.sb.callState = "active";
+const countBefore = faults.timers.length;
+for (const fraction of [0, .18, .38, .57, .76, .94]) {
+  faults.run(`updateHomecoming(GAME_END_AT - HOMECOMING_FAULT_SECONDS + ${fraction} * HOMECOMING_FAULT_SECONDS)`);
+  assert(faults.nodes.has("homecoming-fault"));
+  faults.timers.at(-1)();
+  assert(!faults.nodes.has("homecoming-fault"));
+}
+assert.strictEqual(faults.timers.length - countBefore, 6);
+assert.strictEqual(faults.sb.callState, "active");
+assert.strictEqual(faults.run("view"), "lock");
+faults.run("updateHomecoming(GAME_END_AT - .2)");
+assert(!faults.nodes.has("homecoming-fault"));
+const background = session();
+background.run("updateHomecoming(GAME_END_AT - 1)");
+assert(!background.nodes.has("homecoming-fault"));
+const reduced = session();
+reduced.sb.matchMedia = () => ({ matches: true });
+reduced.run("updateHomecoming(GAME_END_AT - HOMECOMING_FAULT_SECONDS)");
+assert(!reduced.nodes.has("homecoming-fault"));
+assert.strictEqual(preview.run("gameMin()"), 1435);
+console.log("OK homecoming: six transient faults, no interaction changes, reduced motion, reload, birthday, 20s preview");

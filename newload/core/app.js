@@ -30,7 +30,7 @@ const IS_DEV_HOST = (() => {
 // 本地快速验收使用独立存档，不覆盖玩家进度。
 const ENDING_PREVIEW = IS_DEV_HOST && /[?&]endingPreview=1\b/.test(location.search);
 const GAME_SAVE_KEY = ENDING_PREVIEW ? "mzc_homecoming_preview" : "mzc_game_save";
-const HOMECOMING_FAULT_SECONDS = ENDING_PREVIEW ? 8 : 24;
+const HOMECOMING_FAULT_SECONDS = ENDING_PREVIEW ? 20 : 660 * 5 / 51;
 
 window.preloadAssets = function () { return; };
 
@@ -103,6 +103,9 @@ function gameMin() {
   const e = elapsed();
   if (SS.homecoming && SS.homecoming.phase === "exploring") {
     return 24 * 60 + Math.floor(Math.max(0, e - SS.homecoming.continuedAt) / 60);
+  }
+  if (ENDING_PREVIEW && !SS.homecoming) {
+    return GAME_START_MIN + 46 + Math.floor(Math.max(0, e - (GAME_END_AT - HOMECOMING_FAULT_SECONDS)) * 5 / HOMECOMING_FAULT_SECONDS);
   }
   if (e <= GAME_END_AT) return GAME_START_MIN + Math.floor((e / GAME_END_AT) * 51);
   return GAME_START_MIN + 51;
@@ -501,7 +504,8 @@ function incomingMailFrom(beat) {
 function showStoryChoice() {}
 function showEnding() { beginHomecoming(); }
 
-// 零点前 24 秒逐渐失真，零点传送。后续照片、生日歌可扩展 renderHomecoming。
+// Six short visual-only faults from game time 23:55; no page freezes or input interception.
+let homecomingFaultTimer = null;
 function updateHomecoming(e) {
   if (SS.homecoming) {
     if (SS.homecoming.phase === "transferred") renderHomecoming();
@@ -509,18 +513,31 @@ function updateHomecoming(e) {
     return;
   }
   if (e >= GAME_END_AT) { beginHomecoming(); return; }
-  if (e < GAME_END_AT - HOMECOMING_FAULT_SECONDS || !SCREEN) return;
-  let effect = document.getElementById("homecoming-fault");
-  if (!effect) {
-    effect = document.createElement("div");
-    effect.id = "homecoming-fault";
-    effect.setAttribute("aria-hidden", "true");
-    effect.innerHTML = '<div class="fault-scan"></div><span class="fault-caption">宇宙信号不稳定 · 请勿离开</span>';
-    SCREEN.appendChild(effect);
-  }
-  const level = Math.min(1, Math.max(0, (e - (GAME_END_AT - HOMECOMING_FAULT_SECONDS)) / HOMECOMING_FAULT_SECONDS));
-  effect.style.setProperty("--fault", String(level));
-  SCREEN.classList.add("homecoming-failing");
+  const start = GAME_END_AT - HOMECOMING_FAULT_SECONDS;
+  if (e < start || !SCREEN) return;
+  const seen = window._homecomingFaultSeen || (window._homecomingFaultSeen = new Set());
+  [0, .18, .38, .57, .76, .94].forEach((fraction, index) => {
+    const due = start + fraction * HOMECOMING_FAULT_SECONDS;
+    if (e < due || seen.has(index)) return;
+    seen.add(index);
+    // Resuming a background tab must not replay a burst of missed faults.
+    if (e - due > 1.5) return;
+    playHomecomingFault(index);
+  });
+}
+function playHomecomingFault(index) {
+  if (!SCREEN || (SS.homecoming && SS.homecoming.phase)) return;
+  if (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  clearTimeout(homecomingFaultTimer);
+  const previous = document.getElementById("homecoming-fault");
+  if (previous) previous.remove();
+  const effect = document.createElement("div");
+  effect.id = "homecoming-fault";
+  effect.className = "fault-variant-" + (index % 3);
+  effect.setAttribute("aria-hidden", "true");
+  effect.innerHTML = '<div class="fault-ink"></div><div class="fault-scan"></div><div class="fault-tear"></div>';
+  SCREEN.appendChild(effect);
+  homecomingFaultTimer = setTimeout(() => { effect.remove(); homecomingFaultTimer = null; }, 420);
 }
 function beginHomecoming() {
   if (SS.homecoming) return;
@@ -538,6 +555,8 @@ function beginHomecoming() {
   document.querySelectorAll("video, audio").forEach(media => media.pause());
   window.bgmPausedByOther = false;
   window._bgmStarted = false;
+  clearTimeout(homecomingFaultTimer);
+  homecomingFaultTimer = null;
   if (SCREEN) SCREEN.classList.remove("homecoming-failing");
   const fault = document.getElementById("homecoming-fault");
   if (fault) fault.remove();
@@ -605,7 +624,7 @@ function mountEndingPreviewControl() {
   const button = document.createElement("button");
   button.id = "ending-preview-control";
   button.className = "ending-preview-control";
-  button.textContent = ENDING_PREVIEW ? "重播结尾 · 8秒" : "体验结尾 · 8秒";
+  button.textContent = ENDING_PREVIEW ? "重播结尾 · 20秒" : "体验结尾 · 20秒";
   button.onclick = () => {
     // 重新打开预览会清理独立预览档，正式进度不受影响。
     location.href = location.pathname + "?dev=1&endingPreview=1";

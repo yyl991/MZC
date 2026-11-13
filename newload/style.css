@@ -5318,20 +5318,22 @@ svg {
 /* feature/midnight-homecoming：临近零点的故障与传送幕 */
 .ending-preview-control { position:absolute; top:52px; right:14px; z-index:1000001; padding:8px 12px; border:1px solid #705564; border-radius:20px; color:#f1d6df; background:#261d25; font-size:11px; cursor:pointer; }
 #homecoming-fault {
-  position:absolute; inset:0; z-index:999990; pointer-events:none;
-  background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(3,1,8,.88));
-  opacity:calc(.15 + var(--fault,0) * .78); transition:opacity 1s;
+  position:absolute; inset:0; z-index:999990; pointer-events:none !important;
+  overflow:hidden; contain:strict; opacity:0;
+  background:rgba(5,2,9,.3); animation:phone-fault-pulse .38s steps(1,end) both;
 }
-.fault-scan { position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,0,0,.45) 4px 5px); }
-.fault-caption { position:absolute; bottom:110px; left:0; right:0; text-align:center; font-size:10px; letter-spacing:4px; color:#b3a3ac; }
-.homecoming-failing > #homeL, .homecoming-failing > #appL, .homecoming-failing > #lockL {
-  animation:homecoming-signal 4s steps(1,end) infinite;
-}
-@keyframes homecoming-signal {
-  0%,83%,89%,100% { transform:translateX(0); filter:none; }
-  84%,88% { transform:translateX(-2px); filter:brightness(.55) saturate(.2); }
-  85% { transform:translateX(3px); filter:brightness(.7); }
-}
+#homecoming-fault * { pointer-events:none !important; }
+.fault-ink { position:absolute; inset:0; background:
+  radial-gradient(ellipse at 96% 10%,#000 0 11%,#230b30 12%,#692865 13%,transparent 15%),
+  radial-gradient(ellipse at 0% 92%,#000 0 9%,#12343b 10%,transparent 13%); }
+.fault-scan { position:absolute; inset:0; opacity:.6; background:repeating-linear-gradient(0deg,transparent 0 4px,#050207 5px 7px); }
+.fault-tear { position:absolute; inset:0; background:repeating-linear-gradient(90deg,#3d314a 0 2px,#134350 3px 4px,#642846 5px 6px); clip-path:polygon(0 26%,100% 24%,100% 30%,0 32%,0 58%,100% 61%,100% 65%,0 62%); }
+.fault-variant-1 .fault-ink { transform:rotate(180deg); }
+.fault-variant-1 .fault-tear { transform:translateY(70px); }
+#homecoming-fault.fault-variant-2 { background:#000; animation:phone-blackout .28s steps(1,end) both; }
+.fault-variant-2 > * { display:none; }
+@keyframes phone-fault-pulse { 0% {opacity:0;} 12% {opacity:.82;} 40% {opacity:.48;} 68% {opacity:.72;} 100% {opacity:0;} }
+@keyframes phone-blackout { 0% {opacity:0;} 18% {opacity:.96;} 68% {opacity:.85;} 100% {opacity:0;} }
 #homecoming-scene {
   position:absolute; inset:0; z-index:1000000; background:#030304; color:#eee8e8;
   display:flex; align-items:center; justify-content:center; overflow-y:auto;
@@ -5355,3 +5357,11 @@ svg {
   .homecoming-content { animation:none; }
 }
 @media (max-height:650px) { .homecoming-content { padding-top:55px; padding-bottom:32px; } .homecoming-rule { margin-bottom:28px; } .homecoming-note { margin:23px 0 28px; } }
+
+/* Final damaged-screen echo stays inside the ending overlay. */
+#homecoming-scene::before { content:""; position:absolute; inset:0; pointer-events:none; z-index:1;
+  background:repeating-linear-gradient(0deg,#08040c 0 7px,#53304d 8px 9px,#000 10px 16px);
+  animation:homecoming-final-break .65s steps(1,end) both;
+}
+@keyframes homecoming-final-break { 0% {opacity:.8;clip-path:inset(0);} 24% {opacity:.5;clip-path:inset(12% 0 55%);} 52% {opacity:.7;clip-path:inset(65% 0 10%);} 100% {opacity:0;clip-path:inset(100% 0 0);} }
+@media (prefers-reduced-motion:reduce) { #homecoming-fault, #homecoming-scene::before { display:none; } }
