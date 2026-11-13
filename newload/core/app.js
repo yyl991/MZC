@@ -582,6 +582,7 @@ function beginHomecoming() {
   clearHomecomingFault();
   if (typeof window.saveGameState === "function") window.saveGameState();
   renderHomecoming();
+  if (typeof window.tryStartBGM === "function") window.tryStartBGM();
 }
 function renderHomecoming() {
   if (!SCREEN || document.getElementById("homecoming-scene")) return;
@@ -900,6 +901,7 @@ function initApp() {
   // 预览每次打开都重播，不被上一次的 transferred/exploring 阶段跳过。
   if (ENDING_PREVIEW) localStorage.removeItem(GAME_SAVE_KEY);
   window.loadGameState();
+  if (typeof window.syncBackgroundTrack === "function") window.syncBackgroundTrack();
   addEventListener("resize", fit); fit(); buildInterleavedTimeline();
   if (IS_DEV_HOST) { view = "home"; LOCK.style.display = "none"; renderHome(); HOME.style.visibility = "visible"; }
   else { view = "lock"; HOME.style.visibility = "hidden"; LOCK.style.display = "block"; LOCK.style.visibility = "visible"; renderLock(); }
@@ -911,4 +913,5 @@ function initApp() {
   }
   setInterval(tick, 1000); tick(); hideBoot();
   mountEndingPreviewControl();
+  if (SS.homecoming && typeof window.tryStartBGM === "function") window.tryStartBGM();
 }

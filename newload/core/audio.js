@@ -37,10 +37,26 @@ function ringOnce() {
 }
 
 window.bgmPausedByOther = false;
+window.syncBackgroundTrack = function () {
+  const bgm = document.getElementById("bgm");
+  if (!bgm) return null;
+  const home = typeof SS !== "undefined" && !!SS.homecoming;
+  const source = home ? "./data/app/19.mp3" : "./data/app/bgm.mp3";
+  const current = bgm.dataset.storyTrack || (typeof bgm.getAttribute === "function" ? bgm.getAttribute("src") : "");
+  if (current !== source) {
+    bgm.pause();
+    bgm.src = source;
+    if (typeof bgm.load === "function") bgm.load();
+    window._bgmStarted = false;
+    window.bgmPausedByOther = false;
+  }
+  bgm.dataset.storyTrack = source;
+  bgm.loop = home;
+  return bgm;
+};
 window.AudioHub = {
   bgm: () => document.getElementById("bgm"),
   isBusy() {
-    if (typeof SS !== "undefined" && SS.homecoming && SS.homecoming.phase === "transferred") return true;
     const videos = document.querySelectorAll("video");
     for (let v of videos) { if (!v.paused && !v.ended) return true; }
     const audios = document.querySelectorAll("audio");
@@ -67,12 +83,15 @@ document.addEventListener("pause", (e) => {
 // （原来是 { once: true }，第一次点击被拦或资源没就绪就永远不放音乐了）
 window._bgmStarted = false;
 window.tryStartBGM = function () {
-  if (typeof SS !== "undefined" && SS.homecoming && SS.homecoming.phase === "transferred") return;
-  const BGM = document.getElementById("bgm");
+  const BGM = window.syncBackgroundTrack();
   if (!BGM || window._bgmStarted) return;
   if (window.bgmPausedByOther) return;
+  if (window.AudioHub.isBusy()) return;
   BGM.volume = 1;
-  BGM.play().then(() => { window._bgmStarted = true; }).catch(() => {});
+  const track = BGM.dataset.storyTrack;
+  BGM.play().then(() => {
+    if (BGM.dataset.storyTrack === track && !BGM.paused) window._bgmStarted = true;
+  }).catch(() => {});
 };
 ["pointerdown", "touchstart", "click", "keydown"].forEach((ev) => {
   document.addEventListener(ev, () => { ac(); window.tryStartBGM(); }, { passive: true });

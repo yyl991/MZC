@@ -216,7 +216,7 @@
 
   window.renderHome = function () {
     const bgm = document.getElementById("bgm");
-    if (bgm) bgm.loop = false;
+    if (bgm) bgm.loop = typeof SS !== "undefined" && !!SS.homecoming;
     const isPlaying = bgm && !bgm.paused;
 
     const todayD = typeof gameTodayDay === "function" ? gameTodayDay() : 15;
