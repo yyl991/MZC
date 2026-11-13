@@ -49,16 +49,16 @@ const baseNotes = [
   
   //最后上线前更新 11-15
   {
-    title: "用户穆祉丞的某天",
+    title: "放一些照片在这里",
     author: "穆祉丞",
     avatar: XHS_AVATAR_MZC,
     likes: "7.1万",
-    liked: true,
-    cover:
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=500&auto=format&fit=crop",
+    liked: false,
+    cover: "./data/xhs/xhs-cover.jpg",
+    video: "./data/xhs/xhs.mp4",
     type: "link",
-    url: "https://www.xiaohongshu.com/explore/6ad4a49f000000002900f6ef",
-    h: 230,
+    url: "https://www.xiaohongshu.com/explore/6af1ce760000000034003f55?xsec_token=ABGdw_OWVcSLkDMSgkT-KUztU0EETSEGYQJWdC15yiln8=&xsec_source=pc_search",
+    h: 245,
     followType: "mutual",
   },
 
@@ -187,7 +187,9 @@ function renderXhsCard(note, index) {
   let onclickAction = "";
   if (note.type === "link") {
     const isHttp = note.cover.startsWith("http") || note.cover.startsWith("./");
-    if (isHttp) {
+    if (note.video) {
+      mediaHTML = `<video src="${esc(note.video)}" poster="${esc(note.cover)}" muted playsinline preload="none" style="width:100%; height:100%; object-fit:cover; display:block; pointer-events:none;"></video>`;
+    } else if (isHttp) {
       mediaHTML = `<img src="${note.cover}" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.style.display='none'">`;
     } else {
       mediaHTML = `<div style="width:100%; height:100%; background:${note.cover}; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; font-weight:600;">[ 链接笔记 ]</div>`;
