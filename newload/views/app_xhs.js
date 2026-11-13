@@ -148,16 +148,11 @@ window.toggleLikeXhs = function (e, el, index) {
   const note = baseNotes[index];
   if (!note) return;
 
+  // 点赞只切红心状态与动画，数量保持不变
   const iconContainer = el.querySelector(".heart-icon-container");
-  const countEl = el.querySelector(".like-count");
   note.liked = !note.liked;
 
-  let rawStr = countEl.textContent;
-  let isWan = rawStr.includes("万");
-  let num = parseFloat(rawStr);
-
   if (note.liked) {
-    num += isWan ? 0.1 : 1;
     if (iconContainer) {
       iconContainer.innerHTML = G.xhsLikeHeart(true);
       iconContainer.animate(
@@ -170,16 +165,9 @@ window.toggleLikeXhs = function (e, el, index) {
       );
     }
     if (typeof vib === "function") vib(10);
-  } else {
-    num -= isWan ? 0.1 : 1;
-    if (iconContainer) {
-      iconContainer.innerHTML = G.xhsLikeHeart(false);
-    }
+  } else if (iconContainer) {
+    iconContainer.innerHTML = G.xhsLikeHeart(false);
   }
-
-  let newStr = isWan ? num.toFixed(1) + "万" : Math.floor(num);
-  countEl.textContent = newStr;
-  note.likes = newStr;
 };
 
 function renderXhsCard(note, index) {

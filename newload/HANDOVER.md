@@ -6,6 +6,7 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-14按作者要求：小红书点赞前后数量不变——toggleLikeXhs删掉±1/±0.1万与note.likes改写，只保留红心状态切换、弹跳动画和震动；数字始终显示笔记原始likes（1306/4.1万等）。15个测试全部通过。版本20261114-countdown12。
 - 2026-11-14三件事：①通话字幕3秒→2秒一句（tick字幕推句与自动挂断S.length*2+2同步改，播完即超8秒仍算callDone）；②missLines功能整体删除（story.js的missLinesOn/missLines数据、wx_chat.js armPatience里的收尾句追加逻辑，耐心计时与SS.missed标记保留），全库零引用；③新增《通话字幕与收尾台词.md》单独对应表（生成器node_modules/.cache/gen-calls.cjs不入库）：来电时机+每角色逐句字幕时刻表+自动挂断秒数+收尾台词+恩仔/Mu/tiger通用字幕说明；《自动对话触发总表.md》同步2秒节奏并删missLines行。15个测试全部通过，纯数据/文档部分不影响指纹。版本20261114-countdown11。
 - 2026-11-14按作者要求补齐电话闸门：scheduleCallBack新增「微信回复分支已走完」检查（stage≥replies数，读存档字段不需新存档键）——回复完再呼出对方、3秒未接也不再回拨；此前只有callDone/回拨过/拉黑三道闸。注意范围：仅关「呼出未接→回拨」；对方时间线来电被拒接/漏接后仍会追打最多3次（callDone/_playerCalledWho可拦）。15个测试全部通过（新增回复完呼出不回拨回归）。总表同步该规则。版本20261114-countdown10。
 - 2026-11-14新增《自动对话触发总表.md》（应作者要求整理全部微信+电话对话触发机制）：全局闸门、61条时间线消息按四阶段列表（含秒数/⚠️作废标记/📞来电）、11角色回复分支剧本（sendLine的stage/lineIdx机制：每发一条自动把建议词打进输入框，凑满阶段条数后对方逐条回）、电话全流程（时间线来电pig=50s/穆祉丞=87s/恩恩=250s、5秒未接/拒接追打CALL_NAG、满8秒callDone+CALL_END_LINES收尾、pig猪哭1+6图、呼出3秒回拨）、恩仔生日时间线、拍一拍、永不触发项（pressureTick nagFrom=680、missLines关闭、碎片注释）、加新消息at≤327注意。生成器暂存node_modules/.cache/gen-dialogues.cjs不入库；纯文档无运行时改动、无版本号变更。
