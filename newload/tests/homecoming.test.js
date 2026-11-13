@@ -118,10 +118,10 @@ assert.strictEqual(normal.nodes.get("ending-preview-control").textContent, "体�
 const production = session("?dev=0");
 production.run("mountEndingPreviewControl()");
 assert(!production.nodes.has("ending-preview-control"));
-// 尾段预览：独立存档、从545秒开局、开始前的消息标记已发不补播，只看结尾消息高潮。
+// 尾段预览：独立存档、从640秒(最后20秒)开局、开始前的消息标记已发不补播，结尾消息照常送达。
 const tail = session("?tailPreview=1");
 assert.strictEqual(tail.run("GAME_SAVE_KEY"), "mzc_tail_preview");
-tail.sb.STORY.pace = { offset: 78, amp: 987, soft: 500 };
+tail.sb.STORY.pace = { offset: 90, amp: 1130, soft: 500 };
 tail.sb.STORY.timeline = [
   { at: 50, type: "notify", from: "cat", text: "early" },
   { at: 326, type: "notify", from: "穆瑞恩", text: "late msg" },
@@ -129,12 +129,12 @@ tail.sb.STORY.timeline = [
 const tailSeen = [];
 tail.sb.incomingMsgFrom = (from, text) => tailSeen.push([from, text]);
 tail.run("fit = () => {}; buildInterleavedTimeline = () => {}; tick = () => {}; hideBoot = () => {}; base = 0; initApp();");
-assert.strictEqual(tail.run("elapsed()"), 545);
-assert.strictEqual(tail.nodes.get("ending-preview-control").textContent, "重播尾段 · 2分钟");
-tail.run("storyTick(546)");
+assert.strictEqual(tail.run("elapsed()"), 640);
+assert.strictEqual(tail.nodes.get("ending-preview-control").textContent, "重播尾段 · 20秒");
+tail.run("storyTick(646)");
 assert.deepStrictEqual(tailSeen, []); // at=50的历史消息已标记，不补播
-tail.run("storyTick(574)");
-assert.deepStrictEqual(tailSeen, [["穆瑞恩", "late msg"]]); // 结尾消息照常送达
+tail.run("storyTick(658)");
+assert.deepStrictEqual(tailSeen, [["穆瑞恩", "late msg"]]); // 倒计时期间结尾消息照常送达
 
 const faults = session();
 faults.sb.callState = "active";
