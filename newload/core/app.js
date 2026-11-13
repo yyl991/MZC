@@ -31,6 +31,8 @@ const IS_DEV_HOST = (() => {
 const ENDING_PREVIEW = IS_DEV_HOST && /[?&]endingPreview=1\b/.test(location.search);
 const GAME_SAVE_KEY = ENDING_PREVIEW ? "mzc_homecoming_preview" : "mzc_game_save";
 const HOMECOMING_FAULT_SECONDS = ENDING_PREVIEW ? 20 : 660 * 5 / 51;
+// 零点前最后10秒：屏幕上半部分纯数字死亡倒计时；00:00:00停留1秒，到00:00:01进传送幕。
+const HOMECOMING_COUNTDOWN_SECONDS = 10, HOMECOMING_ZERO_HOLD = 1;
 
 window.preloadAssets = function () { return; };
 
@@ -539,12 +541,14 @@ function showEnding() { beginHomecoming(); }
 let homecomingFaultTimer = null;
 function updateHomecoming(e) {
   if (SS.homecoming) {
+    clearHomecomingCountdown();
     clearHomecomingFault();
     if (SS.homecoming.phase === "transferred") renderHomecoming();
     if (SS.homecoming.phase === "exploring") deliverHomecomingTimeline();
     return;
   }
-  if (e >= GAME_END_AT) { beginHomecoming(); return; }
+  if (e >= GAME_END_AT + HOMECOMING_ZERO_HOLD) { beginHomecoming(); return; }
+  updateHomecomingCountdown(e);
   const start = GAME_END_AT - HOMECOMING_FAULT_SECONDS;
   if (e < start || !SCREEN) return;
   const seen = window._homecomingFaultSeen || (window._homecomingFaultSeen = new Set());
@@ -578,6 +582,39 @@ function clearHomecomingFault() {
   const fault = document.getElementById("homecoming-fault");
   if (fault) fault.remove();
 }
+// 零点前最后10秒：上半屏只显示数字的死亡倒计时，按 elapsed 实时重算，刷新可自然恢复。
+let homecomingCountdownRemain = null;
+function updateHomecomingCountdown(e) {
+  const raw = Math.ceil(GAME_END_AT - e);
+  if (raw > HOMECOMING_COUNTDOWN_SECONDS) { clearHomecomingCountdown(); return; }
+  const remain = Math.max(0, raw);
+  if (remain === homecomingCountdownRemain) return;
+  homecomingCountdownRemain = remain;
+  if (!SCREEN) return;
+  let layer = document.getElementById("homecoming-countdown");
+  if (!layer) {
+    layer = document.createElement("div");
+    layer.id = "homecoming-countdown";
+    layer.setAttribute("aria-hidden", "true");
+    layer.innerHTML = '<div class="homecoming-countdown-num"></div>';
+    SCREEN.appendChild(layer);
+  }
+  const num = layer.firstChild || layer;
+  num.textContent = "00:00:" + pad(remain);
+  layer.classList.toggle("cd-zero", remain === 0);
+  // 每个数字压一下节奏；减少动态效果时只保留数字本身。
+  if (typeof num.animate === "function" && !(typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+    num.animate(
+      [{ transform: "scale(1.18)", opacity: .35, filter: "brightness(1.9)" }, { transform: "scale(1)", opacity: 1, filter: "brightness(1)" }],
+      { duration: remain === 0 ? 860 : 430, easing: "cubic-bezier(.17,.84,.44,1)" }
+    );
+  }
+}
+function clearHomecomingCountdown() {
+  homecomingCountdownRemain = null;
+  const layer = document.getElementById("homecoming-countdown");
+  if (layer) layer.remove();
+}
 function beginHomecoming() {
   if (SS.homecoming) return;
   SS.arriveHome = true;
@@ -594,6 +631,7 @@ function beginHomecoming() {
   document.querySelectorAll("video, audio").forEach(media => media.pause());
   window.bgmPausedByOther = false;
   window._bgmStarted = false;
+  clearHomecomingCountdown();
   clearHomecomingFault();
   if (typeof window.saveGameState === "function") window.saveGameState();
   renderHomecoming();
@@ -607,31 +645,42 @@ function renderHomecoming() {
   scene.setAttribute("role", "dialog");
   scene.setAttribute("aria-modal", "true");
   scene.setAttribute("aria-labelledby", "homecoming-title");
- 
     scene.innerHTML = `<div class="homecoming-content">
-    <p class="homecoming-time">11 / 16 <span>00:00</span></p>
-    <div class="homecoming-rule"></div>
-    <p class="homecoming-status">传送完成</p>
-    
-    <!-- 👇 加在这里 -->
-    <div class="homecoming-photo-wrap">
-      <img class="homecoming-photo" src="./data/app/angry.jpg" alt="穆祉丞">
+    <!-- 时间：使用高级的灰粉色 -->
+    <p class="homecoming-time" style="color:#d7a5b3; font-size: 14px; font-weight: 300; margin-top: 0; margin-bottom: 0px; letter-spacing: 1px;">
+      11 / 15 <span style="color:#d7a5b3; font-size: 14px; font-weight: 400;">23:59:59</span>
+    </p>
+   
+    <!-- 传送完成 + 灰粉渐变线 -->
+    <div style="display:flex; align-items:center; gap:12px; margin-top: 0; margin-bottom:26px;">
+     <span style="font-size: 11px; color: #d7a5b3; letter-spacing: 2px; white-space: nowrap; font-weight: 200;">传送完成</span> <div style="flex:1; height:1px; background:linear-gradient(90deg,#d7a5b3,transparent);"></div>
     </div>
 
-    <p class="homecoming-question">‎•᷄ࡇ•᷅敢不陪恩恩大王过生日我看你是不想活了<br>18岁的最后一秒不在相当于一年没陪他</p>
-    <h1 id="homecoming-title">用户「小纸团」<br>已被强制传送回家。</h1>
+    <!-- 主标题：保持绝对纯白，压住全场 -->
+    <h1 id="homecoming-title" style="margin: 0 0 20px 0; color: #fff;">用户「小纸团」<br>已被强制传送回家。</h1>
     
+    <!-- 图片 -->
+    <div class="homecoming-photo-wrap" style="margin-top: 0; margin-bottom: 28px;">
+      <img class="homecoming-photo" src="./data/app/angry.jpg" alt="恩恩大王">
+    </div>
+
+    <!-- 警告语：放在图片下方。颜色微微提亮到 #e8ccd4，避免被纯黑背景吞噬 -->
+    <div style="margin-bottom: 24px; font-size: 13px; line-height: 1.6; color: #e8ccd4; font-weight: 500;">
+      <p style="margin: 0 0 6px 0;">敢不陪恩恩大王过生日？</p>
+      <p style="margin: 0 0 6px 0;">你要死定了！</p>
+      <p style="margin: 0;">烫知识18岁的最后一秒不在相当于让他等了你一年‎•᷄ࡇ•᷅</p>
+    </div>
+    
+    <!-- 按钮 -->
     <button class="homecoming-continue" onclick="continueHomecoming()">继续 <span aria-hidden="true">→</span></button>
-    <p class="homecoming-footer">门开着，蛋糕也还在等你。</p>
+    
+    <!-- 底部备注 -->
+    <p class="homecoming-note" style="text-align: center; margin-top: 16px; margin-bottom: 0; font-size: 12px; color: #8c7b82;">门开着，蛋糕也还在等你</p>
   </div>`;
-  
   SCREEN.appendChild(scene);
   const button = scene.querySelector("button");
   if (button) button.focus();
 
-  // 传送幕期间：如果零点自动播放 hb.mp3 被浏览器拦截，
-  // 玩家第一次触摸/点击传送幕空白处时，用手势补起播。
-  // 点“继续”按钮除外——继续本身会切到 19.mp3。
   const retryHomecomingBgm = (e) => {
     if (e && e.target && e.target.closest && e.target.closest("button")) return;
     if (!SS.homecoming || SS.homecoming.phase !== "transferred") return;
@@ -684,7 +733,7 @@ function mountEndingPreviewControl() {
   const button = document.createElement("button");
   button.id = "ending-preview-control";
   button.className = "ending-preview-control";
-  button.textContent = ENDING_PREVIEW ? "重播结尾 · 20秒" : "体验结尾 · 20秒";
+  button.textContent = ENDING_PREVIEW ? "重播结尾 · 21秒" : "体验结尾 · 21秒";
   button.onclick = () => {
     // 重新打开预览会清理独立预览档，正式进度不受影响。
     location.href = location.pathname + "?dev=1&endingPreview=1";

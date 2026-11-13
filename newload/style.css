@@ -5342,6 +5342,26 @@ svg {
 .fault-variant-2 > * { display:none; }
 @keyframes phone-fault-pulse { 0% {opacity:0;} 12% {opacity:.82;} 40% {opacity:.48;} 68% {opacity:.72;} 100% {opacity:0;} }
 @keyframes phone-blackout { 0% {opacity:0;} 18% {opacity:.96;} 68% {opacity:.85;} 100% {opacity:0;} }
+/* 零点前最后10秒：上半屏纯数字死亡倒计时，盖在故障层之上、传送幕之下，不拦截点击。 */
+#homecoming-countdown {
+  position:absolute; left:0; right:0; top:0; height:46%;
+  z-index:999995; pointer-events:none !important;
+  display:flex; align-items:center; justify-content:center;
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(255,26,38,.17), transparent 64%),
+    linear-gradient(to bottom, rgba(3,0,4,.52), rgba(3,0,4,.24) 58%, transparent);
+}
+#homecoming-countdown.cd-zero {
+  background:
+    radial-gradient(ellipse at 50% 30%, rgba(255,26,38,.32), transparent 68%),
+    linear-gradient(to bottom, rgba(3,0,4,.66), rgba(3,0,4,.34) 58%, transparent);
+}
+.homecoming-countdown-num {
+  font-family:ui-monospace,"SF Mono","Cascadia Mono",Consolas,"Courier New",monospace;
+  font-size:56px; font-weight:800; letter-spacing:2px; font-variant-numeric:tabular-nums;
+  color:#ff1f2e;
+  text-shadow:0 0 12px rgba(255,32,44,.6), 0 0 42px rgba(255,32,44,.32), 0 2px 0 rgba(96,0,10,.75);
+}
 #homecoming-scene {
   position:absolute; inset:0; z-index:1000000; background:#030304; color:#eee8e8;
   display:flex; align-items:center; justify-content:center; overflow-y:auto;
@@ -5377,21 +5397,9 @@ svg {
 
 
 /* ============ 传送幕精简版 ============ */
-.homecoming-time { 
-  font-size: 13px; /* 调小 */
-  margin-bottom: 8px; 
-}
-.homecoming-time span { font-size: 14px; }
+/* 👈 时间：11 / 15 改成橙色 */
 
-.homecoming-rule { 
-  margin-bottom: 12px; 
-}
 
-.homecoming-status { 
-  font-size: 12px; /* 调小 */
-  margin-bottom: 10px; 
-  letter-spacing: 3px;
-}
 
 /* 压短图片，保证不占太多空间 */
 .homecoming-photo-wrap {
@@ -5441,14 +5449,22 @@ svg {
   margin-bottom: 14px; 
 }
 
+/* 按钮 */
 .homecoming-continue { 
-  font-size: 15px; /* 按钮字调小 */
-  padding: 12px; /* 按钮稍微变矮 */
+  font-size: 18px; /* 根据你之前的需求调大的 */
+  padding: 14px 18px;
   margin-top: 0;
   margin-bottom: 8px; 
+  background: #171115;
+  border: 1px solid #7a4f5e; /* 粉灰边框 */
+  color: #f1d6df; /* 亮粉文字 */
+  border-radius: 3px;
 }
 
+/* 底部备注 */
 .homecoming-footer { 
-  font-size: 11px; /* 调小 */
+  font-size: 12px; 
   margin-top: 16px; 
+  text-align: center;
+  color: #8c7b82; /* 偏暗的粉灰色 */
 }
