@@ -229,18 +229,15 @@ const FOLLOW_DATA = [
 // 6. 超话数据
 const SUPERTopic_DATA = [
   {
-    user: "我零食呢nn",
+    user: "恩恩恩",
+    avatar: "./data/avatar/me.jpg",
     isArtist: false,
-    text: "#为穆祉丞守护星愿#\n“一百岁大家还会陪着我吗”",
-    time: "刚刚 最后评论 已编辑",
+    text: "#穆祉丞超话# 感到幸福就扣11111🧡💖",
+    time: "4小时前 最后评论 来自 iPhone 18 Pro Max",
     likes: "12",
     comments: "5",
     forwards: "1",
-    images: [
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=200&auto=format&fit=crop",
-      "./data/avatar/miantuan.jpg",
-      "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=200&auto=format&fit=crop",
-    ],
+    images: [],
   },
 ];
 
@@ -1155,7 +1152,7 @@ VIEWS.weibo_supertopic = () => ({
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                  <div style="display:flex; align-items:center; gap:10px;">
                     <div style="width:40px; height:40px; border-radius:50%; background:#eee; overflow:hidden;">
-                      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop" style="width:100%; height:100%; object-fit:cover;">
+                      <img src="${esc(t.avatar || './data/avatar/me.jpg')}" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <div>
                        <div style="font-size:14px; font-weight:600; color:#ff8200; display:flex; align-items:center; gap:4px;">${t.user} <span style="background:#f5f5f5; color:#666; font-size:9px; padding:1px 4px; border-radius:4px;">创作官</span></div>

@@ -22,3 +22,9 @@ ok("label switches to 已签到",r.html.includes("已签到"));
 sb.wbSignIn();
 ok("second sign blocked",sb._toast==="今天已经签过啦，明天再来~",sb._toast);
 console.log(fails===0?"ALL PASS":fails+" FAILS");
+
+r=sb.VIEWS.weibo_supertopic();
+ok("超话显示恩恩恩和me头像",r.html.includes("恩恩恩")&&r.html.includes("./data/avatar/me.jpg"));
+ok("超话保留幸福文案且不含加速卡句",r.html.includes("感到幸福就扣11111🧡💖")&&!r.html.includes("加速卡"));
+ok("超话纯文本移除图片区",!r.html.includes("◎ LIVE")&&vm.runInContext("SUPERTopic_DATA[0].images.length",sb)===0);
+if(fails)process.exitCode=1;
