@@ -595,11 +595,12 @@ function renderHomecoming() {
     <p class="homecoming-time">11 / 16 <span>00:00</span></p>
     <div class="homecoming-rule"></div>
     <p class="homecoming-status">传送完成</p>
+    
+    <p class="homecoming-question">‎•᷄ࡇ•᷅敢不陪穆祉丞过生日？</p>
     <h1 id="homecoming-title">用户「小纸团」<br>已被强制传送回家。</h1>
-    <p class="homecoming-question">敢不陪穆祉丞过生日？</p>
-    <p class="homecoming-note">这一次，你没有错过。<br>门开着，蛋糕也还在等你。</p>
+    <p class="homecoming-note">门开着，蛋糕也还在等你。</p>
     <button class="homecoming-continue" onclick="continueHomecoming()">继续 <span aria-hidden="true">→</span></button>
-    <p class="homecoming-footer">已到家 · 今晚不必再赶路</p>
+    <p class="homecoming-footer">已到家</p>
   </div>`;
   SCREEN.appendChild(scene);
   const button = scene.querySelector("button");

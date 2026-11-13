@@ -225,9 +225,9 @@ var INCOMING = [];
     // ==========================================
     { at: 47, type:'notify', from:'cat', text:'不问了', skipIfReplied: true },
     { at: 93, type:'notify', from:'cat', text:'老子数到三', skipIfReplied: true },
-    { at: 99, type:'notify', from:'cat', text:'三', skipIfReplied: true },
-    { at: 109, type:'notify', from:'cat', text:'二', skipIfReplied: true },
-    { at: 149, type:'notify', from:'cat', text:'一', skipIfReplied: true },
+    { at: 119, type:'notify', from:'cat', text:'三', skipIfReplied: true },
+    //{ at: 129, type:'notify', from:'cat', text:'二', skipIfReplied: true },
+    //{ at: 149, type:'notify', from:'cat', text:'一', skipIfReplied: true },
     { at: 168, type:'notify', from:'cat', text:'你给老子等到起', skipIfReplied: true },
     { at: 206, type:'notify', from:'cat', text:'今天什么日子 你要爪子嘛', skipIfReplied: true },
     { at: 213, type:'notify', from:'cat', text:'门锁了 生日你也别过了', skipIfReplied: true },
