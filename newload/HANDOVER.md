@@ -6,6 +6,9 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-13按审计建议只修4项逻辑：app.js补SS.missed初始化/保存空集合兜底；去掉resetWxChat重复覆盖，保留统一确认重置与缺模块刷新兜底；rootOf递归走父路由并防自引用/循环，正确定位微博/闲鱼/微信等根图标；show和backgroundPreload改用可见的词法const数据，相册读取实际getPhoneDisplayList，私密相册仅预加载当前已渲染媒体、不提前加载密码后照片。未修改UI、剧情正文、相册方案、日历范围、占位App或设置规则。
+- 验证：15个测试文件通过，覆盖新局/缺省missed保存、读档恢复、重置入口委托、各深层根路由及循环终止、const预加载与可选模块缺失。资源版本20261113-fixes1，提交后push当前分支，不预热。
+
 - 朋友圈按钮修复验证：用本机Edge无头渲染393px宽详情页，评论按钮约76.6px宽、文字18px高，white-space=nowrap；14个测试文件全部通过。传送界面静态预览位于node_modules/.cache/homecoming-preview/homecoming.png（不入库）。
 
 - 本轮沿用作者已提交的最新音乐设定：传送幕hb.mp3，继续后19.mp3；只同步背景音乐回归预期，不改写作者选择。界面相关14个测试文件提交前重新运行。
@@ -157,7 +160,6 @@
 - DATA_SIG 根据初始 chatData 与 timeline 生成，指纹变化弃旧档；不是任意配置变更都会改变指纹。
 - initApp 先读档再启动时钟，startClock 从存档 elapsed 恢复 base，不能让聊天与时间错位。
 - resetGameState 使用页面内确认框；确认先 `_resetting = true`，再删除存档、reload。
-- **已发现、未修复**：wx_chat.js 的 resetWxChat 重复定义，后者仅 reload，覆盖前者调用统一重置的实现。需要修时先核对入口，不能把它当可靠删档。
 
 ### 时钟、时间线、回复
 
@@ -234,7 +236,6 @@
 ## 六、遗留与下次核对
 
 - 本轮试验为零点传送与自由探索；生日照片、吹蜡烛、生日歌待用户后续定稿。不自动恢复旧分类相簿、无存档或电话留言方案。
-- resetWxChat重复定义问题见§四，本轮仅记录未修。
 - 涉及存档时验证刷新续玩、指纹弃档、确认重置；涉及电话时分别验证追命/回拨/零点及刷新后的状态，现有回归通过不等于这些路径全部验收。
 - 素材迁移至data/photo、data/avatar、data/chat、data/app等；检查当前引用，缺素材沿用wxMediaMiss，不照旧data/album路径补写。
 - og:image/weibo:image 当前指向 `https://cgcgdsg.cc.cd/data/share-cover.jpg`；上线前核对可达性和平台尺寸，必要时用分享链接版本参数刷新抓取。

@@ -160,5 +160,28 @@ sb.saveGameState();
 ok("重置时不再写档", sb.localStorage.getItem("mzc_game_save") === null);
 sb.window._resetting = false;
 
+sb.saveGameState();
+const initialSave = JSON.parse(sb.localStorage.getItem("mzc_game_save"));
+ok("新局可直接保存missed空集合",Array.isArray(initialSave.SS.missed)&&initialSave.SS.missed.length===0);
+vm.runInContext('SS.stage.cat=2; SS.missed.add("cat")',sb);
+sb.saveGameState();
+vm.runInContext('SS.stage.cat=0; SS.missed.clear()',sb);
+sb.loadGameState();
+ok("存档可恢复阶段和missed集合",vm.runInContext('SS.stage.cat===2&&SS.missed.has("cat")',sb));
+let resetCalls=0,reloads=0;
+const resetGameState=sb.resetGameState;
+sb.resetGameState=()=>{resetCalls++;};sb.location.reload=()=>{reloads++;};
+sb.resetWxChat();
+ok("聊天重置委托统一确认重置入口",resetCalls===1&&reloads===0);
+sb.resetGameState=undefined;sb.resetWxChat();
+ok("缺少统一重置模块时可刷新兜底",reloads===1);
+sb.resetGameState=resetGameState;
+for(const [page,root] of Object.entries({weibo_my_posts:"weibo",xianyu_orders:"xianyu",wx_moments_detail:"wechat",moments:"wechat",wx_services:"wechat",wx_contacts_sub:"wechat",privateAlbum:"photos",weibo:"weibo",sms:"sms",unknown:"unknown"})) {
+  ok("关闭App定位根图标 "+page,vm.runInContext(`rootOf(${JSON.stringify(page)})`,sb)===root);
+}
+vm.runInContext('PARENT.__a="__b";PARENT.__b="__a"',sb);
+ok("循环父路由不会卡死",vm.runInContext('rootOf("__a")',sb)==="__b");
+vm.runInContext('delete PARENT.__a;delete PARENT.__b',sb);
+
 console.log(fails === 0 ? "ALL PASS" : fails + " FAILS");
 process.exit(fails ? 1 : 0);

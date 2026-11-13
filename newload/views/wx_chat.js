@@ -1982,7 +1982,3 @@ window.resetWxChat = function () {
   if (typeof window.resetGameState === 'function') window.resetGameState();
   else location.reload();
 };
-
-window.resetWxChat = function () {
-  location.reload();
-};

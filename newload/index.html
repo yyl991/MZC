@@ -76,7 +76,7 @@
         window.LANG = 'zh';
         
         // 本地测试用，云端构建会自动替换时间戳
-        const ASSET_V = '20261113-moments1';
+        const ASSET_V = '20261113-fixes1';
 
         function load(src) {
             return new Promise((res, rej) => {
@@ -200,14 +200,15 @@
                         }
                     });
                 }
-                if (window.MOCK_MOMENTS_DATA) {
-                    Object.values(window.MOCK_MOMENTS_DATA).forEach(role => {
+                if (typeof MOCK_MOMENTS_DATA !== 'undefined' && MOCK_MOMENTS_DATA) {
+                    Object.values(MOCK_MOMENTS_DATA).forEach(role => {
                         if (role.posts) role.posts.forEach(post => {
                             if (post.images) post.images.forEach(src => queue.push(src));
                         });
                     });
                 }
-                if (window.MOCK_PHOTOS) window.MOCK_PHOTOS.forEach(i => { if (i.src) queue.push(i.src); });
+                const photos = typeof getPhoneDisplayList === 'function' ? getPhoneDisplayList() : typeof MOCK_PHOTOS !== 'undefined' ? MOCK_PHOTOS : [];
+                if (Array.isArray(photos)) photos.forEach(i => { if (i.src) queue.push(i.src); });
 
                 const finalQueue = [...new Set(queue)].filter(src => src && src.length > 5);
                 let index = 0;

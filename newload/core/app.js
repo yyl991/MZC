@@ -74,6 +74,7 @@ const SS = window.STORY_STATE || {};
 if (!SS.fired) SS.fired = new Set();
 if (!SS.fragments) SS.fragments = new Set();
 if (!SS.completed) SS.completed = new Set();
+if (!SS.missed) SS.missed = new Set();
 if (!SS.stage) SS.stage = {};
 if (!SS.lineIdx) SS.lineIdx = {};
 if (!SS.talked) SS.talked = {}; // 本局通过电话的角色
@@ -329,7 +330,15 @@ function updateHomeBadges() {
 }
 
 const PARENT = { note: "notes", chat: "wechat", moments: "wx_discover", wx_profile: "chat", wx_moments_user: "wx_profile", wx_moments_detail: "wx_moments_user", wx_search: "wechat", wx_scan: "wx_me", wx_chat_info: "chat", wx_moment_compose: "moments", wx_moments_self: "wx_me", wx_contacts_sub: "wx_contacts", wx_services: "wx_me", wx_favorites: "wx_me", wx_settings: "wx_me", settings_about: "settings", settings_display: "settings", settings_wallpaper: "settings", settings_notifications: "settings", note_edit: "notes", mail_compose: "mail", maild: "mail", reel: "instagram", screentime: "settings", sms_detail: "sms", weibo: "weibo", weibo_profile: "weibo", weibo_my_posts: "weibo_profile", weibo_artist: "weibo", weibo_supertopic: "weibo_artist", weibo_follow: "weibo_profile", mail_detail: "mail", xianyu: "xianyu", xianyu_me: "xianyu", xianyu_orders: "xianyu_me", bilibili: "bilibili", xhs: "xhs", sms: "sms", recorder: "recorder", privateAlbum: "photos", albumDetail: "photos" };
-const rootOf = (v) => PARENT[v] || v;
+const rootOf = (v) => {
+  const seen = new Set();
+  let root = v;
+  while (PARENT[root] && PARENT[root] !== root && !seen.has(PARENT[root])) {
+    seen.add(root);
+    root = PARENT[root];
+  }
+  return ["wx_contacts", "wx_discover", "wx_me"].includes(root) ? "wechat" : root;
+};
 function viewDark() { if (["lock", "pin", "home"].includes(view)) return true; const p = APP.lastElementChild; return !!(p && p.dataset.dark); }
 function wireScroll(pg) { const sc = pg.querySelector(".scroll"); if (sc) sc.addEventListener("scroll", () => pg.classList.toggle("scrolled", sc.scrollTop > 38), { passive: true }); }
 const VIEWS = {};
@@ -389,15 +398,20 @@ function show(id, anim = "swap") {
         });
       }
     } else if (id === "moments" || id === "wx_moments" || id === "wx_discover") {
-      if (window.MOCK_MOMENTS_DATA) {
-        Object.values(window.MOCK_MOMENTS_DATA).forEach(role => {
+      if (typeof MOCK_MOMENTS_DATA !== "undefined" && MOCK_MOMENTS_DATA) {
+        Object.values(MOCK_MOMENTS_DATA).forEach(role => {
           if (role.posts) role.posts.forEach(post => { if (post.images) post.images.forEach(src => pageUrls.push(src)); });
         });
       }
     } else if (id === "photos") {
-      if (window.MOCK_PHOTOS) window.MOCK_PHOTOS.forEach(i => { if (i.src) pageUrls.push(i.src); });
+      const media = typeof getPhoneDisplayList === "function" ? getPhoneDisplayList() : typeof MOCK_PHOTOS !== "undefined" ? MOCK_PHOTOS : [];
+      if (Array.isArray(media)) media.forEach(i => { if (i.src) pageUrls.push(i.src); });
     } else if (id === "privateAlbum") {
-      if (window.CFG && window.CFG.privateAlbum) window.CFG.privateAlbum.forEach(i => { if (i.src) pageUrls.push(i.src); });
+      // 只收集当前已渲染的媒体；密码页不会提前拉取私密照片。
+      pg.querySelectorAll("img[src], video[poster]").forEach(el => {
+        const src = el.getAttribute("poster") || el.getAttribute("src");
+        if (src) pageUrls.push(src);
+      });
     }
   } catch (e) { console.warn(e); }
 
@@ -807,7 +821,7 @@ window.saveGameState = function () {
       SS: {
         stage: SS.stage, lineIdx: SS.lineIdx,
         fired: Array.from(SS.fired), fragments: Array.from(SS.fragments),
-        missed: Array.from(SS.missed), arriveHome: SS.arriveHome, choice: SS.choice,
+        missed: Array.from(SS.missed || []), arriveHome: SS.arriveHome, choice: SS.choice,
         talked: SS.talked, homecoming: SS.homecoming || null,
       },
     };

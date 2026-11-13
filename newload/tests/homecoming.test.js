@@ -29,7 +29,7 @@ function session(search = "", storage = {}) {
     setTimeout: fn => { timers.push(fn); return timers.length; }, clearTimeout() {},
     setInterval() {}, clearInterval() {}, addEventListener() {},
     STORY: { homecomingTimeline: [{ id: "birthday", from: "恩仔", text: "birthday message" }], timeline: [{ at: 0, type: "choice" }, { at: 0, type: "ending" }, { at: 0, type: "notify", from: "cat", text: "x" }] },
-    STORY_STATE: { fired: new Set(), missed: new Set(), fragments: new Set() },
+    STORY_STATE: { fired: new Set(), fragments: new Set() },
     DATA_SIG: "test", chatData: {}, unread: {}, renderHome() {},
     pad: n => String(n).padStart(2, "0"), speech: [], calls: [], notes: [], photoSections: [],
   };
