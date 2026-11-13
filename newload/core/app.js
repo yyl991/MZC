@@ -584,6 +584,7 @@ function beginHomecoming() {
   renderHomecoming();
   if (typeof window.tryStartBGM === "function") window.tryStartBGM();
 }
+
 function renderHomecoming() {
   if (!SCREEN || document.getElementById("homecoming-scene")) return;
   const scene = document.createElement("div");
@@ -605,7 +606,19 @@ function renderHomecoming() {
   SCREEN.appendChild(scene);
   const button = scene.querySelector("button");
   if (button) button.focus();
+
+  // 传送幕期间：如果零点自动播放 hb.mp3 被浏览器拦截，
+  // 玩家第一次触摸/点击传送幕空白处时，用手势补起播。
+  // 点“继续”按钮除外——继续本身会切到 19.mp3。
+  const retryHomecomingBgm = (e) => {
+    if (e && e.target && e.target.closest && e.target.closest("button")) return;
+    if (!SS.homecoming || SS.homecoming.phase !== "transferred") return;
+    if (typeof window.tryStartBGM === "function") window.tryStartBGM();
+  };
+  scene.addEventListener("pointerdown", retryHomecomingBgm);
+  scene.addEventListener("click", retryHomecomingBgm);
 }
+
 function continueHomecoming() {
   if (!SS.homecoming || SS.homecoming.phase !== "transferred") return;
   SS.homecoming = { phase: "exploring", continuedAt: elapsed() };

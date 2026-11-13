@@ -40,20 +40,36 @@ window.bgmPausedByOther = false;
 window.syncBackgroundTrack = function () {
   const bgm = document.getElementById("bgm");
   if (!bgm) return null;
-  const home = typeof SS !== "undefined" && !!SS.homecoming;
-  const source = home ? "./data/app/19.mp3" : "./data/app/bgm.mp3";
+
+  // 先判断当前处在哪个阶段：
+  // 没到家 → ""；零点传送幕 → "transferred"；点了继续 → "exploring"
+  const phase = (typeof SS !== "undefined" && SS.homecoming && SS.homecoming.phase) || "";
+
+  // 根据阶段决定用哪首歌
+  const source = phase === "transferred"
+    ? "./data/app/hb.mp3"   // 零点传送幕：放 hb.mp3
+    : phase === "exploring"
+      ? "./data/app/19.mp3" // 点继续之后：放 19.mp3
+      : "./data/app/bgm.mp3"; // 普通游戏过程：放原来的 bgm.mp3
+
+  // 当前播放器里的歌和“应该放的歌”不一样，就换歌
   const current = bgm.dataset.storyTrack || (typeof bgm.getAttribute === "function" ? bgm.getAttribute("src") : "");
   if (current !== source) {
-    bgm.pause();
-    bgm.src = source;
-    if (typeof bgm.load === "function") bgm.load();
-    window._bgmStarted = false;
+    bgm.pause();                        // 先停
+    bgm.src = source;                   // 换源
+    if (typeof bgm.load === "function") bgm.load(); // 重新加载
+    window._bgmStarted = false;         // 允许 tryStartBGM 重新播放
     window.bgmPausedByOther = false;
   }
   bgm.dataset.storyTrack = source;
-  bgm.loop = home;
+
+  // 传送幕和到家探索都循环播；普通游戏过程保持原来的循环设置
+  bgm.loop = phase === "transferred" || phase === "exploring";
+
   return bgm;
 };
+
+
 window.AudioHub = {
   bgm: () => document.getElementById("bgm"),
   isBusy() {
