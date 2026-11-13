@@ -1321,7 +1321,7 @@ window.CHAT_HISTORY = {
     ['今天的宵夜翻哪家的牌子', 'me', '下午 7:23', 'rejected'],
     ['？', 'me', '下午 7:27', 'rejected'],
     ['吵吵吵一天到晚为了那个半挂跟我吵吵胖成啥了还不让说', 'me', '下午 8:08'],
-    ['[视频] ./data/chat/mt.mp4|./data/chat/mtcover.jpg|0:02', 'them', '下午 8:09'],
+    ['[视频] ./data/chat/mt.mp4|./data/chat/mtcover.jpg|0:08', 'them', '下午 8:09'],
     ['？', 'them', '下午 8:10'],
     ['？？？', 'me', '下午 8:11', 'rejected'],
     ['我错了我错了', 'me', '下午 8:12', 'rejected'],

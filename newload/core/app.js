@@ -618,11 +618,11 @@ function renderHomecoming() {
       <img class="homecoming-photo" src="./data/app/angry.jpg" alt="穆祉丞">
     </div>
 
-    <p class="homecoming-question">‎•᷄ࡇ•᷅敢不陪穆祉丞过生日？</p>
+    <p class="homecoming-question">‎•᷄ࡇ•᷅敢不陪恩恩大王过生日我看你是不想活了<br>18岁的最后一秒不在相当于一年没陪他</p>
     <h1 id="homecoming-title">用户「小纸团」<br>已被强制传送回家。</h1>
-    <p class="homecoming-note">门开着，蛋糕也还在等你。</p>
+    
     <button class="homecoming-continue" onclick="continueHomecoming()">继续 <span aria-hidden="true">→</span></button>
-    <p class="homecoming-footer">已到家</p>
+    <p class="homecoming-footer">门开着，蛋糕也还在等你。</p>
   </div>`;
   
   SCREEN.appendChild(scene);
