@@ -186,29 +186,30 @@ const ARTIST_PINNED_WEIBO = [
 const ARTIST_NEW_WEIBO = [
   {
     id: 3,
-    text: "If you want me to be with you\n\n#朝朝穆穆#\n\n查看翻译",
-    time: "昨天 17:20",
+    text: "~~~~~~~~？🎂\n#朝朝穆穆#",
+    time: "5小时前",
     device: "来自 微博视频号",
-    video: "./data/chat/1.mp4",
-    likes: "202万",
-    comments: "69.3万",
+    video: "./data/weibo/1113.mp4",
+    cover: "./data/weibo/1113cover.jpg",
+    likes: "254万",
+    comments: "8.7万",
     forwards: "100万+",
     hot: "30000+",
   },
   {
     id: 4,
-    text: "根据图片写出文案\n\n#朝朝穆穆#",
-    time: "10-22",
-    device: "来自 iPhone客户端",
+    text: "𝗕𝗘𝗖 · 𝟬𝟭𝟵\n#朝朝穆穆#",
+    time: "昨天 19:00",
+    device: "",
     images: [
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop",
+      "./data/weibo/bec019-1.jpg",
+      "./data/weibo/bec019-2.jpg",
+      "./data/weibo/bec019-3.jpg",
     ],
-    likes: "150万",
-    comments: "10万",
-    forwards: "20万",
-    hot: "15000+",
+    likes: "431万",
+    comments: "100万+",
+    forwards: "100万+",
+    hot: "30000+",
   },
 ];
 
@@ -454,7 +455,7 @@ VIEWS.weibo = () => ({
             w.video
               ? `
             <div style="border-radius:8px; overflow:hidden; margin-bottom:12px; background:#000; position:relative; cursor:pointer;" onclick="event.stopPropagation();openMediaViewer(['${w.video}'], 0)">
-              <video src="${w.video}" muted preload="metadata" style="width:100%; max-height:300px; display:block; object-fit:cover; pointer-events:none;"></video>
+              <video src="${w.video}" ${w.cover ? `poster="${w.cover}"` : ''} muted preload="metadata" style="width:100%; max-height:300px; display:block; object-fit:cover; pointer-events:none;"></video>
               <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:44px; height:44px; background:rgba(0,0,0,0.5); border-radius:50%; display:grid; place-items:center; color:#fff; font-size:20px; padding-left:4px;">▶</div>
             </div>
           `
