@@ -1816,7 +1816,10 @@ function deliverFrom(from, text) {
       const pg = APP.lastElementChild;
       if (pg) pg.innerHTML = VIEWS.wechat().html;
     }
-    if (view === "home" && !window.isVinylBusy) renderHome();
+    if (view === "home") {
+      if (typeof updateHomeBadges === "function") updateHomeBadges();
+      else if (!window.isVinylBusy) renderHome();
+    }
   }
 }
 

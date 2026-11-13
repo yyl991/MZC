@@ -311,6 +311,22 @@ function appBtn(id) {
   const b = badgeOf(id); let name = APPS[id] || id;
   return `<button class="app" data-app="${id}" onclick="openApp('${id}',this.firstElementChild)"><div class="icon"><div class="ic">${appIcon(id)}</div>${b ? `<span class="bdg">${b}</span>` : ""}</div><span class="lbl">${name}</span></button>`;
 }
+function updateHomeBadges() {
+  if (!HOME) return;
+  HOME.querySelectorAll(".app[data-app]").forEach(app => {
+    const icon = app.querySelector(".icon");
+    if (!icon) return;
+    const count = badgeOf(app.dataset.app);
+    let badge = icon.querySelector(".bdg");
+    if (!count) { if (badge) badge.remove(); return; }
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.className = "bdg";
+      icon.appendChild(badge);
+    }
+    badge.textContent = String(count);
+  });
+}
 
 const PARENT = { note: "notes", chat: "wechat", moments: "wx_discover", wx_profile: "chat", wx_moments_user: "wx_profile", wx_moments_detail: "wx_moments_user", wx_search: "wechat", wx_scan: "wx_me", wx_chat_info: "chat", wx_moment_compose: "moments", wx_moments_self: "wx_me", wx_contacts_sub: "wx_contacts", wx_services: "wx_me", wx_favorites: "wx_me", wx_settings: "wx_me", settings_about: "settings", settings_display: "settings", settings_wallpaper: "settings", settings_notifications: "settings", note_edit: "notes", mail_compose: "mail", maild: "mail", reel: "instagram", screentime: "settings", sms_detail: "sms", weibo: "weibo", weibo_profile: "weibo", weibo_my_posts: "weibo_profile", weibo_artist: "weibo", weibo_supertopic: "weibo_artist", weibo_follow: "weibo_profile", mail_detail: "mail", xianyu: "xianyu", xianyu_me: "xianyu", xianyu_orders: "xianyu_me", bilibili: "bilibili", xhs: "xhs", sms: "sms", recorder: "recorder", privateAlbum: "photos", albumDetail: "photos" };
 const rootOf = (v) => PARENT[v] || v;
@@ -489,7 +505,7 @@ function incomingMailFrom(beat) {
   const newId = emailData.reduce((max, m) => Math.max(max, m.id), -1) + 1;
   emailData.unshift({ id: newId, sender: beat.from || "TFEntertainment", initial: beat.initial || "T", from: beat.fromEmail || "no-reply@tfent.cn", subject: beat.subject || "新邮件", preview: beat.preview || "点击查看邮件详情", time: "刚刚", unread: true, body: beat.body || "" });
   if (view === "mail") { const pg = APP.lastElementChild; if (pg) pg.innerHTML = VIEWS.mail().html; }
-  if (view === "home" && !window.isVinylBusy) renderHome();
+  if (view === "home") updateHomeBadges();
   if (window.isDnd || window._mailNotifyOn === false) return;
   sfx("msg"); vib([30, 60, 30]);
   OV.querySelectorAll(".banner:not(.story-choice)").forEach((b) => b.remove());
@@ -508,6 +524,7 @@ function showEnding() { beginHomecoming(); }
 let homecomingFaultTimer = null;
 function updateHomecoming(e) {
   if (SS.homecoming) {
+    clearHomecomingFault();
     if (SS.homecoming.phase === "transferred") renderHomecoming();
     if (SS.homecoming.phase === "exploring") deliverHomecomingTimeline();
     return;
@@ -539,6 +556,13 @@ function playHomecomingFault(index) {
   SCREEN.appendChild(effect);
   homecomingFaultTimer = setTimeout(() => { effect.remove(); homecomingFaultTimer = null; }, 420);
 }
+function clearHomecomingFault() {
+  clearTimeout(homecomingFaultTimer);
+  homecomingFaultTimer = null;
+  if (SCREEN) SCREEN.classList.remove("homecoming-failing");
+  const fault = document.getElementById("homecoming-fault");
+  if (fault) fault.remove();
+}
 function beginHomecoming() {
   if (SS.homecoming) return;
   SS.arriveHome = true;
@@ -555,11 +579,7 @@ function beginHomecoming() {
   document.querySelectorAll("video, audio").forEach(media => media.pause());
   window.bgmPausedByOther = false;
   window._bgmStarted = false;
-  clearTimeout(homecomingFaultTimer);
-  homecomingFaultTimer = null;
-  if (SCREEN) SCREEN.classList.remove("homecoming-failing");
-  const fault = document.getElementById("homecoming-fault");
-  if (fault) fault.remove();
+  clearHomecomingFault();
   if (typeof window.saveGameState === "function") window.saveGameState();
   renderHomecoming();
 }

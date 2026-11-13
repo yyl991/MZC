@@ -228,6 +228,7 @@ VIEWS.phone = () => {
 window.dial = function (name, isNumber) {
   pauseBGM();
   if (callState) return;
+  window._callSession = (window._callSession || 0) + 1;
   // 自己主动呼出过谁，就只停谁的电话，不牵连其他人
   if (!isNumber && name) (window._playerCalledWho = window._playerCalledWho || {})[name] = 1;
   callName = name;
@@ -245,28 +246,35 @@ window.dial = function (name, isNumber) {
   }, 3000);
 };
 window.startRing = function () {
+  stopRing();
+  window._ringWanted = true;
   ringOnce();
   clearInterval(ringIv);
   ringIv = setInterval(() => {
+    if (callState !== "ring" || (typeof SS !== "undefined" && SS.arriveHome)) { stopRing(); return; }
     ringOnce();
     vib([400, 250, 400]);
   }, 2600);
   vib([400, 250, 400]);
 };
 window.stopRing = function () {
+  window._ringWanted = false;
   clearInterval(ringIv);
   ringIv = null;
   clearTimeout(ringTo);
+  ringTo = null;
    if (window._ringEl) { try { window._ringEl.pause(); window._ringEl.currentTime = 0; } catch (e) {} } 
   try {
     navigator.vibrate && navigator.vibrate(0);
   } catch (e) {}
 };
 window.incomingCallFrom = function (from = "穆祉丞") {
+  if (callState) return;
   if (window._wxBlocked && window._wxBlocked[from]) return;
   if (typeof SS !== "undefined" && SS.arriveHome) return;
     window._totalCalls = window._totalCalls || {};
   if ((window._totalCalls[from] || 0) >= 3) return;
+  window._callSession = (window._callSession || 0) + 1;
   window._totalCalls[from] = (window._totalCalls[from] || 0) + 1;
   
   pauseBGM();
@@ -281,7 +289,8 @@ window.incomingCallFrom = function (from = "穆祉丞") {
   OV.querySelectorAll(".banner:not(.story-choice)").forEach((b) => b.remove());
   renderCall();
   startRing();
-  ringTo = setTimeout(missCall, 5000);
+  const session = window._callSession;
+  ringTo = setTimeout(() => { if (window._callSession === session) missCall(); }, 5000);
 };
 window.callTop = function () {
   const r = CFG.roles && CFG.roles[callName];
@@ -295,6 +304,7 @@ window.callTop = function () {
 };
 window.renderCall = function () {
   let c = OV.querySelector(".call");
+  if (c && c.dataset.closing) { c.remove(); c = null; }
   if (!c) {
     c = document.createElement("div");
     c.className = "call";
@@ -557,6 +567,7 @@ window.scheduleCallBack = function (name) {
   }, 3000);
 };
 window.endCall = function () {
+  stopRing();
   if (typeof closeDialpad === "function") closeDialpad();
   const wasOut = callDir === "out";
   const outName = callName;
@@ -600,14 +611,18 @@ window.endCall = function () {
   }
 };
 window.closeCallUI = function () {
+  stopRing();
   const c = OV.querySelector(".call");
   if (!c) return;
+  const session = window._callSession;
+  c.dataset.closing = "1";
   window._isCallBackName = null; // 本次回拨标记用掉即清空
   c.animate([{ opacity: 1 }, { opacity: 0, transform: "scale(1.04)" }], {
     duration: 320,
     fill: "forwards",
   }).onfinish = () => {
     c.remove();
+    if (window._callSession !== session) return;
     callState = "";
     if (
       callPrev &&

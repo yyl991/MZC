@@ -21,6 +21,7 @@ function sfx(k) {
   else if (k === "lock") tone(500, 0, 0.06, 0.05, "triangle");
 }
 function ringOnce() {
+  if (!window._ringWanted || (typeof callState !== "undefined" && callState !== "ring")) return;
   if (!window._ringEl) {
     window._ringEl = new Audio("./data/app/call.mp3");
     window._ringEl.loop = true;
@@ -30,7 +31,9 @@ function ringOnce() {
   }
   if (!window._ringEl.paused) return;
   try { window._ringEl.currentTime = 0; } catch (e) {}
-  window._ringEl.play().catch(() => {});
+  window._ringEl.play().then(() => {
+    if (!window._ringWanted || (typeof callState !== "undefined" && callState !== "ring")) window._ringEl.pause();
+  }).catch(() => {});
 }
 
 window.bgmPausedByOther = false;
