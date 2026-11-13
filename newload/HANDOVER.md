@@ -6,6 +6,8 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-14按作者"不给资源下载压力"要求优化字体加载：删掉index.html的preload链接，改为app.js顶层`addEventListener("load")`+4秒空闲后`fetch(...,{cache:"force-cache"})`后台预热5KB字体（typeof守卫防vm测试环境报错），首屏刷新零新增请求、倒计时出现前字体早已就绪；最坏情况倒计时首秒短暂回退等宽字体再换LED，无功能影响。style.css本轮未改（链接保持countdown3），版本20261114-countdown4。15个测试文件全部通过；截图确认LED渲染无变化。提交467262f已含作者暂存的data/chat_history.js修订并推送成功。
+
 - 2026-11-14按作者参考图（LED数码信息历）把倒计时改成机械风：新增`data/fonts/DSEG7Classic-Bold.woff2`（DSEG7 Classic Bold，5.1KB，OFL 1.1协议见同目录DSEG-LICENSE.txt）+ style.css @font-face + index.html preload；倒计时框改16px圆角黑底(#050203)红边(rgba(255,64,72,.4))，数字用DSEG7 Classic 700/46px红色#ff2a23带LED辉光，::before垫「88:88:88」极暗红色做熄灭段余辉；实测框297.6×82px居中（左右各47.7px），JS逻辑零改动（余辉是纯CSS）。版本20261114-countdown3。15个测试文件全部通过，无头截图核对了LED段码字形、余辉和居中。push已恢复：TUN关闭后SSH认证正常，此前积压3提交经HTTPS推完（远端main=0281f95），本轮随新提交再推。
 
 - 2026-11-14按作者要求二次调整倒计时：位置上移（容器高度46%→32%，黑框中心约在屏高17.8%），样式改为黑底带框（纯黑底、rgba(255,64,72,.5)描边、3px圆角、红色发光数字，实测框328×89px居中不溢出），去掉原上半屏红晕压暗层和cd-zero样式；逻辑改为永远不显示00:00:00（remain钳制最小1，最后一个数字是00:00:01），零点elapsed>=660直接beginHomecoming，HOMECOMING_ZERO_HOLD删除。预览恢复20秒、按钮文案回到「体验结尾／重播结尾 · 20秒」。版本20261114-countdown2（style链接同步）。15个测试文件全部通过（新增末位00:00:01、零点建幕、无00:00:00断言）；无头截图核对黑框位置样式与传送幕接管。push仍被SSH拒绝，本地累计3个待推提交。

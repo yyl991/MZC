@@ -987,6 +987,13 @@ window.lockPhone = function () {
   }, 350);
 };
 
+// LED倒计时字体预热：仅5KB，避开首屏关键请求，页面加载完空闲时后台拉取，倒计时出现前早已就绪。
+if (typeof addEventListener === "function") addEventListener("load", () => {
+  setTimeout(() => {
+    try { fetch("data/fonts/DSEG7Classic-Bold.woff2", { cache: "force-cache" }).catch(() => {}); } catch (e) {}
+  }, 4000);
+});
+
 function initApp() {
   // 预览每次打开都重播，不被上一次的 transferred/exploring 阶段跳过。
   if (ENDING_PREVIEW) localStorage.removeItem(GAME_SAVE_KEY);
