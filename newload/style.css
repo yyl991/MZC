@@ -5368,45 +5368,79 @@ svg {
 
 
 
-/* 放大字体 + 压缩间距 */
+/* ============ 传送幕精简版 ============ */
 .homecoming-time { 
-  font-size: 15px; 
-  margin-bottom: 16px; /* 时间下面留白 */
+  font-size: 13px; /* 调小 */
+  margin-bottom: 8px; 
 }
-.homecoming-time span { font-size: 16px; }
+.homecoming-time span { font-size: 14px; }
 
 .homecoming-rule { 
-  margin-bottom: 20px; /* 分割线下面留白 */
+  margin-bottom: 12px; 
 }
 
 .homecoming-status { 
-  font-size: 14px; 
-  margin-bottom: 16px; /* 传送完成下面留白 */
+  font-size: 12px; /* 调小 */
+  margin-bottom: 10px; 
+  letter-spacing: 3px;
+}
+
+/* 压短图片，保证不占太多空间 */
+.homecoming-photo-wrap {
+  width: 100%;
+  height: 192px; /* 从230px压到185px */
+  position: relative;
+  margin-bottom: 12px; 
+  border-radius: 14px;
+  overflow: hidden;
+  animation: photoBreath 4s ease-in-out infinite alternate;
+}
+
+.homecoming-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* 👇 强制从顶部开始显示，绝不切掉拳头 */
+  object-position: center top; 
+}
+
+/* 底部渐变，少挡一点画面 */
+.homecoming-photo-wrap::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 25%;
+  background: linear-gradient(to top, rgba(0,0,0,1) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 .homecoming-question { 
-  font-size: 16px; 
-  margin-bottom: 12px; /* 颜文字下面留白 */
+  font-size: 14px; /* 调小 */
+  margin-top: 0;
+  margin-bottom: 6px; 
 }
 
 #homecoming-title { 
-  font-size: 26px; 
-  line-height: 1.4; 
-  margin-bottom: 16px; /* 大标题下面留白 */
+  font-size: 22px; /* 标题从26px调到22px，更精致 */
+  line-height: 1.25; 
+  margin-top: 0;
+  margin-bottom: 8px; 
 }
 
 .homecoming-note { 
-  font-size: 15px; 
+  font-size: 13px; /* 调小 */
   margin-top: 0; 
-  margin-bottom: 24px; /* 门开着这行的下面留白 */
+  margin-bottom: 14px; 
 }
 
 .homecoming-continue { 
-  font-size: 17px; 
-  margin-bottom: 12px; /* 按钮下面留白 */
+  font-size: 15px; /* 按钮字调小 */
+  padding: 12px; /* 按钮稍微变矮 */
+  margin-top: 0;
+  margin-bottom: 8px; 
 }
 
 .homecoming-footer { 
-  font-size: 13px; 
-  margin-top: 0; /* 已到家上面留白 */
+  font-size: 11px; /* 调小 */
+  margin-top: 0; 
 }

@@ -592,17 +592,24 @@ function renderHomecoming() {
   scene.setAttribute("role", "dialog");
   scene.setAttribute("aria-modal", "true");
   scene.setAttribute("aria-labelledby", "homecoming-title");
-  scene.innerHTML = `<div class="homecoming-content">
+ 
+    scene.innerHTML = `<div class="homecoming-content">
     <p class="homecoming-time">11 / 16 <span>00:00</span></p>
     <div class="homecoming-rule"></div>
     <p class="homecoming-status">传送完成</p>
     
+    <!-- 👇 加在这里 -->
+    <div class="homecoming-photo-wrap">
+      <img class="homecoming-photo" src="./data/app/angry.jpg" alt="穆祉丞">
+    </div>
+
     <p class="homecoming-question">‎•᷄ࡇ•᷅敢不陪穆祉丞过生日？</p>
     <h1 id="homecoming-title">用户「小纸团」<br>已被强制传送回家。</h1>
     <p class="homecoming-note">门开着，蛋糕也还在等你。</p>
     <button class="homecoming-continue" onclick="continueHomecoming()">继续 <span aria-hidden="true">→</span></button>
     <p class="homecoming-footer">已到家</p>
   </div>`;
+  
   SCREEN.appendChild(scene);
   const button = scene.querySelector("button");
   if (button) button.focus();
