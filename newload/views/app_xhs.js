@@ -332,7 +332,7 @@ VIEWS.xhs = () => {
       <div style="padding:6px 16px 10px;">
         <div onclick="openXhsSearch(event)" style="background:#f5f5f5; border-radius:18px; height:34px; display:flex; align-items:center; padding:0 12px; font-size:14px; color:#999; cursor:pointer;">
           ${G.xhsSearchGray}
-          曼联9轮7分
+          曼联10轮8分
         </div>
       </div>
 

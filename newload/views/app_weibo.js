@@ -169,7 +169,7 @@ const ARTIST_PINNED_WEIBO = [
     id: 2,
     isTop: true,
     text: "心中有光，脚下有路；\n以梦为马，不负韶华。@TF_ING \n\n#朝朝穆穆# ​​​",
-    time: "昨天 17:20",
+    time: "24-10-1",
     device: "来自 微博视频号",
     images: [
       "./data/weibo/zd2.jpg"
@@ -187,7 +187,7 @@ const ARTIST_NEW_WEIBO = [
   {
     id: 3,
     text: "~~~~~~~~？🎂\n#朝朝穆穆#",
-    time: "5小时前",
+    time: "11-13",
     device: "来自 微博视频号",
     video: "./data/weibo/1113.mp4",
     cover: "./data/weibo/1113cover.jpg",
@@ -199,7 +199,7 @@ const ARTIST_NEW_WEIBO = [
   {
     id: 4,
     text: "𝗕𝗘𝗖 · 𝟬𝟭𝟵\n#朝朝穆穆#",
-    time: "昨天 19:00",
+    time: "11-12",
     device: "",
     images: [
       "./data/weibo/bec019-1.jpg",
@@ -637,11 +637,21 @@ VIEWS.weibo_profile = () => ({
            <div onclick="wbSignIn(this)" style="font-size:13px; color:${wbSignedToday() ? "#c7c7cc" : "#ff8200"};">${wbSignedToday() ? "已签到" : "立即签到 >"}</div>
          </div>
          <div style="display:flex; gap:12px; overflow-x:auto; scrollbar-width:none;">
-           <div style="flex:none; width:58px; text-align:center;" onclick="openSuperTopic()">
-             <div style="width:58px; height:58px; border-radius:8px; overflow:hidden; background:#f5f5f5; position:relative;">
-               <img src="./data/avatar/miantuan.jpg" style="width:100%; height:100%; object-fit:cover;">
-               <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(255,130,0,0.8); color:#fff; font-size:10px; text-align:center; padding:2px 0;">待签</div>
+
+                    <div style="flex:none; width:58px; text-align:center;" onclick="openSuperTopic()">
+             <!-- 👇 增加一个相对定位的外壳，不裁剪内容 -->
+             <div style="width:58px; height:58px; position:relative; margin:0 auto;">
+
+               <!-- 👇 内层负责裁剪图片和待签标签 -->
+               <div style="width:100%; height:100%; border-radius:8px; overflow:hidden; background:#f5f5f5;">
+                 <img src="./data/avatar/miantuan.jpg" style="width:100%; height:100%; object-fit:cover;">
+                 <div style="position:absolute; bottom:0; left:0; right:0; background:rgba(255,130,0,0.8); color:#fff; font-size:10px; text-align:center; padding:2px 0;">待签</div>
+               </div>
+
+               <!-- 👇 红点（和经常访问一样的样式） -->
+               <div style="position:absolute; top:-2px; right:-2px; width:10px; height:10px; background:#ff3b30; border-radius:50%; border:1.5px solid #fff; z-index:3;"></div>
              </div>
+
              <div style="font-size:13px; font-weight:600; color:#333; margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">穆祉丞</div>
              <div style="font-size:10px; color:#999;">日新帖11.8万</div>
            </div>
@@ -900,7 +910,9 @@ VIEWS.weibo_artist = () => ({
              北京时代峰峻旗下音乐厂牌TF_ING成员 穆祉丞
           </div>
 
+          <!-- 👇 卡片区域开始 -->
           <div style="display:flex; gap:10px; margin-top:18px;">
+            <!-- 超话卡片 -->
             <div onclick="openSuperTopic()" style="flex:1; background:#f7f7f7; border-radius:8px; padding:12px; display:flex; align-items:center; gap:8px;">
               <div style="width:36px; height:36px; display:grid; place-items:center; flex:none;">
                 ${G.wbShiPinhao}
@@ -909,9 +921,14 @@ VIEWS.weibo_artist = () => ({
                 <div style="font-size:15px; font-weight:600; color:#333;">超话</div>
                 <div style="font-size:11px; color:#999; margin-top:2px; white-space:nowrap;">194.2万小<br>纸团</div>
               </div>
-              <div style="width:40px; height:40px; border-radius:4px; background:url('./data/avatar/miantuan.jpg') center/cover; flex:none;"></div>
+              <!-- 头像 + 红点 -->
+              <div style="width:40px; height:40px; position:relative; flex:none;">
+                <div style="width:100%; height:100%; border-radius:4px; background:url('./data/avatar/miantuan.jpg') center/cover;"></div>
+                <div style="position:absolute; top:-3px; right:-3px; width:10px; height:10px; background:#ff3b30; border-radius:50%; border:1.5px solid #fff; z-index:3;"></div>
+              </div>
             </div>
             
+            <!-- 直播卡片 -->
             <div onclick="toastDev()" style="flex:1; background:#f7f7f7; border-radius:8px; padding:12px; display:flex; align-items:center; gap:8px;">
               <div style="width:36px; height:36px; display:grid; place-items:center; flex:none;">
                 ${G.wbLive}
@@ -922,6 +939,7 @@ VIEWS.weibo_artist = () => ({
               </div>
             </div>
           </div>
+          <!-- 👆 卡片区域结束 -->
        </div>
 
        <div style="background:#fff; display:flex; padding:14px 0; border-bottom:0.5px solid #eee; font-size:15px; color:#666; margin-top:8px; justify-content:space-around; align-items:center;">
@@ -1093,7 +1111,6 @@ VIEWS.weibo_artist = () => ({
     }
   }
 });
-
 // ==========================================
 // 📱 页面 6：超话页
 // ==========================================

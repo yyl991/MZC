@@ -115,12 +115,13 @@ VIEWS.wx_moments_detail = () => {
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
               <div style="font-size:13px; color:#999;">${post.time || '刚刚'}</div>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <div id="wxActPill" style="display:${actOpen ? "inline-flex" : "none"}; align-items:center; background:#4c4c4c; border-radius:6px; overflow:hidden;">
-                  <button onclick="event.stopPropagation();wxMomentLikeCurrent()" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:14px;padding:8px 14px;font-family:inherit;">${G.heart.replace('<svg', '<svg width="16" height="16" style="color:#fff;"')} 赞</button>
-                  <span style="width:.5px;height:20px;background:#666;"></span>
-                  <button onclick="event.stopPropagation();wxMomentCommentCurrent()" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:14px;padding:8px 14px;font-family:inherit;">${G.comment.replace('<svg', '<svg width="16" height="16" style="color:#fff;"')} 评论</button>
-                </div>
+              <div class="wx-moment-actions" style="display:flex; align-items:center; gap:8px;">
+
+              <div id="wxActPill" style="display:${actOpen ? "inline-flex" : "none"}; align-items:center; background:#4c4c4c; border-radius:6px; overflow:hidden; flex-shrink: 0;">
+  <button onclick="event.stopPropagation();wxMomentLikeCurrent()" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:14px;padding:8px 14px;font-family:inherit; white-space: nowrap;">${G.heart.replace('<svg', '<svg width="16" height="16" style="color:#fff;"')} 赞</button>
+  <span style="width:.5px;height:20px;background:#666;"></span>
+  <button onclick="event.stopPropagation();wxMomentCommentCurrent()" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:14px;padding:8px 14px;font-family:inherit; white-space: nowrap;">${G.comment.replace('<svg', '<svg width="16" height="16" style="color:#fff;"')} 评论</button>
+</div>
                 <div style="width:30px;height:26px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);border-radius:6px;display:grid;place-items:center;color:#333;cursor:pointer;" onclick="event.stopPropagation();wxToggleDetailActions()">${G.dotsH}</div>
               </div>
             </div>
@@ -555,12 +556,13 @@ VIEWS.moments = () => {
               
               <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 8px;">
                 <span style="font-size: 12px; color: #999;">${esc(padHm(m.time))}</span>
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <div class="wx-like-pill" style="display:none; align-items:center; background:#4c4c4c; border-radius:6px; overflow:hidden;">
-                    <button onclick="event.stopPropagation(); wxLikeFromFeed(${index})" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:13px;padding:6px 12px;font-family:inherit;">${G.heart.replace('<svg', '<svg width="15" height="15" style="color:#fff;"')} 赞</button>
-                    <span style="width:.5px;height:18px;background:#666;"></span>
-                    <button onclick="event.stopPropagation(); wxCommentFromFeed(${index})" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:13px;padding:6px 12px;font-family:inherit;">${G.comment.replace('<svg', '<svg width="15" height="15" style="color:#fff;"')} 评论</button>
-                  </div>
+                <div class="wx-moment-actions" style="display:flex; align-items:center; gap:8px;">
+
+                <div class="wx-like-pill" style="display:none; align-items:center; background:#4c4c4c; border-radius:6px; overflow:hidden; flex-shrink: 0;">
+  <button onclick="event.stopPropagation(); wxLikeFromFeed(${index})" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:13px;padding:6px 12px;font-family:inherit; white-space: nowrap;">${G.heart.replace('<svg', '<svg width="15" height="15" style="color:#fff;"')} 赞</button>
+  <span style="width:.5px;height:18px;background:#666;"></span>
+  <button onclick="event.stopPropagation(); wxCommentFromFeed(${index})" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:#fff;font-size:13px;padding:6px 12px;font-family:inherit; white-space: nowrap;">${G.comment.replace('<svg', '<svg width="15" height="15" style="color:#fff;"')} 评论</button>
+</div>
                   <div style="background: #f7f7f7; padding: 2px 8px; border-radius: 4px; color: #576b95; font-size: 13px; font-weight: 500; cursor: pointer;" onclick="event.stopPropagation(); wxToggleRowSocial(${index})">•••</div>
                 </div>
               </div>

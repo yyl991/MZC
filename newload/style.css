@@ -5316,6 +5316,14 @@ svg {
 .pa-vd { position: absolute; left: 6px; bottom: 4px; color: #fff; font-size: 11px; font-style: normal; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
 
 /* feature/midnight-homecoming：临近零点的故障与传送幕 */
+/* 菜单浮在三点按钮左侧，不参与时间行挤压；文字和图标均不收缩。 */
+.wx-moment-actions { position:relative; flex:0 0 auto; }
+.wx-moment-actions > #wxActPill, .wx-moment-actions > .wx-like-pill {
+  position:absolute; right:calc(100% + 8px); top:50%; transform:translateY(-50%);
+  width:max-content; max-width:none; white-space:nowrap; z-index:3;
+}
+.wx-moment-actions button { flex:0 0 auto; white-space:nowrap; word-break:keep-all; writing-mode:horizontal-tb; }
+.wx-moment-actions button svg, .wx-moment-actions > #wxActPill > span, .wx-moment-actions > .wx-like-pill > span { flex-shrink:0; }
 .ending-preview-control { position:absolute; top:52px; right:14px; z-index:1000001; padding:8px 12px; border:1px solid #705564; border-radius:20px; color:#f1d6df; background:#261d25; font-size:11px; cursor:pointer; }
 #homecoming-fault {
   position:absolute; inset:0; z-index:999990; pointer-events:none !important;
