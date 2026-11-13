@@ -646,14 +646,14 @@ function renderHomecoming() {
   scene.setAttribute("aria-modal", "true");
   scene.setAttribute("aria-labelledby", "homecoming-title");
     scene.innerHTML = `<div class="homecoming-content">
-    <!-- 时间：使用高级的灰粉色 -->
-    <p class="homecoming-time" style="color:#d7a5b3; font-size: 14px; font-weight: 300; margin-top: 0; margin-bottom: 0px; letter-spacing: 1px;">
-      11 / 15 <span style="color:#d7a5b3; font-size: 14px; font-weight: 400;">23:59:59</span>
+    <!-- 时间：p1样式 灰粉小字宽字距 -->
+    <p class="homecoming-time" style="color:#81777e; font-size:13px; font-weight:400; margin-top:0; margin-bottom:8px; letter-spacing:4px;">
+      11 / 15 <span style="color:#d3b5bd; font-size:14px; font-weight:400;">23:59:59</span>
     </p>
-   
-    <!-- 传送完成 + 灰粉渐变线 -->
-    <div style="display:flex; align-items:center; gap:12px; margin-top: 0; margin-bottom:26px;">
-     <span style="font-size: 11px; color: #d7a5b3; letter-spacing: 2px; white-space: nowrap; font-weight: 200;">传送完成</span> <div style="flex:1; height:1px; background:linear-gradient(90deg,#d7a5b3,transparent);"></div>
+
+    <!-- 传送完成 + 渐变线 保持一行：p1配色 -->
+    <div style="display:flex; align-items:center; gap:12px; margin-top:0; margin-bottom:12px;">
+     <span style="font-size: 12px; color: #a77d8a; letter-spacing: 3px; white-space: nowrap; font-weight: 400;">传送完成</span> <div style="flex:1; height:1px; background:linear-gradient(90deg,#533540,transparent);"></div>
     </div>
 
     <!-- 主标题：保持绝对纯白，压住全场 -->
