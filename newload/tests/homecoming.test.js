@@ -244,6 +244,15 @@ outgoing.timers.find(fn=>fn.delay===3000)(); // 呼出3秒未接结束，安排�
 assert(!outgoing.run("SS.callDone.cat"));
 outgoing.timers.at(-1)(); // 回拨
 assert.strictEqual(outgoing.run("callState"),"ring");
+// 回复分支已走完的角色：呼出未接不再回拨
+const replyDone=phoneSession();
+replyDone.sb.STORY.chats={cat:{replies:[{mine:["a"],them:["b"]}]}};
+replyDone.run("SS.stage.cat = 1");
+replyDone.sb.dial("cat",false);
+const timersBefore=replyDone.timers.length;
+replyDone.timers.find(fn=>fn.delay===3000)(); // 呼出3秒未接结束
+assert.strictEqual(replyDone.timers.length,timersBefore); // 不安排回拨
+assert.strictEqual(replyDone.run("callState"),"");
 outgoing.sb.answerCall();outgoing.sb.now+=8000;outgoing.sb.endCall();
 assert.strictEqual(outgoing.run("SS.callDone.cat"),1);
 const stopped=session();const notifications=[];

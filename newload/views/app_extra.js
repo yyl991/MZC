@@ -5,18 +5,18 @@
    ========================================== */
 window._callHits = window._callHits || {};
 const CALL_END_LINES = {
-  穆祉丞: "……行吧。电话挂了，早点回来。",
-  恩恩: "好啦不催你了，路上小心，我在家等你。",
-  丞丞: "知道了。回来再说。",
-  cat: "挂了。回来记得开门。",
-  pig: "那我等你回来吃饭。",
-  Mu: "嗯。回来。",
-  MuAMuA: "汤在锅里，早点回来。",
+  穆祉丞: "行，电话挂了，早点回来宝宝",
+  恩恩: "好啦不催你了，路上小心，我在家等你",
+  丞丞: "速来",
+  cat: "你还记得回来",
+  pig: "那我等你回来分蛋糕！",
+  //Mu: "嗯。回来。",
+  MuAMuA: "我去接你，不要乱跑",
   丞哥: "回来。",
-  恩仔: "哥哥早点回来！",
-  rabbit: "我等你。",
-  穆瑞恩: "爸爸早点回来。",
-  tiger: "等你。",
+ // 恩仔: "哥哥早点回来！",
+  rabbit: "慢慢来，我等你",
+  穆瑞恩: "姐姐我在等你",
+  //tiger: "等你。",
   default: "好，那我等你回来。",
 };
 let callState = "",
@@ -580,6 +580,10 @@ window.scheduleCallBack = function (name) {
   if (!name) return;
   if (window._playerCalledBack && window._playerCalledBack[name]) return; // 已完成过一次回拨对话，不再回拨
   if (window._wxBlocked && window._wxBlocked[name]) return;
+  // 微信回复分支已走完（stage≥replies数）：对话已收尾，呼出未接也不再回拨
+  const rep = typeof CFG !== "undefined" && CFG.chats && CFG.chats[name];
+  if (rep && rep.replies && rep.replies.length &&
+      ((typeof SS !== "undefined" && SS.stage && SS.stage[name]) || 0) >= rep.replies.length) return;
   clearTimeout(window._callBackTo);
   window._callBackTo = setTimeout(() => {
     if (callState) return;
