@@ -67,7 +67,7 @@ var INCOMING = [];
     '丞哥': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['知道了，我马上到'], them:['这还差不多'] },
+        { mine:['别催了别催了，我马上到'], them:['这还差不多'] },
         { mine:['我是不是来晚了'], them:['晚了','晚了就不来了？','门给你留着','上来'] }
       ],
       fragment: { title:'碎片 · 铠甲', body:'台上气场很稳的人，台下也会偷偷看门口。\n\n“我不是不需要人，我只是习惯了不说。”' }
@@ -76,7 +76,7 @@ var INCOMING = [];
       init: [['11月15日','date']],
       replies: [
         { mine:['我在回家的路上'], them:['好，门给你留着'] },
-        { mine:['对不起啊'], them:['哎呀没事啦，注意安全宝宝'] }
+        { mine:['对不起啊我来晚了'], them:['没事啦，注意安全宝宝'] }
       ],
       fragment: { title:'碎片 · 此刻', body:'他等的不只是一个生日。\n\n是有人推开门，说“我到了”。' }
     },
@@ -165,9 +165,9 @@ var INCOMING = [];
     { at: 96, type:'notify', from:'恩恩', text:'哦', skipIfReplied: true },
     { at: 103, type:'notify', from:'恩恩', text:'我没有生气啊', skipIfReplied: true },
     { at: 182, type:'notify', from:'恩恩', text:'你是不是不爱我了', skipIfReplied: true },
-    { at: 223, type:'notify', from:'恩恩', text:'我不是非要你今天回来的', skipIfReplied: true },
+    { at: 223, type:'notify', from:'恩恩', text:'我不是非要催你回家', skipIfReplied: true },
     { at: 250, type:'call', from:'恩恩', skipIfReplied: true }, // 👈 错开了穆祉丞的电话
-    { at: 255, type:'notify', from:'恩恩', text:'只是今天是我的生日诶…' },
+    { at: 255, type:'notify', from:'恩恩', text:'可是今天是我的生日诶…' },
     { at: 272, type:'notify', from:'恩恩', text:'我生气了', skipIfReplied: true },
     { at: 319, type:'notify', from:'恩恩', text:'你回来我就不生气了', skipIfReplied: true },
 
@@ -263,14 +263,14 @@ var INCOMING = [];
 
   // 传送回家、点继续后发送；独立于催命时间线，不参与旧存档指纹。
   S.homecomingTimeline = [
-    { id: 'enzai-birthday-2026-1', group: 'enzai-birthday-2026', after: 0, from: '恩仔', text: '谢谢你今年陪我过生日呀。' },
+    { id: 'enzai-birthday-2026-1', group: 'enzai-birthday-2026', after: 0, from: '恩仔', text: '谢谢你今年陪我过生日呀' },
     { id: 'enzai-birthday-2026-2', group: 'enzai-birthday-2026', after: 1.5, from: '恩仔', text: '以后也陪着我' },
     { id: 'enzai-birthday-2026-3', group: 'enzai-birthday-2026', after: 3, from: '恩仔', text: '一直到120岁' },
     { id: 'enzai-birthday-2026-4', group: 'enzai-birthday-2026', after: 4.5, from: '恩仔', text: '好不好？' }
   ];
 
   // 节奏：开场多久开始催、压缩强度（数字越大越早结束）
-  S.pace = { offset: 90, amp: 1124, soft: 500 };
+  S.pace = { offset: 82, amp: 1031, soft: 500 };
   // 多少秒之后开始"时间线跑完还在催"的追加压力
   S.nagFrom = 680;
 
