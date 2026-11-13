@@ -27,4 +27,7 @@ r=sb.VIEWS.weibo_supertopic();
 ok("超话显示恩恩恩和me头像",r.html.includes("恩恩恩")&&r.html.includes("./data/avatar/me.jpg"));
 ok("超话保留幸福文案且不含加速卡句",r.html.includes("感到幸福就扣11111🧡💖")&&!r.html.includes("加速卡"));
 ok("超话纯文本移除图片区",!r.html.includes("◎ LIVE")&&vm.runInContext("SUPERTopic_DATA[0].images.length",sb)===0);
+ok("新增艺人超话帖子并保留原帖",vm.runInContext("SUPERTopic_DATA.length",sb)===2&&r.html.includes("过两天再来，再再见")&&r.html.includes("恩恩恩"));
+ok("艺人帖转评赞正确",r.html.includes("3.3万")&&r.html.includes("10.5万")&&r.html.includes("93.2万"));
+ok("只有艺人作者区域跳转主页",(r.html.match(/onclick="event.stopPropagation\(\);push\('weibo_artist'\)"/g)||[]).length===1);
 if(fails)process.exitCode=1;

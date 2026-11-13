@@ -229,6 +229,17 @@ const FOLLOW_DATA = [
 // 6. 超话数据
 const SUPERTopic_DATA = [
   {
+    user: "TF_ING穆祉丞MUA",
+    avatar: "./data/avatar/miantuan.jpg",
+    isArtist: true,
+    text: "#穆祉丞超话# 过两天再来，再再见",
+    time: "刚刚 最后评论",
+    likes: "93.2万",
+    comments: "10.5万",
+    forwards: "3.3万",
+    images: [],
+  },
+  {
     user: "恩恩恩",
     avatar: "./data/avatar/me.jpg",
     isArtist: false,
@@ -1150,12 +1161,12 @@ VIEWS.weibo_supertopic = () => ({
            (t) => `
            <div style="background:#fff; margin-bottom:10px; padding:16px; border-bottom:0.5px solid #f0f0f0;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                 <div style="display:flex; align-items:center; gap:10px;">
+                 <div style="display:flex; align-items:center; gap:10px;" ${t.isArtist ? `onclick="event.stopPropagation();push('weibo_artist')"` : ''}>
                     <div style="width:40px; height:40px; border-radius:50%; background:#eee; overflow:hidden;">
                       <img src="${esc(t.avatar || './data/avatar/me.jpg')}" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <div>
-                       <div style="font-size:14px; font-weight:600; color:#ff8200; display:flex; align-items:center; gap:4px;">${t.user} <span style="background:#f5f5f5; color:#666; font-size:9px; padding:1px 4px; border-radius:4px;">创作官</span></div>
+                       <div style="font-size:14px; font-weight:600; color:#ff8200; display:flex; align-items:center; gap:4px;">${t.user} <span style="background:#f5f5f5; color:#666; font-size:9px; padding:1px 4px; border-radius:4px;">${t.isArtist ? '认证' : '创作官'}</span></div>
                        <div style="font-size:11px; color:#999;">${t.time}</div>
                     </div>
                  </div>
