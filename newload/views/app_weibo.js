@@ -376,6 +376,8 @@ function renderWeiboText(text) {
   return `<div style="font-size:15px; color:#333; line-height:1.6; margin-bottom:12px; white-space:pre-wrap;">${safeText}</div>`;
 }
 window.toggleWbLike = function (el, initialLikes) {
+  // 万级转评赞是穆祉丞的展示位：点赞完全无效果，数字不变（"118万/189万/202万/254万/431万/93.2万"）
+  if (String(initialLikes).includes("万")) return;
   const icon = el.querySelector(".like-icon-wrapper svg");
   const count = el.querySelector(".like-count");
   if (el.classList.contains("liked")) {
