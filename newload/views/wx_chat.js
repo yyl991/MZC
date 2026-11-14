@@ -171,7 +171,7 @@ const MOCK_MOMENTS_DATA = {
     wxid: "pangpangshiyou",
     region: "重庆",
     cover:
-      "./data/chat/pigcover.jpg",
+      "./data/avatar/pigcover.jpg",
     posts: [
       {
         id: 701,
