@@ -64,6 +64,10 @@ assert.strictEqual(sb.chatData["恩仔"].at(-1)[1], "me");
 assert.strictEqual(sb.chatData["恩仔"].at(-1)[3], "");
 assert.deepStrictEqual(sb._collected, ["我会一直陪着你"]);
 assert.strictEqual(sb.SS.lineIdx["恩仔"], undefined);
+const chatHtml = sb.VIEWS.chat().html;
+assert(chatHtml.includes("fld-real"), "自由回复渲染真输入框");
+assert(!chatHtml.includes('id="kbd"'), "自由回复不渲染假键盘");
+assert(chatHtml.includes("输入消息"), "占位提示保留");
 
 // ===== 0点前恩仔聊天：发送被忽略（不出气泡、不收集、不清输入） =====
 sb.chatData["恩仔"] = [["好不好?", "them", "上午 00:00"]];
