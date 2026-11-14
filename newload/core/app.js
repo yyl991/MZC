@@ -68,7 +68,7 @@ window.alert = function (msg) {
 };
 // 传送幕后恩仔生日：玩家自由回复收集（每台设备存本机 localStorage，作者可用 ?dev=1&replies=1 查看本机收集）
 // 玩家回复远程上报（Supabase）：key 填入 anon/publishable key 后自动上报；留空则只存本机
-const REPLY_SB = { url: "https://oprecriimhoisvvwazte.supabase.co", key: "" };
+const REPLY_SB = { url: "https://oprecriimhoisvvwazte.supabase.co", key: "sb_publishable_dLo8hSB2SNMmu5ECgxQdhw_sT6WuexY" };
 window.collectPlayerReply = function (text) {
   let time = "";
   try { time = new Date().toLocaleString("zh-CN", { hour12: false }); } catch (e) {}
