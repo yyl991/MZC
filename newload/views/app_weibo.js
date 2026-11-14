@@ -185,6 +185,18 @@ const ARTIST_PINNED_WEIBO = [
 //上线前最后更新 11-15
 const ARTIST_NEW_WEIBO = [
   {
+    id: 5,
+    text: "双脚踏在冰雪和泥土上\n19 岁的大门就在我的面前\n我选择————\n#朝朝穆穆#",
+    time: "11-14 20:07",
+    device: "来自 微博视频号",
+    video: "./data/weibo/1114.mp4",
+    cover: "./data/weibo/1114.jpg",
+    likes: "278万",
+    comments: "20.5万",
+    forwards: "100万+",
+    hot: "30000+",
+  },
+  {
     id: 3,
     text: "~~~~~~~~？🎂\n#朝朝穆穆#",
     time: "11-13",
