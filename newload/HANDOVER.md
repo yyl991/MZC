@@ -6,6 +6,7 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-15按作者要求尾段预览改为真实重播最后10秒：TAIL_PREVIEW_START 640→650（移除321跳转层mountTailCountdown），打开tailPreview即LED倒计时00:00:10→00:00:00完整走一遍（期间恩恩650s/穆瑞恩657s两条消息+一次故障照常），660秒进传送幕→继续→恩仔生日→自由回复收集（Supabase上报照旧）。按钮文案「重播尾段 · 10秒」。15个测试全部通过。版本20261115-countdown31。
 - 2026-11-15实测定位并修复RLS拦截：publishable key必须同时带apikey+Authorization两个头（缺Authorization即42501），to anon/public策略都没问题；两头发送实测201插入成功（测试行diag-A入库，作者可在Table Editor删除）。前端上报已改双头并推送。远程收集正式上线：玩家回复实时进Supabase replies表，作者Table Editor查看。15个测试全部通过。版本20261115-countdown30。
 - 2026-11-15作者已建Supabase项目（ref=oprecriimhoisvvwazte，项目URL已从控制台地址取得），SQL建表脚本就绪待Run。代码同步落地：REPLY_SB={url:"https://oprecriimhoisvvwazte.supabase.co",key:""}——key已填入（作者给的sb_publishable_格式，走apikey头），2026-11-15实测GET返回PGRST205——PlayerReply的replies表尚未创建，等作者在SQL Editor点Run后即全线打通。待作者点Run建表并提供anon key（或publishable key）后填入REPLY_SB即上线。15个测试全部通过。版本20261114-countdown27。
 - 2026-11-14按作者确认部署为帽子云（GitHub自动部署，纯静态）撤销边缘函数方案：删除functions/（含ADMIN_KEY的replies.js在线上被静态暴露已回收）、移除同域api/replies上报；collectPlayerReply改为通用上报位REPLY_UPLOAD_URL（core/app.js，当前留空为纯本机模式）——作者在帽子云建Web应用（Node.js最低配）后填入接口地址即自动POST上报。后端零依赖Node脚本已交付作者（聊天记录内，未入库：接收/存储replies.json/带口令查看页/CORS全开）。在线玩家中途不受影响。15个测试全部通过。版本20261114-countdown26。

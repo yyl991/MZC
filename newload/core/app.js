@@ -29,9 +29,9 @@ const IS_DEV_HOST = (() => {
 })();
 // 本地快速验收使用独立存档，不覆盖玩家进度。
 const ENDING_PREVIEW = IS_DEV_HOST && /[?&]endingPreview=1\b/.test(location.search);
-// 尾段预览：321跳传送幕（起点仍640秒，保证时间线状态一致），独立存档不影响正式进度。
+// 尾段预览：直接从最后10秒(650秒)开局，LED倒计时完整重播→传送幕，独立存档不影响正式进度。
 const TAIL_PREVIEW = !ENDING_PREVIEW && IS_DEV_HOST && /[?&]tailPreview=1\b/.test(location.search);
-const TAIL_PREVIEW_START = 640;
+const TAIL_PREVIEW_START = 650;
 const GAME_SAVE_KEY = ENDING_PREVIEW ? "mzc_homecoming_preview" : TAIL_PREVIEW ? "mzc_tail_preview" : "mzc_game_save";
 const HOMECOMING_FAULT_SECONDS = ENDING_PREVIEW ? 20 : 660 * 5 / 51;
 // 零点前最后10秒：屏幕上方黑底带框纯数字死亡倒计时，最后一个数字是00:00:01，零点直接进传送幕。
@@ -99,23 +99,6 @@ window.collectPlayerReply = function (text) {
 window.getPlayerReplies = function () {
   try { return JSON.parse(localStorage.getItem("mzc_player_replies") || "[]"); } catch (e) { return []; }
 };
-function mountTailCountdown() {
-  if (!SCREEN || document.getElementById("tail-countdown")) return;
-  const box = document.createElement("div");
-  box.id = "tail-countdown";
-  box.style.cssText = "position:absolute; inset:0; z-index:999996; background:#050203; color:#ff1f2e; display:flex; align-items:center; justify-content:center; font-family:'DSEG7 Classic','Cascadia Mono',Consolas,monospace; font-size:130px; font-weight:700; letter-spacing:4px; text-shadow:0 0 14px rgba(255,42,35,.6), 0 0 48px rgba(255,32,20,.32); pointer-events:none;";
-  SCREEN.appendChild(box);
-  const show = (n) => {
-    box.textContent = String(n);
-    if (typeof box.animate === "function") {
-      box.animate([{ opacity: 0, transform: "scale(1.6)" }, { opacity: 1, transform: "scale(1)" }], { duration: 220, fill: "forwards", easing: "cubic-bezier(.2,.9,.3,1)" });
-    }
-  };
-  show(3);
-  setTimeout(() => show(2), 1000);
-  setTimeout(() => show(1), 2000);
-  setTimeout(() => { box.remove(); beginHomecoming(); }, 3100);
-}
 function mountReplyViewer() {
   if (!SCREEN || document.getElementById("reply-viewer")) return;
   const box = document.createElement("div");
@@ -807,7 +790,7 @@ function mountEndingPreviewControl() {
   const button = document.createElement("button");
   button.id = "ending-preview-control";
   button.className = "ending-preview-control";
-  button.textContent = ENDING_PREVIEW ? "重播结尾 · 20秒" : TAIL_PREVIEW ? "重播尾段 · 321" : "体验结尾 · 20秒";
+  button.textContent = ENDING_PREVIEW ? "重播结尾 · 20秒" : TAIL_PREVIEW ? "重播尾段 · 10秒" : "体验结尾 · 20秒";
   button.onclick = () => {
     // 重新打开预览会清理独立预览档，正式进度不受影响。
     location.href = location.pathname + (TAIL_PREVIEW ? "?dev=1&tailPreview=1" : "?dev=1&endingPreview=1");
@@ -1092,7 +1075,6 @@ function initApp() {
   }
   setInterval(tick, 1000); tick(); hideBoot();
   mountEndingPreviewControl();
-  if (TAIL_PREVIEW) mountTailCountdown();
   if (IS_DEV_HOST && /[?&]replies=1/.test(location.search)) mountReplyViewer();
   if (SS.homecoming && typeof window.tryStartBGM === "function") window.tryStartBGM();
 }
