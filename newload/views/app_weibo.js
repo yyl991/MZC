@@ -199,19 +199,19 @@ const ARTIST_NEW_WEIBO = [
   {
     id: 3,
     text: "~~~~~~~~？🎂\n#朝朝穆穆#",
-    time: "11-13",
+    time: "11-13 11:16",
     device: "来自 微博视频号",
     video: "./data/weibo/1113.mp4",
     cover: "./data/weibo/1113cover.jpg",
-    likes: "254万",
-    comments: "8.7万",
+    likes: "333万",
+    comments: "100万",
     forwards: "100万+",
     hot: "30000+",
   },
   {
     id: 4,
     text: "𝗕𝗘𝗖 · 𝟬𝟭𝟵\n#朝朝穆穆#",
-    time: "11-12",
+    time: "11-12 19:00",
     device: "",
     images: [
       "./data/weibo/bec019-1.jpg",
@@ -388,8 +388,11 @@ function renderWeiboText(text) {
   return `<div style="font-size:15px; color:#333; line-height:1.6; margin-bottom:12px; white-space:pre-wrap;">${safeText}</div>`;
 }
 window.toggleWbLike = function (el, initialLikes) {
-  // 万级转评赞是穆祉丞的展示位：点赞完全无效果，数字不变（"118万/189万/202万/254万/431万/93.2万"）
-  if (String(initialLikes).includes("万")) return;
+  // 万级转评赞是穆祉丞的展示位：数字不变，点击弹趣味文案（"118万/189万/202万/254万/431万/93.2万"）
+  if (String(initialLikes).includes("万")) {
+    if (typeof window.toastDev === "function") window.toastDev();
+    return;
+  }
   const icon = el.querySelector(".like-icon-wrapper svg");
   const count = el.querySelector(".like-count");
   if (el.classList.contains("liked")) {

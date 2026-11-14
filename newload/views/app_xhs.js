@@ -148,8 +148,11 @@ window.toggleLikeXhs = function (e, el, index) {
   const note = baseNotes[index];
   if (!note) return;
 
-  // 穆祉丞那条是展示位：红心保持空心、7.1万不变，点赞完全无效果
-  if (note.author === "穆祉丞") return;
+  // 穆祉丞那条是展示位：红心保持空心、7.1万不变，点击弹趣味文案
+  if (note.author === "穆祉丞") {
+    if (typeof window.toastDev === "function") window.toastDev();
+    return;
+  }
 
   const iconContainer = el.querySelector(".heart-icon-container");
   const countEl = el.querySelector(".like-count");
@@ -254,7 +257,7 @@ VIEWS.xhs = () => {
           </div>
           
           <div style="flex:1; min-width:0; background:#f5f5f5; border-radius:20px; height:36px; display:flex; align-items:center; padding:0 12px; box-sizing:border-box;">
-            <span style="font-size:14px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">曼联9轮7分</span>
+            <span style="font-size:14px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">曼联10轮8分</span>
             <div style="display:flex; align-items:center; gap:8px; flex:none; margin-left:auto;">
               ${G.xhsCamera}
               <div style="width:1px; height:14px; background:#ccc;"></div>
