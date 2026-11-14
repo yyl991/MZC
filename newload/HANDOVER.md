@@ -6,6 +6,7 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-15按作者确认部署为帽子云（GitHub自动部署，纯静态）撤销边缘函数方案：删除functions/（含ADMIN_KEY的replies.js在线上被静态暴露已回收）、移除同域api/replies上报；collectPlayerReply改为可插拔上报——本机localStorage始终保留，REPLY_LC配置（appId/appKey/server，当前留空为纯本机模式）填好后自动POST LeanCloud REST（/1.1/classes/PlayerReply）。需要作者提供LeanCloud三个凭证即可上线远程收集。在线玩家中途不受影响（内存页面继续跑、localStorage键不变、新构建行为一致）。15个测试全部通过。版本20261114-countdown24。
 - 2026-11-14按作者反馈：自由回复改用系统输入法——恩仔生日阶段（chatId=恩仔且exploring）聊天输入行渲染真input#fld-real（手机自带输入法可打中文，Enter发送、isComposing防误触），不渲染假键盘#kbd，表情/加号按钮不渲染（它们依赖假键盘系统）；其他聊天与0点前恩仔保持原假键盘流程不变。sendLine自由回复后清空真输入框。回归：wx.test.js加渲染断言（fld-real/无kbd/占位提示）+发送收集断言。15个测试全部通过。版本20261114-countdown23。
 - 2026-11-14按作者要求尾段预览改321跳转：不再播20秒消息/故障/倒计时，tailPreview打开即全屏DSEG7红色「3→2→1」（mountTailCountdown，每秒一跳、3.1秒后beginHomecoming直进传送幕），底层仍从640秒起保证时间线状态一致；按钮文案「重播尾段 · 321」。之后照常：继续→恩仔生日四条→自由回复收集（远程POST照旧）。15个测试全部通过。版本20261114-countdown22。
 - 2026-11-14新增恩仔自由回复远程收集：EdgeOne Pages 边缘函数 functions/api/replies.js——POST /api/replies 上报（游戏端 collectPlayerReply 在存完本机 localStorage 后自动 fetch POST，失败静默），GET /api/replies?key=<口令>&format=html 手机友好表格页 / 不带 format 返回 JSON；读取口令 0adac617350db75003c4f80b8ad733cb（写在函数文件 ADMIN_KEY 常量，可改后重部署）。**需要作者一次性控制台操作**：EdgeOne 控制台 → 本 Pages 项目 → KV 存储 → 创建命名空间（名随意）→ 绑定到边缘函数、变量名必须 REPLIES_KV → 重新部署生效；未绑定时 POST 返回 503 提示、游戏端静默回退本机存储。KV 上限 1000 条。总表同步。版本20261114-countdown21。
