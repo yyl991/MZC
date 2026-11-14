@@ -273,7 +273,6 @@
       </div>
 
       <div class="floating-tools">
-        <button onclick="event.stopPropagation(); window.lockPhone()" title="锁屏">${G.sysLock}</button>
         <button onclick="event.stopPropagation(); window.resetGameState()" title="重置进度">${G.sysReset}</button>
       </div>
 
