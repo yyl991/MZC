@@ -67,9 +67,9 @@ window.alert = function (msg) {
   else window.toastDev(msg);
 };
 // 传送幕后恩仔生日：玩家自由回复收集（每台设备存本机 localStorage，作者可用 ?dev=1&replies=1 查看本机收集）
-// 玩家回复远程上报配置：注册 leancloud.cn → 创建应用（开发版免费）→ 设置/应用凭证里把
-// AppID、AppKey、REST API 服务器地址三个值填进下面 → 重新部署即自动上报；留空则只存本机
-const REPLY_LC = { appId: "", appKey: "", server: "" };
+// 玩家回复远程上报配置（Supabase）：supabase.com 建项目+建表后，把 Project URL 和 anon public key
+// 两个值填进下面 → 重新部署即自动上报；留空则只存本机。表结构见交接文档。
+const REPLY_SB = { url: "", key: "" };
 window.collectPlayerReply = function (text) {
   let time = "";
   try { time = new Date().toLocaleString("zh-CN", { hour12: false }); } catch (e) {}
@@ -81,11 +81,16 @@ window.collectPlayerReply = function (text) {
     localStorage.setItem(key, JSON.stringify(arr));
   } catch (e) {}
   try {
-    if (REPLY_LC.appId && REPLY_LC.server && (location.protocol === "http:" || location.protocol === "https:")) {
-      fetch(REPLY_LC.server + "/1.1/classes/PlayerReply", {
+    if (REPLY_SB.url && REPLY_SB.key && (location.protocol === "http:" || location.protocol === "https:")) {
+      fetch(REPLY_SB.url + "/rest/v1/replies", {
         method: "POST",
-        headers: { "X-LC-Id": REPLY_LC.appId, "X-LC-Key": REPLY_LC.appKey, "content-type": "application/json" },
-        body: JSON.stringify({ content: String(text).slice(0, 300), time: time || "—" }),
+        headers: {
+          apikey: REPLY_SB.key,
+          Authorization: "Bearer " + REPLY_SB.key,
+          "content-type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({ time: time || "—", text: String(text).slice(0, 300) }),
       }).catch(() => {});
     }
   } catch (e) {}
