@@ -67,9 +67,8 @@ window.alert = function (msg) {
   else window.toastDev(msg);
 };
 // 传送幕后恩仔生日：玩家自由回复收集（每台设备存本机 localStorage，作者可用 ?dev=1&replies=1 查看本机收集）
-// 玩家回复远程上报地址：填入收集服务的完整 POST 接口（body 为 {"time":"...","text":"..."}）
-// → 玩家回复自动上报，失败静默回退本机；留空则只存本机
-const REPLY_UPLOAD_URL = "";
+// 玩家回复远程上报（Supabase）：key 填入 anon/publishable key 后自动上报；留空则只存本机
+const REPLY_SB = { url: "https://oprecriimhoisvvwazte.supabase.co", key: "" };
 window.collectPlayerReply = function (text) {
   let time = "";
   try { time = new Date().toLocaleString("zh-CN", { hour12: false }); } catch (e) {}
@@ -81,10 +80,13 @@ window.collectPlayerReply = function (text) {
     localStorage.setItem(key, JSON.stringify(arr));
   } catch (e) {}
   try {
-    if (REPLY_UPLOAD_URL && (location.protocol === "http:" || location.protocol === "https:")) {
-      fetch(REPLY_UPLOAD_URL, {
+    if (REPLY_SB.key && (location.protocol === "http:" || location.protocol === "https:")) {
+      // 兼容新旧两种 key：JWT anon（eyJ 开头）带 Authorization；publishable key 只带 apikey 头
+      const headers = { apikey: REPLY_SB.key, "content-type": "application/json", Prefer: "return=minimal" };
+      if (REPLY_SB.key.indexOf("eyJ") === 0) headers.Authorization = "Bearer " + REPLY_SB.key;
+      fetch(REPLY_SB.url + "/rest/v1/replies", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: headers,
         body: JSON.stringify({ time: time || "—", text: String(text).slice(0, 300) }),
       }).catch(() => {});
     }
