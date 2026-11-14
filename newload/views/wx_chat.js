@@ -1684,6 +1684,8 @@ function sendLine() {
   if (!SS.pendingText) return;
   const c = CFG.chats[chatId];
   if (!c) return;
+  // 恩仔：0点前忽略发送；等他说完生日祝福（传送幕继续后）才开放自由回复并静默收集
+  if (chatId === "恩仔" && !(SS.homecoming && SS.homecoming.phase === "exploring")) return;
   const st = SS.stage[chatId] || 0,
     li = SS.lineIdx[chatId] || 0,
     line = SS.pendingText;
@@ -1701,8 +1703,7 @@ function sendLine() {
   $("#snd").classList.remove("on");
   saveChat();
   refreshChat(true);
-  // 传送幕后恩仔生日收尾：自由回复不走向答剧本，内容静默收集（mzc_player_replies）
-  if (chatId === "恩仔" && SS.homecoming && SS.homecoming.phase === "exploring") {
+  if (chatId === "恩仔") {
     setTimeout(() => {
       chatData[chatId].forEach((x) => { if (x[3] === "rd") x[3] = ""; });
       saveChat();

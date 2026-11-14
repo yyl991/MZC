@@ -64,3 +64,12 @@ assert.strictEqual(sb.chatData["恩仔"].at(-1)[1], "me");
 assert.strictEqual(sb.chatData["恩仔"].at(-1)[3], "");
 assert.deepStrictEqual(sb._collected, ["我会一直陪着你"]);
 assert.strictEqual(sb.SS.lineIdx["恩仔"], undefined);
+
+// ===== 0点前恩仔聊天：发送被忽略（不出气泡、不收集、不清输入） =====
+sb.chatData["恩仔"] = [["好不好?", "them", "上午 00:00"]];
+sb.SS.homecoming = null;
+sb.SS.pendingText = "还没到家";
+sb.sendLine();
+assert.strictEqual(sb.chatData["恩仔"].length, 1);
+assert.strictEqual(sb.SS.pendingText, "还没到家");
+assert.deepStrictEqual(sb._collected, ["我会一直陪着你"]);
