@@ -67,9 +67,9 @@ window.alert = function (msg) {
   else window.toastDev(msg);
 };
 // 传送幕后恩仔生日：玩家自由回复收集（每台设备存本机 localStorage，作者可用 ?dev=1&replies=1 查看本机收集）
-// 玩家回复远程上报配置（Supabase）：supabase.com 建项目+建表后，把 Project URL 和 anon public key
-// 两个值填进下面 → 重新部署即自动上报；留空则只存本机。表结构见交接文档。
-const REPLY_SB = { url: "", key: "" };
+// 玩家回复远程上报地址：填入收集服务的完整 POST 接口（body 为 {"time":"...","text":"..."}）
+// → 玩家回复自动上报，失败静默回退本机；留空则只存本机
+const REPLY_UPLOAD_URL = "";
 window.collectPlayerReply = function (text) {
   let time = "";
   try { time = new Date().toLocaleString("zh-CN", { hour12: false }); } catch (e) {}
@@ -81,15 +81,10 @@ window.collectPlayerReply = function (text) {
     localStorage.setItem(key, JSON.stringify(arr));
   } catch (e) {}
   try {
-    if (REPLY_SB.url && REPLY_SB.key && (location.protocol === "http:" || location.protocol === "https:")) {
-      fetch(REPLY_SB.url + "/rest/v1/replies", {
+    if (REPLY_UPLOAD_URL && (location.protocol === "http:" || location.protocol === "https:")) {
+      fetch(REPLY_UPLOAD_URL, {
         method: "POST",
-        headers: {
-          apikey: REPLY_SB.key,
-          Authorization: "Bearer " + REPLY_SB.key,
-          "content-type": "application/json",
-          Prefer: "return=minimal",
-        },
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({ time: time || "—", text: String(text).slice(0, 300) }),
       }).catch(() => {});
     }
