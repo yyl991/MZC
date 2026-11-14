@@ -130,7 +130,8 @@ const tailSeen = [];
 tail.sb.incomingMsgFrom = (from, text) => tailSeen.push([from, text]);
 tail.run("fit = () => {}; buildInterleavedTimeline = () => {}; tick = () => {}; hideBoot = () => {}; base = 0; initApp();");
 assert.strictEqual(tail.run("elapsed()"), 640);
-assert.strictEqual(tail.nodes.get("ending-preview-control").textContent, "重播尾段 · 20秒");
+assert.strictEqual(tail.nodes.get("ending-preview-control").textContent, "重播尾段 · 321");
+assert(tail.nodes.has("tail-countdown")); // 321 跳转层已挂载，3.1 秒后 beginHomecoming
 tail.run("storyTick(646)");
 assert.deepStrictEqual(tailSeen, []); // at=50的历史消息已标记，不补播
 tail.run("storyTick(658)");
