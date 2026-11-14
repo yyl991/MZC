@@ -117,7 +117,7 @@ VIEWS.photos = () => {
       </div>
       
       <!-- 底部我的相簿：改成一行三列的网格 -->
-      <h1 class="lt" style="margin: 24px 16px 10px; font-size:22px;">我的相簿</h1>
+      <h1 class="lt" style="margin: 24px 16px 10px; font-size:22px;">私密相册</h1>
       <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; padding:0 12px; margin-bottom: 40px;">
         <div style="aspect-ratio:1; background:#3a3a3c; overflow:hidden; cursor:pointer; border-radius:4px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;" onclick="push('privateAlbum')">
           <div style="font-size:28px; line-height:1;">🔒</div>
