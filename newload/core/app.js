@@ -81,9 +81,13 @@ window.collectPlayerReply = function (text) {
   } catch (e) {}
   try {
     if (REPLY_SB.key && (location.protocol === "http:" || location.protocol === "https:")) {
-      // 兼容新旧两种 key：JWT anon（eyJ 开头）带 Authorization；publishable key 只带 apikey 头
-      const headers = { apikey: REPLY_SB.key, "content-type": "application/json", Prefer: "return=minimal" };
-      if (REPLY_SB.key.indexOf("eyJ") === 0) headers.Authorization = "Bearer " + REPLY_SB.key;
+      // publishable key 与 JWT anon 均需同时带 apikey + Authorization 两个头，缺一会被 RLS 拦截
+      const headers = {
+        apikey: REPLY_SB.key,
+        Authorization: "Bearer " + REPLY_SB.key,
+        "content-type": "application/json",
+        Prefer: "return=minimal",
+      };
       fetch(REPLY_SB.url + "/rest/v1/replies", {
         method: "POST",
         headers: headers,
