@@ -6,6 +6,7 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-14新增恩仔自由回复远程收集：EdgeOne Pages 边缘函数 functions/api/replies.js——POST /api/replies 上报（游戏端 collectPlayerReply 在存完本机 localStorage 后自动 fetch POST，失败静默），GET /api/replies?key=<口令>&format=html 手机友好表格页 / 不带 format 返回 JSON；读取口令 0adac617350db75003c4f80b8ad733cb（写在函数文件 ADMIN_KEY 常量，可改后重部署）。**需要作者一次性控制台操作**：EdgeOne 控制台 → 本 Pages 项目 → KV 存储 → 创建命名空间（名随意）→ 绑定到边缘函数、变量名必须 REPLIES_KV → 重新部署生效；未绑定时 POST 返回 503 提示、游戏端静默回退本机存储。KV 上限 1000 条。总表同步。版本20261114-countdown21。
 - 2026-11-14按作者要求收窄：恩仔聊天0点前发送被完全忽略（不出气泡不收集、输入保留），仅传送幕继续后（homecoming.exploring）开放自由回复并收集——闸门移到sendLine最前部。回归补0点前忽略断言。15个测试全部通过。版本20261114-countdown20。
 - 2026-11-14按作者要求新增传送幕后恩仔自由回复：sendLine对chatId=恩仔且homecoming.exploring时绕过回复剧本（恩仔replies为空数组，原来发消息会在c.replies[0].mine报错），气泡正常发出、rd标志900ms后清除，内容经collectPlayerReply静默存本机localStorage键mzc_player_replies（带真实时间戳，上限300条）；core/app.js新增getPlayerReplies()与?dev=1&replies=1查看层（列出/清空本机收集）。跨玩家远程汇总需表单或后端接口，暂未接。回归：wx.test.js新增恩仔自由发消息断言（不进剧本/rd清除/收集调用），homecoming.test.js新增收集与查看层断言（修掉insertion里text→line变量名错误，测试先抓到）。15个测试全部通过。版本20261114-countdown19。
 - 2026-11-14按作者反馈修复：微博万级展示位点赞从静默return改为弹toastDev趣味文案（数字仍不变）；小红书穆祉丞展示位同步加趣味文案保持一致。15个测试全部通过。版本20261114-countdown18。

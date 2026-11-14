@@ -76,6 +76,16 @@ window.collectPlayerReply = function (text) {
     arr.push({ time: time || "—", text: String(text).slice(0, 300) });
     while (arr.length > 300) arr.shift();
     localStorage.setItem(key, JSON.stringify(arr));
+    // 远程上报到同域边缘函数（EdgeOne KV，失败静默——本机存储始终保留）
+    try {
+      if (location.protocol === "http:" || location.protocol === "https:") {
+        fetch("api/replies", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ time: time || "—", text: String(text).slice(0, 300) }),
+        }).catch(() => {});
+      }
+    } catch (e) {}
   } catch (e) {}
 };
 window.getPlayerReplies = function () {
