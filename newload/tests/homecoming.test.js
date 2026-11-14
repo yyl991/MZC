@@ -266,4 +266,14 @@ stopped.sb.deliverFrom=(from)=>notifications.push(from);
 stopped.run('SS.callDone["恩仔"]=1;SS.homecoming={phase:"exploring",continuedAt:elapsed()};deliverHomecomingTimeline()');
 assert.strictEqual(notifications.at(-1),"恩仔");
 }
+// 传送幕后恩仔自由回复收集 + ?dev=1&replies=1 查看层
+const rv = session("?dev=1&replies=1");
+rv.run('collectPlayerReply("我会一直陪着你"); collectPlayerReply("生日快乐")');
+assert.strictEqual(rv.run("getPlayerReplies().length"), 2);
+assert.strictEqual(rv.run("getPlayerReplies()[1].text"), "生日快乐");
+rv.run("mountReplyViewer()");
+assert(rv.nodes.has("reply-viewer"));
+rv.run('localStorage.removeItem("mzc_player_replies")');
+assert.strictEqual(rv.run("getPlayerReplies().length"), 0);
+
 console.log("OK homecoming: states, birthday, fault cleanup; 8s call completion, persistence, short/outgoing/callback and stop gates");

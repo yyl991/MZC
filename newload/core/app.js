@@ -66,6 +66,42 @@ window.alert = function (msg) {
   if (typeof msg === "string" && (msg.includes("开发") || msg.includes("暂无") || msg.includes("占位") || msg === "")) window.toastDev();
   else window.toastDev(msg);
 };
+// 传送幕后恩仔生日：玩家自由回复收集（每台设备存本机 localStorage，作者可用 ?dev=1&replies=1 查看本机收集）
+window.collectPlayerReply = function (text) {
+  try {
+    const key = "mzc_player_replies";
+    const arr = JSON.parse(localStorage.getItem(key) || "[]");
+    let time = "";
+    try { time = new Date().toLocaleString("zh-CN", { hour12: false }); } catch (e) {}
+    arr.push({ time: time || "—", text: String(text).slice(0, 300) });
+    while (arr.length > 300) arr.shift();
+    localStorage.setItem(key, JSON.stringify(arr));
+  } catch (e) {}
+};
+window.getPlayerReplies = function () {
+  try { return JSON.parse(localStorage.getItem("mzc_player_replies") || "[]"); } catch (e) { return []; }
+};
+function mountReplyViewer() {
+  if (!SCREEN || document.getElementById("reply-viewer")) return;
+  const box = document.createElement("div");
+  box.id = "reply-viewer";
+  box.style.cssText = "position:absolute; inset:0; z-index:1000002; background:#141414; color:#eee; overflow-y:auto; padding:16px; font-size:14px; line-height:1.7;";
+  const render = () => {
+    const E = (v) => (typeof esc === "function" ? esc(v) : String(v));
+    const arr = window.getPlayerReplies ? window.getPlayerReplies() : [];
+    box.innerHTML =
+      '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><b style="font-size:16px;">玩家自由回复（本机 ' + arr.length + ' 条）</b><span><button id="rv-clear" style="margin-right:8px; padding:6px 12px; background:#5b2233; color:#f1d6df; border:1px solid #7a4f5e; border-radius:6px; cursor:pointer;">清空</button><button id="rv-close" style="padding:6px 12px; background:#261d25; color:#f1d6df; border:1px solid #705564; border-radius:6px; cursor:pointer;">关闭</button></span></div>' +
+      (arr.length
+        ? arr.map((r) => '<div style="background:#1f1f22; border-radius:10px; padding:10px 12px; margin-bottom:8px;"><span style="color:#8e8e93; font-size:12px;">' + E(r.time) + '</span><br>' + E(r.text) + '</div>').join("")
+        : '<div style="color:#8e8e93;">还没有收集到回复（去恩仔聊天里发一条就会出现在这里）</div>');
+    const clearBtn = box.querySelector("#rv-clear");
+    const closeBtn = box.querySelector("#rv-close");
+    if (clearBtn) clearBtn.onclick = () => { try { localStorage.removeItem("mzc_player_replies"); } catch (e) {} render(); };
+    if (closeBtn) closeBtn.onclick = () => box.remove();
+  };
+  render();
+  SCREEN.appendChild(box);
+}
 document.addEventListener("click", (e) => {
   if (e.target.closest("input, textarea, video, [onclick]")) return;
   const fakeBtn = e.target.closest('button, .row, .wx-item, .wx-tabbar button, .tabbar button, .mrw, .cal-d, [style*="cursor: pointer"], [style*="cursor:pointer"]');
@@ -1021,5 +1057,6 @@ function initApp() {
   }
   setInterval(tick, 1000); tick(); hideBoot();
   mountEndingPreviewControl();
+  if (IS_DEV_HOST && /[?&]replies=1/.test(location.search)) mountReplyViewer();
   if (SS.homecoming && typeof window.tryStartBGM === "function") window.tryStartBGM();
 }

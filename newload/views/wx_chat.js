@@ -1701,6 +1701,16 @@ function sendLine() {
   $("#snd").classList.remove("on");
   saveChat();
   refreshChat(true);
+  // 传送幕后恩仔生日收尾：自由回复不走向答剧本，内容静默收集（mzc_player_replies）
+  if (chatId === "恩仔" && SS.homecoming && SS.homecoming.phase === "exploring") {
+    setTimeout(() => {
+      chatData[chatId].forEach((x) => { if (x[3] === "rd") x[3] = ""; });
+      saveChat();
+      refreshChat();
+    }, 900);
+    if (typeof window.collectPlayerReply === "function") window.collectPlayerReply(line);
+    return;
+  }
   SS.lineIdx[chatId] = li + 1;
   const stage = c.replies[st];
   if (SS.lineIdx[chatId] < stage.mine.length) {
