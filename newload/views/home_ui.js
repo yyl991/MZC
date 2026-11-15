@@ -191,12 +191,13 @@
         .vinyl-spinner { width: 80%; aspect-ratio: 1; border-radius: 50%; border: 1px solid #222; box-shadow: 0 0 10px rgba(0,0,0,0.8); overflow: hidden; position: relative; }
         .vinyl-cover-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transition: opacity 0.4s ease-in-out; pointer-events: none; }
         .tonearm { position: absolute; top: 0; right: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
-        .wgroup { grid-column: 1 / -1; grid-row: span 2; aspect-ratio: auto; background: rgba(255,255,255,0.28); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 26px; box-shadow: 0 4px 15px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: space-around; padding: 12px 8px; box-sizing: border-box; }
-        .wgroup .wapp { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 74px; cursor: pointer; transition: transform .12s; }
-        .wgroup .wapp:active { transform: scale(.9); }
-        .wgroup .wapp .ic { width: 56px; height: 56px; border-radius: 14.5px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.18); }
-        .wgroup .wapp .ic svg { width: 100%; height: 100%; display: block; }
-        .wgroup .wapp .wl { color: #fff; font-size: 12px; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,.45); white-space: nowrap; }
+        .wgroup-wrap { grid-column: span 2; grid-row: span 2; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 7px; }
+        .wgroup-frame { width: 148px; height: 148px; background: rgba(255,255,255,0.30); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-radius: 26px; box-shadow: 0 4px 15px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(255,255,255,0.22); display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; padding: 12px; box-sizing: border-box; }
+        .wgroup-frame .wapp { display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 14px; transition: background .15s, transform .12s; }
+        .wgroup-frame .wapp:active { background: rgba(255,255,255,0.30); transform: scale(.93); }
+        .wgroup-frame .wicon { width: 42px; height: 42px; border-radius: 11px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+        .wgroup-frame .wicon svg { width: 100%; height: 100%; display: block; }
+        .wgroup-label { color: #fff; font-size: 12px; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,.45); text-align: center; }
         @media (max-width: 540px) { .w-music { border-radius: 20px; } }
       `;
       document.head.appendChild(style);
@@ -246,13 +247,15 @@
 
     HOME.innerHTML = `
       <div class="hgrid">
-        <div class="widget wgroup">
-          ${[["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]].map(([id, label]) => `
-            <div class="wapp" data-app="${id}" onclick="event.stopPropagation();openApp('${id}',this)">
-              <div class="ic">${appIcon(id)}</div>
-              <div class="wl">${label}</div>
-            </div>
-          `).join("")}
+        <div class="wgroup-wrap">
+          <div class="wgroup-frame">
+            ${[["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]].map(([id]) => `
+              <div class="wapp" data-app="${id}" onclick="event.stopPropagation();openApp('${id}',this)">
+                <div class="wicon">${appIcon(id)}</div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="wgroup-label">实用工具</div>
         </div>
         ${appBtn("photos")}${appBtn("mail")}${appBtn("recorder")}
         
