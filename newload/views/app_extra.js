@@ -1978,3 +1978,193 @@ window.insLikedState = function () {
   if (window._insLiked !== null) return window._insLiked;
   try { return localStorage.getItem("mzc_ins_liked") !== "0"; } catch (e) { return true; }
 };
+
+// ==========================================
+// 🗺 地图 App（未上主屏，openApp('maps') 调用）
+// 想加/改地点：改 MAP_APP_PLACES 数组即可（x/y 是地图上的百分比坐标）
+// ==========================================
+const MAP_APP_PLACES = [
+  { name: "家", desc: "快回家", emoji: "🏠", x: 46, y: 50 },
+  { name: "街角", desc: "捡到这部手机的地方", emoji: "📍", x: 64, y: 36 },
+  { name: "公园", desc: "常去的公园", emoji: "🌳", x: 30, y: 68 },
+];
+
+window.mapSelect = function (i) {
+  const p = MAP_APP_PLACES[i];
+  if (!p) return;
+  const pin = document.getElementById("map-pin");
+  if (pin) pin.style.left = p.x + "%", pin.style.top = p.y + "%";
+  const card = document.getElementById("map-card");
+  if (card) card.innerHTML = `<div style="font-size:16px;font-weight:700;color:#111;">${esc(p.name)}</div><div style="font-size:13px;color:#8e8e93;margin-top:3px;">${esc(p.desc)}</div>`;
+  document.querySelectorAll("[data-map-row]").forEach((r) => { r.style.background = r.dataset.mapRow === String(i) ? "#eef3ff" : "#fff"; });
+};
+
+window.mapFilter = function (v) {
+  const q = v.trim();
+  document.querySelectorAll("[data-map-row]").forEach((r) => {
+    const name = MAP_APP_PLACES[r.dataset.mapRow].name;
+    r.style.display = !q || name.includes(q) ? "" : "none";
+  });
+};
+
+VIEWS.maps = () => {
+  return {
+    html: `
+      <div style="position:absolute; top:0; left:0; right:0; z-index:10; background:#fff;">
+        <div style="height:44px;"></div>
+        <div style="display:flex; align-items:center; padding:0 14px; height:48px;">
+          <button onclick="closeApp()" style="border:none; background:none; padding:2px 8px 2px 0; cursor:pointer;">${G.chevL.replace("<svg", '<svg width="22" height="22" stroke="#111" stroke-width="2.4"')}</button>
+          <span style="flex:1; font-size:19px; font-weight:700; color:#111;">地图</span>
+        </div>
+      </div>
+      <div class="scroll" style="background:#fff; padding-top:92px; padding-bottom:30px;">
+        <div style="position:relative; overflow:hidden; border-radius:0 0 18px 18px;">
+          <svg viewBox="0 0 400 440" style="width:100%; display:block;">
+            <rect width="400" height="440" fill="#eef2ec"/>
+            <path d="M0 372 C 70 356, 130 408, 210 392 S 330 356, 400 384 L400 440 0 440 Z" fill="#a9d5f5"/>
+            <rect x="262" y="52" width="112" height="86" rx="12" fill="#c9e7b8"/>
+            <circle cx="62" cy="118" r="42" fill="#c9e7b8"/>
+            <rect x="120" y="60" width="10" height="380" fill="#fff"/>
+            <rect x="250" y="60" width="10" height="380" fill="#fff"/>
+            <rect x="0" y="196" width="400" height="10" fill="#fff"/>
+            <rect x="0" y="300" width="400" height="10" fill="#fff"/>
+            <rect x="46" y="0" width="16" height="440" fill="#ffe08a"/>
+            <rect x="330" y="0" width="12" height="440" fill="#fff"/>
+            <rect x="128" y="208" width="112" height="84" fill="#e2e2df"/>
+            <rect x="258" y="312" width="70" height="56" fill="#e2e2df"/>
+            <rect x="56" y="312" width="52" height="60" fill="#e2e2df"/>
+          </svg>
+          <div id="map-pin" style="position:absolute; left:${MAP_APP_PLACES[0].x}%; top:${MAP_APP_PLACES[0].y}%; transform:translate(-50%,-100%); filter:drop-shadow(0 2px 3px rgba(0,0,0,.3));">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="#ff3b30"><path d="M12 2a7.3 7.3 0 0 1 7.3 7.3c0 5.2-7.3 12.7-7.3 12.7S4.7 14.5 4.7 9.3A7.3 7.3 0 0 1 12 2z"/><circle cx="12" cy="9.3" r="2.8" fill="#fff"/></svg>
+          </div>
+          <div id="map-card" style="position:absolute; right:10px; bottom:10px; left:10px; background:#fff; border-radius:14px; padding:12px 14px; box-shadow:0 4px 14px rgba(0,0,0,.14);"></div>
+        </div>
+        <div style="padding:14px 16px 6px;">
+          <div class="srch" style="margin:0;">${G.search}<input placeholder="搜索地点" oninput="mapFilter(this.value)" style="flex:1;min-width:0;border:none;background:transparent;outline:none;font-size:16px;color:inherit;font-family:inherit;"></div>
+        </div>
+        <div style="padding:6px 0;">
+          ${MAP_APP_PLACES.map((p, i) => `
+            <div class="row tap" data-map-row="${i}" onclick="mapSelect(${i})" style="min-height:52px;">
+              <span style="width:34px;height:34px;border-radius:9px;background:#eef3ff;display:grid;place-items:center;font-size:16px;flex:none;">${p.emoji}</span>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:15px;font-weight:600;color:#111;">${esc(p.name)}</div>
+                <div style="font-size:12px;color:#8e8e93;">${esc(p.desc)}</div>
+              </div>
+              <span style="font-size:16px;color:#c7c7c7;">›</span>
+            </div>`).join("")}
+        </div>
+      </div>`,
+    init(pg) { window.mapSelect(0); },
+  };
+};
+
+// ==========================================
+// 🎵 音乐 App（未上主屏，openApp('music') 调用）
+// 想加歌：改 MUSIC_SONGS 数组（file 放进 data/music/ 或 data/app/ 的 mp3）
+// ==========================================
+const MUSIC_APP_SONGS = [
+  { name: "日常", file: "./data/app/bgm.mp3", cover: "./data/music/pangmao1.jpg" },
+  { name: "回家", file: "./data/app/hb.mp3", cover: "./data/music/pangmao2.jpg" },
+];
+
+window._musicApp = { audio: null, idx: 0, bgmWasPlaying: false };
+const musicAppFmt = (s) => (!isFinite(s) ? "0:00" : Math.floor(s / 60) + ":" + ("0" + Math.floor(s % 60)).slice(-2));
+
+window.musicAppPlay = function (i) {
+  const M = window._musicApp, s = MUSIC_APP_SONGS[i];
+  if (!M.audio) { M.audio = new Audio(); M.audio.addEventListener("timeupdate", () => window.musicAppTick()); M.audio.addEventListener("ended", () => window.musicAppNext(1)); }
+  if (M.idx !== i) { M.idx = i; M.audio.src = s.file; }
+  const bgm = document.getElementById("bgm");
+  if (bgm && !bgm.paused) { M.bgmWasPlaying = true; bgm.pause(); }
+  M.audio.play().catch(() => {});
+  window.musicAppRefresh();
+};
+window.musicAppToggle = function () {
+  const M = window._musicApp;
+  if (M.audio && !M.audio.paused) { M.audio.pause(); window.musicAppRefresh(); }
+  else window.musicAppPlay(M.idx);
+};
+window.musicAppNext = function (dir) {
+  const n = MUSIC_APP_SONGS.length;
+  window.musicAppPlay((window._musicApp.idx + dir + n) % n);
+};
+window.musicAppSeek = function (e) {
+  const M = window._musicApp;
+  if (!M.audio || !M.audio.duration) return;
+  const bar = document.getElementById("music-app-bar");
+  M.audio.currentTime = (e.clientX - bar.getBoundingClientRect().left) / bar.getBoundingClientRect().width * M.audio.duration;
+};
+window.musicAppTick = function () {
+  const a = window._musicApp.audio;
+  if (!a) return;
+  const cur = document.getElementById("music-app-cur"), tot = document.getElementById("music-app-tot"), fill = document.getElementById("music-app-fill");
+  if (cur) cur.textContent = musicAppFmt(a.currentTime);
+  if (tot) tot.textContent = musicAppFmt(a.duration);
+  if (fill) fill.style.width = (a.duration ? a.currentTime / a.duration * 100 : 0) + "%";
+};
+window.musicAppRefresh = function () {
+  const M = window._musicApp, s = MUSIC_APP_SONGS[M.idx];
+  const name = document.getElementById("music-app-name");
+  if (name) name.textContent = s.name;
+  const cover = document.getElementById("music-app-cover");
+  if (cover) cover.src = s.cover;
+  const pp = document.getElementById("music-app-pp");
+  if (pp) pp.innerHTML = (M.audio && !M.audio.paused) ? "⏸" : "▶";
+  document.querySelectorAll("[data-song]").forEach((r) => { r.style.background = r.dataset.song === String(M.idx) ? "#f6e9ee" : "#fff"; });
+};
+window.musicAppStop = function (resumeBgm) {
+  const M = window._musicApp;
+  if (M.audio) M.audio.pause();
+  if (resumeBgm && M.bgmWasPlaying) {
+    const bgm = document.getElementById("bgm");
+    if (bgm) bgm.play().catch(() => {});
+    M.bgmWasPlaying = false;
+  }
+};
+// 离开音乐页时：停掉音乐App的歌，把游戏BGM还回去
+(() => { const orig = window.closeApp; window.closeApp = function () { if (typeof view !== "undefined" && view === "music") window.musicAppStop(true); return orig.apply(this, arguments); }; })();
+
+VIEWS.music = () => {
+  return {
+    html: `
+      <div style="position:absolute; top:0; left:0; right:0; z-index:10; background:#fff;">
+        <div style="height:44px;"></div>
+        <div style="display:flex; align-items:center; padding:0 14px; height:48px;">
+          <button onclick="closeApp()" style="border:none; background:none; padding:2px 8px 2px 0; cursor:pointer;">${G.chevL.replace("<svg", '<svg width="22" height="22" stroke="#111" stroke-width="2.4"')}</button>
+          <span style="flex:1; font-size:19px; font-weight:700; color:#111;">音乐</span>
+          <span onclick="toastDev()" style="cursor:pointer; display:flex;">${INS_ICON.list}</span>
+        </div>
+      </div>
+      <div class="scroll" style="background:#fff; padding-top:92px; padding-bottom:30px;">
+        <div style="margin:6px 16px 0; border-radius:18px; background:linear-gradient(160deg,#faf3f6,#f0f4fa); padding:18px; text-align:center;">
+          <img id="music-app-cover" src="${MUSIC_APP_SONGS[0].cover}" style="width:180px; height:180px; object-fit:cover; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.16); display:block; margin:0 auto;">
+          <div id="music-app-name" style="font-size:17px; font-weight:700; color:#111; margin-top:14px;">${esc(MUSIC_APP_SONGS[0].name)}</div>
+          <div style="font-size:13px; color:#8e8e93; margin-top:2px;">TF_ING穆祉丞</div>
+          <div id="music-app-bar" onclick="musicAppSeek(event)" style="position:relative; height:5px; background:#e5e5ea; border-radius:3px; margin:16px 4px 6px; cursor:pointer;">
+            <div id="music-app-fill" style="position:absolute; left:0; top:0; bottom:0; width:0%; background:#fa2d48; border-radius:3px;"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:#8e8e93; padding:0 4px;">
+            <span id="music-app-cur">0:00</span><span id="music-app-tot">0:00</span>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:center; gap:26px; margin-top:8px;">
+            <span onclick="musicAppNext(-1)" style="font-size:24px; color:#111; cursor:pointer;">⏮</span>
+            <span id="music-app-pp" onclick="musicAppToggle()" style="width:56px; height:56px; border-radius:50%; background:#111; color:#fff; display:grid; place-items:center; font-size:20px; cursor:pointer;">▶</span>
+            <span onclick="musicAppNext(1)" style="font-size:24px; color:#111; cursor:pointer;">⏭</span>
+          </div>
+        </div>
+        <div style="padding:18px 16px 4px; font-size:17px; font-weight:700; color:#111;">资料库</div>
+        <div style="padding:4px 0;">
+          ${MUSIC_APP_SONGS.map((s, i) => `
+            <div class="row tap" data-song="${i}" onclick="musicAppPlay(${i})" style="min-height:58px;">
+              <img src="${s.cover}" style="width:46px; height:46px; border-radius:8px; object-fit:cover; flex:none;">
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:15px;font-weight:600;color:#111;">${esc(s.name)}</div>
+                <div style="font-size:12px;color:#8e8e93;">TF_ING穆祉丞</div>
+              </div>
+              <span style="font-size:16px;color:#c7c7c7;">›</span>
+            </div>`).join("")}
+        </div>
+      </div>`,
+    init(pg) { window.musicAppRefresh(); },
+  };
+};
