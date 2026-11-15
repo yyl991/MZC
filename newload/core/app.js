@@ -93,6 +93,8 @@ window.recordVisit = function () {
   try { sessionStorage.setItem("mzc_visit_sent", "1"); } catch (e) {}
   let uid = "";
   try { uid = window.getDeviceId(); } catch (e) { uid = "unknown"; }
+  let time = "";
+  try { time = new Date().toLocaleString("zh-CN", { hour12: false }); } catch (e) {}
   const ua = String((typeof navigator !== "undefined" && navigator.userAgent) || "").slice(0, 140);
   window.getPlayerIp((ip) => {
     try {
@@ -105,7 +107,7 @@ window.recordVisit = function () {
           "content-type": "application/json",
           Prefer: "return=minimal",
         },
-        body: JSON.stringify({ uid: uid, ip: ip || "unknown", ua: ua }),
+        body: JSON.stringify({ uid: uid, ip: ip || "unknown", ua: ua, time: time || "—" }),
       }).catch(() => {});
     } catch (e) {}
   });
