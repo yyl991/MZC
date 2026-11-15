@@ -1680,6 +1680,22 @@ function typeLine(line) {
     setTimeout(step, 120 + Math.random() * 100);
   })();
 }
+// 恩仔结尾互动：快速输入指示（内容短，0.6秒即送达）
+window.sendEnzaiChat = function (msg) {
+  showTypingFrom("恩仔");
+  setTimeout(() => {
+    hideTyping();
+    deliverFrom("恩仔", msg);
+  }, 600);
+};
+// 「好不好？」发出约9秒无回复 → 两条追问；玩家一回复就取消
+window.scheduleEnzaiNudge = function () {
+  window._enzaiNudgeTo = setTimeout(() => {
+    if (window._enzaiReplied) return;
+    sendEnzaiChat("怎么不说话");
+    window._enzaiNudge2To = setTimeout(() => { if (!window._enzaiReplied) sendEnzaiChat("好不好嘛😾"); }, 1300);
+  }, 9000);
+};
 function sendLine() {
   if (!SS.pendingText) return;
   const c = CFG.chats[chatId];
@@ -1712,6 +1728,12 @@ function sendLine() {
       refreshChat();
     }, 900);
     if (typeof window.collectPlayerReply === "function") window.collectPlayerReply(line);
+    // 结尾互动：等玩家发完（0.9秒没有新消息）→ 正在输入 → 😽；并取消未发出的追问
+    window._enzaiReplied = true;
+    clearTimeout(window._enzaiNudgeTo);
+    clearTimeout(window._enzaiNudge2To);
+    clearTimeout(window._enzaiEmojiTo);
+    window._enzaiEmojiTo = setTimeout(() => { sendEnzaiChat("😽"); }, 900);
     return;
   }
   SS.lineIdx[chatId] = li + 1;

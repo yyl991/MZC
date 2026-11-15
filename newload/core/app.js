@@ -883,6 +883,8 @@ function deliverHomecomingTimeline() {
     // 使用正常收信渲染：保留日期、未读、通知及黑名单/免打扰规则。
     // 此处不走已经停止的催命入口 incomingMsgFrom。
     deliverFrom(beat.from, beat.text);
+    // 「好不好？」送达后开始等玩家回复，超时由恩仔追问
+    if (beat.id === "enzai-birthday-2026-4" && typeof window.scheduleEnzaiNudge === "function") window.scheduleEnzaiNudge();
   });
   if (changed && typeof window.saveGameState === "function") window.saveGameState();
 }

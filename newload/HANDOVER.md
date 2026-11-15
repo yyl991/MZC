@@ -6,6 +6,7 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-15补提交结尾互动实现本体（此前仅提交了测试）：wx_chat.js新增sendEnzaiChat（快速输入指示0.6秒→deliverFrom）与scheduleEnzaiNudge（好不好？后9秒无回复→追问两条，玩家回复即取消）；core/app.js deliverHomecomingTimeline在enzai-birthday-2026-4送达后挂scheduleEnzaiNudge。发现tests/wx.test.js曾被IDE回退一次（丢失rows断言），已重新应用并修正断言错别字（喵→嘛）。15个测试全部通过。
 - 2026-11-15按作者要求删除引导回复的追加消息（enzai-birthday-nudge「怎么不说话呀，回我一句」），恩仔生日祝福恢复为四条收尾于「好不好？」。15个测试全部通过。版本20261115-countdown38。
 - 2026-11-15IP升级为IP+地区：getPlayerIp改getPlayerNet——搜狐cityjson（script直连，返回IP+省市+运营商cname）→ ipify（仅IP）→ 淘宝JSONP → unknown；缓存sessionStorage（mzc_player_net）。collectPlayerReply与recordVisit均带region字段；查看层显示地区。需作者SQL补列：alter table replies add column if not exists region text; alter table visits add column if not exists region text; alter table visits add column if not exists time text;（未执行时对应上报静默失败，本机保留）。15个测试全部通过。版本20261115-countdown37。
 - 2026-11-15作者反馈visits时间“不对”——实测是对本机时间（Table Editor按浏览器时区显示，列宽截断了+08后缀像UTC）；为彻底避免歧义recordVisit增加time字段（玩家设备本地时间字符串，与replies表一致）。需作者SQL补列：alter table visits add column if not exists time text; 另：Windows设备ip=unknown系该设备上ipify/淘宝两个取IP接口均未通（可能代理拦截），不影响其他数据。15个测试全部通过。版本20261115-countdown36。
