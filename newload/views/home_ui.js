@@ -85,7 +85,7 @@
     .app .icon > .ic { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; }
     .app .icon .app-icon-fallback, .app .icon img, .app .icon svg { width: 100% !important; height: 100% !important; object-fit: cover; border-radius: inherit; }
     .app .icon .bdg { position: absolute; top: -5px; right: -5px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #ff3b30; color: #fff; font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; z-index: 10; }
-    .app .lbl { font-size: 11px; font-weight: 500; color: #fff; text-shadow: 0 1px 4px rgba(0, 0, 0, .5); white-space: nowrap; }
+    .app .lbl { font-size: 13px; font-weight: 500; color: #fff; text-shadow: 0 1px 4px rgba(0, 0, 0, .5); white-space: nowrap; }
 
     /* 经典大日历 */
     .wcal-wide { 
@@ -152,7 +152,7 @@
     
     @media (max-width: 540px) {
       .hgrid { top: 46px; bottom: 112px; gap: 4px 4px; grid-template-rows: 0.85fr 0.85fr 1.1fr 1.1fr 1.1fr 1.1fr; }
-      .app .lbl { font-size: 10px; }
+      .app .lbl { font-size: 12px; }
       .wcal-wide { padding: 10px 14px; border-radius: 20px; }
       .wcal-wide .cal-day { font-size: 40px; }
       .wwx-dark .w-temp { font-size: 38px; }
