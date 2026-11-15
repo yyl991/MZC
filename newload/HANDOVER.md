@@ -6,6 +6,8 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-15组合组件改两步交互（iOS文件夹式，作者参考图P4）：主屏点组合框不再直接进App——点框先「放大」成居中大玻璃面板（.wgroup-open全屏遮罩 z-1500 黑0.28+blur22，.wgroup-panel 白0.55磨砂+38px圆角，2x2四个标准62px图标带深色标签 天气/日历/设置/时钟），从框图标位置zoom放大（transformOrigin动态计算+keyframes wgroupZoom .32s）；点面板内图标才openApp进App（closeWgroup+openApp），点面板外空白关闭。主屏组合框本体保持单格（62/56px继承.icon）+「实用工具」标签不变。修复：主屏时钟每分钟renderHome重建innerHTML会冲掉打开的面板——模块级wgroupOpenState标记，renderHome末尾恢复.on状态。浏览器验证：点框放大/点图标进设置App/点空白关闭/renderHome后面板保持，全部通过；15个测试通过。分支try/group-widget本地提交、未push。
+
 - 2026-11-15组合组件定稿（作者确认方向：单格、时钟原位、其他不变）：组合组件做成普通 .app 槽位（button.app > div.icon.wgroup-frame + span.lbl「实用工具」），无显式grid定位，自动流式布局正好落在原时钟格（r4c3，照片/邮件/录音位置不变）；.icon 类继承应用图标尺寸（62px，小屏540px以下56px），框内磨砂白0.30+blur14，四小图标2x2自适应（base padding7px/gap3px，小屏6px）。浏览器430px/920px两档截图验证：与原版P2布局完全一致，仅时钟位换成组合框。大玻璃面板版（9f46618）废弃：其跨2列2行+6条显式定位规则把照片/邮件/天气挤乱。15个测试全部通过。分支try/group-widget本地提交、未push（作者要求本地先试）。
 - 2026-11-15组合组件改为单格尺寸：.wgroup-frame 89×89（占时钟原格子，1格）内含 天气/日历/设置/时钟 四个~34px小图标2x2（磨砂白0.30+blur14+22px圆角，点击openApp对应App），其他图标位置全部不变；天气/日历大组件恢复原位。CSS清理：删除重复xhs规则与旧wrap/label样式。15个测试全部通过。分支try/group-widget本地提交、未push（作者要求本地先试）。
 - 2026-11-15组合组件改为参考图样式（最终）：.wgroup-frame大玻璃面板跨2列4行（grid-column 1/3, grid-row 1/5，aspect-ratio:auto覆盖.widget的方形约束）——白0.16磨砂+blur16+1px浅色内描边+28px圆角；内部2x2放 天气/日历/设置/时钟 四个56px带文字应用图标（点击openApp对应App），面板下半为留白玻璃（与iOS大组件一致）。布局：照片/邮件/录音/微博自动填右侧两列（r1-2），闲鱼/B站第三行，音乐组件r4-5右侧，小红书r5左，r5有一处自然空位。15个测试全部通过。分支try/group-widget本地提交、未push（作者要求本地先试）。

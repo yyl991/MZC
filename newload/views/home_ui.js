@@ -14,6 +14,7 @@
   let globalVinylDeg = 0;
   let lastVinylTick = Date.now();
   let isVinylLoopRunning = false;
+  let wgroupOpenState = false;
 
   const SIZE_PAUSE = 1.1; 
   const SIZE_PLAY = 1.2;  
@@ -192,11 +193,16 @@
         .vinyl-cover-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transition: opacity 0.4s ease-in-out; pointer-events: none; }
         .tonearm { position: absolute; top: 0; right: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
         .wgroup-frame { background: rgba(255,255,255,0.30); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; padding: 7px; gap: 3px; box-sizing: border-box; overflow: hidden; }
-        .wgroup-frame .wapp { display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .12s; }
+        .wgroup-frame .wapp { display: flex; align-items: center; justify-content: center; transition: transform .12s; }
         .wgroup-frame .wapp:active { transform: scale(.9); }
         .wgroup-frame .wicon { width: 100%; height: 100%; border-radius: 6px; overflow: hidden; }
         .wgroup-frame .wicon svg { width: 100%; height: 100%; display: block; }
-        @media (max-width: 540px) { .w-music { border-radius: 20px; } .wgroup-frame { padding: 6px; gap: 3px; } }
+        .wgroup-open { position: absolute; inset: 0; z-index: 1500; display: none; align-items: center; justify-content: center; background: rgba(15,15,15,0.28); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); }
+        .wgroup-open.on { display: flex; }
+        @keyframes wgroupZoom { from { transform: scale(.25); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .wgroup-panel { width: min(78%, 300px); border-radius: 38px; background: rgba(242,242,247,0.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 18px 50px rgba(0,0,0,0.22); display: grid; grid-template-columns: repeat(2, 74px); justify-content: center; align-content: center; gap: 20px 26px; padding: 34px 20px; animation: wgroupZoom .32s cubic-bezier(.25,.9,.35,1.12); }
+        .wgroup-panel .lbl { color: #1c1c1e; text-shadow: none; font-weight: 500; }
+        @media (max-width: 540px) { .w-music { border-radius: 20px; } .wgroup-frame { padding: 6px; gap: 3px; } .wgroup-panel { border-radius: 32px; gap: 16px 22px; padding: 28px 16px; } }
       `;
       document.head.appendChild(style);
     }
@@ -271,10 +277,10 @@
           </div>
         </button>
         ${appBtn("photos")}${appBtn("mail")}
-        <button class="app" data-app="clock">
+        <button class="app" data-app="clock" onclick="openWgroup(this)">
           <div class="icon wgroup-frame">
             ${[["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]].map(([id]) => `
-              <div class="wapp" data-app="${id}" onclick="event.stopPropagation();openApp('${id}',this)">
+              <div class="wapp" data-app="${id}">
                 <div class="wicon">${appIcon(id)}</div>
               </div>
             `).join("")}
@@ -286,6 +292,17 @@
         ${appBtn("weibo")}${appBtn("xianyu")}
         ${musicHTML}
         ${appBtn("bilibili")}${appBtn("xhs")}
+      </div>
+
+      <div class="wgroup-open" id="wgroup-open" onclick="if(event.target===this)closeWgroup()">
+        <div class="wgroup-panel">
+          ${[["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]].map(([id, label]) => `
+            <button class="app" onclick="closeWgroup();openApp('${id}',this.firstElementChild)">
+              <div class="icon"><div class="ic">${appIcon(id)}</div></div>
+              <span class="lbl">${label}</span>
+            </button>
+          `).join("")}
+        </div>
       </div>
 
       <div class="floating-tools">
@@ -315,6 +332,11 @@
       </div>
     `;
 
+    if (wgroupOpenState) {
+      const ov = document.getElementById("wgroup-open");
+      if (ov) { ov.style.display = "flex"; ov.classList.add("on"); }
+    }
+
     setTimeout(() => {
       const bgm = document.getElementById("bgm");
       if (bgm) {
@@ -338,6 +360,28 @@
       showImg.src = musicImages[currentMusicImageIdx]; showImg.style.opacity = 1; hideImg.style.opacity = 0;
     }
   }
+
+  window.openWgroup = function (el) {
+    const ov = document.getElementById("wgroup-open");
+    if (!ov) return;
+    wgroupOpenState = true;
+    ov.style.display = "flex";
+    const panel = ov.querySelector(".wgroup-panel");
+    if (panel && el && el.firstElementChild) {
+      try {
+        const r = el.firstElementChild.getBoundingClientRect();
+        const or = ov.getBoundingClientRect();
+        panel.style.transformOrigin = `${r.left + r.width / 2 - or.left}px ${r.top + r.height / 2 - or.top}px`;
+      } catch (e) {}
+    }
+    ov.classList.add("on");
+  };
+
+  window.closeWgroup = function () {
+    wgroupOpenState = false;
+    const ov = document.getElementById("wgroup-open");
+    if (ov) { ov.classList.remove("on"); ov.style.display = ""; }
+  };
 
   window.toggleHomeMusic = function () {
     const bgm = document.getElementById("bgm");
