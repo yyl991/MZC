@@ -286,6 +286,16 @@
             </div>
           </div>
         </button>
+        <button class="app" data-app="clock" onclick="openWgroup(this)">
+          <div class="icon wgroup-frame">
+            ${[["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]].map(([id]) => `
+              <div class="wapp" data-app="${id}">
+                <div class="wicon">${appIcon(id)}</div>
+              </div>
+            `).join("")}
+          </div>
+          <span class="lbl">实用工具</span>
+        </button>
         <button class="app" data-app="photos" onclick="openWgroup(this,'media')">
           <div class="icon wgroup-frame">
             ${[["photos", "照片"], ["recorder", "录音"]].map(([id]) => `
@@ -297,16 +307,6 @@
           <span class="lbl">那个用</span>
         </button>
         ${appBtn("mail")}
-        <button class="app" data-app="clock" onclick="openWgroup(this)">
-          <div class="icon wgroup-frame">
-            ${[["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]].map(([id]) => `
-              <div class="wapp" data-app="${id}">
-                <div class="wicon">${appIcon(id)}</div>
-              </div>
-            `).join("")}
-          </div>
-          <span class="lbl">实用工具</span>
-        </button>
         ${appBtn("instagram")}
         
         ${appBtn("weibo")}${appBtn("xianyu")}
