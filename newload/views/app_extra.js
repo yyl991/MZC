@@ -1863,6 +1863,7 @@ const INS_ICON = {
   dots: `<svg width="20" height="20" viewBox="0 0 24 24" fill="#111"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg>`,
   list: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>`,
   heart: `<svg width="22" height="22" viewBox="0 0 24 24" fill="#ff3040"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
+  heartOutline: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#262626" stroke-width="1.8" stroke-linejoin="round"><path d="M12 20.7l-.9-.8C6 15.2 2.8 12.3 2.8 8.7c0-2.9 2.3-5.2 5.2-5.2 1.6 0 3.1.8 4 2 1-1.2 2.5-2 4-2 2.9 0 5.2 2.3 5.2 5.2 0 3.6-3.2 6.5-8.3 11.2l-.9.8z"/></svg>`,
   comment: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2.8c-5.2 0-9.3 4-9.3 9 0 2.1.8 4.1 2.1 5.7L3.2 21l3.9-1.2c1.5.7 3.1 1.1 4.9 1.1 5.2 0 9.3-4 9.3-9s-4.1-9.1-9.3-9.1z"/></svg>`,
   repost: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11V8A3.5 3.5 0 0 1 8 4.5h11.5"/><path d="M17 2l2.5 2.5L17 7"/><path d="M19.5 13v3a3.5 3.5 0 0 1-3.5 3.5H5"/><path d="M7.5 17 5 19.5 7.5 22"/></svg>`,
   plane: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2.5 2.5 9.8l6.7 2.6 2.6 6.9 9.7-16.8z"/><path d="M9.2 12.4 21.5 2.5"/></svg>`,
@@ -1945,7 +1946,7 @@ VIEWS.instagram_post = () => {
         </div>
         <div id="ins-dots" style="display:flex; justify-content:center; gap:4px; padding:12px 0 4px;">${dots}</div>
         <div style="display:flex; align-items:center; padding:8px 12px 2px;">
-          <span onclick="toastDev()" style="cursor:pointer; display:flex;">${INS_ICON.heart}</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">22.3千</span>
+          <span id="ins-like" onclick="insToggleLike()" style="cursor:pointer; display:flex;">${insLikedState() ? INS_ICON.heart : INS_ICON.heartOutline}</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">22.3千</span>
           <span onclick="toastDev()" style="cursor:pointer; display:flex;">${INS_ICON.comment}</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">20千</span>
           <span onclick="toastDev()" style="cursor:pointer; display:flex;">${INS_ICON.repost}</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">5,199</span>
           <span onclick="toastDev()" style="cursor:pointer; display:flex;">${INS_ICON.plane}</span><span style="font-size:14px; font-weight:600; color:#111; margin-left:6px;">4,282</span>
@@ -1963,4 +1964,17 @@ window.insCarouselScroll = function (el) {
   if (c) c.textContent = (i + 1) + "/18";
   const d = document.getElementById("ins-dots");
   if (d) d.querySelectorAll("div").forEach((x, j) => { x.style.background = j === i ? "#4193ef" : "#c9c9c9"; });
+};
+
+// ins 点赞：红心↔空心，状态存 localStorage（默认已赞，对应参考图）
+window._insLiked = null;
+window.insToggleLike = function () {
+  window._insLiked = !(window._insLiked !== null ? window._insLiked : (function () { try { return localStorage.getItem("mzc_ins_liked") !== "0"; } catch (e) { return true; } })());
+  try { localStorage.setItem("mzc_ins_liked", window._insLiked ? "1" : "0"); } catch (e) {}
+  const s = document.getElementById("ins-like");
+  if (s) s.innerHTML = window._insLiked ? INS_ICON.heart : INS_ICON.heartOutline;
+};
+window.insLikedState = function () {
+  if (window._insLiked !== null) return window._insLiked;
+  try { return localStorage.getItem("mzc_ins_liked") !== "0"; } catch (e) { return true; }
 };
