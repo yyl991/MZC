@@ -6,6 +6,7 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-15按作者要求回复同时记录IP与设备ID：新增getDeviceId（localStorage键mzc_device_id，首访生成D前缀ID标识同一浏览器）与getPlayerIp（ipify CORS接口→淘宝getip.php JSONP兜底→unknown，结果缓存sessionStorage每会话只查一次）；collectPlayerReply记录{time,ip,uid,text}，本机先存后回填IP（上限300条），远程POST带ip/uid字段。查看层?dev=1&replies=1显示IP与设备ID。**需作者在Supabase SQL Editor执行**：alter table replies add column if not exists ip text; alter table replies add column if not exists uid text;（未执行时远程上报静默失败，本机保留）。15个测试全部通过。版本20261115-countdown33。
 - 2026-11-15作者手改：照片App内「我的相簿」标题改为「私密相册」（app_photos.js 一处文案），随本次提交；ASSET_V同步20261115-countdown32。15个测试全部通过。
 - 2026-11-15按作者要求尾段预览改为真实重播最后10秒：TAIL_PREVIEW_START 640→650（移除321跳转层mountTailCountdown），打开tailPreview即LED倒计时00:00:10→00:00:00完整走一遍（期间恩恩650s/穆瑞恩657s两条消息+一次故障照常），660秒进传送幕→继续→恩仔生日→自由回复收集（Supabase上报照旧）。按钮文案「重播尾段 · 10秒」。15个测试全部通过。版本20261115-countdown31。
 - 2026-11-15实测定位并修复RLS拦截：publishable key必须同时带apikey+Authorization两个头（缺Authorization即42501），to anon/public策略都没问题；两头发送实测201插入成功（测试行diag-A入库，作者可在Table Editor删除）。前端上报已改双头并推送。远程收集正式上线：玩家回复实时进Supabase replies表，作者Table Editor查看。15个测试全部通过。版本20261115-countdown30。

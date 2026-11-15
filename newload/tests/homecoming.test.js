@@ -272,6 +272,8 @@ const rv = session("?dev=1&replies=1");
 rv.run('collectPlayerReply("我会一直陪着你"); collectPlayerReply("生日快乐")');
 assert.strictEqual(rv.run("getPlayerReplies().length"), 2);
 assert.strictEqual(rv.run("getPlayerReplies()[1].text"), "生日快乐");
+assert.strictEqual(rv.run("getPlayerReplies()[1].ip"), "unknown"); // vm 无 fetch，IP 兜底
+assert(rv.run("getPlayerReplies()[1].uid").startsWith("D")); // 设备ID已生成
 rv.run("mountReplyViewer()");
 assert(rv.nodes.has("reply-viewer"));
 rv.run('localStorage.removeItem("mzc_player_replies")');

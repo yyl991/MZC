@@ -69,32 +69,83 @@ window.alert = function (msg) {
 // 传送幕后恩仔生日：玩家自由回复收集（每台设备存本机 localStorage，作者可用 ?dev=1&replies=1 查看本机收集）
 // 玩家回复远程上报（Supabase）：key 填入 anon/publishable key 后自动上报；留空则只存本机
 const REPLY_SB = { url: "https://oprecriimhoisvvwazte.supabase.co", key: "sb_publishable_dLo8hSB2SNMmu5ECgxQdhw_sT6WuexY" };
+window.getDeviceId = function () {
+  let id = "";
+  try {
+    id = localStorage.getItem("mzc_device_id") || "";
+    if (!id) {
+      id = "D" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+      localStorage.setItem("mzc_device_id", id);
+    }
+  } catch (e) { id = "unknown"; }
+  return id;
+};
+// 公网IP：ipify（支持CORS）→ 淘宝JSONP 兜底 → unknown；结果缓存到 sessionStorage
+window.getPlayerIp = function (cb) {
+  if (typeof fetch !== "function") return cb("unknown");
+  let done = false;
+  const give = (ip) => {
+    if (!done) {
+      done = true;
+      try { sessionStorage.setItem("mzc_player_ip", ip || "unknown"); } catch (e) {}
+      cb(ip || "unknown");
+    }
+  };
+  try {
+    fetch("https://api.ipify.org?format=json")
+      .then((r) => r.json())
+      .then((j) => give(j && j.ip))
+      .catch(() => {});
+  } catch (e) {}
+  setTimeout(() => {
+    if (done) return;
+    try {
+      const s = document.createElement("script");
+      window.ipCallback = (j) => { give(j && j.ip); if (s && s.parentNode) s.parentNode.removeChild(s); };
+      s.src = "https://www.taobao.com/help/getip.php";
+      document.head.appendChild(s);
+    } catch (e) {}
+  }, 800);
+  setTimeout(() => give("unknown"), 3500);
+};
 window.collectPlayerReply = function (text) {
   let time = "";
   try { time = new Date().toLocaleString("zh-CN", { hour12: false }); } catch (e) {}
+  let uid = "";
+  try { uid = window.getDeviceId(); } catch (e) { uid = "unknown"; }
+  const item = { time: time || "—", ip: "未知", uid: uid || "unknown", text: String(text).slice(0, 300) };
   try {
-    const key = "mzc_player_replies";
-    const arr = JSON.parse(localStorage.getItem(key) || "[]");
-    arr.push({ time: time || "—", text: String(text).slice(0, 300) });
+    const arr = JSON.parse(localStorage.getItem("mzc_player_replies") || "[]");
+    arr.push(item);
     while (arr.length > 300) arr.shift();
-    localStorage.setItem(key, JSON.stringify(arr));
+    localStorage.setItem("mzc_player_replies", JSON.stringify(arr));
   } catch (e) {}
-  try {
-    if (REPLY_SB.key && (location.protocol === "http:" || location.protocol === "https:")) {
-      // publishable key 与 JWT anon 均需同时带 apikey + Authorization 两个头，缺一会被 RLS 拦截
-      const headers = {
-        apikey: REPLY_SB.key,
-        Authorization: "Bearer " + REPLY_SB.key,
-        "content-type": "application/json",
-        Prefer: "return=minimal",
-      };
-      fetch(REPLY_SB.url + "/rest/v1/replies", {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify({ time: time || "—", text: String(text).slice(0, 300) }),
-      }).catch(() => {});
-    }
-  } catch (e) {}
+  const upload = (ip) => {
+    item.ip = ip || "unknown";
+    try {
+      const arr = JSON.parse(localStorage.getItem("mzc_player_replies") || "[]");
+      for (let i2 = arr.length - 1; i2 >= 0; i2--) {
+        if (arr[i2].uid === item.uid && arr[i2].text === item.text && arr[i2].ip === "未知") { arr[i2].ip = item.ip; break; }
+      }
+      localStorage.setItem("mzc_player_replies", JSON.stringify(arr));
+    } catch (e) {}
+    try {
+      if (REPLY_SB.key && (location.protocol === "http:" || location.protocol === "https:")) {
+        const headers = {
+          apikey: REPLY_SB.key,
+          Authorization: "Bearer " + REPLY_SB.key,
+          "content-type": "application/json",
+          Prefer: "return=minimal",
+        };
+        fetch(REPLY_SB.url + "/rest/v1/replies", {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({ time: item.time, text: item.text, ip: item.ip, uid: item.uid }),
+        }).catch(() => {});
+      }
+    } catch (e) {}
+  };
+  try { window.getPlayerIp(upload); } catch (e) { upload("unknown"); }
 };
 window.getPlayerReplies = function () {
   try { return JSON.parse(localStorage.getItem("mzc_player_replies") || "[]"); } catch (e) { return []; }
@@ -110,7 +161,7 @@ function mountReplyViewer() {
     box.innerHTML =
       '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><b style="font-size:16px;">玩家自由回复（本机 ' + arr.length + ' 条）</b><span><button id="rv-clear" style="margin-right:8px; padding:6px 12px; background:#5b2233; color:#f1d6df; border:1px solid #7a4f5e; border-radius:6px; cursor:pointer;">清空</button><button id="rv-close" style="padding:6px 12px; background:#261d25; color:#f1d6df; border:1px solid #705564; border-radius:6px; cursor:pointer;">关闭</button></span></div>' +
       (arr.length
-        ? arr.map((r) => '<div style="background:#1f1f22; border-radius:10px; padding:10px 12px; margin-bottom:8px;"><span style="color:#8e8e93; font-size:12px;">' + E(r.time) + '</span><br>' + E(r.text) + '</div>').join("")
+        ? arr.map((r) => '<div style="background:#1f1f22; border-radius:10px; padding:10px 12px; margin-bottom:8px;"><span style="color:#8e8e93; font-size:12px;">' + E(r.time) + (r.ip ? ' · IP ' + E(r.ip) : '') + (r.uid ? ' · ' + E(r.uid) : '') + '</span><br>' + E(r.text) + '</div>').join("")
         : '<div style="color:#8e8e93;">还没有收集到回复（去恩仔聊天里发一条就会出现在这里）</div>');
     const clearBtn = box.querySelector("#rv-clear");
     const closeBtn = box.querySelector("#rv-close");
