@@ -1858,6 +1858,17 @@ VIEWS.settings_about = () => {
   };
 };
 
+const INS_ICON = {
+  bell: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 1 6 6v4.2l1.6 3.1a.6.6 0 0 1-.5.9H4.9a.6.6 0 0 1-.5-.9L6 13.2V9a6 6 0 0 1 6-6z"/><path d="M10 20a2.1 2.1 0 0 0 4 0"/></svg>`,
+  dots: `<svg width="20" height="20" viewBox="0 0 24 24" fill="#111"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg>`,
+  list: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>`,
+  heart: `<svg width="22" height="22" viewBox="0 0 24 24" fill="#ff3040"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
+  comment: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2.8c-5.2 0-9.3 4-9.3 9 0 2.1.8 4.1 2.1 5.7L3.2 21l3.9-1.2c1.5.7 3.1 1.1 4.9 1.1 5.2 0 9.3-4 9.3-9s-4.1-9.1-9.3-9.1z"/></svg>`,
+  repost: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 11V8A3.5 3.5 0 0 1 8 4.5h11.5"/><path d="M17 2l2.5 2.5L17 7"/><path d="M19.5 13v3a3.5 3.5 0 0 1-3.5 3.5H5"/><path d="M7.5 17 5 19.5 7.5 22"/></svg>`,
+  plane: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2.5 2.5 9.8l6.7 2.6 2.6 6.9 9.7-16.8z"/><path d="M9.2 12.4 21.5 2.5"/></svg>`,
+  bookmark: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.8" stroke-linejoin="round"><path d="M6 21V4.2A1.2 1.2 0 0 1 7.2 3h9.6A1.2 1.2 0 0 1 18 4.2V21l-6-4.4L6 21z"/></svg>`,
+};
+
 VIEWS.instagram = () => {
   const gridIcon = `<svg width="21" height="21" viewBox="0 0 24 24" fill="#111">${[0, 1, 2].map((r) => [0, 1, 2].map((c) => `<rect x="${2 + c * 7.5}" y="${2 + r * 7.5}" width="6" height="6" rx="1"/>`).join("")).join("")}</svg>`;
   const tagIcon = `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.8"><rect x="2.5" y="2.5" width="19" height="19" rx="2.5"/><circle cx="12" cy="9.5" r="3.2"/><path d="M5.8 20.5c1.2-3.6 3.4-5.3 6.2-5.3s5 1.7 6.2 5.3"/></svg>`;
@@ -1869,8 +1880,8 @@ VIEWS.instagram = () => {
         <div style="display:flex; align-items:center; padding:0 14px; height:48px;">
           <button onclick="closeApp()" style="border:none; background:none; padding:2px 8px 2px 0; cursor:pointer;">${G.chevL.replace("<svg", '<svg width="22" height="22" stroke="#111" stroke-width="2.4"')}</button>
           <span style="flex:1; font-size:21px; font-weight:700; color:#111;">muzh1ch3ng</span>
-          <span onclick="toastDev()" style="font-size:18px; padding:0 7px; cursor:pointer;">🔔</span>
-          <span onclick="toastDev()" style="font-size:18px; padding-left:7px; cursor:pointer;">⋮</span>
+          <span onclick="toastDev()" style="padding:0 7px; cursor:pointer; display:flex;">${INS_ICON.bell}</span>
+          <span onclick="toastDev()" style="padding-left:7px; cursor:pointer; display:flex;">${INS_ICON.dots}</span>
         </div>
       </div>
       <div class="scroll" style="background:#fff; padding-top:92px; padding-bottom:30px;">
@@ -1923,7 +1934,7 @@ VIEWS.instagram_post = () => {
         <div style="display:flex; align-items:center; gap:10px; padding:4px 16px 12px;">
           <div style="width:38px; height:38px; border-radius:50%; background:#0b0b0b; color:#fff; font-size:8px; display:grid; place-items:center; flex:none;">施工中</div>
           <span style="flex:1; font-size:15px; font-weight:700; color:#111;">muzh1ch3ng</span>
-          <span onclick="toastDev()" style="font-size:17px; cursor:pointer;">☰</span>
+          <span onclick="toastDev()" style="cursor:pointer; display:flex;">${INS_ICON.list}</span>
         </div>
         <div style="position:relative;">
           <div id="ins-carousel" onscroll="insCarouselScroll(this)" style="display:flex; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
@@ -1934,11 +1945,11 @@ VIEWS.instagram_post = () => {
         </div>
         <div id="ins-dots" style="display:flex; justify-content:center; gap:4px; padding:12px 0 4px;">${dots}</div>
         <div style="display:flex; align-items:center; padding:8px 12px 2px;">
-          <span onclick="toastDev()" style="font-size:19px; cursor:pointer;">❤️</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">22.3千</span>
-          <span onclick="toastDev()" style="font-size:18px; cursor:pointer;">💬</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">20千</span>
-          <span onclick="toastDev()" style="font-size:18px; cursor:pointer;">🔁</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">5,199</span>
-          <span onclick="toastDev()" style="font-size:17px; cursor:pointer;">✈️</span><span style="font-size:14px; font-weight:600; color:#111; margin-left:6px;">4,282</span>
-          <span onclick="toastDev()" style="font-size:18px; margin-left:auto; cursor:pointer;">🔖</span>
+          <span onclick="toastDev()" style="cursor:pointer; display:flex;">${INS_ICON.heart}</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">22.3千</span>
+          <span onclick="toastDev()" style="cursor:pointer; display:flex;">${INS_ICON.comment}</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">20千</span>
+          <span onclick="toastDev()" style="cursor:pointer; display:flex;">${INS_ICON.repost}</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">5,199</span>
+          <span onclick="toastDev()" style="cursor:pointer; display:flex;">${INS_ICON.plane}</span><span style="font-size:14px; font-weight:600; color:#111; margin-left:6px;">4,282</span>
+          <span onclick="toastDev()" style="margin-left:auto; cursor:pointer; display:flex;">${INS_ICON.bookmark}</span>
         </div>
         <div style="padding:10px 16px 2px; font-size:14px; color:#111;"><b>muzh1ch3ng</b> MU18.zip</div>
         <div style="padding:4px 16px; font-size:12px; color:#8e8e93;">23小时前</div>
