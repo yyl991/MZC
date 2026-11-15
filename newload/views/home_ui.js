@@ -191,18 +191,11 @@
         .vinyl-spinner { width: 80%; aspect-ratio: 1; border-radius: 50%; border: 1px solid #222; box-shadow: 0 0 10px rgba(0,0,0,0.8); overflow: hidden; position: relative; }
         .vinyl-cover-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transition: opacity 0.4s ease-in-out; pointer-events: none; }
         .tonearm { position: absolute; top: 0; right: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
-        .wgroup-frame { grid-column: 3 / 5; grid-row: 3 / 5; justify-self: start; align-self: start; width: 148px; height: 148px; background: rgba(255,255,255,0.30); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-radius: 26px; box-shadow: 0 4px 15px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(255,255,255,0.22); display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; padding: 12px; box-sizing: border-box; }
-        .wgroup-frame .wapp { display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 14px; transition: background .15s, transform .12s; }
-        .wgroup-frame .wapp:active { background: rgba(255,255,255,0.30); transform: scale(.93); }
-        .wgroup-frame .wicon { width: 42px; height: 42px; border-radius: 11px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+        .wgroup-frame { grid-column: 3; grid-row: 3; width: 89px; height: 89px; background: rgba(255,255,255,0.30); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-radius: 22px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 2px 10px rgba(0,0,0,0.08); display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; padding: 8px; gap: 4px; box-sizing: border-box; align-self: start; justify-self: start; }
+        .wgroup-frame .wapp { display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .12s; }
+        .wgroup-frame .wapp:active { transform: scale(.9); }
+        .wgroup-frame .wicon { border-radius: 7px; overflow: hidden; }
         .wgroup-frame .wicon svg { width: 100%; height: 100%; display: block; }
-        .hgrid > .app[data-app="recorder"] { grid-column: 1; grid-row: 4; }
-        .hgrid > .app[data-app="weibo"] { grid-column: 2; grid-row: 4; }
-        .hgrid > .app[data-app="xianyu"] { grid-column: 1; grid-row: 5; }
-        .hgrid > .app[data-app="music"] { grid-column: 2 / 4; grid-row: 5 / 7; }
-        .hgrid > .app[data-app="bilibili"] { grid-column: 3; grid-row: 6; }
-        .hgrid > .app[data-app="xhs"] { grid-column: 4; grid-row: 6; }
-        .hgrid > .app[data-app="xhs"] { grid-column: 1; grid-row: 5; }
         @media (max-width: 540px) { .w-music { border-radius: 20px; } }
       `;
       document.head.appendChild(style);
