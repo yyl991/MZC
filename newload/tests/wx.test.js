@@ -59,15 +59,32 @@ sb.nowAmpm = () => "上午 00:01";
 sb.setTimeout = (fn) => { fn(); return 1; };
 sb.clearTimeout = () => {};
 sb.collectPlayerReply = (t) => { sb._collected = (sb._collected || []).concat([t]); };
+sb.tone = () => {};
 sb.sendLine();
-assert.strictEqual(sb.chatData["恩仔"].at(-1)[1], "me");
-assert.strictEqual(sb.chatData["恩仔"].at(-1)[3], "");
+const rows = sb.chatData["恩仔"];
+assert.strictEqual(rows.at(-1)[0], "😽"); // 恩仔即时回应已入库
+const mine = rows.filter((r) => r[1] === "me");
+assert.strictEqual(mine.length, 1);
+assert.strictEqual(mine[0][0], "我会一直陪着你");
+assert.strictEqual(mine[0][3], ""); // rd 已清
 assert.deepStrictEqual(sb._collected, ["我会一直陪着你"]);
+assert.strictEqual(sb._enzaiReplied, true);
 assert.strictEqual(sb.SS.lineIdx["恩仔"], undefined);
 const chatHtml = sb.VIEWS.chat().html;
 assert(chatHtml.includes("fld-real"), "自由回复渲染真输入框");
 assert(!chatHtml.includes('id="kbd"'), "自由回复不渲染假键盘");
 assert(chatHtml.includes("输入消息"), "占位提示保留");
+
+// ===== 结尾互动：回复→😽，超时→两条追问 =====
+sb._delivered = [];
+sb.deliverFrom = (from, text) => sb._delivered.push([from, text]);
+sb._enzaiReplied = false;
+sb.scheduleEnzaiNudge(); // 测试计时器立即执行：9秒无回复 → 追问
+assert.deepStrictEqual(sb._delivered, [["恩仔", "怎么不说话"], ["恩仔", "好不好嘛😾"]]);
+sb._delivered = [];
+sb._enzaiReplied = true;
+sb.scheduleEnzaiNudge();
+assert.deepStrictEqual(sb._delivered, []); // 已回复则不再追问
 
 // ===== 0点前恩仔聊天：发送被忽略（不出气泡、不收集、不清输入） =====
 sb.chatData["恩仔"] = [["好不好?", "them", "上午 00:00"]];
