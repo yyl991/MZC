@@ -191,6 +191,12 @@
         .vinyl-spinner { width: 80%; aspect-ratio: 1; border-radius: 50%; border: 1px solid #222; box-shadow: 0 0 10px rgba(0,0,0,0.8); overflow: hidden; position: relative; }
         .vinyl-cover-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transition: opacity 0.4s ease-in-out; pointer-events: none; }
         .tonearm { position: absolute; top: 0; right: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
+        .wgroup { grid-column: 1 / -1; grid-row: span 2; aspect-ratio: auto; background: rgba(255,255,255,0.28); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 26px; box-shadow: 0 4px 15px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: space-around; padding: 12px 8px; box-sizing: border-box; }
+        .wgroup .wapp { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 74px; cursor: pointer; transition: transform .12s; }
+        .wgroup .wapp:active { transform: scale(.9); }
+        .wgroup .wapp .ic { width: 56px; height: 56px; border-radius: 14.5px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.18); }
+        .wgroup .wapp .ic svg { width: 100%; height: 100%; display: block; }
+        .wgroup .wapp .wl { color: #fff; font-size: 12px; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,.45); white-space: nowrap; }
         @media (max-width: 540px) { .w-music { border-radius: 20px; } }
       `;
       document.head.appendChild(style);
@@ -240,32 +246,15 @@
 
     HOME.innerHTML = `
       <div class="hgrid">
-        <button class="widget wcal-wide" data-app="calendar" onclick="openApp('calendar',this)">
-          <div class="cal-left">
-            <div class="cal-top"><span class="cal-day">${todayD}</span><span class="cal-week">${wdLong(2026, 11, todayD).replace("星期", "周")}</span></div>
-            <div class="cal-events">${evHTML}</div>
-          </div>
-          <div class="cal-right"><div class="cal-month-title">11月</div><div class="mini-cal">${buildMiniCalHTML(2026, 11, todayD)}</div></div>
-        </button>
-
-        <button class="widget wwx-dark" data-app="weather" onclick="openApp('weather',this)" style="position: relative; overflow: hidden;">
-          ${snowHtml}
-          <div style="position: absolute; top: 20px; right: -5px; font-size: 90px; line-height: 1; z-index: 0; opacity: 0.6;">🌨️</div>
-          <div style="font-size: 18px; font-weight: 500; margin-bottom: 2px; position: relative; z-index: 1;">北京</div>
-          <div style="font-size: 64px; font-weight: 200; line-height: 1; letter-spacing: -1.5px; margin-top: 4px; margin-bottom: 2px; position: relative; z-index: 1;">0°</div>
-          <div style="font-size: 17px; font-weight: 500; margin-top: 2px; margin-bottom: auto; position: relative; z-index: 1;">阴转小雪</div>
-          <div style="display: flex; gap: 12px; align-items: flex-end; margin-top: 8px; position: relative; z-index: 1;">
-            <div style="display: flex; align-items: flex-end;">
-              <div style="font-size: 11px; line-height: 1.1; margin-right: 3px; opacity: 0.9; margin-bottom: 2px;">最<br>高</div>
-              <div style="font-size: 22px; font-weight: 400; line-height: 1;">2°</div>
+        <div class="widget wgroup">
+          ${[["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]].map(([id, label]) => `
+            <div class="wapp" data-app="${id}" onclick="event.stopPropagation();openApp('${id}',this)">
+              <div class="ic">${appIcon(id)}</div>
+              <div class="wl">${label}</div>
             </div>
-            <div style="display: flex; align-items: flex-end;">
-              <div style="font-size: 11px; line-height: 1.1; margin-right: 3px; opacity: 0.9; margin-bottom: 2px;">最<br>低</div>
-              <div style="font-size: 22px; font-weight: 400; line-height: 1;">-3°</div>
-            </div>
-          </div>
-        </button>
-        ${appBtn("photos")}${appBtn("mail")}${appBtn("clock")}${appBtn("recorder")}
+          `).join("")}
+        </div>
+        ${appBtn("photos")}${appBtn("mail")}${appBtn("recorder")}
         
         ${appBtn("weibo")}${appBtn("xianyu")}
         ${musicHTML}
