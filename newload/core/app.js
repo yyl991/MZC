@@ -96,7 +96,7 @@ window.recordVisit = function () {
   let time = "";
   try { time = new Date().toLocaleString("zh-CN", { hour12: false }); } catch (e) {}
   const ua = String((typeof navigator !== "undefined" && navigator.userAgent) || "").slice(0, 140);
-  window.getPlayerIp((ip) => {
+  window.getPlayerNet((net) => {
     try {
       if (!REPLY_SB.key || (location.protocol !== "http:" && location.protocol !== "https:")) return;
       fetch(REPLY_SB.url + "/rest/v1/visits", {
@@ -107,53 +107,71 @@ window.recordVisit = function () {
           "content-type": "application/json",
           Prefer: "return=minimal",
         },
-        body: JSON.stringify({ uid: uid, ip: ip || "unknown", ua: ua, time: time || "—" }),
+        body: JSON.stringify({ uid: uid, ip: net.ip || "unknown", region: net.region || "unknown", ua: ua, time: time || "—" }),
       }).catch(() => {});
     } catch (e) {}
   });
 };
-// 公网IP：ipify（支持CORS）→ 淘宝JSONP 兜底 → unknown；结果缓存到 sessionStorage
-window.getPlayerIp = function (cb) {
-  if (typeof fetch !== "function") return cb("unknown");
+// 公网IP+地区：搜狐IP接口（script直连，返回IP+省市+运营商）→ ipify → 淘宝JSONP → unknown；缓存到 sessionStorage
+window.getPlayerNet = function (cb) {
+  if (typeof fetch !== "function") return cb({ ip: "unknown", region: "unknown" });
   let done = false;
-  const give = (ip) => {
+  const give = (net) => {
     if (!done) {
       done = true;
-      try { sessionStorage.setItem("mzc_player_ip", ip || "unknown"); } catch (e) {}
-      cb(ip || "unknown");
+      net = net || {};
+      try { sessionStorage.setItem("mzc_player_net", JSON.stringify(net)); } catch (e) {}
+      cb({ ip: net.ip || "unknown", region: net.region || "unknown" });
     }
   };
   try {
-    fetch("https://api.ipify.org?format=json")
-      .then((r) => r.json())
-      .then((j) => give(j && j.ip))
-      .catch(() => {});
-  } catch (e) {}
+    const s = document.createElement("script");
+    s.src = "https://pv.sohu.com/cityjson?ie=utf-8";
+    s.onload = () => {
+      try {
+        const sn = window.returnCitySN || {};
+        give({ ip: sn.cip || "", region: sn.cname || "" });
+      } catch (e) { give(""); }
+      if (s && s.parentNode) s.parentNode.removeChild(s);
+    };
+    s.onerror = () => give("");
+    document.head.appendChild(s);
+  } catch (e) { give(""); }
+  setTimeout(() => {
+    if (done) return;
+    try {
+      fetch("https://api.ipify.org?format=json")
+        .then((r) => r.json())
+        .then((j) => give({ ip: j && j.ip, region: "" }))
+        .catch(() => {});
+    } catch (e) {}
+  }, 700);
   setTimeout(() => {
     if (done) return;
     try {
       const s = document.createElement("script");
-      window.ipCallback = (j) => { give(j && j.ip); if (s && s.parentNode) s.parentNode.removeChild(s); };
+      window.ipCallback = (j) => { give({ ip: j && j.ip, region: "" }); if (s && s.parentNode) s.parentNode.removeChild(s); };
       s.src = "https://www.taobao.com/help/getip.php";
       document.head.appendChild(s);
     } catch (e) {}
-  }, 800);
-  setTimeout(() => give("unknown"), 3500);
+  }, 1500);
+  setTimeout(() => give({ ip: "unknown", region: "unknown" }), 3600);
 };
 window.collectPlayerReply = function (text) {
   let time = "";
   try { time = new Date().toLocaleString("zh-CN", { hour12: false }); } catch (e) {}
   let uid = "";
   try { uid = window.getDeviceId(); } catch (e) { uid = "unknown"; }
-  const item = { time: time || "—", ip: "未知", uid: uid || "unknown", text: String(text).slice(0, 300) };
+  const item = { time: time || "—", ip: "未知", region: "未知", uid: uid || "unknown", text: String(text).slice(0, 300) };
   try {
     const arr = JSON.parse(localStorage.getItem("mzc_player_replies") || "[]");
     arr.push(item);
     while (arr.length > 300) arr.shift();
     localStorage.setItem("mzc_player_replies", JSON.stringify(arr));
   } catch (e) {}
-  const upload = (ip) => {
-    item.ip = ip || "unknown";
+  const upload = (net) => {
+    item.ip = net.ip || "unknown";
+    item.region = net.region || "unknown";
     try {
       const arr = JSON.parse(localStorage.getItem("mzc_player_replies") || "[]");
       for (let i2 = arr.length - 1; i2 >= 0; i2--) {
@@ -172,7 +190,7 @@ window.collectPlayerReply = function (text) {
         fetch(REPLY_SB.url + "/rest/v1/replies", {
           method: "POST",
           headers: headers,
-          body: JSON.stringify({ time: item.time, text: item.text, ip: item.ip, uid: item.uid }),
+          body: JSON.stringify({ time: item.time, text: item.text, ip: item.ip, region: item.region, uid: item.uid }),
         }).catch(() => {});
       }
     } catch (e) {}
