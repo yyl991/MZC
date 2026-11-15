@@ -191,12 +191,17 @@
         .vinyl-spinner { width: 80%; aspect-ratio: 1; border-radius: 50%; border: 1px solid #222; box-shadow: 0 0 10px rgba(0,0,0,0.8); overflow: hidden; position: relative; }
         .vinyl-cover-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; transition: opacity 0.4s ease-in-out; pointer-events: none; }
         .tonearm { position: absolute; top: 0; right: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
-        .wgroup-frame { grid-column: 1 / 3; grid-row: 1 / 5; aspect-ratio: auto; background: rgba(255,255,255,0.16); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 28px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.42), 0 4px 18px rgba(0,0,0,0.10); display: grid; grid-template-columns: 1fr 1fr; gap: 24px 10px; align-content: start; justify-items: center; padding: 26px 14px; box-sizing: border-box; }
-        .wgroup-frame .wapp { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; border-radius: 16px; padding: 6px 4px; transition: background .15s, transform .12s; }
-        .wgroup-frame .wapp:active { background: rgba(255,255,255,0.14); transform: scale(.95); }
-        .wgroup-frame .wicon { width: 56px; height: 56px; border-radius: 14.5px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.18); }
+        .wgroup-frame { grid-column: 3 / 5; grid-row: 3 / 5; justify-self: start; align-self: start; width: 148px; height: 148px; background: rgba(255,255,255,0.30); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-radius: 26px; box-shadow: 0 4px 15px rgba(0,0,0,0.10), inset 0 0 0 1px rgba(255,255,255,0.22); display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; padding: 12px; box-sizing: border-box; }
+        .wgroup-frame .wapp { display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 14px; transition: background .15s, transform .12s; }
+        .wgroup-frame .wapp:active { background: rgba(255,255,255,0.30); transform: scale(.93); }
+        .wgroup-frame .wicon { width: 42px; height: 42px; border-radius: 11px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
         .wgroup-frame .wicon svg { width: 100%; height: 100%; display: block; }
-        .wgroup-frame .wl { color: #fff; font-size: 12px; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,.45); }
+        .hgrid > .app[data-app="recorder"] { grid-column: 1; grid-row: 4; }
+        .hgrid > .app[data-app="weibo"] { grid-column: 2; grid-row: 4; }
+        .hgrid > .app[data-app="xianyu"] { grid-column: 1; grid-row: 5; }
+        .hgrid > .app[data-app="music"] { grid-column: 2 / 4; grid-row: 5 / 7; }
+        .hgrid > .app[data-app="bilibili"] { grid-column: 3; grid-row: 6; }
+        .hgrid > .app[data-app="xhs"] { grid-column: 4; grid-row: 6; }
         .hgrid > .app[data-app="xhs"] { grid-column: 1; grid-row: 5; }
         @media (max-width: 540px) { .w-music { border-radius: 20px; } }
       `;
@@ -247,15 +252,40 @@
 
     HOME.innerHTML = `
       <div class="hgrid">
-        <div class="widget wgroup-frame">
-          ${[["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]].map(([id, label]) => `
+        <button class="widget wcal-wide" data-app="calendar" onclick="openApp('calendar',this)">
+          <div class="cal-left">
+            <div class="cal-top"><span class="cal-day">${todayD}</span><span class="cal-week">${wdLong(2026, 11, todayD).replace("星期", "周")}</span></div>
+            <div class="cal-events">${evHTML}</div>
+          </div>
+          <div class="cal-right"><div class="cal-month-title">11月</div><div class="mini-cal">${buildMiniCalHTML(2026, 11, todayD)}</div></div>
+        </button>
+
+        <button class="widget wwx-dark" data-app="weather" onclick="openApp('weather',this)" style="position: relative; overflow: hidden;">
+          ${snowHtml}
+          <div style="position: absolute; top: 20px; right: -5px; font-size: 90px; line-height: 1; z-index: 0; opacity: 0.6;">🌨️</div>
+          <div style="font-size: 18px; font-weight: 500; margin-bottom: 2px; position: relative; z-index: 1;">北京</div>
+          <div style="font-size: 64px; font-weight: 200; line-height: 1; letter-spacing: -1.5px; margin-top: 4px; margin-bottom: 2px; position: relative; z-index: 1;">0°</div>
+          <div style="font-size: 17px; font-weight: 500; margin-top: 2px; margin-bottom: auto; position: relative; z-index: 1;">阴转小雪</div>
+          <div style="display: flex; gap: 12px; align-items: flex-end; margin-top: 8px; position: relative; z-index: 1;">
+            <div style="display: flex; align-items: flex-end;">
+              <div style="font-size: 11px; line-height: 1.1; margin-right: 3px; opacity: 0.9; margin-bottom: 2px;">最<br>高</div>
+              <div style="font-size: 22px; font-weight: 400; line-height: 1;">2°</div>
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+              <div style="font-size: 11px; line-height: 1.1; margin-right: 3px; opacity: 0.9; margin-bottom: 2px;">最<br>低</div>
+              <div style="font-size: 22px; font-weight: 400; line-height: 1;">-3°</div>
+            </div>
+          </div>
+        </button>
+        ${appBtn("photos")}${appBtn("mail")}
+        <div class="wgroup-frame">
+          ${[["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]].map(([id]) => `
             <div class="wapp" data-app="${id}" onclick="event.stopPropagation();openApp('${id}',this)">
               <div class="wicon">${appIcon(id)}</div>
-              <div class="wl">${label}</div>
             </div>
           `).join("")}
         </div>
-        ${appBtn("photos")}${appBtn("mail")}${appBtn("recorder")}
+        ${appBtn("recorder")}
         
         ${appBtn("weibo")}${appBtn("xianyu")}
         ${musicHTML}
