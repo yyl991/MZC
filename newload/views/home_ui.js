@@ -386,13 +386,6 @@
     ov.style.display = "flex";
     const panel = ov.querySelector(".wgroup-panel");
     if (panel) panel.innerHTML = wgroupPanelHTML(wgroupOpenKind);
-    if (panel && el && el.firstElementChild) {
-      try {
-        const r = el.firstElementChild.getBoundingClientRect();
-        const or = ov.getBoundingClientRect();
-        panel.style.transformOrigin = `${r.left + r.width / 2 - or.left}px ${r.top + r.height / 2 - or.top}px`;
-      } catch (e) {}
-    }
     ov.classList.add("on");
   };
 
