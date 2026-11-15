@@ -1859,22 +1859,97 @@ VIEWS.settings_about = () => {
 };
 
 VIEWS.instagram = () => {
-  const insImgs = Array.from({ length: 18 }, (_, i) => `./data/ins/ins (${i + 1}).jpg`);
+  const gridIcon = `<svg width="21" height="21" viewBox="0 0 24 24" fill="#111">${[0, 1, 2].map((r) => [0, 1, 2].map((c) => `<rect x="${2 + c * 7.5}" y="${2 + r * 7.5}" width="6" height="6" rx="1"/>`).join("")).join("")}</svg>`;
+  const tagIcon = `<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="1.8"><rect x="2.5" y="2.5" width="19" height="19" rx="2.5"/><circle cx="12" cy="9.5" r="3.2"/><path d="M5.8 20.5c1.2-3.6 3.4-5.3 6.2-5.3s5 1.7 6.2 5.3"/></svg>`;
+  const stackIcon = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="filter:drop-shadow(0 1px 2px rgba(0,0,0,.35));"><rect x="8" y="3.5" width="12.5" height="12.5" rx="3" fill="#fff" stroke="none"/><rect x="3.5" y="8" width="12.5" height="12.5" rx="3"/></svg>`;
   return {
     html: `
-      <div style="position:absolute; top:0; left:0; right:0; z-index:10; background:#fff; border-bottom:0.5px solid #eee;">
+      <div style="position:absolute; top:0; left:0; right:0; z-index:10; background:#fff;">
         <div style="height:44px;"></div>
-        <div style="display:flex; align-items:center; gap:8px; padding:0 14px; height:44px;">
-          <button onclick="closeApp()" style="border:none; background:none; padding:2px 4px 2px 0; cursor:pointer;">${G.chevL.replace("<svg", '<svg width="20" height="20" stroke="#111" stroke-width="2.2"')}</button>
-          <span style="flex:1; font-family:'Brush Script MT','Segoe Script','Snell Roundhand',cursive; font-size:26px; color:#111;">Instagram</span>
-          <span style="font-size:18px;">♡</span>
-          <span style="font-size:17px;">✈️</span>
+        <div style="display:flex; align-items:center; padding:0 14px; height:48px;">
+          <button onclick="closeApp()" style="border:none; background:none; padding:2px 8px 2px 0; cursor:pointer;">${G.chevL.replace("<svg", '<svg width="22" height="22" stroke="#111" stroke-width="2.4"')}</button>
+          <span style="flex:1; font-size:21px; font-weight:700; color:#111;">muzh1ch3ng</span>
+          <span onclick="toastDev()" style="font-size:18px; padding:0 7px; cursor:pointer;">🔔</span>
+          <span onclick="toastDev()" style="font-size:18px; padding-left:7px; cursor:pointer;">⋮</span>
         </div>
       </div>
-      <div class="scroll" style="background:#fff; padding-top:88px; padding-bottom:20px;">
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:2px;">
-          ${insImgs.map((src, i) => `<div style="aspect-ratio:1; overflow:hidden; cursor:pointer;" onclick='openMediaViewer(${JSON.stringify(insImgs)}, ${i})'><img src="${src}" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block;"></div>`).join("")}
+      <div class="scroll" style="background:#fff; padding-top:92px; padding-bottom:30px;">
+        <div style="display:flex; align-items:center; gap:16px; padding:6px 16px 2px;">
+          <div style="position:relative; flex:none;">
+            <div style="width:86px; height:86px; border-radius:50%; background:#0b0b0b; display:grid; place-items:center; color:#fff; font-size:15px;">施工中</div>
+            <div style="position:absolute; bottom:0; left:0; width:22px; height:22px; border-radius:7px; background:#4150f7; color:#fff; font-size:12px; font-weight:700; display:grid; place-items:center; border:2.5px solid #fff;">新</div>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:15px; font-weight:600; color:#111; margin:0 0 10px;">穆祉丞</div>
+            <div style="display:flex; text-align:center;">
+              <div style="flex:1;"><div style="font-size:17px; font-weight:700; color:#111;">1</div><div style="font-size:13px; color:#555;">帖子</div></div>
+              <div style="flex:1;"><div style="font-size:17px; font-weight:700; color:#111;">29.1千</div><div style="font-size:13px; color:#555;">粉丝</div></div>
+              <div style="flex:1;"><div style="font-size:17px; font-weight:700; color:#111;">0</div><div style="font-size:13px; color:#555;">关注</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; padding:16px 16px 8px;">
+          <button onclick="toastDev()" style="flex:1.4; height:40px; border:none; border-radius:10px; background:#efefef; font-size:14px; font-weight:600; color:#111; cursor:pointer;">已关注 ▾</button>
+          <button onclick="toastDev()" style="flex:1.4; height:40px; border:none; border-radius:10px; background:#efefef; font-size:14px; font-weight:600; color:#111; cursor:pointer;">发消息</button>
+          <button onclick="toastDev()" style="flex:0.6; height:40px; border:none; border-radius:10px; background:#efefef; font-size:15px; color:#111; cursor:pointer;">＋人</button>
+        </div>
+        <div style="display:flex; margin-top:8px;">
+          <div style="flex:1; display:grid; place-items:center; height:46px; border-bottom:1.5px solid #111; cursor:pointer;">${gridIcon}</div>
+          <div style="flex:1; display:grid; place-items:center; height:46px; border-bottom:1.5px solid transparent; cursor:pointer;" onclick="toastDev()">${tagIcon}</div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:2px; margin-top:2px;">
+          <div style="position:relative; aspect-ratio:1; overflow:hidden; cursor:pointer;" onclick='push("instagram_post")'>
+            <img src="./data/ins/ins (1).jpg" style="width:100%; height:100%; object-fit:cover; display:block;">
+            <div style="position:absolute; top:7px; right:7px;">${stackIcon}</div>
+          </div>
         </div>
       </div>`,
   };
+};
+
+VIEWS.instagram_post = () => {
+  const insImgs = Array.from({ length: 18 }, (_, i) => `./data/ins/ins (${i + 1}).jpg`);
+  const dots = Array.from({ length: 18 }, (_, i) => `<div style="width:6px; height:6px; border-radius:50%; background:${i === 0 ? "#4193ef" : "#c9c9c9"};"></div>`).join("");
+  return {
+    html: `
+      <div style="position:absolute; top:0; left:0; right:0; z-index:10; background:#fff;">
+        <div style="height:44px;"></div>
+        <div style="display:flex; align-items:center; padding:0 14px; height:48px;">
+          <button onclick="back()" style="border:none; background:none; padding:2px 8px 2px 0; cursor:pointer;">${G.chevL.replace("<svg", '<svg width="22" height="22" stroke="#111" stroke-width="2.4"')}</button>
+          <span style="font-size:19px; font-weight:700; color:#111;">帖子</span>
+        </div>
+      </div>
+      <div class="scroll" style="background:#fff; padding-top:92px; padding-bottom:30px;">
+        <div style="display:flex; align-items:center; gap:10px; padding:4px 16px 12px;">
+          <div style="width:38px; height:38px; border-radius:50%; background:#0b0b0b; color:#fff; font-size:8px; display:grid; place-items:center; flex:none;">施工中</div>
+          <span style="flex:1; font-size:15px; font-weight:700; color:#111;">muzh1ch3ng</span>
+          <span onclick="toastDev()" style="font-size:17px; cursor:pointer;">☰</span>
+        </div>
+        <div style="position:relative;">
+          <div id="ins-carousel" onscroll="insCarouselScroll(this)" style="display:flex; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
+            ${insImgs.map((src) => `<div style="flex:0 0 100%; scroll-snap-align:center;"><img src="${src}" loading="lazy" style="width:100%; display:block;"></div>`).join("")}
+          </div>
+          <style>#ins-carousel::-webkit-scrollbar { display: none; }</style>
+          <div id="ins-count" style="position:absolute; top:10px; right:10px; background:rgba(30,30,30,.72); color:#fff; font-size:12px; font-weight:600; padding:4px 10px; border-radius:14px;">1/18</div>
+        </div>
+        <div id="ins-dots" style="display:flex; justify-content:center; gap:4px; padding:12px 0 4px;">${dots}</div>
+        <div style="display:flex; align-items:center; padding:8px 12px 2px;">
+          <span onclick="toastDev()" style="font-size:19px; cursor:pointer;">❤️</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">22.3千</span>
+          <span onclick="toastDev()" style="font-size:18px; cursor:pointer;">💬</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">20千</span>
+          <span onclick="toastDev()" style="font-size:18px; cursor:pointer;">🔁</span><span style="font-size:14px; font-weight:600; color:#111; margin:0 12px 0 6px;">5,199</span>
+          <span onclick="toastDev()" style="font-size:17px; cursor:pointer;">✈️</span><span style="font-size:14px; font-weight:600; color:#111; margin-left:6px;">4,282</span>
+          <span onclick="toastDev()" style="font-size:18px; margin-left:auto; cursor:pointer;">🔖</span>
+        </div>
+        <div style="padding:10px 16px 2px; font-size:14px; color:#111;"><b>muzh1ch3ng</b> MU18.zip</div>
+        <div style="padding:4px 16px; font-size:12px; color:#8e8e93;">23小时前</div>
+      </div>`,
+  };
+};
+
+window.insCarouselScroll = function (el) {
+  const i = Math.max(0, Math.min(17, Math.round(el.scrollLeft / el.clientWidth)));
+  const c = document.getElementById("ins-count");
+  if (c) c.textContent = (i + 1) + "/18";
+  const d = document.getElementById("ins-dots");
+  if (d) d.querySelectorAll("div").forEach((x, j) => { x.style.background = j === i ? "#4193ef" : "#c9c9c9"; });
 };
