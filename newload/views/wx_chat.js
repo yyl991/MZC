@@ -1688,13 +1688,13 @@ window.sendEnzaiChat = function (msg) {
     deliverFrom("恩仔", msg);
   }, 600);
 };
-// 「好不好？」发出约9秒无回复 → 两条追问；玩家一回复就取消
+// 「好不好？」发出约5秒无回复 → 两条追问；玩家一回复就取消
 window.scheduleEnzaiNudge = function () {
   window._enzaiNudgeTo = setTimeout(() => {
     if (window._enzaiReplied) return;
     sendEnzaiChat("怎么不说话");
     window._enzaiNudge2To = setTimeout(() => { if (!window._enzaiReplied) sendEnzaiChat("好不好嘛😾"); }, 1300);
-  }, 9000);
+  }, 5000);
 };
 function sendLine() {
   if (!SS.pendingText) return;
