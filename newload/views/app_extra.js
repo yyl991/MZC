@@ -1851,7 +1851,7 @@ VIEWS.settings_about = () => {
         <div class="group" style="margin-bottom:16px;">
           ${settingsInfoRow("名称", "小狗团的 iPhone")}
           ${settingsInfoRow("型号名称", "iPhone 17 Pro")}
-          ${settingsInfoRow("系统版本", "iOS 18.1")}
+          ${settingsInfoRow("系统版本", "iOS 19.0")}
           ${settingsInfoRow("序列号", "F2LX9K3Q7H2J")}
         </div>
       </div>`,
