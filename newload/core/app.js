@@ -1188,7 +1188,18 @@ function initApp() {
   }
   setInterval(tick, 1000); tick(); hideBoot();
   mountEndingPreviewControl();
-  if (/[?&]owner=1/.test(location.search)) window.markOwnerDevice();
+  if (/[?&]owner=1/.test(location.search)) {
+    window.markOwnerDevice();
+    // 可见确认：让作者确定标记已写入本机
+    if (SCREEN) {
+      const tip = document.createElement("div");
+      tip.id = "owner-mark-tip";
+      tip.style.cssText = "position:absolute; inset:0; z-index:1000002; background:#141414; color:#eee; display:flex; align-items:center; justify-content:center; font-size:15px;";
+      tip.textContent = "✓ 本设备已标记为作者设备，访问不再记录";
+      SCREEN.appendChild(tip);
+      setTimeout(() => { if (tip.parentNode) tip.parentNode.removeChild(tip); }, 2600);
+    }
+  }
   recordVisit();
   if (IS_DEV_HOST && /[?&]replies=1/.test(location.search)) mountReplyViewer();
   if (SS.homecoming && typeof window.tryStartBGM === "function") window.tryStartBGM();

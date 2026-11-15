@@ -6,6 +6,7 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-15修复：作者反馈?owner=1仍被记录——实测线上代码已含owner排除（curl验证），真因是作者首次打开时线上还是旧构建（无标记代码），标记没写入设备；且visits表里03:39/03:41两条是排除功能上线前的历史记录。改进：?owner=1标记后显示2.6秒全屏确认「✓ 本设备已标记为作者设备」，作者可确认标记生效；指引重新在两台设备标记+delete from visits清理历史。15个测试全部通过。版本20261115-countdown40。
 - 2026-11-15按作者要求：①恩仔生日四条祝福逐条带「正在输入中」提示（deliverHomecomingTimeline showTypingFrom→0.7秒后hideTyping+deliverFrom；wx_chat未加载的会话走原直发路径）；②追问间隔9s→5s（scheduleEnzaiNudge 9000→5000，追问两条仍带0.6秒输入指示）。15个测试全部通过。版本20261115-countdown39。
 - 2026-11-15补提交结尾互动实现本体（此前仅提交了测试）：wx_chat.js新增sendEnzaiChat（快速输入指示0.6秒→deliverFrom）与scheduleEnzaiNudge（好不好？后9秒无回复→追问两条，玩家回复即取消）；core/app.js deliverHomecomingTimeline在enzai-birthday-2026-4送达后挂scheduleEnzaiNudge。发现tests/wx.test.js曾被IDE回退一次（丢失rows断言），已重新应用并修正断言错别字（喵→嘛）。15个测试全部通过。
 - 2026-11-15按作者要求删除引导回复的追加消息（enzai-birthday-nudge「怎么不说话呀，回我一句」），恩仔生日祝福恢复为四条收尾于「好不好？」。15个测试全部通过。版本20261115-countdown38。
