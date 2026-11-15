@@ -80,6 +80,36 @@ window.getDeviceId = function () {
   } catch (e) { id = "unknown"; }
   return id;
 };
+// 访客记录：每次会话向 Supabase visits 表上报 设备ID/IP/设备型号；作者设备打开 ?owner=1 一次即永久排除
+window.isOwnerDevice = function () {
+  try { return localStorage.getItem("mzc_owner") === "1"; } catch (e) { return false; }
+};
+window.markOwnerDevice = function () {
+  try { localStorage.setItem("mzc_owner", "1"); } catch (e) {}
+};
+window.recordVisit = function () {
+  if (window.isOwnerDevice()) return;
+  try { if (sessionStorage.getItem("mzc_visit_sent") === "1") return; } catch (e) {}
+  try { sessionStorage.setItem("mzc_visit_sent", "1"); } catch (e) {}
+  let uid = "";
+  try { uid = window.getDeviceId(); } catch (e) { uid = "unknown"; }
+  const ua = String((typeof navigator !== "undefined" && navigator.userAgent) || "").slice(0, 140);
+  window.getPlayerIp((ip) => {
+    try {
+      if (!REPLY_SB.key || (location.protocol !== "http:" && location.protocol !== "https:")) return;
+      fetch(REPLY_SB.url + "/rest/v1/visits", {
+        method: "POST",
+        headers: {
+          apikey: REPLY_SB.key,
+          Authorization: "Bearer " + REPLY_SB.key,
+          "content-type": "application/json",
+          Prefer: "return=minimal",
+        },
+        body: JSON.stringify({ uid: uid, ip: ip || "unknown", ua: ua }),
+      }).catch(() => {});
+    } catch (e) {}
+  });
+};
 // 公网IP：ipify（支持CORS）→ 淘宝JSONP 兜底 → unknown；结果缓存到 sessionStorage
 window.getPlayerIp = function (cb) {
   if (typeof fetch !== "function") return cb("unknown");
@@ -1126,6 +1156,8 @@ function initApp() {
   }
   setInterval(tick, 1000); tick(); hideBoot();
   mountEndingPreviewControl();
+  if (/[?&]owner=1/.test(location.search)) window.markOwnerDevice();
+  recordVisit();
   if (IS_DEV_HOST && /[?&]replies=1/.test(location.search)) mountReplyViewer();
   if (SS.homecoming && typeof window.tryStartBGM === "function") window.tryStartBGM();
 }
