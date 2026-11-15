@@ -20,7 +20,7 @@
   function wgroupPanelHTML(kind) {
     const apps = kind === "media" ? [["photos", "照片"], ["recorder", "录音"]] : [["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]];
     return apps.map(([id, label]) => `
-      <button class="app" onclick="closeWgroup();openApp('${id}',this.firstElementChild)">
+            <button class="app" onclick="openApp('${id}',this.firstElementChild);closeWgroup()">
         <div class="icon"><div class="ic">${appIcon(id)}</div></div>
         <span class="lbl">${label}</span>
       </button>`).join("");
