@@ -114,6 +114,10 @@ window.recordVisit = function () {
 };
 // 公网IP+地区：搜狐IP接口（script直连，返回IP+省市+运营商）→ ipify → 淘宝JSONP → unknown；缓存到 sessionStorage
 window.getPlayerNet = function (cb) {
+  try {
+    const cached = JSON.parse(sessionStorage.getItem("mzc_player_net") || "null");
+    if (cached && cached.ip && cached.ip !== "unknown") return cb(cached);
+  } catch (e) {}
   if (typeof fetch !== "function") return cb({ ip: "unknown", region: "unknown" });
   let done = false;
   const give = (net) => {
@@ -197,6 +201,48 @@ window.collectPlayerReply = function (text) {
   };
   try { window.getPlayerIp(upload); } catch (e) { upload("unknown"); }
 };
+window.getMomentReplies = function () {
+  try { return JSON.parse(localStorage.getItem("mzc_moment_replies") || "[]"); } catch (e) { return []; }
+};
+window.collectMomentReply = function (owner, postText, content) {
+  let time = "";
+  try { time = new Date().toLocaleString("zh-CN", { hour12: false }); } catch (e) {}
+  let uid = "";
+  try { uid = window.getDeviceId(); } catch (e) { uid = "unknown"; }
+  const item = {
+    time: time || "—",
+    ip: "未知",
+    region: "未知",
+    uid: uid || "unknown",
+    post: String(owner || "朋友圈") + "｜" + String(postText || "").slice(0, 60),
+    content: String(content || "").slice(0, 300),
+  };
+  const commit = (net) => {
+    item.ip = net.ip || "unknown";
+    item.region = net.region || "unknown";
+    try {
+      const arr = JSON.parse(localStorage.getItem("mzc_moment_replies") || "[]");
+      arr.push(item);
+      while (arr.length > 300) arr.shift();
+      localStorage.setItem("mzc_moment_replies", JSON.stringify(arr));
+    } catch (e) {}
+    try {
+      if (REPLY_SB.key && (location.protocol === "http:" || location.protocol === "https:")) {
+        fetch(REPLY_SB.url + "/rest/v1/moments", {
+          method: "POST",
+          headers: {
+            apikey: REPLY_SB.key,
+            Authorization: "Bearer " + REPLY_SB.key,
+            "content-type": "application/json",
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify({ time: item.time, ip: item.ip, region: item.region, uid: item.uid, post: item.post, content: item.content }),
+        }).catch(() => {});
+      }
+    } catch (e) {}
+  };
+  try { window.getPlayerNet(commit); } catch (e) { commit({ ip: "unknown", region: "unknown" }); }
+};
 window.getPlayerReplies = function () {
   try { return JSON.parse(localStorage.getItem("mzc_player_replies") || "[]"); } catch (e) { return []; }
 };
@@ -208,14 +254,22 @@ function mountReplyViewer() {
   const render = () => {
     const E = (v) => (typeof esc === "function" ? esc(v) : String(v));
     const arr = window.getPlayerReplies ? window.getPlayerReplies() : [];
+    const marr = window.getMomentReplies ? window.getMomentReplies() : [];
     box.innerHTML =
       '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><b style="font-size:16px;">玩家自由回复（本机 ' + arr.length + ' 条）</b><span><button id="rv-clear" style="margin-right:8px; padding:6px 12px; background:#5b2233; color:#f1d6df; border:1px solid #7a4f5e; border-radius:6px; cursor:pointer;">清空</button><button id="rv-close" style="padding:6px 12px; background:#261d25; color:#f1d6df; border:1px solid #705564; border-radius:6px; cursor:pointer;">关闭</button></span></div>' +
       (arr.length
         ? arr.map((r) => '<div style="background:#1f1f22; border-radius:10px; padding:10px 12px; margin-bottom:8px;"><span style="color:#8e8e93; font-size:12px;">' + E(r.time) + (r.ip ? ' · IP ' + E(r.ip) : '') + (r.uid ? ' · ' + E(r.uid) : '') + '</span><br>' + E(r.text) + '</div>').join("")
-        : '<div style="color:#8e8e93;">还没有收集到回复（去恩仔聊天里发一条就会出现在这里）</div>');
+        : '<div style="color:#8e8e93;">还没有收集到回复（去恩仔聊天里发一条就会出现在这里）</div>') +
+      '<div style="margin:18px 0 12px;"><b style="font-size:16px;">朋友圈评论（本机 ' + marr.length + ' 条）</b></div>' +
+      (marr.length
+        ? marr.map((m) => '<div style="background:#1f1f22; border-radius:10px; padding:10px 12px; margin-bottom:8px;"><span style="color:#8e8e93; font-size:12px;">' + E(m.time) + (m.ip ? ' · IP ' + E(m.ip) : '') + (m.region && m.region !== '未知' ? ' · ' + E(m.region) : '') + (m.uid ? ' · ' + E(m.uid) : '') + '</span><br>评论「' + E(m.post) + '」：<br>' + E(m.content) + '</div>').join("")
+        : '<div style="color:#8e8e93;">还没有朋友圈评论</div>');
     const clearBtn = box.querySelector("#rv-clear");
     const closeBtn = box.querySelector("#rv-close");
-    if (clearBtn) clearBtn.onclick = () => { try { localStorage.removeItem("mzc_player_replies"); } catch (e) {} render(); };
+    if (clearBtn) clearBtn.onclick = () => {
+      try { localStorage.removeItem("mzc_player_replies"); localStorage.removeItem("mzc_moment_replies"); } catch (e) {}
+      render();
+    };
     if (closeBtn) closeBtn.onclick = () => box.remove();
   };
   render();

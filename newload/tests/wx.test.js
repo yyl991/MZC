@@ -86,6 +86,13 @@ sb._enzaiReplied = true;
 sb.scheduleEnzaiNudge();
 assert.deepStrictEqual(sb._delivered, []); // 已回复则不再追问
 
+// ===== 朋友圈评论收集 =====
+sb.collectMomentReply = (owner, post, content) => { sb._mcollected = (sb._mcollected || []).concat([[owner, post, content]]); };
+sb.wxPrompt = (title, ph, cb) => cb("这条评论");
+sb.chatId = "穆祉丞";
+sb.wxMomentComment({ text: "测试帖子", comments: [] });
+assert.deepStrictEqual(sb._mcollected, [["穆祉丞", "测试帖子", "这条评论"]]);
+
 // ===== 0点前恩仔聊天：发送被忽略（不出气泡、不收集、不清输入） =====
 sb.chatData["恩仔"] = [["好不好?", "them", "上午 00:00"]];
 sb.SS.homecoming = null;
