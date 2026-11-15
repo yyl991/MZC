@@ -1858,4 +1858,23 @@ VIEWS.settings_about = () => {
   };
 };
 
-VIEWS.instagram = placeholderView("Instagram");
+VIEWS.instagram = () => {
+  const insImgs = Array.from({ length: 18 }, (_, i) => `./data/ins/ins (${i + 1}).jpg`);
+  return {
+    html: `
+      <div style="position:absolute; top:0; left:0; right:0; z-index:10; background:#fff; border-bottom:0.5px solid #eee;">
+        <div style="height:44px;"></div>
+        <div style="display:flex; align-items:center; gap:8px; padding:0 14px; height:44px;">
+          <button onclick="closeApp()" style="border:none; background:none; padding:2px 4px 2px 0; cursor:pointer;">${G.chevL.replace("<svg", '<svg width="20" height="20" stroke="#111" stroke-width="2.2"')}</button>
+          <span style="flex:1; font-family:'Brush Script MT','Segoe Script','Snell Roundhand',cursive; font-size:26px; color:#111;">Instagram</span>
+          <span style="font-size:18px;">♡</span>
+          <span style="font-size:17px;">✈️</span>
+        </div>
+      </div>
+      <div class="scroll" style="background:#fff; padding-top:88px; padding-bottom:20px;">
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:2px;">
+          ${insImgs.map((src, i) => `<div style="aspect-ratio:1; overflow:hidden; cursor:pointer;" onclick='openMediaViewer(${JSON.stringify(insImgs)}, ${i})'><img src="${src}" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block;"></div>`).join("")}
+        </div>
+      </div>`,
+  };
+};
