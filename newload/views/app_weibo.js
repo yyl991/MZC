@@ -185,6 +185,22 @@ const ARTIST_PINNED_WEIBO = [
 //上线前最后更新 11-15
 const ARTIST_NEW_WEIBO = [
   {
+    id: 6,
+    text: "冰原底下藏的不是钥匙\n岩层深处，新的故事正待发生\n\n#朝朝穆穆#",
+    time: "3小时前",
+    device: "",
+    images: [
+      "./data/weibo/1115 (1).jpg",
+      "./data/weibo/1115 (2).jpg",
+      "./data/weibo/1115 (3).jpg",
+      "./data/weibo/1115 (4).jpg",
+    ],
+    likes: "440万",
+    comments: "9.5万",
+    forwards: "100万+",
+    hot: "30000+",
+  },
+  {
     id: 5,
     text: "双脚踏在冰雪和泥土上\n19 岁的大门就在我的面前\n我选择————\n#朝朝穆穆#",
     time: "11-14 20:07",
