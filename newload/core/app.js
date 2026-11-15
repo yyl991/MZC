@@ -656,7 +656,7 @@ function closeApp() {
   if (view === "recorder" && PLAYER.dataset.isRecorder) PLAYER.pause();
   const root = rootOf(view); if (PLAYER.dataset.voice) PLAYER.pause();
   view = "home"; renderHome(); HOME.style.visibility = "visible"; setStatus(true);
-  const icon = HOME.querySelector(`.app[data-app="${root}"] .icon`); const r = icon ? relRect(icon) : { x: 166, y: 396, w: 60, h: 60 };
+  const icon = HOME.querySelector(`.app[data-app="${root}"] .icon`) || HOME.querySelector(`.wapp[data-app="${root}"]`); const r = icon ? relRect(icon) : { x: 166, y: 396, w: 60, h: 60 };
   const tok = ++animTok; APP.getAnimations().forEach((a) => a.cancel());
   const a = APP.animate(zoomFrames(r).reverse(), { duration: 460, easing: "cubic-bezier(.3,.75,.2,1)", fill: "forwards" });
   a.onfinish = () => { if (tok !== animTok) return; APP.style.visibility = "hidden"; APP.querySelectorAll("video").forEach((v) => v.pause()); APP.innerHTML = ""; a.cancel(); };

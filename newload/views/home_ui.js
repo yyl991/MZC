@@ -15,6 +15,16 @@
   let lastVinylTick = Date.now();
   let isVinylLoopRunning = false;
   let wgroupOpenState = false;
+  let wgroupOpenKind = "tools";
+
+  function wgroupPanelHTML(kind) {
+    const apps = kind === "media" ? [["photos", "照片"], ["recorder", "录音"]] : [["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]];
+    return apps.map(([id, label]) => `
+      <button class="app" onclick="closeWgroup();openApp('${id}',this.firstElementChild)">
+        <div class="icon"><div class="ic">${appIcon(id)}</div></div>
+        <span class="lbl">${label}</span>
+      </button>`).join("");
+  }
 
   const SIZE_PAUSE = 1.1; 
   const SIZE_PLAY = 1.2;  
@@ -200,7 +210,7 @@
         .wgroup-open { position: absolute; inset: 0; z-index: 1500; display: none; align-items: center; justify-content: center; background: rgba(15,15,15,0.28); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); }
         .wgroup-open.on { display: flex; }
         @keyframes wgroupZoom { from { transform: scale(.25); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .wgroup-panel { width: min(78%, 300px); border-radius: 38px; background: rgba(242,242,247,0.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 18px 50px rgba(0,0,0,0.22); display: grid; grid-template-columns: repeat(2, 74px); justify-content: center; align-content: center; gap: 20px 26px; padding: 34px 20px; animation: wgroupZoom .32s cubic-bezier(.25,.9,.35,1.12); }
+        .wgroup-panel { width: min(78%, 300px); aspect-ratio: 1/1; box-sizing: border-box; border-radius: 38px; background: rgba(242,242,247,0.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 18px 50px rgba(0,0,0,0.22); display: grid; grid-template-columns: repeat(2, 74px); justify-content: center; align-content: center; gap: 20px 26px; padding: 34px 20px; animation: wgroupZoom .32s cubic-bezier(.25,.9,.35,1.12); }
         .wgroup-panel .lbl { color: #1c1c1e; text-shadow: none; font-weight: 500; }
         @media (max-width: 540px) { .w-music { border-radius: 20px; } .wgroup-frame { padding: 6px; gap: 3px; } .wgroup-panel { border-radius: 32px; gap: 16px 22px; padding: 28px 16px; } }
       `;
@@ -276,7 +286,17 @@
             </div>
           </div>
         </button>
-        ${appBtn("photos")}${appBtn("mail")}
+        <button class="app" data-app="photos" onclick="openWgroup(this,'media')">
+          <div class="icon wgroup-frame">
+            ${[["photos", "照片"], ["recorder", "录音"]].map(([id]) => `
+              <div class="wapp" data-app="${id}">
+                <div class="wicon">${appIcon(id)}</div>
+              </div>
+            `).join("")}
+          </div>
+          <span class="lbl">那个用</span>
+        </button>
+        ${appBtn("mail")}
         <button class="app" data-app="clock" onclick="openWgroup(this)">
           <div class="icon wgroup-frame">
             ${[["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]].map(([id]) => `
@@ -287,7 +307,7 @@
           </div>
           <span class="lbl">实用工具</span>
         </button>
-        ${appBtn("recorder")}
+        ${appBtn("instagram")}
         
         ${appBtn("weibo")}${appBtn("xianyu")}
         ${musicHTML}
@@ -295,14 +315,7 @@
       </div>
 
       <div class="wgroup-open" id="wgroup-open" onclick="if(event.target===this)closeWgroup()">
-        <div class="wgroup-panel">
-          ${[["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]].map(([id, label]) => `
-            <button class="app" onclick="closeWgroup();openApp('${id}',this.firstElementChild)">
-              <div class="icon"><div class="ic">${appIcon(id)}</div></div>
-              <span class="lbl">${label}</span>
-            </button>
-          `).join("")}
-        </div>
+        <div class="wgroup-panel">${wgroupPanelHTML("tools")}</div>
       </div>
 
       <div class="floating-tools">
@@ -334,7 +347,11 @@
 
     if (wgroupOpenState) {
       const ov = document.getElementById("wgroup-open");
-      if (ov) { ov.style.display = "flex"; ov.classList.add("on"); }
+      if (ov) {
+        const panel = ov.querySelector(".wgroup-panel");
+        if (panel) panel.innerHTML = wgroupPanelHTML(wgroupOpenKind || "tools");
+        ov.style.display = "flex"; ov.classList.add("on");
+      }
     }
 
     setTimeout(() => {
@@ -361,12 +378,14 @@
     }
   }
 
-  window.openWgroup = function (el) {
+  window.openWgroup = function (el, kind) {
     const ov = document.getElementById("wgroup-open");
     if (!ov) return;
     wgroupOpenState = true;
+    wgroupOpenKind = kind || "tools";
     ov.style.display = "flex";
     const panel = ov.querySelector(".wgroup-panel");
+    if (panel) panel.innerHTML = wgroupPanelHTML(wgroupOpenKind);
     if (panel && el && el.firstElementChild) {
       try {
         const r = el.firstElementChild.getBoundingClientRect();

@@ -1737,7 +1737,7 @@ VIEWS.settings = () => {
           <div class="row tap" data-settings-row="Apple ID iCloud 账号 媒体与购买项目" onclick="toastDev()" style="min-height:70px;">
             ${avatar}
             <div style="flex:1;min-width:0;">
-              <div style="font-size:17px;font-weight:500;color:#111;">小狗团汪汪</div>
+              <div style="font-size:17px;font-weight:500;color:#111;">小狗团</div>
               <div style="font-size:12px;color:#8e8e93;margin-top:3px;">Apple ID、iCloud、媒体与购买项目</div>
             </div>
             ${G.chevR}
@@ -1746,21 +1746,21 @@ VIEWS.settings = () => {
 
         <div class="group" style="margin-bottom:16px;">
           ${settingsRow(settingsIcon("#ff9500", "✈️"), "飞行模式", settingsSwitch(s.airplane, "phoneToggle('airplane',this)"), "", "飞行模式 airplane")}
-          ${settingsRow(settingsIcon("#007aff", "📶"), "无线局域网", `${settingsValue(s.wifi ? "CMCC-EDU" : "关闭")}${settingsSwitch(s.wifi, "phoneToggle('wifi',this)")}`, "", "无线局域网 wifi")}
+          ${settingsRow(settingsIcon("#007aff", "📶"), "无线局域网", `${settingsValue(s.wifi ? "MZC-JBYZ" : "关闭")}${settingsSwitch(s.wifi, "phoneToggle('wifi',this)")}`, "", "无线局域网 wifi")}
           ${settingsRow(settingsIcon("#007aff", "ᛒ"), "蓝牙", `${settingsValue(s.bluetooth ? "已开启" : "关闭")}${settingsSwitch(s.bluetooth, "phoneToggle('bluetooth',this)")}`, "", "蓝牙 bluetooth")}
           ${settingsRow(settingsIcon("#34c759", "📱"), "蜂窝网络", `${settingsValue(s.cellular ? "中国移动" : "关闭")}${settingsSwitch(s.cellular, "phoneToggle('cellular',this)")}`, "", "蜂窝网络 移动 cellular")}
         </div>
 
         <div class="group" style="margin-bottom:16px;">
           ${settingsRow(settingsIcon("#fa5151", "🔔"), "通知", `${settingsValue(window._wxNotifyOn === false ? "关闭" : "开启")}${G.chevR}`, "push('settings_notifications')", "通知 notifications")}
-          ${settingsRow(settingsIcon("#8e8e93", "🌙"), "专注模式", settingsSwitch(window.isDnd, "phoneToggle('dnd',this)"), "", "专注模式 免打扰 dnd")}
-          ${settingsRow(settingsIcon("#5e5ce6", "⏱"), "屏幕使用时间", `${settingsValue("2小时13分")}${G.chevR}`, "", "屏幕使用时间 screen time")}
+          ${settingsRow(settingsIcon("#8e8e93", "🌙"), "免打扰模式", settingsSwitch(window.isDnd, "phoneToggle('dnd',this)"), "", "专注模式 免打扰 dnd")}
+          ${settingsRow(settingsIcon("#5e5ce6", "⏱"), "屏幕使用时间", `${settingsValue("11小时16分")}${G.chevR}`, "", "屏幕使用时间 screen time")}
         </div>
 
         <div class="group" style="margin-bottom:16px;">
           ${settingsRow(settingsIcon("#5856d6", "☀️"), "显示与亮度", G.chevR, "push('settings_display')", "显示与亮度 屏幕 brightness display")}
           ${settingsRow(settingsIcon("#5ac8fa", "🖼"), "墙纸", G.chevR, "push('settings_wallpaper')", "墙纸 壁纸 wallpaper")}
-          ${settingsRow(settingsIcon("#34c759", "🔋"), "电池", `${settingsValue("87%")}${G.chevR}`, "", "电池 battery")}
+          ${settingsRow(settingsIcon("#34c759", "🔋"), "电池", `${settingsValue("81%")}${G.chevR}`, "", "电池 battery")}
         </div>
 
         <div class="group" style="margin-bottom:8px;">
@@ -1832,7 +1832,7 @@ VIEWS.settings_notifications = () => {
         <div class="group" style="margin-bottom:16px;">
           ${settingsRow(settingsIcon("#07c160", "💬"), "微信", settingsSwitch(window._wxNotifyOn !== false, "toggleWxNotify(this)"), "", "微信 wechat 通知")}
           ${settingsRow(settingsIcon("#007aff", "✉️"), "邮件", settingsSwitch(window._mailNotifyOn !== false, "toggleMailNotify(this)"), "", "邮件 mail 通知")}
-          ${settingsRow(settingsIcon("#8e8e93", "🌙"), "专注模式", settingsSwitch(window.isDnd, "phoneToggle('dnd',this)"), "", "专注模式 免打扰 dnd")}
+          ${settingsRow(settingsIcon("#8e8e93", "🌙"), "免打扰模式", settingsSwitch(window.isDnd, "phoneToggle('dnd',this)"), "", "专注模式 免打扰 dnd")}
         </div>
         <div class="group">
           ${settingsInfoRow("横幅风格", "临时")}
@@ -1849,18 +1849,11 @@ VIEWS.settings_about = () => {
       navHTML({ title: "关于本机", back: "设置", solid: true }) +
       `<div class="scroll" style="padding-top:98px;padding-bottom:40px;background:#f2f2f7;">
         <div class="group" style="margin-bottom:16px;">
-          ${settingsInfoRow("名称", "小狗团汪汪的 iPhone")}
-          ${settingsInfoRow("型号名称", "iPhone 15 Pro")}
+          ${settingsInfoRow("名称", "小狗团的 iPhone")}
+          ${settingsInfoRow("型号名称", "iPhone 17 Pro")}
           ${settingsInfoRow("系统版本", "iOS 18.1")}
           ${settingsInfoRow("序列号", "F2LX9K3Q7H2J")}
         </div>
-        <div class="group" style="margin-bottom:16px;">
-          <div style="padding:14px 16px 4px;font-size:13px;color:#8e8e93;">捡到这部手机</div>
-          ${settingsInfoRow("捡到地点", "街角")}
-          ${settingsInfoRow("捡到时间", "11月15日 23:09")}
-          ${settingsInfoRow("锁屏留言", "快回家")}
-        </div>
-        <div style="padding:0 16px;font-size:12px;color:#8e8e93;line-height:1.5;">如果这是你的手机，请尽快联系失主。</div>
       </div>`,
   };
 };
