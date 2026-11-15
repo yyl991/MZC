@@ -6,6 +6,7 @@
 
 ## 本轮试验：零点强制传送回家
 
+- 2026-11-15按作者要求删除引导回复的追加消息（enzai-birthday-nudge「怎么不说话呀，回我一句」），恩仔生日祝福恢复为四条收尾于「好不好？」。15个测试全部通过。版本20261115-countdown38。
 - 2026-11-15IP升级为IP+地区：getPlayerIp改getPlayerNet——搜狐cityjson（script直连，返回IP+省市+运营商cname）→ ipify（仅IP）→ 淘宝JSONP → unknown；缓存sessionStorage（mzc_player_net）。collectPlayerReply与recordVisit均带region字段；查看层显示地区。需作者SQL补列：alter table replies add column if not exists region text; alter table visits add column if not exists region text; alter table visits add column if not exists time text;（未执行时对应上报静默失败，本机保留）。15个测试全部通过。版本20261115-countdown37。
 - 2026-11-15作者反馈visits时间“不对”——实测是对本机时间（Table Editor按浏览器时区显示，列宽截断了+08后缀像UTC）；为彻底避免歧义recordVisit增加time字段（玩家设备本地时间字符串，与replies表一致）。需作者SQL补列：alter table visits add column if not exists time text; 另：Windows设备ip=unknown系该设备上ipify/淘宝两个取IP接口均未通（可能代理拦截），不影响其他数据。15个测试全部通过。版本20261115-countdown36。
 - 2026-11-15按作者要求引导玩家自由回复：自动拉起输入法不可行（iOS/安卓禁止无交互弹键盘，桌面无此问题但主力是手机）——改为自然引导：homecomingTimeline追加第5条 id=enzai-birthday-nudge（after:7，恩仔「怎么不说话呀，回我一句」），在「好不好？」2.5秒后到达，明确邀请打字回复；无group字段故旧档（已收旧长句group）也会收到这条。数据改动不影响DATA_SIG（只hash chatData+timeline）。台词在story.js homecomingTimeline最后一条，作者可随意改。15个测试全部通过。版本20261115-countdown35。
