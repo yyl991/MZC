@@ -19,7 +19,7 @@ async function run() {
   assert.strictEqual(bgm.loads, 0);
   sb.SS.homecoming = { phase: "transferred" };
   sb.tryStartBGM(); await Promise.resolve();
-  assert.strictEqual(bgm.src, "./data/app/hb.mp3");
+  assert.strictEqual(bgm.src, "./data/app/hb.mp3?v=20261116");
   assert.strictEqual(bgm.loads, 1);
   assert.strictEqual(bgm.paused, false); // 传送幕已开始播放
   assert.strictEqual(bgm.loop, true);
@@ -27,7 +27,7 @@ async function run() {
   sb.SS.homecoming.phase = "exploring";
   sb.tryStartBGM(); await Promise.resolve();
   assert.strictEqual(bgm.loads, 2);
-  assert.strictEqual(bgm.src, "./data/app/19.mp3");
+  assert.strictEqual(bgm.src, "./data/app/19.mp3?v=20261116");
   assert.strictEqual(bgm.currentTime, 0); // 继续从传送音乐切到19
   bgm.currentTime = 12;
   sb.tryStartBGM(); await Promise.resolve();
@@ -36,12 +36,12 @@ async function run() {
   sb.AudioHub.pauseBGM(); voice.paused = false;
   sb.AudioHub.resumeBGM(); assert(bgm.paused);
   voice.paused = true; sb.AudioHub.resumeBGM();
-  assert(!bgm.paused); assert.strictEqual(bgm.src, "./data/app/19.mp3");
+  assert(!bgm.paused); assert.strictEqual(bgm.src, "./data/app/19.mp3?v=20261116");
   assert.strictEqual(bgm.currentTime, 12);
   const restored = create({ phase: "transferred" });
   restored.bgm.blocked = true;
   restored.sb.tryStartBGM(); await Promise.resolve();
-  assert.strictEqual(restored.bgm.src, "./data/app/hb.mp3");
+  assert.strictEqual(restored.bgm.src, "./data/app/hb.mp3?v=20261116");
   assert(!restored.sb._bgmStarted);
   restored.bgm.blocked = false;
   restored.sb.tryStartBGM(); await Promise.resolve();

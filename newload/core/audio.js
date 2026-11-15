@@ -46,10 +46,12 @@ window.syncBackgroundTrack = function () {
   const phase = (typeof SS !== "undefined" && SS.homecoming && SS.homecoming.phase) || "";
 
   // 根据阶段决定用哪首歌
+  // ?v= 缓存版本：音频文件替换后改这里，防止浏览器沿用旧缓存
+  const AUDIO_V = "20261116";
   const source = phase === "transferred"
-    ? "./data/app/hb.mp3"   // 零点传送幕：放 hb.mp3
+    ? "./data/app/hb.mp3?v=" + AUDIO_V   // 零点传送幕：放 hb.mp3
     : phase === "exploring"
-      ? "./data/app/19.mp3" // 点继续之后：放 19.mp3
+      ? "./data/app/19.mp3?v=" + AUDIO_V // 点继续之后：放 19.mp3
       : "./data/app/bgm.mp3"; // 普通游戏过程：放原来的 bgm.mp3
 
   // 当前播放器里的歌和“应该放的歌”不一样，就换歌
