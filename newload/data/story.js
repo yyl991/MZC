@@ -218,7 +218,9 @@ var INCOMING = [];
     { at: 159, type:'notify', from:'丞哥', text:'定位在解放碑你一个人？', skipIfReplied: true },
     { at: 242, type:'notify', from:'丞哥', text:'自己看看几点了', skipIfReplied: true },
     { at: 269, type:'notify', from:'丞哥', text:'回家，好不好', skipIfReplied: true },
-    { at: 313, type:'notify', from:'丞哥', text:'别生气了，我以后不在你手机里装定位了，今天我生日，陪陪我好不好' },
+    { at: 310, type:'notify', from:'丞哥', text:'别生气了，我以后不在你手机里装定位了' },
+    
+    { at: 313, type:'notify', from:'丞哥', text:'今天我生日，陪陪我好不好' },
 
     // ==========================================
     // 👤 cat (黑猫)
