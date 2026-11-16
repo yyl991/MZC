@@ -751,11 +751,11 @@ window.CHAT_HISTORY = {
   
   //['😳', 'me', '下午 3:46'],
   ['😳', 'them', '下午 3:46'],
-
+    
+  ['[图片] ./data/chat/cut.jpg', 'them', '下午 3:47'],
   ['[图片] ./data/chat/tu2.jpg', 'them', '下午 3:47'],
   ['[图片] ./data/chat/tu4.jpg', 'them', '下午 3:48'],
   
-  ['[图片] ./data/chat/cut.jpg', 'them', '下午 3:48'],
   ['哎呀发错了撤回不了啦🥺', 'them', '下午 3:50', '', { name: '🐇', text: '[图片] ./data/chat/cut.jpg' }],
   ['哦哦这么不小心', 'me', '下午 3:52'],
   
