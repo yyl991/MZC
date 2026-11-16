@@ -254,7 +254,7 @@ var INCOMING = [];
     { at: 146, type:'notify', from:'丞丞', text:'不来了吗', skipIfReplied: true },
     { at: 156, type:'notify', from:'丞丞', text:'😿', skipIfReplied: true },
     { at: 219, type:'notify', from:'丞丞', text:'你怎么了为什么不回消息', skipIfReplied: true },
-    { at: 226, type:'notify', from:'丞丞', text:'不来也没事，回一下，我怕你出事', skipIfReplied: true },
+    { at: 226, type:'notify', from:'丞丞', text:'不来也没事，回我一下，我怕你出事', skipIfReplied: true },
     { at: 289, type:'notify', from:'丞丞', text:'你在哪啊？', skipIfReplied: true },
 
     // ==========================================
