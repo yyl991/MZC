@@ -1278,24 +1278,15 @@ VIEWS.chat = () => ({
   <div class="msgs" id="msgs" onclick="closeKbd()">${chatMsgs(chatId)}</div>
   <button class="wx-newpill" id="wx-newpill" onclick="wxJumpNew()">${G.chevDownG}<span id="wx-newpill-n">1条新消息</span></button>
   
-  <!-- 👇 这里是将输入框区域改成了换行分行的格式，去掉了重复的图标 -->
   <div class="wx-cin safe" id="cin">
     <div class="wx-quote-bar" id="wx-quote-bar"></div>
     <button class="ic" id="voice-icon" onclick="vib(10);toggleVoiceInput()">${G.mic}</button>
-    
-    ${(chatId === "恩仔" && SS.homecoming && SS.homecoming.phase === "exploring") 
-      ? `<input id="fld-real" type="text" class="wx-fld" placeholder="输入消息" maxlength="300" oninput="SS.pendingText = this.value" onkeydown="if(event.isComposing)return;if(event.key==='Enter'){event.preventDefault();sendLine();}" style="flex:1;min-width:0;min-height:40px;border:none;outline:none;background:#fff;font-size:16px;color:#111;font-family:inherit;padding:10px 12px;border-radius:6px;">` 
-      : `<div class="wx-fld ph" id="fld" onclick="event.stopPropagation();tapInput()">输入消息</div>`
-    }
-    
+    ${(chatId === "恩仔" && SS.homecoming && SS.homecoming.phase === "exploring") ? `<input id="fld-real" type="text" class="wx-fld" placeholder="输入消息" maxlength="300" oninput="SS.pendingText = this.value" onkeydown="if(event.isComposing)return;if(event.key==='Enter'){event.preventDefault();sendLine();}" style="flex:1;min-width:0;min-height:40px;border:none;outline:none;background:#fff;font-size:16px;color:#111;font-family:inherit;padding:10px 12px;border-radius:6px;">` : `<div class="wx-fld ph" id="fld" onclick="event.stopPropagation();tapInput()">输入消息</div>`}
     <button class="wx-voice-btn" id="voice-btn" onpointerdown="startRecord(event)" onpointerup="endRecord(event)" onpointerleave="endRecord(event)">按住 说话</button>
-    
-    <!-- 👇 无论恩仔还是普通聊天，这三个按钮现在都只渲染一次 -->
     <button class="ic" onclick="event.stopPropagation();toggleWxPanel('emoji')">${G.smile}</button>
     <button class="ic" onclick="event.stopPropagation();toggleWxPanel('plus')">${G.plusSq}</button>
     <button class="wx-snd" id="snd" onclick="sendLine()">发送</button>
   </div>
-
   ${(chatId === "恩仔" && SS.homecoming && SS.homecoming.phase === "exploring") ? "" : `<div class="kbd" id="kbd">${kbdHTML()}</div>`}
   <div class="wx-panel" id="wx-panel"></div>`,
   
@@ -1308,10 +1299,8 @@ VIEWS.chat = () => ({
     renderQuoteBar();
     resetNewPill();
     scrollChat();
-    // 图片/视频封面是异步加载的，会把底部顶高，补滚两次保证一进来就在最新消息
     requestAnimationFrame(() => scrollChat());
     setTimeout(() => scrollChat(), 300);
-    // 翻到最底下时，把「x条新消息」收起来
     const b = $("#msgs");
     if (b && !b.dataset.npBound) {
       b.dataset.npBound = "1";
@@ -1321,7 +1310,6 @@ VIEWS.chat = () => ({
     }
   },
 });
-
 
 function scrollChat(smooth) {
   const b = $("#msgs");
