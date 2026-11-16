@@ -138,7 +138,7 @@ var INCOMING = [];
     '恩恩': {
       init: [['11月15日','date']],
       replies: [
-        { mine:['我尽量早点回去'], them:['不用勉强','我一个人也可以的','…真的'] },
+        { mine:['我尽量早点回去'], them:['不用勉强','我一个人也可以的','。真的'] },
         { mine:['对不起，让你等太久了'], them:['我没生气啊','好吧我只是有点难过','你快点回来嘛'] }
       ],
       fragment: null
@@ -234,7 +234,7 @@ var INCOMING = [];
     { at: 206, type:'notify', from:'cat', text:'今天什么日子 你要爪子嘛', skipIfReplied: true },
     { at: 213, type:'notify', from:'cat', text:'门锁了 生日你也别过了', skipIfReplied: true },
     { at: 259, type:'notify', from:'cat', text:'没锁', skipIfReplied: true },
-    { at: 276, type:'notify', from:'cat', text:'…我一个人把蜡烛吹了' },
+    { at: 276, type:'notify', from:'cat', text:'我一个人把蜡烛吹了' },
     { at: 306, type:'notify', from:'cat', text:'你回来 我不骂你', skipIfReplied: true },
 
     // ==========================================
