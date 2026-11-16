@@ -176,14 +176,14 @@ const MOCK_MOMENTS_DATA = {
       {
         id: 701,
         date: { day: "今天", month: "" },
-        text: "好想吃蛋糕。。。",
+        text: "室友怎么还不回来好想吃蛋糕。。。",
         images: [],
         location: "家",
         time: "2026年11月15日 19:30",
         likes: ["rabbit", "恩恩", "cat"],
         comments: [
           { user: "rabbit", text: "我也留了饭。", replyTo: "" },
-          { user: "猪", text: "那我们两个一起等。", replyTo: "rabbit" },
+          { user: "pig", text: "那我们两个一起饿着肚子等😡", replyTo: "rabbit" },
         ],
       },
       {
