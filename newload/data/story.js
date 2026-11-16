@@ -167,7 +167,7 @@ var INCOMING = [];
     { at: 182, type:'notify', from:'恩恩', text:'你是不是不爱我了', skipIfReplied: true },
     { at: 223, type:'notify', from:'恩恩', text:'我不是非要催你回家', skipIfReplied: true },
     { at: 250, type:'call', from:'恩恩', skipIfReplied: true }, // 👈 错开了穆祉丞的电话
-    { at: 255, type:'notify', from:'恩恩', text:'可是今天是我的生日诶…' },
+    { at: 255, type:'notify', from:'恩恩', text:'可是明天是我的生日诶…' },
     { at: 272, type:'notify', from:'恩恩', text:'我生气了', skipIfReplied: true },
     { at: 319, type:'notify', from:'恩恩', text:'你回来我就不生气了', skipIfReplied: true },
 
