@@ -887,9 +887,23 @@ function chatMsgs(id) {
     else {
       innerContent = esc(x.text);
     }
-    // 引用：按微信的样子，放在气泡下面单独一块灰底（名字：内容）
+  
+        // 引用：按微信的样子，放在气泡下面单独一块灰底（名字：内容）
+    let quoteContent = "";
+    if (x.quote && x.quote.text) {
+      if (x.quote.text.startsWith("[图片]")) {
+        const qImg = x.quote.text.replace("[图片]", "").trim();
+        quoteContent = `<img src="${qImg}" style="height:32px; width:32px; object-fit:cover; border-radius:4px; margin-left:4px; vertical-align:middle; display:inline-block;">`;
+      } else if (x.quote.text.startsWith("[表情]")) {
+        const qEmo = x.quote.text.replace("[表情]", "").trim();
+        quoteContent = `<img src="${qEmo}" style="height:32px; width:32px; object-fit:cover; border-radius:4px; margin-left:4px; vertical-align:middle; display:inline-block;">`;
+      } else {
+        quoteContent = `<span class="wx-quote-txt">${esc(previewText(x.quote.text))}</span>`;
+      }
+    }
+
     const quoteHtml = x.quote
-      ? `<div class="wx-quote" onclick="event.stopPropagation()"><span class="wx-quote-name">${esc(x.quote.name)}：</span><span class="wx-quote-txt">${esc(x.quote.text)}</span></div>`
+      ? `<div class="wx-quote" onclick="event.stopPropagation()"><span class="wx-quote-name">${esc(x.quote.name)}：</span>${quoteContent}</div>`
       : "";
     const holdEvent = `onpointerdown="startHoldMsg(event, ${x.rawIdx})" onpointerup="cancelHoldMsg()" onpointerleave="cancelHoldMsg()"`;
     let dotHtml = "",
