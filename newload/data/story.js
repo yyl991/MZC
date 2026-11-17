@@ -177,7 +177,7 @@ var INCOMING = [];
     { at: 60, type:'notify', from:'穆瑞恩', text:'你在哪里呀？我怕黑…', skipIfReplied: true },
     { at: 86, type:'notify', from:'穆瑞恩', text:'我的眼睛有点痛。。。', skipIfReplied: true },
     { at: 249, type:'notify', from:'穆瑞恩', text:'我等了你好久好久', skipIfReplied: true },
-    { at: 326岁, type:'notify', from:'穆瑞恩', text:'姐姐，我的生日要到了，你还不来吗' },
+    { at: 326, type:'notify', from:'穆瑞恩', text:'姐姐，我的生日要到了，你还不来吗' },
 
     // ==========================================
     // 👤 pig (猪)
