@@ -169,7 +169,7 @@ var INCOMING = [];
     { at: 250, type:'call', from:'恩恩', skipIfReplied: true }, // 👈 错开了穆祉丞的电话
     { at: 255, type:'notify', from:'恩恩', text:'可是明天是我的生日诶…' },
     { at: 272, type:'notify', from:'恩恩', text:'我生气了', skipIfReplied: true },
-    { at: 319, type:'notify', from:'恩恩', text:'你回来我就不生气了', skipIfReplied: true },
+    { at: 321, type:'notify', from:'恩恩', text:'你回来我就不生气了', skipIfReplied: true },
 
     // ==========================================
     // 👤 穆瑞恩 (8岁)
@@ -177,7 +177,7 @@ var INCOMING = [];
     { at: 60, type:'notify', from:'穆瑞恩', text:'你在哪里呀？我怕黑…', skipIfReplied: true },
     { at: 86, type:'notify', from:'穆瑞恩', text:'我的眼睛有点痛。。。', skipIfReplied: true },
     { at: 249, type:'notify', from:'穆瑞恩', text:'我等了你好久好久', skipIfReplied: true },
-    { at: 322, type:'notify', from:'穆瑞恩', text:'姐姐，我的生日要过去了，你还不来吗' },
+    { at: 326岁, type:'notify', from:'穆瑞恩', text:'姐姐，我的生日要到了，你还不来吗' },
 
     // ==========================================
     // 👤 pig (猪)
