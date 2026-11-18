@@ -1744,14 +1744,17 @@ function sendLine() {
     clearTimeout(window._enzaiNudge2To);
     clearTimeout(window._enzaiEmojiTo);
     window._enzaiEmojiTo = setTimeout(() => {
-      // 结尾亲亲：满三次后发晚安收尾，晚安发出后不再回复（计数/标记随存档持久化）
+      // 结尾亲亲：满三次后依次发三句晚安（各带输入提示），发完彻底沉默
       const hc = SS.homecoming;
       if (hc && hc.enzaiDone) return;
       const kisses = (hc && hc.kissCount) || 0;
       if (kisses >= 3) {
         hc.enzaiDone = true;
         saveChat();
-        sendEnzaiChat("好困呀，早些休息哦，晚安！");
+        // sendEnzaiChat 自带 0.6 秒"正在输入"；错开 1.2 秒让三句的输入提示与送达依次可见
+        ["好困呀", "早些休息哦，晚安", "睡告告了"].forEach((line, i) => {
+          setTimeout(() => sendEnzaiChat(line), i * 1200);
+        });
       } else {
         hc.kissCount = kisses + 1;
         saveChat();

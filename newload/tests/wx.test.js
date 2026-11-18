@@ -86,28 +86,35 @@ sb._enzaiReplied = true;
 sb.scheduleEnzaiNudge();
 assert.deepStrictEqual(sb._delivered, []); // 已回复则不再追问
 
-// ===== 结尾亲亲上限：满三次后改回晚安，晚安后不再回复 =====
+// ===== 结尾亲亲上限：满三次后依次发三句晚安（各带输入提示），之后沉默 =====
 const origCollect = sb.collectPlayerReply;
 sb.collectPlayerReply = () => {}; // 本段只测回复，不污染收集断言
 sb.SS.homecoming = { phase: "exploring" }; // 重置计数
 sb._delivered = [];
+let typingCalls = 0;
+const origShowTyping = sb.showTypingFrom;
+sb.showTypingFrom = (from) => { if (from === "恩仔") typingCalls++; };
 for (let i = 0; i < 4; i++) {
   sb.SS.pendingText = "再陪我说说话 " + i;
   sb.sendLine();
 }
 assert.deepStrictEqual(
   sb._delivered.filter((d) => d[0] === "恩仔").map((d) => d[1]),
-  ["😽", "😽", "😽", "好困呀，早些休息哦，晚安！"]
-); // 第4次不再发亲亲，改晚安收尾
+  ["😽", "😽", "😽", "好困呀", "早些休息哦，晚安", "睡告告了"]
+); // 3次亲亲 + 第4次起依次发三句晚安
+assert.strictEqual(typingCalls, 6, "每条恩仔回复都带正在输入中提示"); // 3亲亲+3晚安
 assert.strictEqual(sb.SS.homecoming.kissCount, 3); // 计数落在存档对象上
 assert.strictEqual(sb.SS.homecoming.enzaiDone, true); // 晚安已发，标记落档
-// 晚安之后再发：消息仍会收集入库，但恩仔不再有任何回复
+// 三句晚安之后再发：消息仍会收集入库，但恩仔不再有任何回复（含输入提示）
 const beforeSilent = sb._delivered.length;
+const typingBeforeSilent = typingCalls;
 sb.SS.pendingText = "还说";
 sb.sendLine();
 sb.SS.pendingText = "怎么不说话了";
 sb.sendLine();
 assert.strictEqual(sb._delivered.length, beforeSilent, "晚安后不再回复");
+assert.strictEqual(typingCalls, typingBeforeSilent, "晚安后连输入提示都不再出现");
+sb.showTypingFrom = origShowTyping;
 sb.collectPlayerReply = origCollect;
 
 // ===== 朋友圈评论收集 =====
