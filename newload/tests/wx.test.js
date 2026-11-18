@@ -80,11 +80,35 @@ sb._delivered = [];
 sb.deliverFrom = (from, text) => sb._delivered.push([from, text]);
 sb._enzaiReplied = false;
 sb.scheduleEnzaiNudge(); // 测试计时器立即执行：9秒无回复 → 追问
-assert.deepStrictEqual(sb._delivered, [["恩仔", "怎么不说话"], ["恩仔", "好不好嘛😾"]]);
+assert.deepStrictEqual(sb._delivered, [["恩仔", "怎么不理我"], ["恩仔", "好不好嘛😾"]]);
 sb._delivered = [];
 sb._enzaiReplied = true;
 sb.scheduleEnzaiNudge();
 assert.deepStrictEqual(sb._delivered, []); // 已回复则不再追问
+
+// ===== 结尾亲亲上限：满三次后改回晚安，晚安后不再回复 =====
+const origCollect = sb.collectPlayerReply;
+sb.collectPlayerReply = () => {}; // 本段只测回复，不污染收集断言
+sb.SS.homecoming = { phase: "exploring" }; // 重置计数
+sb._delivered = [];
+for (let i = 0; i < 4; i++) {
+  sb.SS.pendingText = "再陪我说说话 " + i;
+  sb.sendLine();
+}
+assert.deepStrictEqual(
+  sb._delivered.filter((d) => d[0] === "恩仔").map((d) => d[1]),
+  ["😽", "😽", "😽", "好困呀，早些休息哦，晚安！"]
+); // 第4次不再发亲亲，改晚安收尾
+assert.strictEqual(sb.SS.homecoming.kissCount, 3); // 计数落在存档对象上
+assert.strictEqual(sb.SS.homecoming.enzaiDone, true); // 晚安已发，标记落档
+// 晚安之后再发：消息仍会收集入库，但恩仔不再有任何回复
+const beforeSilent = sb._delivered.length;
+sb.SS.pendingText = "还说";
+sb.sendLine();
+sb.SS.pendingText = "怎么不说话了";
+sb.sendLine();
+assert.strictEqual(sb._delivered.length, beforeSilent, "晚安后不再回复");
+sb.collectPlayerReply = origCollect;
 
 // ===== 朋友圈评论收集 =====
 sb.collectMomentReply = (owner, post, content) => { sb._mcollected = (sb._mcollected || []).concat([[owner, post, content]]); };

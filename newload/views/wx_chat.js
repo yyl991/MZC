@@ -1743,7 +1743,21 @@ function sendLine() {
     clearTimeout(window._enzaiNudgeTo);
     clearTimeout(window._enzaiNudge2To);
     clearTimeout(window._enzaiEmojiTo);
-    window._enzaiEmojiTo = setTimeout(() => { sendEnzaiChat("😽"); }, 900);
+    window._enzaiEmojiTo = setTimeout(() => {
+      // 结尾亲亲：满三次后发晚安收尾，晚安发出后不再回复（计数/标记随存档持久化）
+      const hc = SS.homecoming;
+      if (hc && hc.enzaiDone) return;
+      const kisses = (hc && hc.kissCount) || 0;
+      if (kisses >= 3) {
+        hc.enzaiDone = true;
+        saveChat();
+        sendEnzaiChat("好困呀，早些休息哦，晚安！");
+      } else {
+        hc.kissCount = kisses + 1;
+        saveChat();
+        sendEnzaiChat("😽");
+      }
+    }, 900);
     return;
   }
   SS.lineIdx[chatId] = li + 1;
