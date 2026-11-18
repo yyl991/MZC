@@ -1748,7 +1748,7 @@ function sendLine() {
       const hc = SS.homecoming;
       if (hc && hc.enzaiDone) return;
       const kisses = (hc && hc.kissCount) || 0;
-      if (kisses >= 3) {
+      if (kisses >= 2) {
         hc.enzaiDone = true;
         saveChat();
         // sendEnzaiChat 自带 0.6 秒"正在输入"；错开 1.2 秒让三句的输入提示与送达依次可见
