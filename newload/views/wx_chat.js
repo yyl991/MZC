@@ -1752,7 +1752,7 @@ function sendLine() {
         hc.enzaiDone = true;
         saveChat();
         // sendEnzaiChat 自带 0.6 秒"正在输入"；错开 1.2 秒让三句的输入提示与送达依次可见
-        ["好困呀", "早些休息哦，晚安", "睡告告了"].forEach((line, i) => {
+        ["好困呀", "睡告告了","早些休息哦，晚安","😽"].forEach((line, i) => {
           setTimeout(() => sendEnzaiChat(line), i * 1200);
         });
       } else {
