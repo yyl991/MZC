@@ -1704,7 +1704,7 @@ window.scheduleEnzaiNudge = function () {
     if (window._enzaiReplied) return;
     sendEnzaiChat("怎么不理我");
     window._enzaiNudge2To = setTimeout(() => { if (!window._enzaiReplied) sendEnzaiChat("好不好嘛😾"); }, 1300);
-  }, 9000);
+  }, 5000);
 };
 function sendLine() {
   if (!SS.pendingText) return;
