@@ -289,7 +289,7 @@ var INCOMING = [];
     MuAMuA: "mama",
     Mu: "CSGOD",
     丞丞: "xiaoduizhang",
-    pig: "pangpangshiyou",
+    pig: "zhushiyou",
     cat: "laopo_zuo",
     rabbit: "laopo_guai",
     tiger: "laohu_henmeng",

@@ -168,7 +168,7 @@ const MOCK_MOMENTS_DATA = {
   },
 
   pig: {
-    wxid: "pangpangshiyou",
+    wxid: "zhushiyou",
     region: "重庆",
     cover:
       "./data/avatar/pigcover.jpg",
