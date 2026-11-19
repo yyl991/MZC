@@ -99,7 +99,7 @@ svg {
     transition: opacity .35s
 }
 
-/* 开机/加载黑屏底部居中的作者水印 */
+/* 水印样式暂时注释，后续可能恢复
 .boot-watermark {
     position: absolute;
     bottom: 80px;
@@ -113,6 +113,7 @@ svg {
     pointer-events: none;
     user-select: none
 }
+*/
 
 #wall {
     position: absolute;
