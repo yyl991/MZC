@@ -4,7 +4,8 @@
   "scripts": {
     "compress": "node compress.js",
     "build": "node obfuscate.js",
-    "test": "node tests/run.js"
+    "test": "node tests/run.js",
+    "preview": "node scripts/serve.cjs"
   },
   "dependencies": {
     "glob": "^13.0.6",

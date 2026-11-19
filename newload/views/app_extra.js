@@ -1005,7 +1005,7 @@ const RECORDER_DATA = [
   
   {
     id: 1,
-    title: "戴耳机",
+    title: "要戴耳机",
     date: "2025年2月14日",
     time: "00:15",
     src: "./data/recorder/nage.mp3",

@@ -17,3 +17,7 @@ dist/
 
 # Claude Code 本地配置（不上传）
 .claude/
+
+# 本地预览/验证截图（不上传）
+_*预览.png
+_流程*.png
