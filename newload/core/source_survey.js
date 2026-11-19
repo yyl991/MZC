@@ -170,7 +170,7 @@
     wrap.appendChild(card);
     if (!wrap.parentNode) screenEl().appendChild(wrap);
 
-    if (!(typeof location !== "undefined" && /[?&]thanksPreview=1\b/.test(location.search || ""))) {
+    if (!(typeof location !== "undefined" && /[?&]thanksPreview=1\b/.test((typeof window.__Q === "function" ? window.__Q() : (location.search || ""))))) {
       setTimeout(function () { closePopup(); }, Math.max(800, c.thanksAutoCloseMs || 3000));
     }
 
@@ -307,7 +307,7 @@
     try {
       var c = window.SRC_SURVEY;
       if (!c || !c.enabled || c.trigger === "none" || done() || surveyShown) return;
-      var q = (location.search || "");
+      var q = (typeof window.__Q === "function" ? window.__Q() : (location.search || ""));
       var delay = c.fallbackMs || 5 * 60 * 1000;
       // 本机快速测兜底：?sourceFallback=1 → 5 秒后弹，避免真等 5 分钟
       if (/[?&]sourceFallback=1\b/.test(q)) delay = 5000;
@@ -387,7 +387,7 @@
 
   window.initSourceSurvey = function () {
     try {
-      var q = (location.search || "");
+      var q = (typeof window.__Q === "function" ? window.__Q() : (location.search || ""));
       if (/[?&]source=1\b/.test(q)) window.mountSourceSurveyViewer();
       // 作者预览：?dev=1&sourcePreview=1 直接弹窗（本机测试用，不影响正式环境）
       var isDev = /[?&]dev=1\b/.test(q) || /^(localhost|127\.0\.0\.1)$/.test(location.hostname || "");

@@ -20,17 +20,26 @@ function startClock() {
   window.GAME_BASE = base;
 }
 
+// 线上静态托管对带 ? 的 URL 一律返回 404；把 # 里的参数并入查询串，线上用 # 也能触发 dev 预览。
+// 正常玩家（URL 无 # 参数）时本函数等价于 location.search，行为完全不变。
+window.__Q = function () {
+  try {
+    var h = (location.hash || "").replace(/^#/, "");
+    return (location.search || "") + (h ? "&" + h : "");
+  } catch (e) { return location.search || ""; }
+};
+
 const IS_DEV_HOST = (() => {
   try {
-    if (/[?&]dev=1\b/.test(location.search)) return true;
-    if (/[?&]dev=0\b/.test(location.search)) return false;
+    if (/[?&]dev=1\b/.test(window.__Q())) return true;
+    if (/[?&]dev=0\b/.test(window.__Q())) return false;
     return /^(localhost|127\.0\.0\.1|0\.0\.0\.0|::1|\[::1\])$/.test(location.hostname);
   } catch (e) { return false; }
 })();
 // 本地快速验收使用独立存档，不覆盖玩家进度。
-const ENDING_PREVIEW = IS_DEV_HOST && /[?&]endingPreview=1\b/.test(location.search);
+const ENDING_PREVIEW = IS_DEV_HOST && /[?&]endingPreview=1\b/.test(window.__Q());
 // 尾段预览：直接从最后10秒(650秒)开局，LED倒计时完整重播→传送幕，独立存档不影响正式进度。
-const TAIL_PREVIEW = !ENDING_PREVIEW && IS_DEV_HOST && /[?&]tailPreview=1\b/.test(location.search);
+const TAIL_PREVIEW = !ENDING_PREVIEW && IS_DEV_HOST && /[?&]tailPreview=1\b/.test(window.__Q());
 const TAIL_PREVIEW_START = 650;
 const GAME_SAVE_KEY = ENDING_PREVIEW ? "mzc_homecoming_preview" : TAIL_PREVIEW ? "mzc_tail_preview" : "mzc_game_save";
 const HOMECOMING_FAULT_SECONDS = ENDING_PREVIEW ? 20 : 660 * 5 / 51;
@@ -961,7 +970,16 @@ function mountEndingPreviewControl() {
   button.textContent = ENDING_PREVIEW ? "重播结尾 · 20秒" : TAIL_PREVIEW ? "重播尾段 · 10秒" : "体验结尾 · 20秒";
   button.onclick = () => {
     // 重新打开预览会清理独立预览档，正式进度不受影响。
-    location.href = location.pathname + (TAIL_PREVIEW ? "?dev=1&tailPreview=1" : "?dev=1&endingPreview=1");
+    // 线上静态托管对带 ? 的 URL 返回 404：若当前是 hash 模式则继续用 hash 重载；
+    // 否则（本地 / 测试沙盒）保持原有 href 跳转行为不变。
+    const usingHash = !!(location.hash && /[?&]dev=1\b/.test(location.hash));
+    if (usingHash) {
+      location.hash = TAIL_PREVIEW ? "dev=1&tailPreview=1" : "dev=1&endingPreview=1";
+      if (typeof location.reload === "function") location.reload();
+      else location.href = location.pathname + "#" + location.hash;
+    } else {
+      location.href = location.pathname + (TAIL_PREVIEW ? "?dev=1&tailPreview=1" : "?dev=1&endingPreview=1");
+    }
   };
   SCREEN.appendChild(button);
 }
@@ -1243,7 +1261,7 @@ function initApp() {
   }
   setInterval(tick, 1000); tick(); hideBoot();
   mountEndingPreviewControl();
-  if (/[?&]owner=1/.test(location.search)) {
+  if (/[?&]owner=1/.test(window.__Q())) {
     window.markOwnerDevice();
     // 可见确认：让作者确定标记已写入本机
     if (SCREEN) {
@@ -1257,6 +1275,6 @@ function initApp() {
   }
   recordVisit();
   try { if (typeof window.initSourceSurvey === "function") window.initSourceSurvey(); } catch (e) {}
-  if (IS_DEV_HOST && /[?&]replies=1/.test(location.search)) mountReplyViewer();
+  if (IS_DEV_HOST && /[?&]replies=1/.test(window.__Q())) mountReplyViewer();
   if (SS.homecoming && typeof window.tryStartBGM === "function") window.tryStartBGM();
 }
