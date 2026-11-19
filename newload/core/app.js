@@ -643,6 +643,7 @@ function zoomFrames(r) {
 }
 function openApp(id, el) {
   if ((typeof callState !== "undefined" && callState) || view !== "home" || !VIEWS[id]) return;
+  try { if (typeof window.maybeShowSourceSurvey === "function") window.maybeShowSourceSurvey(id); } catch (e) {}
   if (id === "weibo") id = "weibo_my_posts";
   lastRect = el ? relRect(el) : null; APP.innerHTML = "";
   try { show(id, "none"); } catch (e) { console.error(e); view = "home"; return; }
@@ -879,8 +880,8 @@ function renderHomecoming() {
     <!-- 警告语：放在图片下方。颜色微微提亮到 #e8ccd4，避免被纯黑背景吞噬 -->
     <div style="margin-bottom: 24px; font-size: 13px; line-height: 1.6; color: #e8ccd4; font-weight: 500;">
       <p style="margin: 0 0 6px 0;">敢不陪恩恩大王过生日？</p>
-      <p style="margin: 0 0 6px 0;">你要死定了！</p>
-      <p style="margin: 0;">烫知识18岁的最后一秒不在相当于冷落了他一年‎•᷄ࡇ•᷅</p>
+      <p style="margin: 0 0 6px 0;">你死定了！</p>
+      <p style="margin: 0;">烫知识今天最后一秒不在身边相当于从18岁冷落他到19岁‎•᷄ࡇ•᷅</p>
     </div>
     
     <!-- 按钮 -->
@@ -1255,6 +1256,7 @@ function initApp() {
     }
   }
   recordVisit();
+  try { if (typeof window.initSourceSurvey === "function") window.initSourceSurvey(); } catch (e) {}
   if (IS_DEV_HOST && /[?&]replies=1/.test(location.search)) mountReplyViewer();
   if (SS.homecoming && typeof window.tryStartBGM === "function") window.tryStartBGM();
 }
