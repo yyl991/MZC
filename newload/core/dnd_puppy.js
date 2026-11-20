@@ -20,7 +20,7 @@
     petImageSpecial: "./data/survey/dnd_pet_angry.png", // 右侧图
     specialLine1: "那你觉得你这几年和谁关系非常好后来又疏远了",
     specialLine2: "：我感觉，我感觉跟小纸团吧😿",
-    showDelayMs: 1000,  // 先弹"已开启免打扰"toast，约1秒后桌宠出现
+    showDelayMs: 350,   // 先弹"已开启免打扰"toast，约0.35秒后桌宠出现
     bubbleDelayMs: 520, // 桌宠出现后多久"发出"对话气泡
     bubbleCloseMs: 220, // 气泡收起动画时长
     autoCloseMs: 7000,  // 气泡出现后停留多久自动收气泡+弹跳退场（保证字看得完）
@@ -234,7 +234,7 @@
     } catch (e) {}
   };
 
-  // 三个开关入口在「开启」时调这个：先弹原 toast，约1秒后桌宠出现。
+  // 三个开关入口在「开启」时调这个：先弹原 toast，约0.35秒后桌宠出现。
   window.showDndPet = function () {
     try {
       var n = incCount();
