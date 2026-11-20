@@ -14,6 +14,10 @@
   let globalVinylDeg = 0;
   let lastVinylTick = Date.now();
   let isVinylLoopRunning = false;
+  // BGM 改成原生 loop 后 ended 不再触发；靠检测 currentTime 回绕来驱动封面自然切换
+  let lastVinylBgmTime = 0;
+  let lastVinylTrack = "";
+  let lastVinylSwitchAt = 0;
   let wgroupOpenState = false;
   let wgroupOpenKind = "tools";
   let wgroupBackKind = ""; // 从文件夹里的 App 返回时要回到的文件夹 kind
@@ -184,7 +188,16 @@
         const now = Date.now(); const delta = now - lastVinylTick; lastVinylTick = now;
         globalVinylDeg = (globalVinylDeg + delta * 0.06) % 360;
         if (spinner) spinner.style.transform = `rotate(${globalVinylDeg}deg)`;
-      } else { lastVinylTick = Date.now(); }
+        // BGM 现在是原生 loop：播完不会触发 ended，而是 currentTime 从接近 duration 跳回 0。
+        // 检测这个回绕来自然切下一张封面（一首歌一轮）。换曲/重定位导致的大幅倒退不误判。
+        const t = bgm.currentTime || 0, d = bgm.duration || 0;
+        const track = (bgm.dataset && bgm.dataset.storyTrack) || bgm.getAttribute("src") || "";
+        if (track !== lastVinylTrack) { lastVinylTrack = track; lastVinylBgmTime = t; }
+        else if (d > 1 && lastVinylBgmTime > d * 0.6 && t < lastVinylBgmTime - d * 0.4) {
+          switchVinylImage(true);
+        }
+        lastVinylBgmTime = t;
+      } else { lastVinylTick = Date.now(); lastVinylBgmTime = 0; }
       requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
@@ -386,7 +399,13 @@
 
   function switchVinylImage(isNext = true) {
     if (musicImages.length < 1) return;
-    if (isNext) currentMusicImageIdx = (currentMusicImageIdx + 1) % musicImages.length;
+    if (isNext) {
+      // 防重复：回绕检测与 onended 兜底可能同帧都触发，0.6s 内只切一次
+      const now = Date.now();
+      if (now - lastVinylSwitchAt < 600) return;
+      lastVinylSwitchAt = now;
+      currentMusicImageIdx = (currentMusicImageIdx + 1) % musicImages.length;
+    }
     const showIdx = currentMusicImageIdx % 2; const hideIdx = (currentMusicImageIdx + 1) % 2;
     const showImg = document.getElementById(`vinyl-img-${showIdx}`); const hideImg = document.getElementById(`vinyl-img-${hideIdx}`);
     if (showImg && hideImg) {
