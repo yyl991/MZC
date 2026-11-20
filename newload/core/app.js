@@ -715,21 +715,13 @@ function closeApp() {
   const icon = HOME.querySelector(`.app[data-app="${root}"] .icon`) || HOME.querySelector(`.wapp[data-app="${root}"]`); const r = icon ? relRect(icon) : { x: 166, y: 396, w: 60, h: 60 };
   const tok = ++animTok; APP.getAnimations().forEach((a) => a.cancel());
 
-  // 从文件夹进来的 App：退回文件夹走「轻量淡出 → 再弹面板」的串行动画。
-  // 旧实现在缩放动画一开始就打开文件夹面板，面板的全屏 blur(22px) 与 zoomFrames 的
-  // clipPath 重绘挤在同一帧抢资源，导致掉帧发卡。现在 APP 先用纯 opacity/transform
-  // 淡出（GPU 友好、不触发重绘），淡出结束再开面板，重活串行 → 丝滑。
+  // 从文件夹进来的 App：瞬间切回文件夹面板，零动画。
+  // 旧实现先播 260ms 淡出（期间桌面已露出→闪回），淡出结束才弹面板（像卡一下）。
+  // 现在全程同步：同一帧里 APP 直接消失、文件夹面板直接出现，无 onfinish / 无 setTimeout。
   if (backKind && typeof window.openWgroup === "function") {
-    const fa = APP.animate(
-      [{ opacity: 1, transform: "none" }, { opacity: 0, transform: "scale(.92)" }],
-      { duration: 260, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" }
-    );
-    fa.onfinish = () => {
-      if (tok !== animTok) return;
-      APP.style.visibility = "hidden"; APP.querySelectorAll("video").forEach((v) => v.pause()); APP.innerHTML = ""; fa.cancel();
-      // soft=true：退回文件夹只淡入、不弹跳（避免文件夹又"跳出"一次）
-      try { window.openWgroup(null, backKind, true); } catch (e) {}
-    };
+    APP.style.visibility = "hidden"; APP.querySelectorAll("video").forEach((v) => v.pause()); APP.innerHTML = "";
+    // instant=true：面板不播任何弹出/淡入动画，直接呈现（截图里那种静态文件夹界面）
+    try { window.openWgroup(null, backKind, false, true); } catch (e) {}
     updateIsland();
     return;
   }

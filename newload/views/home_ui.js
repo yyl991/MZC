@@ -239,6 +239,8 @@
         .wgroup-panel { width: min(78%, 300px); aspect-ratio: 1/1; box-sizing: border-box; border-radius: 38px; background: rgba(242,242,247,0.55); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 18px 50px rgba(0,0,0,0.22); display: grid; grid-template-columns: repeat(2, 74px); justify-content: center; align-content: center; gap: 20px 26px; padding: 34px 20px; animation: wgroupZoom .32s cubic-bezier(.25,.9,.35,1.12); }
         /* 从 App 退回文件夹：只淡入、不弹跳，像文件夹一直在那儿 */
         .wgroup-panel.soft-in { animation: wgroupFade .22s ease-out; }
+        /* 瞬间退回：完全无动画，避免"闪回桌面 + 卡一下"的观感 */
+        .wgroup-panel.instant { animation: none !important; }
         .wgroup-panel .lbl { color: #1c1c1e; text-shadow: none; font-weight: 500; }
         @media (max-width: 540px) { .w-music { border-radius: 20px; } .wgroup-frame { padding: 6px; gap: 3px; } .wgroup-panel { border-radius: 32px; gap: 16px 22px; padding: 28px 16px; } }
       `;
@@ -413,7 +415,7 @@
     }
   }
 
-  window.openWgroup = function (el, kind, soft) {
+  window.openWgroup = function (el, kind, soft, instant) {
     const ov = document.getElementById("wgroup-open");
     if (!ov) return;
     wgroupOpenState = true;
@@ -422,9 +424,9 @@
     const panel = ov.querySelector(".wgroup-panel");
     if (panel) {
       panel.innerHTML = wgroupPanelHTML(wgroupOpenKind);
-      // soft=true（从 App 退回文件夹）时用淡入，去掉从桌面点开时的 scale 弹出。
-      // display:none→flex 会重播面板动画，这里只需切 class 选对应关键帧。
-      panel.classList.toggle("soft-in", !!soft);
+      // instant=true：从 App 瞬间退回文件夹，完全无动画（消除闪回+卡顿观感）
+      panel.classList.toggle("instant", !!instant);
+      panel.classList.toggle("soft-in", !!soft && !instant);
     }
     ov.classList.add("on");
   };
