@@ -430,6 +430,13 @@ function toggleDnd(e) {
   vib(10);
   if (view === "lock") renderLock();
   syncDndUI();
+
+  // 原 toast 逻辑保持不变；仅「开启」时额外从侧面滑出恩仔桌宠（每次都出、自动滑走），关闭时收起
+  if (window.isDnd && typeof window.showDndPet === "function") {
+    try { window.showDndPet(); } catch (err) {}
+  } else if (!window.isDnd && typeof window.hideDndPuppy === "function") {
+    try { window.hideDndPuppy(); } catch (err) {}
+  }
   
   document.querySelectorAll(".dnd-global-toast").forEach(el => el.remove());
   const toast = document.createElement("div");
@@ -1275,6 +1282,7 @@ function initApp() {
   }
   recordVisit();
   try { if (typeof window.initSourceSurvey === "function") window.initSourceSurvey(); } catch (e) {}
+  try { if (typeof window.initDndPuppy === "function") window.initDndPuppy(); } catch (e) {}
   if (IS_DEV_HOST && /[?&]replies=1/.test(window.__Q())) mountReplyViewer();
   if (SS.homecoming && typeof window.tryStartBGM === "function") window.tryStartBGM();
 }

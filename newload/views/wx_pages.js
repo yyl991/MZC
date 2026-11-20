@@ -712,6 +712,12 @@ window.wxToggleDnd = function (el) {
   if (el) el.classList.toggle("on", window.isDnd);
   if (typeof updateDndBadge === "function") updateDndBadge();
   vib(8);
+  // 开启时额外滑出恩仔桌宠（每次都出、自动滑走），关闭时收起；原 toast 逻辑不动
+  if (window.isDnd && typeof window.showDndPet === "function") {
+    try { window.showDndPet(); } catch (err) {}
+  } else if (!window.isDnd && typeof window.hideDndPuppy === "function") {
+    try { window.hideDndPuppy(); } catch (err) {}
+  }
 };
 VIEWS.wx_settings = () => {
   const notifyOn = window._wxNotifyOn !== false;
