@@ -241,6 +241,198 @@ const ARTIST_NEW_WEIBO = [
   },
 ];
 
+// 4.5 到点解锁的新微博：按游戏时钟 gameMin() 阈值本地判定（1396=23:16，1440=0:00），不进存档、不用定时器刷新列表。
+const ARTIST_SCHEDULED_WEIBO = [
+  {
+    id: 9,
+    unlockMin: 1440,
+    text: "#穆祉丞生日单曲阴天也会有烦恼吗##七号打歌中心#\n久久久久等了！ᖰ🌥️ᖳ\n\n《阴天也会有烦恼吗》",
+    links: [
+      { label: "QQ音乐", url: "https://y.qq.com/n/ryqq_v2/songDetail/742708761?ADTAG=h5_play_song" },
+      { label: "酷狗音乐", url: "https://www.kugou.com/mixsong/gbmzl780.html?share=1" },
+      { label: "酷我音乐", url: "https://www.kuwo.cn/play_detail/669608403" },
+      { label: "咪咕音乐", url: "https://h5.nf.migu.cn/app/v4/p/share/song-new/index.html?id=600930000006318964" },
+    ],
+    textAfter: "#朝朝穆穆#",
+    time: "11-16 00:00",
+    device: "来自 19岁的mzciPhone客户端",
+    images: ["./data/weibo/yintian.jpg"],
+    likes: "1080万",
+    comments: "100万+",
+    forwards: "100万+",
+    hot: "30000+",
+  },
+  {
+    id: 8,
+    unlockMin: 1440,
+    text: "",
+    time: "11-16 00:00",
+    device: "来自 生日动态",
+    images: ["./data/weibo/happybirthday.png"],
+    likes: "1100万",
+    comments: "100万+",
+    forwards: "100万+",
+    hot: "30000+",
+  },
+  {
+    id: 7,
+    unlockMin: 1396,
+    text: "18岁的最后一条动态，我选择不化妆拍。因为我一直希望我们能以朋友的身份相处，也希望你们别把我放太远（因为我也是一个你们身边普普通通的大男孩🤗）最后的111111111111111111！老样子，祝大家天天开心，晚安，我们明天见哦！",
+    textAfter: "#朝朝穆穆# 📹TF_ING穆祉丞MUA的微博视频",
+    time: "11-15 23:16",
+    device: "来自 18岁的mzciPhone客户端",
+    video: "./data/weibo/18.mp4",
+    cover: "./data/weibo/18cover.jpg",
+    likes: "418万",
+    comments: "14.5万",
+    forwards: "100万+",
+    hot: "30000+",
+  },
+];
+
+// 渲染入口：原始 4 条不动，按当前游戏时间在前面拼上已到点的新微博（新→旧）。
+function getArtistWeibo() {
+  const gm = typeof gameMin === "function" ? gameMin() : 0;
+  return ARTIST_SCHEDULED_WEIBO.filter((w) => gm >= w.unlockMin).concat(ARTIST_NEW_WEIBO);
+}
+
+// 话题/@ 橙色化（与 renderWeiboText 同规则，但不带外层容器，供合并折叠块复用）
+function wbTextColorize(text) {
+  if (!text) return "";
+  let safeText = esc(text);
+  safeText = safeText.replace(/#([^#]+?)#/g, '<span style="color:#ff8200;">#$1#</span>');
+  safeText = safeText.replace(/@([a-zA-Z0-9_\-\u4e00-\u9fa5]+)/g, '<span style="color:#ff8200;">@$1</span>');
+  return safeText;
+}
+// 音乐跳转行：只显示「🔗网页链接」，点击后新标签打开真实地址
+const WB_MUSIC_LINE = (l) =>
+  `${esc(l.label)}&gt;&gt;<span style="color:#ff8200; cursor:pointer;" onclick="event.stopPropagation(); window.open('${l.url}', '_blank')">🔗网页链接</span>`;
+// 正文后的橙色话题行（复刻微博话题链接样式）
+const WB_TEXT_AFTER = (t) =>
+  t
+    ? `<div style="font-size:15px; color:#ff8200; line-height:1.6; margin-bottom:12px; white-space:pre-wrap;">${esc(t)}</div>`
+    : "";
+// 带音乐链接的帖子：正文+链接合并为一个折叠块——默认只显示到第二条（酷狗）链接，
+// 后跟「… 全文」，点击展开剩余链接与话题行（复刻真实微博折叠样式）
+const WB_POST_TEXT = (w) => {
+  if (!w.links || !w.links.length) {
+    return `${renderWeiboText(w.text)}${WB_TEXT_AFTER(w.textAfter)}`;
+  }
+  const visible = w.links.slice(0, 2).map(WB_MUSIC_LINE).join("\n");
+  const hidden = w.links.slice(2).map(WB_MUSIC_LINE).join("\n") + (w.textAfter ? `\n\n${wbTextColorize(w.textAfter)}` : "");
+  return `<div style="font-size:15px; color:#333; line-height:1.6; margin-bottom:12px; white-space:pre-wrap;">${wbTextColorize(w.text)}\n${visible}<span style="color:#ff8200; cursor:pointer;" onclick="event.stopPropagation(); this.nextElementSibling.style.display='inline'; this.style.display='none';">… 全文</span><span style="display:none;">\n${hidden}</span></div>`;
+};
+
+// ============ 到点发布提醒横幅（复用微信 notifyFrom 的系统通知样式） ============
+// 左侧微博 App 图标 + 「特别关注 @TF_ING穆祉丞MUA · 刚刚」+ 内容预览 + 右侧艺人头像。
+// 提醒标记只存内存不进存档：刷新后首次判定已到点的直接标记、不补弹横幅（帖子本身已按 gameMin 出现在列表里）。
+// 0:00 只弹生日单曲一条（海报帖不弹，点进微博列表才看到）：afterContinue=0，
+// 点继续后立刻弹，抢在恩仔第一条生日消息（0.7 秒送达）的横幅之前；轮询 300ms 保证先于恩仔。
+const WB_NOTIFY_PLAN = [
+  { id: 7, min: 1396 },                   // 23:16 主阶段到点即弹；正逢来电则顺延到挂断
+  { id: 9, min: 1440, afterContinue: 0 }, // 0:00 生日单曲：点继续后立刻弹，在恩仔全部消息之前
+];
+window._wbNotified = window._wbNotified || {};
+function wbNotifyBody(w) {
+  const t = ((w && w.text) || "").replace(/\n+/g, " ").trim();
+  return t || "[图片]";
+}
+function wbOpenFeed() {
+  try {
+    if (view === "home") {
+      openApp("weibo", HOME ? HOME.querySelector('.app[data-app="weibo"] .icon') : null);
+      push("weibo");
+    } else if (["weibo", "weibo_my_posts", "weibo_profile", "weibo_artist", "weibo_follow", "weibo_supertopic"].includes(view)) {
+      show("weibo", "swap");
+    }
+  } catch (e) {}
+}
+function closeWbBanner(el) {
+  try {
+    el.animate([{ transform: "none", opacity: 1 }, { transform: "translateY(-140%) scale(.9)", opacity: 0 }], { duration: 280, fill: "forwards" }).onfinish = () => el.remove();
+  } catch (e) { el.remove(); }
+}
+function showWeiboNotif(w) {
+  if (!w || typeof OV === "undefined" || !OV) return;
+  if (typeof sfx === "function") sfx("msg");
+  if (typeof vib === "function") vib([30, 60, 30]);
+  OV.querySelectorAll(".banner:not(.story-choice)").forEach((b) => b.remove());
+  const b = document.createElement("div");
+  b.className = "banner";
+  b.style.cursor = "pointer";
+  b.innerHTML = `<div class="ncard"><div class="ni">${appIcon("weibo")}</div><div class="nt"><div class="nh"><span style="font-size:13px; white-space:nowrap;">特别关注 @TF_ING穆祉丞MUA</span><small>刚刚</small></div><div class="nb">${esc(wbNotifyBody(w))}</div></div><img src="./data/avatar/miantuan.jpg" style="width:46px; height:46px; border-radius:10px; object-fit:cover; flex:none;"></div>`;
+  OV.appendChild(b);
+  b.animate([{ transform: "translateY(-140%) scale(.96)" }, { transform: "none" }], { duration: 620, easing: "cubic-bezier(.2,1.25,.35,1)" });
+  let tm = setTimeout(() => closeWbBanner(b), 5600);
+  // 与微信横幅一致的交互：上滑关闭、点按进微博首页信息流
+  let y0 = null,
+    dy = 0,
+    dragging = false;
+  b.addEventListener("pointerdown", (e) => {
+    y0 = e.clientY;
+    dy = 0;
+    dragging = true;
+    clearTimeout(tm);
+    b.getAnimations().forEach((a) => a.cancel());
+    b.style.transition = "none";
+    b.setPointerCapture(e.pointerId);
+  });
+  b.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    dy = e.clientY - y0;
+    if (dy < 0) {
+      const op = Math.max(0, 1 - Math.abs(dy) / 100);
+      b.style.transform = `translateY(${dy}px) scale(${1 - Math.abs(dy) / 1000})`;
+      b.style.opacity = op;
+    } else {
+      b.style.transform = `translateY(${dy * 0.2}px)`;
+    }
+  });
+  const up = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    try { b.releasePointerCapture(e.pointerId); } catch (err) {}
+    b.style.transition = "all 0.3s cubic-bezier(0.2, 0.9, 0.25, 1)";
+    if (dy < -40) {
+      closeWbBanner(b);
+    } else if (Math.abs(dy) < 5) {
+      b.remove();
+      wbOpenFeed();
+    } else {
+      b.style.transform = "none";
+      b.style.opacity = 1;
+      tm = setTimeout(() => closeWbBanner(b), 3000);
+    }
+  };
+  b.addEventListener("pointerup", up);
+  b.addEventListener("pointercancel", up);
+}
+function wbNotifyTick() {
+  if (typeof base === "undefined" || !base) return; // 时钟未启动（存档未读）不判定
+  const gm = gameMin();
+  const hc = SS.homecoming;
+  const first = !window._wbArmed;
+  WB_NOTIFY_PLAN.forEach((p) => {
+    if (window._wbNotified[p.id]) return;
+    let due = false;
+    if (p.afterContinue == null) {
+      due = gm >= p.min;
+    } else {
+      if (!hc || hc.phase !== "exploring") return;
+      const dt = elapsed() - hc.continuedAt;
+      if (dt > p.afterContinue + 8) { window._wbNotified[p.id] = true; return; } // 刷新后错过窗口：静默
+      due = dt >= p.afterContinue;
+    }
+    if (!due) return;
+    if (typeof callState !== "undefined" && callState) return; // 来电/通话中弹了也会被盖住，顺延到下一秒
+    window._wbNotified[p.id] = true;
+    if (first || window.isDnd) return; // 首次判定（刷新恢复）或免打扰：只标记不弹横幅
+    showWeiboNotif(ARTIST_SCHEDULED_WEIBO.find((w) => w.id === p.id));
+  });
+  window._wbArmed = true;
+}
+if (typeof setInterval === "function") setInterval(wbNotifyTick, 300);
+
 // 5. 关注列表数据
 const FOLLOW_DATA = [
   {
@@ -475,7 +667,7 @@ VIEWS.weibo = () => ({
         <div style="font-size:14px; color:#999;">1人</div>
       </div>
 
-      ${ARTIST_NEW_WEIBO.map(
+      ${getArtistWeibo().map(
         (w) => `
         <div style="background:#fff; margin-bottom:10px; padding:16px;">
           <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px;">
@@ -491,7 +683,7 @@ VIEWS.weibo = () => ({
             </div>
             <div style="color:#ccc; font-size:16px;">﹀</div>
           </div>
-          ${renderWeiboText(w.text)}
+          ${WB_POST_TEXT(w)}
           ${
             w.video
               ? `
@@ -1068,7 +1260,7 @@ VIEWS.weibo_artist = () => ({
           </div>
          `).join('')}
          
-         ${ARTIST_NEW_WEIBO.map(w => `
+         ${getArtistWeibo().map(w => `
           <div style="background:#fff; margin-bottom:10px; padding:16px;">
             <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px;">
               <div style="display:flex; align-items:center; gap:10px;">
@@ -1085,8 +1277,8 @@ VIEWS.weibo_artist = () => ({
               </div>
             </div>
             
-            ${renderWeiboText(w.text)}
-            
+            ${WB_POST_TEXT(w)}
+
             ${w.video ? `
               <div style="border-radius:8px; overflow:hidden; margin-bottom:12px; background:#000; position:relative; cursor:pointer;" onclick="event.stopPropagation();openMediaViewer(['${w.video}'], 0)">
                 <video src="${w.video}" muted preload="metadata" style="width:100%; max-height:300px; display:block; object-fit:cover; pointer-events:none;"></video>
@@ -1279,7 +1471,7 @@ VIEWS.weibo_detail = () => {
       LIFE_WEIBO_DATA.find((w) => w.id === id);
   else if (type === "pinned")
     post = ARTIST_PINNED_WEIBO.find((w) => w.id === id);
-  else post = ARTIST_NEW_WEIBO.find((w) => w.id === id);
+  else post = getArtistWeibo().find((w) => w.id === id);
 
   if (!post)
     return {
