@@ -142,24 +142,33 @@
                     await new Promise(r => setTimeout(r, minDisplayTime - elapsedTime));
                 }
 
-                // 5. 切到第二屏「游玩小贴士」：两处遮罩的 wait 淡出、tips 淡入（水印不动，全程在线）
-                function swapToTips() {
+                // 5. 只有第一次游玩才显示「游玩小贴士」：展示即写 localStorage 标记（防止没读完就刷新反复出现）
+                const TIPS_KEY = 'mzc_boot_tips_seen';
+                let q = '';
+                try { q = (typeof window.__Q === 'function' ? window.__Q() : (location.search || '')); } catch (e) { q = location.search || ''; }
+                const tipsPreview = /[?&]tipsPreview=1\b/.test(q); // 作者重看：强制显示且不写标记
+                const tipsReset = /[?&]tipsReset=1\b/.test(q);     // 作者重置：清掉标记，下次重进当第一次
+                if (tipsReset) { try { localStorage.removeItem(TIPS_KEY); } catch (e) {} }
+                let tipsSeen = false;
+                try { tipsSeen = localStorage.getItem(TIPS_KEY) === '1'; } catch (e) {}
+                const showTips = !tipsSeen || tipsPreview;
+
+                if (showTips) {
+                    if (!tipsPreview) { try { localStorage.setItem(TIPS_KEY, '1'); } catch (e) {} }
+                    // 两处遮罩的 wait 淡出、tips 淡入（水印不动，全程在线）
                     [['ov-wait','ov-tips'], ['bt-wait','bt-tips']].forEach(([wId, tId]) => {
                         const w = document.getElementById(wId);
                         const t = document.getElementById(tId);
                         if (w) w.style.opacity = '0';
                         if (t) {
                             t.style.display = 'block';
-                            // 强制回流后再淡入，确保 transition 生效
-                            void t.offsetWidth;
+                            void t.offsetWidth; // 强制回流后再淡入，确保 transition 生效
                             t.style.opacity = '1';
                         }
                     });
+                    // 第二屏停留约 9 秒（约 117 字，够从容读完一遍又不拖沓）
+                    await new Promise(r => setTimeout(r, 9000));
                 }
-                swapToTips();
-
-                // 6. 第二屏停留约 9 秒（约 117 字，够从容读完一遍又不拖沓）
-                await new Promise(r => setTimeout(r, 9000));
 
                 // 7. 掀开遮罩层
                 const overlay = document.getElementById('loading-overlay');
