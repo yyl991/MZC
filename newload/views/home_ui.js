@@ -27,7 +27,7 @@
   window.openWgroupApp = function (id, el, kind) {
     wgroupBackKind = kind || "tools";
     try { openApp(id, el); } catch (e) {}
-    closeWgroup();
+    closeWgroup(true); // 进 App 时瞬时收面板，不播退出动画（避免和 App 打开动画打架）
   };
   // 供 app.js 的返回逻辑查询：面板是否开着 / 取走并返回本次的文件夹来源
   window.isWgroupOpen = function () { return !!wgroupOpenState; };
@@ -431,10 +431,35 @@
     ov.classList.add("on");
   };
 
-  window.closeWgroup = function () {
-    wgroupOpenState = false;
+  window.closeWgroup = function (instant) {
     const ov = document.getElementById("wgroup-open");
-    if (ov) { ov.classList.remove("on"); ov.style.display = ""; }
+    wgroupOpenState = false;
+    if (!ov || !ov.classList.contains("on")) {
+      if (ov) { ov.classList.remove("on", "closing"); ov.style.display = ""; }
+      return;
+    }
+    const panel = ov.querySelector(".wgroup-panel");
+    const cleanup = () => {
+      ov.classList.remove("on", "closing");
+      ov.style.display = "";
+      ov.style.opacity = "";
+      if (panel) panel.classList.remove("zoom-out", "soft-in", "instant");
+    };
+    // instant=true：点面板内 App 进 App 时瞬间收起，别让文件夹退出动画干扰 App 打开动画。
+    if (instant === true || !panel || !panel.animate || !ov.animate) { cleanup(); return; }
+    // 从文件夹回主屏幕：播「点开文件夹」动画的严格反向——panel 缩回 scale(.25)+淡出，遮罩同步淡出。
+    try { ov.getAnimations().forEach((a) => a.cancel()); panel.getAnimations().forEach((a) => a.cancel()); } catch (e) {}
+    ov.classList.add("closing");
+    const dur = 320, ease = "cubic-bezier(.45,0,.7,.3)";
+    const pa = panel.animate(
+      [{ transform: "scale(1)", opacity: 1 }, { transform: "scale(.25)", opacity: 0 }],
+      { duration: dur, easing: ease, fill: "forwards" }
+    );
+    const oa = ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: dur, easing: "ease-in", fill: "forwards" });
+    let done = false;
+    const end = () => { if (done) return; done = true; cleanup(); try { pa.cancel(); oa.cancel(); } catch (e) {} };
+    pa.onfinish = end;
+    setTimeout(end, dur + 120); // 兜底：动画被打断时也能收干净
   };
 
   window.toggleHomeMusic = function () {
