@@ -84,7 +84,7 @@ var INCOMING = [];
       init: [['11月15日','date']],
       replies: [
         { mine:['我马上到了'], them:['真的吗？那我可以再等一会儿'] },
-        { mine:['对不起，我来得太晚'], them:['没关系，现在你来了就够啦','以前我一个人，现在有你了'] }
+        { mine:['对不起，我来得太晚了'], them:['没关系，现在你来了就够了呀','以前我总是一个人，现在有你啦'] }
       ],
       fragment: { title:'碎片 · 九岁', body:'九岁那年，练习室的灯总是最后一个关。\n\n他以为没有人会来。' }
     },
@@ -113,7 +113,7 @@ var INCOMING = [];
       init: [['11月15日','date'], ['死哪去了','them','下午 10:58']],
       replies: [
         { mine:['别生气了，我马上回'], them:['等着呢'] },
-        { mine:['门锁了？'], them:['……没锁','快点'] }
+        { mine:['门锁了？'], them:['5分钟不到立马锁','快点'] }
       ],
       fragment: null
     },
@@ -175,7 +175,9 @@ var INCOMING = [];
     // 👤 穆瑞恩 (8岁)
     // ==========================================
     { at: 60, type:'notify', from:'穆瑞恩', text:'你在哪里呀？我怕黑…', skipIfReplied: true },
-    { at: 86, type:'notify', from:'穆瑞恩', text:'我的眼睛有点痛。。。', skipIfReplied: true },
+    { at: 86, type:'notify', from:'穆瑞恩', text:'我没有哭哦', skipIfReplied: true },
+    
+    { at: 116, type:'notify', from:'穆瑞恩', text:'我的眼睛有点痛。。。', skipIfReplied: true },
     { at: 249, type:'notify', from:'穆瑞恩', text:'我等了你好久好久', skipIfReplied: true },
     { at: 326, type:'notify', from:'穆瑞恩', text:'姐姐，我的生日要到了，你还不来吗' },
 
