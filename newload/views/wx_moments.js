@@ -201,7 +201,7 @@ window.wxMomentComment = function (post) {
   wxPrompt("评论", "说点什么...", function (txt) {
     post.comments = post.comments || [];
     post.comments.push({ user: "我", text: txt, replyTo: "" });
-    if (typeof window.collectMomentReply === "function") window.collectMomentReply(chatId, post.text || "", txt);
+    if (typeof window.collectMomentReply === "function") window.collectMomentReply(post.author || chatId, post.text || "", txt);
     wxRefreshWxView();
     toastDev("评论成功");
   });
