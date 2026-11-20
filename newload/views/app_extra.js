@@ -902,18 +902,19 @@ VIEWS.weather = () => {
     { t: "5时", icon: "snow", temp: "-3°" },
   ];
 
-  // 👇 按照你截图里真实历史天气的数据配置：只有 16、17 号最冷，之后回温
+  // 👇 今天/明天(11.15-16)保留剧情设定（阴转小雪+持续降温）；周二起为北京对应日期的真实天气：
+  //    17-20 号为实况（天气后报历史），21 号当天实况、22-24 号为预报（中国天气网），查证于 2026-11-21
   const daily = [
-    { day: "今天", icon: "snow", min: -3, max: 2 }, // 16 号：多云转小雪
-    { day: "周一", icon: "snow", min: -5, max: -1 }, // 17 号：持续降温
-    { day: "周二", icon: "pcloud", min: 0, max: 8 },
-    { day: "周三", icon: "pcloud", min: 3, max: 14 },
-    { day: "周四", icon: "pcloud", min: 2, max: 9 },
-    { day: "周五", icon: "cloud", min: -2, max: 10 },
-    { day: "周六", icon: "pcloud", min: 0, max: 14 },
-    { day: "周日", icon: "pcloud", min: 2, max: 13 },
-    { day: "周一", icon: "pcloud", min: -2, max: 11 },
-    { day: "周二", icon: "cloud", min: -3, max: 6 },
+    { day: "今天", icon: "snow", min: -3, max: 2 }, // 11.15：剧情设定 阴转小雪
+    { day: "周一", icon: "snow", min: -5, max: -1 }, // 11.16：剧情设定 持续降温
+    { day: "周二", icon: "pcloud", min: 1, max: 9 }, // 11.17 实况：多云 9/1
+    { day: "周三", icon: "sun", min: -2, max: 7 }, // 11.18 实况：晴 7/-2
+    { day: "周四", icon: "sun", min: -2, max: 7 }, // 11.19 实况：晴 7/-2
+    { day: "周五", icon: "pcloud", min: -2, max: 8 }, // 11.20 实况：多云转晴 8/-2
+    { day: "周六", icon: "sun", min: -3, max: 6 }, // 11.21 实况：晴 6/-3
+    { day: "周日", icon: "pcloud", min: -2, max: 4 }, // 11.22 预报：多云 4/-2
+    { day: "周一", icon: "sun", min: -3, max: 8 }, // 11.23 预报：晴 8/-3
+    { day: "周二", icon: "sun", min: -2, max: 6 }, // 11.24 预报：晴 6/-2
   ];
 
   // 👇 全换成 Emoji
