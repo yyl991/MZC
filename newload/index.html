@@ -166,8 +166,20 @@
                             t.style.opacity = '1';
                         }
                     });
-                    // 第二屏停留约 9 秒（约 117 字，够从容读完一遍又不拖沓）
-                    await new Promise(r => setTimeout(r, 9000));
+                    // 第二屏停留约 9 秒；心急的玩家点一下黑屏即可提前结束，直接进入锁屏
+                    await new Promise(resolve => {
+                        let done = false;
+                        let timer = null;
+                        const finish = () => {
+                            if (done) return;
+                            done = true;
+                            if (timer) clearTimeout(timer);
+                            document.removeEventListener('click', finish, true);
+                            resolve();
+                        };
+                        timer = setTimeout(finish, 9000);
+                        document.addEventListener('click', finish, true);
+                    });
                 }
 
                 // 7. 掀开遮罩层
