@@ -35,10 +35,10 @@
 <body>
     <!-- 全屏黑屏遮罩 -->
     <div id="loading-overlay" style="position:fixed; inset:0; z-index:9999999; background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.5s;">
-        <div style="color:#fff; font-size:16px; text-align:center; line-height:1.8; letter-spacing:1px; font-family: sans-serif;">
+        <div id="ov-wait" style="color:#fff; font-size:16px; text-align:center; line-height:1.8; letter-spacing:1px; font-family: sans-serif; transition: opacity .3s;">
             等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿
         </div>
-        <div style="margin-top:26px;max-width:360px;padding:0 20px;color:rgba(255,255,255,.6);font-size:12.5px;line-height:1.95;letter-spacing:.2px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;">
+        <div id="ov-tips" style="display:none; opacity:0; transition: opacity .35s; max-width:360px;padding:0 20px;color:rgba(255,255,255,.6);font-size:12.5px;line-height:1.95;letter-spacing:.2px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;">
             <div style="color:rgba(255,154,118,.92);font-size:11px;letter-spacing:2px;margin-bottom:9px;">— 游玩小贴士 —</div>
             <div><span style="color:#ff9a76;">·</span> 所有页面按钮都可点，点不了的也会触发小彩蛋</div>
             <div><span style="color:#ff9a76;">·</span> 你是否回复接打电话都会影响一部分故事走向，建议放置小恩恩并善用免打扰（如果太吵的话</div>
@@ -51,7 +51,7 @@
 
     <div id="phone">
         <div id="screen">
-            <div id="boot"><span>等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿</span><div style="margin-top:22px;max-width:330px;padding:0 16px;color:rgba(255,255,255,.6);font-size:12px;line-height:1.9;letter-spacing:.2px;text-align:left;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;"><div style="color:rgba(255,154,118,.92);font-size:11px;letter-spacing:2px;margin-bottom:8px;">— 游玩小贴士 —</div><div><span style="color:#ff9a76;">·</span> 所有页面按钮都可点，点不了的也会触发小彩蛋</div><div><span style="color:#ff9a76;">·</span> 你是否回复接打电话都会影响一部分故事走向，建议放置小恩恩并善用免打扰（如果太吵的话</div><div><span style="color:#ff9a76;">·</span> 浏览器刷新不影响进度，想体验不同走向可以使用进度重置功能</div><div><span style="color:#ff9a76;">·</span> 0点时最好不要离开</div><div><span style="color:#ff9a76;">·</span> 功能持续后台迭代中，更多内容请自行探索～</div></div><div class="boot-watermark">@矢量有方向233</div></div>
+            <div id="boot"><span id="bt-wait">等下等下 等下 等下等下<br>等等等等等等…等下<br>哎别这么着急好不好😿</span><div id="bt-tips" style="display:none;opacity:0;transition:opacity .35s;max-width:330px;padding:0 16px;color:rgba(255,255,255,.6);font-size:12px;line-height:1.9;letter-spacing:.2px;text-align:left;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;"><div style="color:rgba(255,154,118,.92);font-size:11px;letter-spacing:2px;margin-bottom:8px;">— 游玩小贴士 —</div><div><span style="color:#ff9a76;">·</span> 所有页面按钮都可点，点不了的也会触发小彩蛋</div><div><span style="color:#ff9a76;">·</span> 你是否回复接打电话都会影响一部分故事走向，建议放置小恩恩并善用免打扰（如果太吵的话</div><div><span style="color:#ff9a76;">·</span> 浏览器刷新不影响进度，想体验不同走向可以使用进度重置功能</div><div><span style="color:#ff9a76;">·</span> 0点时最好不要离开</div><div><span style="color:#ff9a76;">·</span> 功能持续后台迭代中，更多内容请自行探索～</div></div><div class="boot-watermark">@矢量有方向233</div></div>
             <div id="wall"></div>
             <div id="homeL" class="layer"></div>
             <div id="lockL" class="layer">
@@ -135,15 +135,33 @@
                 // 3. 加载主屏资源（最长等 3 秒）
                 await preloadHomeAssets();
 
-                // 👇 4. 核心修改：强制遮罩层至少停留 2 秒
+                // 👇 4. 第一屏「等下等下」至少停留 2 秒
                 const minDisplayTime = 2000; 
                 const elapsedTime = Date.now() - startTime;
                 if (elapsedTime < minDisplayTime) {
-                    // 如果加载太快，就强行再等一会儿
                     await new Promise(r => setTimeout(r, minDisplayTime - elapsedTime));
                 }
 
-                // 5. 掀开遮罩层
+                // 5. 切到第二屏「游玩小贴士」：两处遮罩的 wait 淡出、tips 淡入（水印不动，全程在线）
+                function swapToTips() {
+                    [['ov-wait','ov-tips'], ['bt-wait','bt-tips']].forEach(([wId, tId]) => {
+                        const w = document.getElementById(wId);
+                        const t = document.getElementById(tId);
+                        if (w) w.style.opacity = '0';
+                        if (t) {
+                            t.style.display = 'block';
+                            // 强制回流后再淡入，确保 transition 生效
+                            void t.offsetWidth;
+                            t.style.opacity = '1';
+                        }
+                    });
+                }
+                swapToTips();
+
+                // 6. 第二屏停留约 7 秒（约 117 字，够扫读一遍又不拖沓）
+                await new Promise(r => setTimeout(r, 7000));
+
+                // 7. 掀开遮罩层
                 const overlay = document.getElementById('loading-overlay');
                 if (overlay) {
                     overlay.style.opacity = '0';
@@ -154,7 +172,7 @@
                     }, 300); // 等待淡出动画
                 }
 
-                // 6. 玩家进去后，后台开始 VIP 排队下载图片
+                // 8. 玩家进去后，后台开始 VIP 排队下载图片
                 backgroundPreload();
 
             } catch (e) {
