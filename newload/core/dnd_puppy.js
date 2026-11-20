@@ -1,7 +1,7 @@
 // core/dnd_puppy.js
 // 开启「免打扰」时，在原 toast 之外，从屏幕侧面滑出一个穆祉丞桌宠 + 气泡。
 // 不是弹窗：无遮罩、无背景模糊、pointer-events:none，不挡任何操作；原「已开启/已关闭免打扰」toast 逻辑完全不动。
-// 左右两套固定组合：左边=委屈图+傲娇三句，右边=生气图+问答文案。次数无上限，一直左右交替。
+// 两套组合等概率随机：左边=委屈图+傲娇三句，右边=生气图+问答文案，各 50%。
 // 文案与图片路径在 window.DND_PUPPY_CFG 里改；把抠好的图放到对应路径即可。
 "use strict";
 (function () {
@@ -24,7 +24,7 @@
     bubbleDelayMs: 520, // 桌宠出现后多久"发出"对话气泡
     bubbleCloseMs: 220, // 气泡收起动画时长
     autoCloseMs: 7000,  // 气泡出现后停留多久自动收气泡+弹跳退场（保证字看得完）
-    firstSide: "left",  // 第一次从左边出，之后左右交替（奇数左、偶数右）
+    firstSide: "left",  // 随机命中左侧时用的方向（另一套取反侧）；仅影响左右，不影响概率
     side: "right",      // 兜底默认方向
   };
   window.DND_PUPPY_CFG = CFG;
@@ -250,10 +250,11 @@
   // 三个开关入口在「开启」时调这个：先弹原 toast，约0.35秒后桌宠出现。
   window.showDndPet = function () {
     try {
-      var n = incCount();
-      // 左右两套固定：奇数次=左边(委屈图+傲娇三句)，偶数次=右边(生气图+问答两句)，无次数上限
+      incCount();
+      // 两套等概率随机：各 50%。Math.random() < .5 取左(委屈傲娇)，否则取右(生气问答)。
+      // 内容随方向走，保持"左悲右怒"绑定；预览参数 dndPreview 仍可固定看某一套。
       var first = CFG.firstSide || "left";
-      var side = (n % 2 === 1) ? first : (first === "left" ? "right" : "left");
+      var side = (Math.random() < 0.5) ? first : (first === "left" ? "right" : "left");
       setTimeout(function () { window.showDndPuppy(null, side); }, Math.max(0, CFG.showDelayMs || 280));
     } catch (e) {}
   };
