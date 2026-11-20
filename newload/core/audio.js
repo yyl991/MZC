@@ -113,6 +113,30 @@ window.tryStartBGM = function () {
     if (BGM.dataset.storyTrack === track && !BGM.paused) window._bgmStarted = true;
   }).catch(() => {});
 };
+// 零点传送幕 / 生日快乐等剧情关键节点专用：
+// 无论 BGM 之前是否被暂停、被语音/音乐/来电抢占、或已标记启动过，
+// 都强制切到当前阶段该放的曲目并从暂停处继续播放。
+window.forceStartBGM = function () {
+  const BGM = window.syncBackgroundTrack();
+  if (!BGM) return;
+  // 清掉一切会阻止播放的状态标记
+  window.bgmPausedByOther = false;
+  window._bgmStarted = false;
+  // 停掉可能抢占的其它音视频，避免声音重叠或 isBusy 拦截
+  try {
+    document.querySelectorAll("video").forEach((v) => { try { v.pause(); } catch (e) {} });
+    document.querySelectorAll("audio").forEach((a) => { if (a !== BGM) { try { a.pause(); } catch (e) {} } });
+  } catch (e) {}
+  try { if (typeof window.stopRing === "function") window.stopRing(); } catch (e) {}
+  BGM.volume = 1;
+  const track = BGM.dataset.storyTrack;
+  BGM.play().then(() => {
+    if (BGM.dataset.storyTrack === track) window._bgmStarted = true;
+  }).catch(() => {
+    // 自动播放被浏览器拦截时保持未启动，后续任意手势由 tryStartBGM 续播
+  });
+};
+
 ["pointerdown", "touchstart", "click", "keydown"].forEach((ev) => {
   document.addEventListener(ev, () => { ac(); window.tryStartBGM(); }, { passive: true });
 });

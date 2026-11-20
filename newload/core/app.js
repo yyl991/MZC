@@ -727,7 +727,8 @@ function closeApp() {
     fa.onfinish = () => {
       if (tok !== animTok) return;
       APP.style.visibility = "hidden"; APP.querySelectorAll("video").forEach((v) => v.pause()); APP.innerHTML = ""; fa.cancel();
-      try { window.openWgroup(null, backKind); } catch (e) {}
+      // soft=true：退回文件夹只淡入、不弹跳（避免文件夹又"跳出"一次）
+      try { window.openWgroup(null, backKind, true); } catch (e) {}
     };
     updateIsland();
     return;
@@ -933,7 +934,9 @@ function beginHomecoming() {
   clearHomecomingFault();
   if (typeof window.saveGameState === "function") window.saveGameState();
   renderHomecoming();
-  if (typeof window.tryStartBGM === "function") window.tryStartBGM();
+  // 零点传送幕：无论之前是否被暂停/被其它音频抢占，都强制开始播放
+  if (typeof window.forceStartBGM === "function") window.forceStartBGM();
+  else if (typeof window.tryStartBGM === "function") window.tryStartBGM();
 }
 
 function renderHomecoming() {
@@ -982,7 +985,8 @@ function renderHomecoming() {
   const retryHomecomingBgm = (e) => {
     if (e && e.target && e.target.closest && e.target.closest("button")) return;
     if (!SS.homecoming || SS.homecoming.phase !== "transferred") return;
-    if (typeof window.tryStartBGM === "function") window.tryStartBGM();
+    if (typeof window.forceStartBGM === "function") window.forceStartBGM();
+    else if (typeof window.tryStartBGM === "function") window.tryStartBGM();
   };
   scene.addEventListener("pointerdown", retryHomecomingBgm);
   scene.addEventListener("click", retryHomecomingBgm);
@@ -1006,7 +1010,9 @@ function continueHomecoming() {
   setStatus(true);
   if (typeof updateIsland === "function") updateIsland();
   if (typeof window.saveGameState === "function") window.saveGameState();
-  if (typeof window.tryStartBGM === "function") window.tryStartBGM();
+  // 生日快乐探索阶段：无论之前是否被暂停/被其它音频抢占，都强制开始播放
+  if (typeof window.forceStartBGM === "function") window.forceStartBGM();
+  else if (typeof window.tryStartBGM === "function") window.tryStartBGM();
   deliverHomecomingTimeline();
 }
 function deliverHomecomingTimeline() {
@@ -1353,5 +1359,8 @@ function initApp() {
   try { if (typeof window.initSourceSurvey === "function") window.initSourceSurvey(); } catch (e) {}
   try { if (typeof window.initDndPuppy === "function") window.initDndPuppy(); } catch (e) {}
   if (IS_DEV_HOST && /[?&]replies=1/.test(window.__Q())) mountReplyViewer();
-  if (SS.homecoming && typeof window.tryStartBGM === "function") window.tryStartBGM();
+  if (SS.homecoming) {
+    if (typeof window.forceStartBGM === "function") window.forceStartBGM();
+    else if (typeof window.tryStartBGM === "function") window.tryStartBGM();
+  }
 }
