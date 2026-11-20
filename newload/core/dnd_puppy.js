@@ -136,7 +136,13 @@
 
       var reduceMotion = (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
-      // 第一步：只放桌宠，气泡还没出现
+      // 变量与退场流程（reveal / finishSequence 共用）
+      var bubbleEl = null;
+      var autoTimer = null;
+      var exiting = false;
+      var revealed = false;
+
+      // 先把桌宠插入 DOM（图片此时开始加载；若已预加载则 complete=true）
       host.innerHTML = petHTML;
       screenEl().appendChild(host);
 
@@ -147,21 +153,26 @@
         im.onerror = function () {
           if (im.parentNode) im.parentNode.removeChild(im);
           ph.style.display = "flex";
+          reveal();
         };
-      }
+        // 关键：等图片真正就绪才开始整条时序，避免"图还没加载出来就没了"
+        if (im.complete && im.naturalWidth > 0) reveal();
+        else { im.onload = reveal; setTimeout(reveal, 1600); } // 兜底：图片异常时也能出现
+      } else reveal();
 
-      // 桌宠滑入
-      if (host.animate && !reduceMotion) {
-        host.animate(
-          [{ opacity: 0, transform: "translateX(" + (right ? "115%" : "-115%") + ")" },
-           { opacity: 1, transform: "translateX(0)" }],
-          { duration: 420, easing: "cubic-bezier(.2,1.2,.35,1)", fill: "both" }
-        );
+      // 桌宠滑入 → 稍后吐气泡：都等图片 ready 后才开始
+      function reveal() {
+        if (revealed || exiting || !host.parentNode) return;
+        revealed = true;
+        if (host.animate && !reduceMotion) {
+          host.animate(
+            [{ opacity: 0, transform: "translateX(" + (right ? "115%" : "-115%") + ")" },
+             { opacity: 1, transform: "translateX(0)" }],
+            { duration: 420, easing: "cubic-bezier(.2,1.2,.35,1)", fill: "both" }
+          );
+        }
+        spawnBubble();
       }
-
-      var bubbleEl = null;
-      var autoTimer = null;
-      var exiting = false;
 
       // 收气泡 → 弹跳 → 退场（点击与超时共用这条退场流程）
       function finishSequence() {
@@ -201,12 +212,13 @@
         } else afterBubble();
       }
 
-      // 第二步：桌宠出现后延迟"发出"气泡，气泡出现才开始计时停留
-      setTimeout(function () {
-        if (exiting || !host.parentNode) return;
-        if (right) host.insertAdjacentHTML("afterbegin", bubbleHTML);
-        else host.insertAdjacentHTML("beforeend", bubbleHTML);
-        bubbleEl = host.querySelector(".dnd-bubble");
+      // 第二步：图片就绪后延迟"发出"气泡，气泡出现才开始计时停留
+      function spawnBubble() {
+        setTimeout(function () {
+          if (exiting || !host.parentNode) return;
+          if (right) host.insertAdjacentHTML("afterbegin", bubbleHTML);
+          else host.insertAdjacentHTML("beforeend", bubbleHTML);
+          bubbleEl = host.querySelector(".dnd-bubble");
         // 气泡也可点：跟点小猫走同一条收气泡+弹跳退场流程
         if (bubbleEl) {
           bubbleEl.addEventListener("click", function (e) { if (e) { e.preventDefault(); e.stopPropagation(); } finishSequence(); });
@@ -223,7 +235,8 @@
           );
         }
         autoTimer = setTimeout(finishSequence, Math.max(1200, CFG.autoCloseMs || 3200));
-      }, Math.max(120, CFG.bubbleDelayMs || 520));
+        }, Math.max(120, CFG.bubbleDelayMs || 520));
+      }
 
       // 点击桌宠本体：收气泡 + 弹跳提前退场（只吃小猫这一块的点击，不挡桌面）
       var hit0 = host.querySelector(".dnd-pet-hit");
@@ -247,6 +260,11 @@
 
   window.initDndPuppy = function () {
     try {
+      // 页面加载即预加载两张桌宠图：首次开关免打扰时图片已在缓存，桌宠立刻出现不等待
+      [CFG.petImageNormal || CFG.petImage, CFG.petImageSpecial].forEach(function (src) {
+        if (!src) return;
+        var pre = new Image(); pre.src = src; window.__dndPreloaded = window.__dndPreloaded || []; window.__dndPreloaded.push(pre);
+      });
       var qs = q();
       if (/(?:^|[?&])dndReset=1\b/.test(qs)) resetCount();
       var m = /(?:^|[?&])dndPreview=(\d+)\b/.exec(qs);
