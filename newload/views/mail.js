@@ -245,6 +245,7 @@ window.sendMail = function () {
   updateMailHomeBadge();
   show("mail", "pop");
   toastDev("邮件已发送");
+  try { if (typeof window.collectUserInput === "function") window.collectUserInput("mail", { to_who: to, subject: subject, body: body }); } catch (e) {}
 };
 
 VIEWS.mail_compose = () => {

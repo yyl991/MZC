@@ -295,7 +295,7 @@ function renderChat(chatKey, arrRaw) {
   const homelink = `<div class="mzc-homelink">&#9664; 主页</div>`;
   const phone = `<div class="mzc-phone"><div class="mzc-screen">${status}${homelink}<div class="mzc-chat">${nav}<div class="mzc-body">${o}</div></div>${inputbar}${home}</div></div>`;
   // 每章底部引流说明（AO3 功能受限，引导到原站体验完整版）
-  const promo = `<div class="mzc-promo"><span class="mzc-promo-line">ao3功能有限仅存档捡手机聊天记录部分，可互动版本需打开网页版↓</span><a class="mzc-promo-btn" href="https://cgcgdsg.cc.cd/" target="_blank" rel="noreferrer">进入完整捡手机小游戏</a></div>`;
+  const promo = `<div class="mzc-promo"><span class="mzc-promo-line">ao3功能有限仅存档捡手机聊天记录部分，可互动版本需打开网页版↓</span><span class="mzc-promo-note">（两个链接是同一个游戏，哪个打得开用哪个，左边加载快一些）</span><span class="mzc-promo-btns"><a class="mzc-promo-btn" href="https://cgcgdsg.cc.cd/" target="_blank" rel="noreferrer">进入完整捡手机小游戏</a><a class="mzc-promo-btn" href="https://mzc1116.cc.cd/" target="_blank" rel="noreferrer">进入完整捡手机小游戏</a></span></div>`;
   return phone + promo;
 }
 
@@ -404,6 +404,9 @@ const css = `#workskin .mzc-root{font-family:-apple-system,BlinkMacSystemFont,"P
 #workskin .mzc-promo-line{display:block;color:#888;font-size:13px;line-height:1.7;margin-bottom:14px;}
 #workskin .mzc-promo-btn{display:inline-block;padding:11px 22px;background:#ff9d64;background:linear-gradient(135deg,#ff9d64,#ff6e9b);border:1px solid #ff9070;border-radius:7px;color:#fff;font-size:14px;font-weight:400;text-decoration:none;}
 #workskin .mzc-promo-btn:hover{background:#ff9255;background:linear-gradient(135deg,#ff9255,#ff5f96);}
+#workskin .mzc-promo-note{display:block;color:#999;font-size:12px;line-height:1.5;margin:-6px 0 12px;}
+#workskin .mzc-promo-btns{display:block;}
+#workskin .mzc-promo-btns .mzc-promo-btn{margin:0 5px 6px;}
 `;
 
 // ---------- 7. 输出文件 ----------

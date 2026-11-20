@@ -355,6 +355,7 @@ window.wxPublishMoment = function () {
   window._wxComposeImages = [];
   show(window._wxComposeFrom || "moments", "pop");
   setTimeout(() => toastDev("发表成功"), 260);
+  try { if (typeof window.collectUserInput === "function") window.collectUserInput("moment_post", { text: text, image_count: imgs.length }); } catch (e) {}
 };
 VIEWS.wx_moment_compose = () => ({
   cls: "wx-list",

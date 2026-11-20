@@ -799,6 +799,7 @@ function chatMsgs(id) {
   let o = "";
   let currentDateLabel = "11月15日";
   const getMins = timeToMin;
+  const anchoredDates = new Set(); // 按日期查找：每个日期段只加一个锚点，避免重复 id
   it.forEach((x, i) => {
     if (x.date) {
       currentDateLabel = x.date;
@@ -814,8 +815,19 @@ function chatMsgs(id) {
       // 连续聊天不打断，隔了 10 分钟以上才重新显示时间
       if (currMin - prevMin >= 10 || currMin < prevMin) showTime = true;
     }
-    if (showTime)
-      o += `<div class="wx-dpill"><span>${getWxTimeString(currentDateLabel, x.time)}</span></div>`;
+    if (showTime) {
+      // 按日期查找的跳转锚点：用解析后的绝对年月日，和日历页的 key 一致
+      let anchor = "";
+      const dp = (typeof parseChatDate === "function") && parseChatDate(currentDateLabel);
+      if (dp) {
+        const key = `${dp.y}-${dp.m}-${dp.d}`;
+        if (!anchoredDates.has(key)) {
+          anchoredDates.add(key);
+          anchor = ` id="wx-date-${key}"`;
+        }
+      }
+      o += `<div class="wx-dpill"${anchor}><span>${getWxTimeString(currentDateLabel, x.time)}</span></div>`;
+    }
     if (x.who === "sys") {
       o += `<div class="wx-sys-tip">${esc(normalizePatSys(x.text, id))}</div>`;
       return;
@@ -1315,6 +1327,21 @@ VIEWS.chat = () => ({
     scrollChat();
     requestAnimationFrame(() => scrollChat());
     setTimeout(() => scrollChat(), 300);
+    // 从「按日期查找」跳来：定位到那天的日期分隔
+    if (window._wxJumpDate) {
+      const key = window._wxJumpDate;
+      window._wxJumpDate = null;
+      const jump = () => {
+        const el = document.getElementById("wx-date-" + key);
+        const box = document.getElementById("msgs");
+        if (el && box) {
+          // 让目标日期处在可视区上方一点，露出当天的消息
+          box.scrollTop = Math.max(0, el.offsetTop - box.offsetTop - 8);
+        }
+      };
+      requestAnimationFrame(() => requestAnimationFrame(jump));
+      setTimeout(jump, 320);
+    }
     const b = $("#msgs");
     if (b && !b.dataset.npBound) {
       b.dataset.npBound = "1";
@@ -1720,6 +1747,7 @@ function sendLine() {
     row[4] = { name: window._wxQuote.name, text: window._wxQuote.text };
   chatData[chatId].push(row);
   window._wxQuote = null;
+  try { if (typeof window.collectUserInput === "function") window.collectUserInput("wx_chat", { chat: chatId, text: line }); } catch (e) {}
   renderQuoteBar();
   window.clearPatience(chatId);
   SS.pendingText = "";

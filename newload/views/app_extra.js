@@ -889,6 +889,7 @@ window.sendSms = function () {
   if (sc) sc.scrollTop = sc.scrollHeight;
   if (typeof sfx === "function") sfx("send");
   if (typeof vib === "function") vib(8);
+  try { if (typeof window.collectUserInput === "function") window.collectUserInput("sms", { to_who: data.name || "", text: t }); } catch (e) {}
 };
 
 VIEWS.weather = () => {
@@ -1429,6 +1430,7 @@ window.saveNote = function () {
   }
   show("notes", "pop");
   toastDev("备忘录已保存");
+  try { if (typeof window.collectUserInput === "function") window.collectUserInput("note", { title: title, body: body }); } catch (e) {}
 };
 window.deleteNote = function (idx) {
   const doDelete = function () {

@@ -1,8 +1,68 @@
 ﻿# HANDOVER ·「橙粉色捡起来」捡手机网页
 
-> 更新：2026-11-20；当前分支：`main`。旧文档核对基线为 `c6891ae`；本轮功能接续后续提交，具体以 Git 历史为准。
+> 更新：2026-11-21；当前分支：`main`。旧文档核对基线为 `c6891ae`；本轮功能接续后续提交，具体以 Git 历史为准。
 > 远端 `origin` = `mzc:yyl991/MZC.git`。本轮核对本地提交和源码，未重新核验线上部署。
 > **每次完成项目改动，都必须同步更新本文件**，记录实际行为、验证结果与遗留事项；历史细节放 `HANDOVER-ARCHIVE.md`。
+
+## 本轮：日历橙粉渐变 + 玩家自主输入全量收集（2026-11-21，本地）
+
+- 作者需求：①日历日期圈从纯粉改橙粉渐变；②所有能上报的数据全部建表收集，且所有表都要带用户ID（uid）。
+- **日历渐变**（`style.css` 5510+）：`.wx-cal-cell.has::before` 空心圈改 `linear-gradient(135deg,#ffa05c,#ff5f96)` + `mask:radial-gradient` 挖空中心留圆环；`.today::before` 实心圈同款渐变；`.today.has::before` 加 `mask:none` 覆盖成实心。无绿色、橙→粉渐变。
+- **SQL 新表**：`data/survey/supabase_user_inputs.sql`（幂等，未执行/未 push）——5 张表全部带 `time/uid/ip/region`：
+  - `user_wx_chat`(chat,text) 微信聊天；`user_moment_posts`(text,image_count) 朋友圈发帖；`user_sms`(to_who,text)；`user_notes`(title,body)；`user_mails`(to_who,subject,body)。各带 RLS + 匿名 insert policy。`uid` 与 replies/visits/source_survey 同源（getDeviceId），可按 uid 串起同一玩家全部行为。附 nth 现算/分组查询示例。
+- **前端接线**（5 文件，防御式 `typeof`+`try/catch`，失败静默不影响发送/保存）：
+  - `core/app.js`：新增 `window.collectUserInput(kind, fields)`，kind→表映射，复用 REPLY_SB 与 getDeviceId，IP/region 直接读 `sessionStorage.mzc_player_net` 缓存（不额外发请求），POST `/rest/v1/<表>`。
+  - `views/wx_chat.js` sendLine：发消息时 `collectUserInput("wx_chat",{chat:chatId,text:line})`。
+  - `views/wx_moments.js` wxPublishMoment：`("moment_post",{text,image_count:imgs.length})`。
+  - `views/app_extra.js` sendSms：`("sms",{to_who:data.name,text:t})`；saveNote：`("note",{title,body})`。
+  - `views/mail.js` sendMail：`("mail",{to_who,subject,body})`。
+  - 恩仔自由回复仍走原 `collectPlayerReply`→replies 表（AO3 脚本依赖，未动）。
+- 现有 5 张表（replies/visits/moments/source_survey/ao3_messages）本就都带 uid，本轮未改动结构与数据。
+- 验证：5 文件 `node --check` 通过；`npm test` 15/15 全通过（含长期 wx.test.js）；`_日历橙粉效果预览.html` 已同步渐变样式供展示。
+- 版本：ASSET_V + style.css?v → `20261121-input-collect`。
+- 待办：作者在 Supabase Run 新 SQL 后数据自动进来；本轮本地未 push。
+
+## 本轮：查找聊天记录入口直达日历（2026-11-21，本地未push）
+
+- 作者需求调整：不要分类入口那一步了，点「查找聊天记录」直接进「按日期查找」日历界面。
+- 改动（本地，2 文件）：
+  - `views/wx_pages.js`：`wx_chat_info` 里「查找聊天记录」cell 的 onclick 从 `openWxSearch('wx_chat_info', chatId)` 改为 `openWxChatDates('wx_chat_info', chatId)`；`VIEWS.wx_search` 删掉那排分类入口（日期/图片视频/文件/链接）HTML；`openWxChatDates(from, scope)` 增加来源参数，`_wxDateBackTo = from || "wx_chat_info"`、`_wxDateScope = scope || _wxSearchScope || chatId`。全局搜索（放大镜）不受影响。
+  - `core/app.js`：`back()` 增 `wx_chat_dates` 分支 → 返回到 `_wxDateBackTo`（默认聊天信息页）。点某天进聊天（`_chatBackTo=wx_chat_dates`）再返回日历的路径不变。
+- 验证：node --check 两 JS 通过；npm test 全 15 个测试通过。真实浏览器验证见下方（若未记录则以测试为准）。
+- 待办：作者确认效果后再决定升 ASSET_V + push。
+
+## 本轮：按日期查找聊天记录（2026-11-21，本地未push）
+
+- 作者需求：在聊天搜索页仿微信做「按日期查找」日历——点搜索框下方分类里的「日期」进入日历，按当前会话有聊天记录的日期高亮，点某天回到该聊天并定位到那天。给了两张参考图：搜索页（搜索 丞哥 的聊天记录）+ 微信日历页（跨月排布、日一二三四五六表头、有记录日期可点、今天绿圈）。
+- 作者补充：时间跨度很大时**只显示有聊天记录的那几个月**，不铺满中间空月份。
+- 实现（4 文件，本地未 push）：
+  - `views/wx_pages.js`：搜索页 `VIEWS.wx_search` 在有 scope（单会话搜索）时于搜索框下加分类行（日期/图片视频/文件/链接，后三项 toastDev 占位）；新增 `calendarGlyph()` SVG；新增 `wxChatDateMap(id)`（扫 chatData 的 date 标记 → Map(key=`y-m-d`→当天首条消息下标)，用 parseChatDate 解析）；`window.openWxChatDates()` 设 `_wxDateScope`/`_wxDateBackTo` 后 push("wx_chat_dates")；`VIEWS.wx_chat_dates` 日历页——只取有记录的月份倒序（最新月在上）、每月完整网格（周日=0 起始）、有记录日期 `.has`（黑字+绿点，onclick `wxGotoChatDate`）、今天 `.today`（绿圈白字）、顶部「X · N 天有聊天记录」；`window.wxGotoChatDate(key)` 设 chatId/`_chatBackTo=wx_chat_dates`/`_wxJumpDate=key` 后 push("chat")。
+  - `views/wx_chat.js`：`chatMsgs()` 给每个日期段首条消息的 `.wx-dpill` 加 `id="wx-date-y-m-d"`（Set 去重避免重复 id）；`VIEWS.chat.init` 检测 `_wxJumpDate`，用双 rAF + 320ms setTimeout 把 `#msgs` 滚到对应锚点（`el.offsetTop - box.offsetTop - 8`），随后清标记。
+  - `core/app.js`：PARENT 加 `wx_chat_dates: "wx_search"`（back 从日历回搜索）。
+  - `style.css` 末尾追加 `.wx-search-cats/.wx-search-cat*` 分类样式 + `.wx-cal-*` 日历样式（绿点/绿圈用 ::after/::before）。
+- 返回栈：聊天(`_chatBackTo`)→日历(PARENT)→搜索，实测完整。
+- 验证：node --check 三 JS 通过；npm test 全 15 个测试通过；真实 Chrome CDP：搜索页分类 4 项渲染✓；日历页 3 个月（2026年9/10/11，与参考图一致）、3 天有记录、今天绿圈 1 个✓；点 2026-9-15 → 进丞哥聊天、锚点存在、滚动定位到那天✓；返回栈三级完整✓。
+- **注意**：本轮全程本地改动未 push、未升 ASSET_V；封面截图因 CDP 连到旧 target 拍到主屏（DOM 校验为准，功能无误）。作者曾反馈"所有 app 打不开"——排查确认本地 8 个 app 实测均能打开，非本轮改动所致（openApp 仅在 view=home 生效，测试脚本在子页连调导致误判）。
+- 待办：作者确认效果后再决定升 ASSET_V + push。
+
+## 本轮：SQL 脚本整理（2026-11-21）
+
+- `data/survey/supabase_ao3_messages.sql`：AO3 玩家留言快照表幂等脚本，加 `nth`（该玩家第几条回复，来自 `replies_numbered` 视图）、从视图取 nth + replies 补 ip/region、`delete` 先清空再重灌。
+- `data/survey/supabase_moments_comments.sql`：朋友圈评论表——建 `moments`（time/ip/region/uid/post/content，post=「朋友圈主人｜正文前60字」全角｜U+FF5C），按作者要求加 `nth`（与 replies 同款：add column + `moments_numbered` 视图 row_number + `set_moment_nth()` 触发器 security definer + 历史回填）；明细视图 `moments_comment_detail`（含 nth）、汇总视图 `moments_comment_summary`。作者自己在 Supabase Run；客户端上报字段不变、nth 由触发器生成。
+- 汇总视图 `moments_comment_summary` 加一栏 `commenter_ids`：`string_agg(distinct uid, '、' order by uid)`，列出该条朋友圈所有回复者设备ID（去重）。因为该视图按朋友圈分组、一条朋友圈可能多人评论，故用聚合列；只改这一个视图定义，表/明细视图/数据不动。
+- **修复 42P16**：作者重跑脚本报错 `cannot change name of view column "time" to "nth"`——因旧版 detail 视图第一列是 time、新版加了 nth 在首位，CREATE OR REPLACE VIEW 不允许改已有列顺序/名字。解决：脚本开头加第 0 步 `drop view if exists`（逆依赖顺序 summary→detail→numbered）再重建，drop 视图不影响底层表/数据、幂等。
+- 均为本地 SQL 文件，未执行、未 push。
+
+## 本轮：AO3 双引流链接代发（2026-11-21）
+
+- 作者需求：AO3 引流链接有时打不开，放两个（原 `https://cgcgdsg.cc.cd/` + 新 `https://mzc1116.cc.cd/`），说明「两个链接是同一个游戏，哪个打得开用哪个，左边加载快一些」；不用①②编号；两个按钮横排、等宽、居中、UI 不变。
+- 本地改：`_ao3_build.js`/`_ao3_moments_build.js` promo 块 + CSS；导出目录 `C:/Users/53184/WorkBuddy/2026-11-17-21-04-27/ao3-export/` 的 chapter.html(11章)/preview.html/preview_moments.html + 3 个 CSS（图片 CDN 链接一个没动）。
+- AO3 线上代发：用保活调试浏览器（系统代理，不带 --proxy-server）登录作者账号 gujigujiji，作品《在穆祉丞19岁生日前夜捡到了用户小纸团的手机》id 96077076 共 12 章，每章文末精确替换 1 处 promo（+142/+8 字符校验）；Work Skin id 19503626 补 `.mzc-promo-note` 样式。遇 AO3 "Retry later" 限流，退避重试后 12 章全部发布成功，终检每章 newLink=1/newText=1。
+- 未 push（本地导出文件）；AO3 线上已公开发布完成。
+
+## 本轮：朋友圈评论 owner 修复（已 push 41e7e7f）
+
+- `views/wx_moments.js:204`：collectMomentReply 第一参由 `chatId`（主页主人）改为 `post.author || chatId`（真实朋友圈作者），修信息流里不同作者朋友圈评论被记成同一人的 bug。`index.html` ASSET_V→`20261121-moment-owner`。语法 OK、15 测试全通过、push 成功。
 
 ## 本轮：微博按游戏时间到点发布 + 到点提醒横幅（2026-11-21，本地未push）
 

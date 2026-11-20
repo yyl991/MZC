@@ -5476,3 +5476,109 @@ svg {
   text-align: center;
   color: #8c7b82; /* 偏暗的粉灰色 */
 }
+
+/* ===== 查找聊天记录：分类入口（仿微信） ===== */
+.wx-search-cats {
+  display: flex;
+  background: #fff;
+  border-bottom: .5px solid #ededed;
+  padding: 14px 8px 12px;
+  flex: none;
+}
+.wx-search-cat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #333;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.wx-search-cat:active { opacity: .6; }
+.wx-search-cat-ic {
+  width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  background: #f2f2f2;
+  color: #07c160;
+  border-radius: 12px;
+  font-size: 22px;
+}
+.wx-search-cat-ic svg { width: 24px; height: 24px; }
+
+/* ===== 按日期查找（仿微信日历） ===== */
+.wx-cal-page { background: #ededed; }
+.wx-cal-scroll { background: #fff; }
+.wx-cal-tip {
+  padding: 14px 16px 10px;
+  font-size: 12px;
+  color: #999;
+  background: #f7f7f7;
+}
+.wx-cal-month { padding: 6px 12px 12px; }
+.wx-cal-month-h {
+  font-size: 13px;
+  color: #b2b2b2;
+  padding: 14px 4px 10px;
+}
+.wx-cal-week, .wx-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+.wx-cal-week span {
+  text-align: center;
+  font-size: 12px;
+  color: #bbb;
+  padding: 6px 0;
+}
+.wx-cal-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  font-size: 15px;
+  color: #111;
+  cursor: default;
+}
+.wx-cal-cell.empty { cursor: default; }
+.wx-cal-cell.has { cursor: pointer; color: #111; }
+.wx-cal-cell.has:active { opacity: .65; }
+/* 有记录的日期：橙→粉渐变空心圈（mask 挖空中心，渐变只留圆环） */
+.wx-cal-cell.has::before {
+  content: "";
+  position: absolute;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffa05c, #ff5f96);
+  -webkit-mask: radial-gradient(circle at center, transparent 0 12.5px, #000 13px);
+          mask: radial-gradient(circle at center, transparent 0 12.5px, #000 13px);
+  box-sizing: border-box;
+  z-index: 0;
+}
+.wx-cal-cell.today {
+  color: #fff;
+  font-weight: 600;
+}
+/* 今天：橙→粉渐变实心圆圈 */
+.wx-cal-cell.today::before {
+  content: "";
+  position: absolute;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffa05c, #ff5f96);
+  border: none;
+  z-index: 0;
+}
+/* 今天若也有记录：渐变实心覆盖渐变空心圈（去掉 mask） */
+.wx-cal-cell.today.has::before {
+  background: linear-gradient(135deg, #ffa05c, #ff5f96);
+  -webkit-mask: none; mask: none;
+}
+.wx-cal-cell.today { z-index: 1; }
+/* 让数字盖在渐变圈上 */
+.wx-cal-cell.today { text-shadow: none; isolation: isolate; }
+.wx-cal-cell.today::before { z-index: -1; }
+/* 日期分隔锚点高亮（跳转后短暂提示，纯透明不影响原样式） */
+.wx-dpill[id^="wx-date-"] { scroll-margin-top: 8px; }

@@ -115,7 +115,7 @@ const cover = `<div class="mzc-mom-cover"><span class="mzc-mom-shade"></span><sp
 const body = `<div class="mzc-mom-body">${cover}${all.map(renderPost).join('')}</div>`;
 const home = `<div class="mzc-homebar"></div>`;
 const phone = `<div class="mzc-phone mzc-mom-phone"><div class="mzc-screen">${status}${nav}${body}${home}</div></div>`;
-const promo = `<div class="mzc-promo"><span class="mzc-promo-line">ao3功能有限仅存档捡手机聊天记录部分，可互动版本需打开网页版↓</span><a class="mzc-promo-btn" href="https://cgcgdsg.cc.cd/" target="_blank" rel="noreferrer">进入完整捡手机小游戏</a></div>`;
+const promo = `<div class="mzc-promo"><span class="mzc-promo-line">ao3功能有限仅存档捡手机聊天记录部分，可互动版本需打开网页版↓</span><span class="mzc-promo-note">（两个链接是同一个游戏，哪个打得开用哪个，左边加载快一些）</span><span class="mzc-promo-btns"><a class="mzc-promo-btn" href="https://cgcgdsg.cc.cd/" target="_blank" rel="noreferrer">进入完整捡手机小游戏</a><a class="mzc-promo-btn" href="https://mzc1116.cc.cd/" target="_blank" rel="noreferrer">进入完整捡手机小游戏</a></span></div>`;
 const chapter = `<div class="mzc-root">${phone}${promo}</div>`;
 
 // ---------- 6. Work Skin CSS 追加朋友圈样式 ----------

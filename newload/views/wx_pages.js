@@ -95,7 +95,7 @@ VIEWS.wx_chat_info = () => {
         </div>
       </div>
       <div style="background:#fff;margin-top:8px;">
-        ${wxCell("查找聊天记录", `<span style="color:#999;font-size:13px;">${msgCount} 条</span><span class="wx-cell-chev">${G.chevR}</span>`, "openWxSearch('wx_chat_info', chatId)")}
+        ${wxCell("查找聊天记录", `<span style="color:#999;font-size:13px;">${msgCount} 条</span><span class="wx-cell-chev">${G.chevR}</span>`, "openWxChatDates('wx_chat_info', chatId)")}
         ${wxCell("拍一拍记录", `<span class="wx-cell-chev">${G.chevR}</span>`, "openWxPatHistory()")}
         ${wxCell("消息免打扰", `<button class="sw ${s.mute ? "on" : ""}" onclick="wxToggleChatSetting('mute',this)"></button>`)}
         ${wxCell("置顶聊天", `<button class="sw ${s.top ? "on" : ""}" onclick="wxToggleChatSetting('top',this)"></button>`)}
@@ -240,6 +240,100 @@ VIEWS.wx_search = () => {
         if (i) i.focus();
       }, 100);
     },
+  };
+};
+
+/* ================= 按日期查找聊天记录（仿微信「按日期查找」日历） ================= */
+// 小红书/微信风格日历字形，避免依赖具体图标资源
+function calendarGlyph() {
+  return `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>`;
+}
+// 收集当前会话里「有消息的日期」-> Set( "y-m-d" )，并给出日期范围
+function wxChatDateMap(id) {
+  const arr = chatData[id] || [];
+  const map = new Map(); // key -> 当天第一条消息在数组里的下标
+  let curKey = null;
+  arr.forEach((m, idx) => {
+    if (m[1] === "date") {
+      const p = typeof parseChatDate === "function" ? parseChatDate(m[0]) : null;
+      curKey = p ? `${p.y}-${p.m}-${p.d}` : null;
+      return;
+    }
+    if (curKey != null && !map.has(curKey)) map.set(curKey, idx);
+  });
+  return map;
+}
+window.openWxChatDates = function (from, scope) {
+  // 从聊天信息页进入时显式传入 scope（当前会话）；否则回退到搜索 scope / 当前 chatId
+  window._wxDateScope = scope || window._wxSearchScope || chatId || "";
+  if (!window._wxDateScope) return toastDev();
+  window._wxDateBackTo = from || "wx_chat_info";
+  push("wx_chat_dates");
+};
+window.wxGotoChatDate = function (key) {
+  const id = window._wxDateScope;
+  if (!id) return;
+  chatId = id;
+  window._chatBackTo = "wx_chat_dates";
+  window._wxJumpDate = key; // chat.init 里据此定位
+  push("chat");
+};
+VIEWS.wx_chat_dates = () => {
+  const id = window._wxDateScope || "";
+  const map = wxChatDateMap(id);
+  // 今天是游戏内的"今天"
+  const tp = (typeof parseChatDate === "function" && parseChatDate(gameTodayLabel())) || {
+    y: 2026, m: 11, d: 15,
+  };
+  const todayKey = `${tp.y}-${tp.m}-${tp.d}`;
+  // 只显示「有聊天记录」的那几个月（跨度大时不铺满中间空月份）
+  const keys = [...map.keys()];
+  const seenM = new Set();
+  const months = [];
+  keys.forEach((k) => {
+    const [y, m] = k.split("-").map(Number);
+    const mk = `${y}-${m}`;
+    if (seenM.has(mk)) return;
+    seenM.add(mk);
+    months.push({ y, m });
+  });
+  // 倒序：最新的月份在最上面
+  months.sort((a, b) => b.y - a.y || b.m - a.m);
+
+  const WEEK = ["日", "一", "二", "三", "四", "五", "六"];
+  let calHtml = "";
+  months.forEach(({ y, m }) => {
+    const firstDow = new Date(Date.UTC(y, m - 1, 1)).getUTCDay();
+    const days = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    let cells = "";
+    for (let i = 0; i < firstDow; i++) cells += `<span class="wx-cal-cell empty"></span>`;
+    for (let d = 1; d <= days; d++) {
+      const key = `${y}-${m}-${d}`;
+      const has = map.has(key);
+      const isToday = key === todayKey;
+      const cls = ["wx-cal-cell", has ? "has" : "", isToday ? "today" : ""].join(" ");
+      const attr = has ? `onclick="wxGotoChatDate('${key}')"` : "";
+      cells += `<span class="${cls}" ${attr}>${d}</span>`;
+    }
+    calHtml += `<div class="wx-cal-month">
+      <div class="wx-cal-month-h">${y}年${m}月</div>
+      <div class="wx-cal-week">${WEEK.map((w) => `<span>${w}</span>`).join("")}</div>
+      <div class="wx-cal-grid">${cells}</div>
+    </div>`;
+  });
+  const scopeLabel = id ? esc(wxName(id)) : "";
+  return {
+    cls: "wx-list wx-cal-page",
+    html: `
+    <div class="nav solid" style="background:#ededed;border-bottom:.5px solid #dcdcdc;">
+      <button class="nb-back" onclick="back()" style="border:none;background:none;color:#111;cursor:pointer;">${G.chevL}</button>
+      <div class="nb-title" style="opacity:1;">按日期查找</div>
+      <div class="nb-right"></div>
+    </div>
+    <div class="wx-scroll wx-cal-scroll" style="padding-top:98px;">
+      <div class="wx-cal-tip">${scopeLabel} · ${keys.length} 天有聊天记录</div>
+      ${calHtml || `<div class="wx-search-empty">暂无聊天记录</div>`}
+    </div>`,
   };
 };
 

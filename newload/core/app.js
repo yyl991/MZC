@@ -210,6 +210,49 @@ window.collectPlayerReply = function (text) {
   };
   try { window.getPlayerIp(upload); } catch (e) { upload("unknown"); }
 };
+// 玩家自主输入统一上报（微信聊天/朋友圈发帖/短信/备忘录/邮件）——每张表都带 uid
+// kind → Supabase 表：wx_chat / moment_post / sms / note / mail
+// 完全防御式：任何失败静默吞掉，绝不影响发送/保存本身；IP/region 直接读游戏启动已缓存的值，不额外发请求
+window.collectUserInput = function (kind, fields) {
+  var TABLES = {
+    wx_chat: "user_wx_chat",
+    moment_post: "user_moment_posts",
+    sms: "user_sms",
+    note: "user_notes",
+    mail: "user_mails",
+  };
+  var table = TABLES[kind];
+  if (!table) return;
+  try {
+    var time = "";
+    try { time = new Date().toLocaleString("zh-CN", { hour12: false }); } catch (e) {}
+    var uid = "";
+    try { uid = window.getDeviceId(); } catch (e) {}
+    var row = { time: time || "—", uid: uid || "unknown", ip: "unknown", region: "unknown" };
+    Object.keys(fields || {}).forEach(function (k) { row[k] = fields[k]; });
+    try {
+      var cached = JSON.parse(sessionStorage.getItem("mzc_player_net") || "null");
+      if (cached && cached.ip && cached.ip !== "unknown") {
+        row.ip = cached.ip;
+        row.region = cached.region || "unknown";
+      }
+    } catch (e) {}
+    try {
+      if (REPLY_SB.key && (location.protocol === "http:" || location.protocol === "https:")) {
+        fetch(REPLY_SB.url + "/rest/v1/" + table, {
+          method: "POST",
+          headers: {
+            apikey: REPLY_SB.key,
+            Authorization: "Bearer " + REPLY_SB.key,
+            "content-type": "application/json",
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify(row),
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  } catch (e) {}
+};
 window.getMomentReplies = function () {
   try { return JSON.parse(localStorage.getItem("mzc_moment_replies") || "[]"); } catch (e) { return []; }
 };
@@ -586,7 +629,7 @@ function updateHomeBadges() {
   });
 }
 
-const PARENT = { note: "notes", chat: "wechat", moments: "wx_discover", wx_profile: "chat", wx_moments_user: "wx_profile", wx_moments_detail: "wx_moments_user", wx_search: "wechat", wx_scan: "wx_me", wx_chat_info: "chat", wx_moment_compose: "moments", wx_moments_self: "wx_me", wx_contacts_sub: "wx_contacts", wx_services: "wx_me", wx_favorites: "wx_me", wx_settings: "wx_me", settings_about: "settings", settings_display: "settings", settings_wallpaper: "settings", settings_notifications: "settings", note_edit: "notes", mail_compose: "mail", maild: "mail", reel: "instagram", instagram_post: "instagram", screentime: "settings", sms_detail: "sms", weibo: "weibo", weibo_profile: "weibo", weibo_my_posts: "weibo_profile", weibo_artist: "weibo", weibo_supertopic: "weibo_artist", weibo_follow: "weibo_profile", mail_detail: "mail", xianyu: "xianyu", xianyu_me: "xianyu", xianyu_orders: "xianyu_me", bilibili: "bilibili", xhs: "xhs", sms: "sms", recorder: "recorder", privateAlbum: "photos", albumDetail: "photos" };
+const PARENT = { note: "notes", chat: "wechat", moments: "wx_discover", wx_profile: "chat", wx_moments_user: "wx_profile", wx_moments_detail: "wx_moments_user", wx_search: "wechat", wx_chat_dates: "wx_search", wx_scan: "wx_me", wx_chat_info: "chat", wx_moment_compose: "moments", wx_moments_self: "wx_me", wx_contacts_sub: "wx_contacts", wx_services: "wx_me", wx_favorites: "wx_me", wx_settings: "wx_me", settings_about: "settings", settings_display: "settings", settings_wallpaper: "settings", settings_notifications: "settings", note_edit: "notes", mail_compose: "mail", maild: "mail", reel: "instagram", instagram_post: "instagram", screentime: "settings", sms_detail: "sms", weibo: "weibo", weibo_profile: "weibo", weibo_my_posts: "weibo_profile", weibo_artist: "weibo", weibo_supertopic: "weibo_artist", weibo_follow: "weibo_profile", mail_detail: "mail", xianyu: "xianyu", xianyu_me: "xianyu", xianyu_orders: "xianyu_me", bilibili: "bilibili", xhs: "xhs", sms: "sms", recorder: "recorder", privateAlbum: "photos", albumDetail: "photos" };
 const rootOf = (v) => {
   const seen = new Set();
   let root = v;
@@ -733,6 +776,7 @@ function closeApp() {
 }
 function push(id) { show(id, "push"); }
 function back() {
+  if (view === "wx_chat_dates") { const from = window._wxDateBackTo || "wx_chat_info"; return show(from, "pop"); }
   if (view === "wx_search") { const from = window._wxSearchFrom || "wechat"; window._wxSearchScope = ""; return show(from, "pop"); }
   if (view === "wx_scan") { const from = window._wxScanFrom || "wx_me"; return show(from, "pop"); }
   if (view === "chat" && window._chatBackTo) { const from = window._chatBackTo; window._chatBackTo = null; return show(from, "pop"); }
@@ -946,7 +990,7 @@ function renderHomecoming() {
 
     <!-- 传送完成 + 渐变线 保持一行：p1配色 -->
     <div style="display:flex; align-items:center; gap:12px; margin-top:0; margin-bottom:12px;">
-     <span style="font-size: 12px; color: #a77d8a; letter-spacing: 3px; white-space: nowrap; font-weight: 400;">传送完成</span> <div style="flex:1; height:1px; background:linear-gradient(90deg,#533540,transparent);"></div>
+     <span style="font-size: 12px; color: #a77d8a; letter-spacing: 3px; white-space: nowrap; font-weight: 400;">局部宇宙时光机传送完成</span> <div style="flex:1; height:1px; background:linear-gradient(90deg,#533540,transparent);"></div>
     </div>
 
     <!-- 主标题：保持绝对纯白，压住全场 -->
