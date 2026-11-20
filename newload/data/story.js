@@ -265,7 +265,7 @@ var INCOMING = [];
 
   // 传送回家、点继续后发送；独立于催命时间线，不参与旧存档指纹。
   S.homecomingTimeline = [
-    { id: 'enzai-birthday-2026-0', group: 'enzai-birthday-2026', after: 0, from: '恩仔', text: '1111111' },
+    { id: 'enzai-birthday-2026-0', group: 'enzai-birthday-2026', after: 0, from: '恩仔', text: '11111111111' },
     { id: 'enzai-birthday-2026-1', group: 'enzai-birthday-2026', after: 1.5, from: '恩仔', text: '谢谢你今年陪我过生日呀' },
     { id: 'enzai-birthday-2026-2', group: 'enzai-birthday-2026', after: 3, from: '恩仔', text: '以后也陪着我' },
     { id: 'enzai-birthday-2026-3', group: 'enzai-birthday-2026', after: 4.5, from: '恩仔', text: '一直到120岁' },
