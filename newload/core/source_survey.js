@@ -253,7 +253,10 @@
     card.querySelectorAll(".src-opt-img").forEach(function (im) {
       var btn = im.parentNode;
       var fb = btn.querySelector(".src-fallback");
-      im.onload = function () { im.style.opacity = "1"; };
+      function reveal() { im.style.opacity = "1"; }
+      im.onload = reveal;
+      // 图片已预加载/缓存命中时 onload 可能不再触发，用 complete 立即显示，避免一直是 opacity:0
+      if (im.complete && im.naturalWidth > 0) reveal();
       im.onerror = function () {
         if (im.parentNode) im.parentNode.removeChild(im);
         var shade = btn.querySelector(".src-opt-shade");
@@ -385,8 +388,23 @@
     render();
   };
 
+  // 弹窗弹出前预加载全部配图：页面初始化即开始下载，首次弹出时图片已在浏览器缓存中，避免空白方块/延迟
+  function preloadImages() {
+    try {
+      var c = window.SRC_SURVEY;
+      if (!c) return;
+      var urls = [];
+      (c.optionImages || []).forEach(function (u) { if (u) urls.push(u); });
+      if (c.thanksImage) urls.push(c.thanksImage);
+      urls.forEach(function (u) {
+        try { var im = new Image(); im.src = u; } catch (e) {}
+      });
+    } catch (e) {}
+  }
+
   window.initSourceSurvey = function () {
     try {
+      preloadImages(); // 与是否弹窗/是否预览无关，尽早开始下载
       var q = (typeof window.__Q === "function" ? window.__Q() : (location.search || ""));
       if (/[?&]source=1\b/.test(q)) window.mountSourceSurveyViewer();
       // 作者预览：?dev=1&sourcePreview=1 直接弹窗（本机测试用，不影响正式环境）
