@@ -19,7 +19,7 @@ const IGNORE_FILES = new Set([
 
 // 这些 JS 文件要放进 dist，但是【不混淆】（保留明文保证逻辑）
 const SKIP_OBFUSCATION = new Set([
-  "app.js", "story.js", "chat_history.js", "audio.js", "utils.js"
+  "app.js", "story.js", "chat_history.js", "audio.js", "utils.js", "sw.js"
 ]);
 
 function walk(dir, out = []) {

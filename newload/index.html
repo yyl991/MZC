@@ -73,11 +73,19 @@
     <audio id="player" preload="auto"></audio>
     <audio id="bgm" src="./data/app/bgm.mp3" loop preload="auto"></audio>
     
-    <script>
+        <script>
         window.LANG = 'zh';
-        
+
+        // Service Worker：静态资源缓存优先，解决帽子云无缓存头导致头像/图片反复重新加载。
+        // 只缓存同源静态资源，HTML 仍走网络保证更新；注册失败完全不影响主流程。
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                try { navigator.serviceWorker.register('./sw.js').catch(function () {}); } catch (e) {}
+            });
+        }
+
         // 本地测试用，云端构建会自动替换时间戳
-        const ASSET_V = '20261120-dndpet-fast';
+        const ASSET_V = '20261120-asset-cache';
 
         function load(src) {
             return new Promise((res, rej) => {

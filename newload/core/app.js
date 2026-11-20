@@ -293,6 +293,32 @@ document.addEventListener("click", (e) => {
 });
 
 const CFG = window.STORY || {};
+// 头像解码保活：启动时把所有头像预加载成 Image 并全局持有引用，
+// 让浏览器保留解码后的位图。页面切换/聊天刷新会反复销毁重建 <img>，
+// 有了这层保活 + SW 缓存，重复进出微信时头像秒出、不闪白、不走网络。
+window.__avatarKeepAlive = window.__avatarKeepAlive || [];
+(function warmAvatarBitmaps() {
+  try {
+    var roles = CFG.roles || {};
+    var urls = [];
+    Object.keys(roles).forEach(function (k) {
+      if (roles[k] && roles[k].avatar) urls.push(roles[k].avatar);
+    });
+    if (CFG.myAvatar) urls.push(CFG.myAvatar);
+    urls = urls.concat([
+      "./data/avatar/mycover.jpg", "./data/avatar/catcover.jpg",
+      "./data/avatar/mzccover.jpg", "./data/avatar/enencover.jpg"
+    ]);
+    var uniq = [];
+    urls.forEach(function (u) { if (u && uniq.indexOf(u) < 0) uniq.push(u); });
+    uniq.forEach(function (u) {
+      var im = new Image();
+      im.decoding = "async";
+      im.src = u;
+      window.__avatarKeepAlive.push(im); // 保持强引用，防止被 GC 回收解码缓存
+    });
+  } catch (e) {}
+})();
 const SS = window.STORY_STATE || {};
 if (!SS.fired) SS.fired = new Set();
 if (!SS.fragments) SS.fragments = new Set();
