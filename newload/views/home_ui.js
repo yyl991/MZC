@@ -249,7 +249,8 @@
 
   window.renderHome = function () {
     const bgm = document.getElementById("bgm");
-    if (bgm) bgm.loop = typeof SS !== "undefined" && !!SS.homecoming;
+    // BGM 始终原生循环，不再按剧情阶段关掉 loop（关掉后靠 onended 重播在移动端会停）。
+    if (bgm) bgm.loop = true;
     const isPlaying = bgm && !bgm.paused;
 
     const todayD = typeof gameTodayDay === "function" ? gameTodayDay() : 15;

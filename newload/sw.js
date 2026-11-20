@@ -13,8 +13,10 @@
 
 var CACHE = "mzc-static-v1";
 
-// 只缓存这些后缀的静态资源
-var ASSET_RE = /\.(png|jpe?g|gif|webp|svg|ico|bmp|mp3|wav|m4a|ogg|aac|woff2?|ttf|otf|css|js)(\?|$)/i;
+// 只缓存这些后缀的静态资源。
+// 注意：音频(mp3/wav/m4a…)故意不缓存——音频走 HTTP Range 分段请求，SW 用整份响应
+// 拦截会破坏 seek/循环；而且音频体积大，缓存它收益低还可能干扰播放。交给浏览器原生缓存。
+var ASSET_RE = /\.(png|jpe?g|gif|webp|svg|ico|bmp|woff2?|ttf|otf|css|js)(\?|$)/i;
 
 self.addEventListener("install", function () {
   // 新版本 SW 立即接管，不用等旧页面全部关闭

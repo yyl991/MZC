@@ -16,6 +16,7 @@ async function run() {
   const { sb, bgm, voice } = create();
   sb.tryStartBGM(); await Promise.resolve();
   assert.strictEqual(bgm.src, "./data/app/bgm.mp3");
+  assert.strictEqual(bgm.loop, true); // 普通游戏阶段也原生循环，播完不停
   assert.strictEqual(bgm.loads, 0);
   sb.SS.homecoming = { phase: "transferred" };
   sb.tryStartBGM(); await Promise.resolve();

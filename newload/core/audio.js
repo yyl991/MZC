@@ -65,8 +65,10 @@ window.syncBackgroundTrack = function () {
   }
   bgm.dataset.storyTrack = source;
 
-  // 传送幕和到家探索都循环播；普通游戏过程保持原来的循环设置
-  bgm.loop = phase === "transferred" || phase === "exploring";
+  // BGM 始终原生循环：HTML 里 <audio loop> 本来就是循环，之前被这里关掉、
+  // 改靠 renderHome() 里的 onended 手动重播，但 onended 只绑一次、且回调里的
+  // play() 在移动端会被自动播放策略拦截 → 播完一遍就停。统一用 loop=true 彻底根治。
+  bgm.loop = true;
 
   return bgm;
 };
