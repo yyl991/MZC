@@ -101,7 +101,7 @@
       var bubbleContent = isSpecial
         ? '<div style="font-size:11.5px;color:#3a3034;line-height:1.6;">' + escS(CFG.specialLine1) + '</div>' +
           '<div style="font-size:11.5px;color:#3a3034;font-weight:700;line-height:1.6;margin-top:5px;">' + escS(CFG.specialLine2) + '</div>'
-        : '<div style="font-size:14px;font-weight:800;color:#3a3034;line-height:1.4;">' + escS(CFG.line1) + '</div>' +
+        : '<div style="font-size:12px;color:#3a3034;line-height:1.55;">' + escS(CFG.line1) + '</div>' +
           '<div style="font-size:12px;color:#3a3034;line-height:1.55;margin-top:6px;">' + escS(CFG.line2) + '</div>' +
           '<div style="font-size:12.5px;color:#3a3034;font-weight:700;line-height:1.5;margin-top:2px;">' + escS(CFG.line3) + '</div>';
       // 椭圆气泡：宽大于高；special 文案多所以整体大一点
