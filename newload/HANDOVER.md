@@ -1,8 +1,15 @@
 ﻿# HANDOVER ·「橙粉色捡起来」捡手机网页
 
-> 更新：2026-11-14；当前分支：`main`。旧文档核对基线为 `c6891ae`；本轮功能接续后续提交，具体以 Git 历史为准。
+> 更新：2026-11-20；当前分支：`main`。旧文档核对基线为 `c6891ae`；本轮功能接续后续提交，具体以 Git 历史为准。
 > 远端 `origin` = `mzc:yyl991/MZC.git`。本轮核对本地提交和源码，未重新核验线上部署。
 > **每次完成项目改动，都必须同步更新本文件**，记录实际行为、验证结果与遗留事项；历史细节放 `HANDOVER-ARCHIVE.md`。
+
+## 本轮：桌面文件夹纳入返回栈（2026-11-20）
+
+- 作者反馈 bug：从桌面文件夹点开 App 后返回直接落桌面，期望「先退回文件夹、再退一次才回桌面」。根因：文件夹面板是 `home_ui.js` 的 wgroup 遮罩，打开时全局 `view` 仍是 `"home"`；面板内 App 原 onclick 是 `openApp();closeWgroup()` 直接丢掉文件夹层，`closeApp()` 回 home 时也没有文件夹信息。
+- 实现（`views/home_ui.js` + `core/app.js`）：把文件夹做成真正的返回层级。① 面板内 App 按钮改调 `openWgroupApp(id,el,kind)`，先记 `wgroupBackKind`（来源文件夹 tools/media），再 `openApp` + `closeWgroup`（保持先量 rect 再收面板的动画顺序）；② 暴露 `isWgroupOpen()` / `takeWgroupBackKind()` 给 app.js；③ `closeApp()` 回 home 时若取到 backKind 则 `openWgroup(null,backKind)` 先恢复文件夹面板，再退才回桌面；④ 新增 `closeWgroupPanels()`，小白条 `hbAction`、`goBack`（键盘 Backspace/右键/浏览器返回）、`edgeBack` 左滑、`hbAction` 的 home 分支在面板打开时先收面板（原来 home 状态这些入口不处理面板）。
+- 关键：来源标记只在从面板点 App 时写入、`closeApp` 时清空，正常主屏打开的 App 返回不受影响；面板 `style.display` 与 class 恢复均由既有 openWgroup/closeWgroup 管理，不改动画。
+- 验证：node --check 双文件通过；npm test 基线 14/15（仅既有 wx.test.js 失败，无关）；真实 Chrome CDP 全链路：点「实用工具」面板开(labels=天气/日历/设置/时钟)、点设置进 App(view=settings)、返回一次回文件夹(panelOpen:true 截图确认)、再返回回桌面(panelOpen:false)；`那个用`文件夹按钮完好。ASSET_V 升 `20261120-folder-back`。已 commit+push。
 
 ## 本轮试验：零点强制传送回家
 

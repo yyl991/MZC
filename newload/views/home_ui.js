@@ -16,11 +16,23 @@
   let isVinylLoopRunning = false;
   let wgroupOpenState = false;
   let wgroupOpenKind = "tools";
+  let wgroupBackKind = ""; // 从文件夹里的 App 返回时要回到的文件夹 kind
+
+  // 从文件夹面板点开 App：记下来源文件夹，先 openApp（面板可见时量到中心 rect），再收面板。
+  // 返回时 app.js 的 closeApp() 会读 wgroupBackKind，先退回这个文件夹，再退才回桌面。
+  window.openWgroupApp = function (id, el, kind) {
+    wgroupBackKind = kind || "tools";
+    try { openApp(id, el); } catch (e) {}
+    closeWgroup();
+  };
+  // 供 app.js 的返回逻辑查询：面板是否开着 / 取走并返回本次的文件夹来源
+  window.isWgroupOpen = function () { return !!wgroupOpenState; };
+  window.takeWgroupBackKind = function () { const k = wgroupBackKind; wgroupBackKind = ""; return k; };
 
   function wgroupPanelHTML(kind) {
     const apps = kind === "media" ? [["photos", "照片"], ["recorder", "录音"]] : [["weather", "天气"], ["calendar", "日历"], ["settings", "设置"], ["clock", "时钟"]];
     return apps.map(([id, label]) => `
-            <button class="app" onclick="openApp('${id}',this.firstElementChild);closeWgroup()">
+            <button class="app" onclick="openWgroupApp('${id}',this.firstElementChild,'${kind}')">
         <div class="icon"><div class="ic">${appIcon(id)}</div></div>
         <span class="lbl">${label}</span>
       </button>`).join("");

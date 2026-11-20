@@ -657,6 +657,16 @@ function zoomFrames(r) {
   const W = SCREEN.clientWidth, H = SCREEN.clientHeight, s = r.w / W, iy = Math.max(0, (H - r.h / s) / 2), dx = r.x + r.w / 2 - W / 2, dy = r.y + r.h / 2 - H / 2;
   return [{ transform: `translate(${dx}px,${dy}px) scale(${s})`, clipPath: `inset(${iy}px 0px round ${15 / s}px)`, opacity: 0.25 }, { transform: "translate(0px,0px) scale(1)", clipPath: `inset(0px 0px round ${devRadius()}px)`, opacity: 1 }];
 }
+// 文件夹面板「再退一次」：面板开着时先收面板回桌面，返回是否真的收了
+function closeWgroupPanels() {
+  try {
+    if (typeof window.isWgroupOpen === "function" && window.isWgroupOpen() && typeof window.closeWgroup === "function") {
+      window.closeWgroup();
+      return true;
+    }
+  } catch (e) {}
+  return false;
+}
 function openApp(id, el) {
   if ((typeof callState !== "undefined" && callState) || view !== "home" || !VIEWS[id]) return;
   try { if (typeof window.maybeShowSourceSurvey === "function") window.maybeShowSourceSurvey(id); } catch (e) {}
@@ -672,7 +682,13 @@ function closeApp() {
   if ((typeof callState !== "undefined" && callState) || ["home", "lock", "pin"].includes(view)) return;
   if (view === "recorder" && PLAYER.dataset.isRecorder) PLAYER.pause();
   const root = rootOf(view); if (PLAYER.dataset.voice) PLAYER.pause();
+  // 若这个 App 是从桌面文件夹点进来的，退回时先恢复文件夹面板，而不是直接落到裸桌面。
+  let backKind = "";
+  try { if (typeof window.takeWgroupBackKind === "function") backKind = window.takeWgroupBackKind() || ""; } catch (e) {}
   view = "home"; renderHome(); HOME.style.visibility = "visible"; setStatus(true);
+  if (backKind && typeof window.openWgroup === "function") {
+    try { window.openWgroup(null, backKind); } catch (e) {}
+  }
   const icon = HOME.querySelector(`.app[data-app="${root}"] .icon`) || HOME.querySelector(`.wapp[data-app="${root}"]`); const r = icon ? relRect(icon) : { x: 166, y: 396, w: 60, h: 60 };
   const tok = ++animTok; APP.getAnimations().forEach((a) => a.cancel());
   const a = APP.animate(zoomFrames(r).reverse(), { duration: 460, easing: "cubic-bezier(.3,.75,.2,1)", fill: "forwards" });
@@ -697,7 +713,10 @@ function hbAction() {
   const vw = OV.querySelector(".viewer"); if (vw) return closeViewer();
   if (OV.querySelector(".np")) return closeNP();
   if (view === "lock") return goPin(); if (view === "pin") return;
-  if (view === "home") return HOME.animate([{ transform: "none" }, { transform: "scale(.97)" }, { transform: "none" }], 250);
+  if (view === "home") {
+    if (closeWgroupPanels()) return;
+    return HOME.animate([{ transform: "none" }, { transform: "scale(.97)" }, { transform: "none" }], 250);
+  }
   closeApp();
 }
 (function hbGesture() {
@@ -708,7 +727,9 @@ function hbAction() {
 (function edgeBack() {
   let x0 = null, y0 = 0, pg = null, isDragging = false, startTime = 0;
   SCREEN.addEventListener("pointerdown", (e) => {
-    const r = SCREEN.getBoundingClientRect(); const x = (e.clientX - r.left) / SC; if (!PARENT[view] || x > 25) return;
+    const r = SCREEN.getBoundingClientRect(); const x = (e.clientX - r.left) / SC;
+    const wgroupOpen = view === "home" && typeof window.isWgroupOpen === "function" && window.isWgroupOpen();
+    if ((!PARENT[view] && !wgroupOpen) || x > 25) return;
     x0 = e.clientX; y0 = e.clientY; pg = APP.lastElementChild; isDragging = true; startTime = Date.now(); if (pg) pg.style.transition = "none";
   });
   SCREEN.addEventListener("pointermove", (e) => {
@@ -717,13 +738,19 @@ function hbAction() {
   SCREEN.addEventListener("pointerup", (e) => {
     if (!isDragging || x0 === null) return; isDragging = false; const dx = (e.clientX - x0) / SC; const timeTaken = Date.now() - startTime; const velocity = dx / timeTaken; x0 = null;
     if (pg) { pg.style.transition = "transform 0.3s cubic-bezier(0.2, 0.9, 0.25, 1)"; pg.style.transform = ""; }
-    if (dx > 90 || velocity > 0.5) { back(); }
+    if (dx > 90 || velocity > 0.5) {
+      if (view === "home") closeWgroupPanels(); else back();
+    }
   });
 })();
 function goBack() {
   if (typeof callState !== "undefined" && callState) return;
   if (OV.querySelector(".viewer")) return closeViewer(); if (OV.querySelector(".np")) return closeNP();
-  if (["lock", "pin", "home"].includes(view)) { if (view === "pin") pinCancel(); return; }
+  if (["lock", "pin", "home"].includes(view)) {
+    if (view === "home" && closeWgroupPanels()) return;
+    if (view === "pin") pinCancel();
+    return;
+  }
   back();
 }
 function updateCrumb() { const on = !["lock", "pin", "home"].includes(view) && !(typeof callState !== "undefined" && callState); $("#sb").classList.toggle("crumb", on); }
