@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" href="style.css?v=20261121-input-collect">
     <style>
-    @keyframes mzc-tip-blink { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+    @keyframes mzc-tip-blink { 0%,100% { color:#ff9a76; opacity:1; } 50% { color:#ff5f96; opacity:.6; } }
     </style>
 </head>
 
@@ -146,19 +146,8 @@
                     await new Promise(r => setTimeout(r, minDisplayTime - elapsedTime));
                 }
 
-                // 5. 只有第一次游玩才显示「游玩小贴士」：展示即写 localStorage 标记（防止没读完就刷新反复出现）
-                const TIPS_KEY = 'mzc_boot_tips_seen';
-                let q = '';
-                try { q = (typeof window.__Q === 'function' ? window.__Q() : (location.search || '')); } catch (e) { q = location.search || ''; }
-                const tipsPreview = /[?&]tipsPreview=1\b/.test(q); // 作者重看：强制显示且不写标记
-                const tipsReset = /[?&]tipsReset=1\b/.test(q);     // 作者重置：清掉标记，下次重进当第一次
-                if (tipsReset) { try { localStorage.removeItem(TIPS_KEY); } catch (e) {} }
-                let tipsSeen = false;
-                try { tipsSeen = localStorage.getItem(TIPS_KEY) === '1'; } catch (e) {}
-                const showTips = !tipsSeen || tipsPreview;
-
-                if (showTips) {
-                    if (!tipsPreview) { try { localStorage.setItem(TIPS_KEY, '1'); } catch (e) {} }
+                // 5. 每次进入都显示「游玩小贴士」（常驻，不再只在首次显示）
+                {
                     // 两处遮罩的 wait 淡出、tips 淡入（水印不动，全程在线）
                     [['ov-wait','ov-tips'], ['bt-wait','bt-tips']].forEach(([wId, tId]) => {
                         const w = document.getElementById(wId);
@@ -170,7 +159,7 @@
                             t.style.opacity = '1';
                         }
                     });
-                    // 第二屏停留约 15 秒；心急的玩家点一下黑屏即可提前结束，直接进入锁屏
+                    // 第二屏停留约 19 秒；心急的玩家点一下黑屏即可提前结束，直接进入锁屏
                     await new Promise(resolve => {
                         let done = false;
                         let timer = null;
@@ -181,7 +170,7 @@
                             document.removeEventListener('click', finish, true);
                             resolve();
                         };
-                        timer = setTimeout(finish, 15000);
+                        timer = setTimeout(finish, 19000);
                         document.addEventListener('click', finish, true);
                     });
                 }
